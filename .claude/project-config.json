@@ -1,0 +1,46 @@
+{
+  "projectType": "forms",
+  "description": "Project configuration - modify based on your project needs",
+  "projectTypes": {
+    "forms": "Form-heavy application with data collection",
+    "app": "General web application",
+    "landing": "Marketing landing pages",
+    "api": "API-only backend",
+    "ecommerce": "Online store"
+  },
+  "features": {
+    "forms": true,
+    "prepopulation": true,
+    "fieldRegistry": true,
+    "hipaaCompliance": false,
+    "gdprCompliance": false,
+    "fieldRegistryPath": "references/common-fields/contact.json"
+  },
+  "security": {
+    "piiProtection": "strict",
+    "auditLogging": true,
+    "encryption": {
+      "atRest": true,
+      "inTransit": true,
+      "fieldLevel": ["ssn", "dob", "medical_info", "credit_card"]
+    },
+    "dataRetention": {
+      "pii": 90,
+      "auditLogs": 2555,
+      "analytics": 365
+    }
+  },
+  "tracking": {
+    "enabledProviders": ["google", "facebook", "tiktok"],
+    "cookieCapture": true,
+    "deviceFingerprinting": true,
+    "ipGeolocation": true
+  },
+  "compliance": {
+    "mode": "standard",
+    "availableModes": ["standard", "hipaa", "gdpr", "pci"],
+    "consentRequired": true,
+    "rightToDelete": false,
+    "dataPortability": false
+  }
+}

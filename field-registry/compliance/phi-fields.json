@@ -1,0 +1,101 @@
+{
+  "description": "Fields containing Protected Health Information requiring HIPAA compliance",
+  "categories": {
+    "identifiers": {
+      "description": "HIPAA Safe Harbor identifiers that must be removed",
+      "encryption": "field",
+      "retention": 2555,
+      "auditLog": true,
+      "fields": [
+        "patient_name",
+        "medical_record_number",
+        "health_plan_number",
+        "account_number",
+        "certificate_license_number",
+        "vehicle_identifiers",
+        "device_identifiers",
+        "biometric_identifiers",
+        "face_photos",
+        "identifying_numbers"
+      ]
+    },
+    "medical_information": {
+      "description": "Clinical and health data",
+      "encryption": "field",
+      "retention": 2555,
+      "auditLog": true,
+      "fields": [
+        "diagnosis",
+        "diagnosis_code",
+        "procedure",
+        "procedure_code",
+        "medication",
+        "prescription",
+        "lab_results",
+        "vital_signs",
+        "medical_history",
+        "treatment_notes",
+        "allergies",
+        "immunizations",
+        "genetic_information"
+      ]
+    },
+    "dates": {
+      "description": "Dates related to health information",
+      "encryption": "field",
+      "retention": 2555,
+      "fields": [
+        "admission_date",
+        "discharge_date",
+        "service_date",
+        "date_of_death",
+        "appointment_date",
+        "surgery_date",
+        "lab_date"
+      ]
+    },
+    "contact_info": {
+      "description": "PHI-related contact information",
+      "encryption": "field",
+      "retention": 2555,
+      "fields": [
+        "patient_address",
+        "patient_email",
+        "patient_phone",
+        "emergency_contact",
+        "provider_name",
+        "facility_name"
+      ]
+    }
+  },
+  "hipaa_rules": {
+    "minimum_necessary": "Only access/use/disclose the minimum amount of PHI necessary",
+    "encryption": "Required for all PHI at rest and in transit",
+    "access_controls": "Role-based access with authentication",
+    "audit_trails": "Log all access, modifications, and disclosures",
+    "breach_notification": "Report breaches within 60 days",
+    "data_retention": "Minimum 6 years (7 for some states)",
+    "patient_rights": {
+      "access": "Patients can request their records",
+      "amendment": "Patients can request corrections",
+      "accounting": "Track all disclosures",
+      "restriction": "Honor requested restrictions"
+    }
+  },
+  "technical_safeguards": {
+    "access_control": {
+      "unique_user_identification": true,
+      "automatic_logoff": true,
+      "encryption_decryption": true
+    },
+    "audit_controls": {
+      "hardware_software": true,
+      "audit_logs": true,
+      "audit_review": true
+    },
+    "integrity": {
+      "electronic_phi": true,
+      "transmission_security": true
+    }
+  }
+}

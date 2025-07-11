@@ -1,0 +1,235 @@
+{
+  "description": "Fields specific to healthcare and medical services (HIPAA compliant)",
+  "fields": {
+    "patient_first_name": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "Patient first name",
+      "pii": true,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "auditLog": true,
+      "validation": {
+        "required": true,
+        "minLength": 2,
+        "maxLength": 50
+      }
+    },
+    "patient_last_name": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "Patient last name",
+      "pii": true,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "auditLog": true,
+      "validation": {
+        "required": true,
+        "minLength": 2,
+        "maxLength": 50
+      }
+    },
+    "date_of_birth": {
+      "type": "DATE",
+      "mode": "REQUIRED",
+      "description": "Patient date of birth",
+      "pii": true,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "auditLog": true,
+      "masking": "partial",
+      "validation": {
+        "required": true,
+        "ageMin": 0,
+        "ageMax": 120
+      }
+    },
+    "medical_record_number": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Existing MRN if applicable",
+      "pii": true,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "field",
+      "auditLog": true,
+      "serverOnly": true
+    },
+    "insurance_provider": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Health insurance company",
+      "pii": false,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "transit",
+      "validation": {
+        "enum": ["blue_cross", "aetna", "united", "cigna", "kaiser", "medicare", "medicaid", "other", "none"]
+      }
+    },
+    "insurance_member_id": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Insurance member ID",
+      "pii": true,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "auditLog": true,
+      "masking": "partial"
+    },
+    "primary_condition": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Primary health concern",
+      "pii": false,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "auditLog": true,
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    "medications": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Current medications",
+      "pii": false,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "auditLog": true,
+      "validation": {
+        "maxLength": 1000
+      }
+    },
+    "allergies": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Known allergies",
+      "pii": false,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "auditLog": true
+    },
+    "preferred_contact_method": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "How to contact patient",
+      "pii": false,
+      "phi": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "validation": {
+        "required": true,
+        "enum": ["phone", "email", "text", "mail"]
+      }
+    },
+    "appointment_type": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "Type of appointment requested",
+      "pii": false,
+      "phi": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none",
+      "validation": {
+        "required": true,
+        "enum": ["new_patient", "follow_up", "consultation", "emergency", "telemedicine"]
+      }
+    },
+    "preferred_date": {
+      "type": "DATE",
+      "mode": "NULLABLE",
+      "description": "Preferred appointment date",
+      "pii": false,
+      "phi": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none"
+    },
+    "consent_treatment": {
+      "type": "BOOLEAN",
+      "mode": "REQUIRED",
+      "description": "Consent for treatment",
+      "pii": false,
+      "phi": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "auditLog": true,
+      "validation": {
+        "required": true,
+        "mustBeTrue": true
+      }
+    },
+    "consent_hipaa": {
+      "type": "BOOLEAN",
+      "mode": "REQUIRED",
+      "description": "HIPAA privacy notice acknowledgment",
+      "pii": false,
+      "phi": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "auditLog": true,
+      "validation": {
+        "required": true,
+        "mustBeTrue": true
+      }
+    },
+    "emergency_contact_name": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Emergency contact person",
+      "pii": true,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "auditLog": true
+    },
+    "emergency_contact_phone": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Emergency contact phone",
+      "pii": true,
+      "phi": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "auditLog": true,
+      "masking": "partial"
+    }
+  },
+  "hipaa_requirements": {
+    "encryption": "All PHI must be encrypted at rest and in transit",
+    "access_control": "Role-based access with authentication required",
+    "audit_logging": "All access and modifications must be logged",
+    "minimum_necessary": "Only collect and access minimum necessary PHI",
+    "breach_notification": "60-day breach notification requirement",
+    "retention": "Minimum 6 years, 7 in some states",
+    "patient_rights": {
+      "access": "Patients can request their records within 30 days",
+      "amendment": "Patients can request corrections",
+      "accounting": "Track all disclosures for 6 years",
+      "restriction": "Honor reasonable restriction requests"
+    }
+  }
+}

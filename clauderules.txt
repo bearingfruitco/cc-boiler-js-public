@@ -1,0 +1,214 @@
+# Claude AI Assistant Rules
+
+You are an expert developer working on a modern web application using Next.js 15, TypeScript, and Tailwind CSS.
+
+## Technology Stack Requirements
+
+### Core Technologies (STRICT VERSIONS)
+- **Next.js 15+** with App Router (NEVER use Pages Router)
+- **React 19+** with Server Components by default
+- **TypeScript 5.8+** in strict mode
+- **Tailwind CSS 4+** with new @theme directive
+- **Node.js 22+** runtime
+- **PNPM** package manager (no npm/yarn)
+
+### Database & Backend
+- **Supabase** for PostgreSQL + Auth + Realtime
+- **Drizzle ORM** for type-safe queries
+- **Zod** for validation
+
+### Testing & Quality
+- **Vitest** for unit/integration tests
+- **Playwright** for E2E tests
+- **Biome** for linting/formatting
+
+## Critical Design System Rules
+
+### Typography (ONLY 4 sizes, 2 weights)
+```css
+text-size-1: 32px (28px mobile) - Major headings
+text-size-2: 24px (20px mobile) - Section headers
+text-size-3: 16px - Body text (minimum)
+text-size-4: 12px - Small text/labels
+
+font-regular: 400 - Body text
+font-semibold: 600 - Headers, emphasis
+```
+**NO OTHER SIZES OR WEIGHTS ALLOWED**
+
+### Spacing (4px Grid System ONLY)
+All spacing MUST be divisible by 4:
+- ✅ Use: 4px, 8px, 12px, 16px, 20px, 24px, 32px, 48px
+- ❌ Never: 5px, 10px, 15px, 18px, 25px, 30px, 35px
+
+Tailwind classes: p-1 (4px), p-2 (8px), p-3 (12px), p-4 (16px), etc.
+
+### Color Distribution (60/30/10 Rule)
+- **60% Neutral**: Backgrounds (white, gray-50)
+- **30% Text/UI**: Text, borders, dividers
+- **10% Accent**: CTAs, alerts, highlights
+
+### Mobile-First Requirements
+- Minimum touch targets: 44px height (h-11)
+- Preferred touch targets: 48px height (h-12)
+- Minimum text size: 16px for body content
+- Test everything at 375px width first
+
+## Code Style Guidelines
+
+### React Components
+- Use function components with TypeScript
+- Server Components by default, mark Client Components explicitly
+- Props interfaces above components
+- Destructure props in parameters
+
+```typescript
+interface ButtonProps {
+  label: string;
+  onClick?: () => void;
+  variant?: 'primary' | 'secondary';
+}
+
+export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`h-12 px-4 rounded-xl font-semibold text-size-3 ${
+        variant === 'primary' ? 'bg-primary-600' : 'bg-gray-800'
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+```
+
+### File Organization
+```
+app/
+├── (public)/          # Public routes
+├── (protected)/       # Auth-required routes
+├── api/              # API routes
+components/
+├── ui/               # Reusable UI components
+├── features/         # Feature-specific components
+lib/                  # Utilities and helpers
+hooks/                # Custom React hooks
+types/                # TypeScript types
+```
+
+### API Routes
+Always use named exports:
+```typescript
+export async function GET(request: NextRequest) { }
+export async function POST(request: NextRequest) { }
+```
+
+### Error Handling
+- Always try/catch async operations
+- Provide user-friendly error messages
+- Log errors with context
+- Use proper HTTP status codes
+
+### Performance
+- Use dynamic imports for heavy components
+- Implement proper loading states
+- Optimize images with next/image
+- Use React.memo sparingly and only when needed
+
+## Common Patterns
+
+### Data Fetching (Server Components)
+```typescript
+async function DataComponent() {
+  const data = await fetchData(); // Direct async/await
+  return <div>{data}</div>;
+}
+```
+
+### Form Handling
+```typescript
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+export function Form() {
+  const form = useForm({
+    resolver: zodResolver(schema),
+  });
+  
+  // ... form implementation
+}
+```
+
+### Loading States
+```typescript
+import { Suspense } from 'react';
+
+export default function Page() {
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <AsyncComponent />
+    </Suspense>
+  );
+}
+```
+
+## Authentication Patterns
+
+### Using Better Auth
+```typescript
+import { auth } from '@/lib/auth';
+
+export async function ProtectedRoute() {
+  const session = await auth();
+  
+  if (!session) {
+    redirect('/login');
+  }
+  
+  return <ProtectedContent user={session.user} />;
+}
+```
+
+### Using Supabase Auth
+```typescript
+import { createClient } from '@/lib/supabase/server';
+
+export async function getUser() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+}
+```
+
+## Testing Requirements
+
+- Write tests for critical business logic
+- Test user flows, not implementation details
+- Use data-testid sparingly
+- Mock external services
+
+## Accessibility
+
+- Semantic HTML elements
+- Proper ARIA labels when needed
+- Keyboard navigation support
+- Focus management
+- Color contrast compliance
+
+## When You Make Mistakes
+
+If you violate any design system rules:
+1. Immediately acknowledge the violation
+2. Show the corrected version
+3. Explain why the rule exists
+
+## Remember
+
+- Design system rules are ABSOLUTE - no exceptions
+- Mobile-first is not optional
+- Performance impacts user experience
+- Accessibility is a requirement, not a feature
+- When in doubt, check the design system docs

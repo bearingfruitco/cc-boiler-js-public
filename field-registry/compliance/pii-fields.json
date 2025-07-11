@@ -1,0 +1,77 @@
+{
+  "description": "Fields containing Personally Identifiable Information requiring special handling",
+  "categories": {
+    "direct_identifiers": {
+      "description": "Information that directly identifies an individual",
+      "encryption": "field",
+      "retention": 90,
+      "fields": [
+        "first_name",
+        "last_name",
+        "email",
+        "phone",
+        "ssn",
+        "date_of_birth",
+        "drivers_license",
+        "passport_number"
+      ]
+    },
+    "quasi_identifiers": {
+      "description": "Information that could identify someone when combined",
+      "encryption": "transit",
+      "retention": 180,
+      "fields": [
+        "ip_address",
+        "zip_code",
+        "street_address",
+        "city",
+        "state"
+      ]
+    },
+    "sensitive_data": {
+      "description": "Sensitive personal information requiring highest protection",
+      "encryption": "field",
+      "retention": 30,
+      "auditLog": true,
+      "fields": [
+        "ssn",
+        "bank_account",
+        "credit_card",
+        "medical_info",
+        "income",
+        "debt_amount"
+      ]
+    }
+  },
+  "rules": {
+    "logging": {
+      "console": "NEVER log PII to console",
+      "files": "PII only in encrypted audit logs",
+      "monitoring": "Mask PII in error tracking"
+    },
+    "storage": {
+      "client": "NEVER store PII client-side",
+      "cookies": "No PII in cookies",
+      "localStorage": "No PII in localStorage",
+      "sessionStorage": "No PII in sessionStorage"
+    },
+    "transmission": {
+      "urls": "NEVER put PII in URLs",
+      "queryParams": "No PII in query parameters",
+      "headers": "No PII in custom headers",
+      "api": "Always use HTTPS for PII"
+    },
+    "display": {
+      "masking": "Mask sensitive fields in UI",
+      "autocomplete": "Disable for sensitive fields",
+      "copy": "Prevent copy/paste for SSN, etc."
+    }
+  },
+  "maskingPatterns": {
+    "ssn": "XXX-XX-####",
+    "phone": "(XXX) XXX-##XX",
+    "email": "u***@domain.com",
+    "creditCard": "XXXX XXXX XXXX ####",
+    "bankAccount": "XXXXX####"
+  }
+}

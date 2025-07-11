@@ -1,0 +1,149 @@
+{
+  "description": "Universal tracking fields for marketing attribution and analytics",
+  "fields": {
+    "utm_source": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Campaign source (e.g., google, facebook, email)",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none",
+      "validation": {
+        "maxLength": 100,
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      }
+    },
+    "utm_medium": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Campaign medium (e.g., cpc, email, social)",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none"
+    },
+    "utm_campaign": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Campaign name",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none"
+    },
+    "utm_term": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Campaign term (paid keywords)",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none"
+    },
+    "utm_content": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Campaign content variant",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none"
+    },
+    "gclid": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Google Ads click ID",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "fbclid": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Facebook click ID",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "ttclid": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "TikTok click ID",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "wbraid": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Web-to-app bridge click ID",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "gbraid": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Google bridge click ID",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "partner_id": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Partner/affiliate identifier",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none"
+    },
+    "campaign_id": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Internal campaign identifier",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none"
+    },
+    "source_id": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Traffic source identifier",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none"
+    },
+    "ad_id": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Advertisement identifier",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none"
+    },
+    "placement_id": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Ad placement identifier",
+      "pii": false,
+      "prepopulate": true,
+      "clientVisible": true,
+      "encryption": "none"
+    }
+  }
+}

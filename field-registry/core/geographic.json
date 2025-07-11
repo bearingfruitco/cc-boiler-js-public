@@ -1,0 +1,127 @@
+{
+  "description": "Geographic and IP-based location data",
+  "fields": {
+    "ip_address": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "User IP address",
+      "pii": true,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "field",
+      "serverOnly": true,
+      "retention": 30,
+      "auditLog": true
+    },
+    "ip_country": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Country code from IP (US, CA, etc.)",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "derived": true
+    },
+    "ip_region": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "State/Province from IP",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "derived": true
+    },
+    "ip_city": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "City from IP geolocation",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "derived": true
+    },
+    "ip_postal_code": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Postal code from IP",
+      "pii": true,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "transit",
+      "serverOnly": true,
+      "derived": true
+    },
+    "ip_latitude": {
+      "type": "FLOAT",
+      "mode": "NULLABLE",
+      "description": "Latitude coordinate",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "derived": true
+    },
+    "ip_longitude": {
+      "type": "FLOAT",
+      "mode": "NULLABLE",
+      "description": "Longitude coordinate",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "derived": true
+    },
+    "ip_timezone": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Timezone from IP location",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "derived": true
+    },
+    "ip_isp": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Internet Service Provider",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "derived": true
+    },
+    "ip_organization": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Organization name from IP",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "derived": true
+    },
+    "ip_connection_type": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Connection type (residential, business, mobile)",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "derived": true
+    }
+  }
+}

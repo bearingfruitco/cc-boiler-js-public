@@ -1,0 +1,126 @@
+{
+  "description": "User journey and behavior tracking fields",
+  "fields": {
+    "journey_id": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "Unique identifier for user journey",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoGenerate": true,
+      "indexKey": true
+    },
+    "session_id": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "Current session identifier",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoGenerate": true
+    },
+    "page_url": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Current page URL",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "page_title": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Current page title",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "referrer_url": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Previous page or external referrer",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "landing_page": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "First page in session",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "embed_url": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Parent page URL if form is embedded",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "page_view_count": {
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "Number of pages viewed in session",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoIncrement": true
+    },
+    "time_on_page": {
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "Seconds spent on current page",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "form_start_time": {
+      "type": "TIMESTAMP",
+      "mode": "NULLABLE",
+      "description": "When user started filling form",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "form_submit_time": {
+      "type": "TIMESTAMP",
+      "mode": "NULLABLE",
+      "description": "When form was submitted",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "form_completion_time": {
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "Seconds to complete form",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "derived": true
+    }
+  }
+}

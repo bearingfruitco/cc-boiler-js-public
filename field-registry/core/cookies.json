@@ -1,0 +1,82 @@
+{
+  "description": "Cookie tracking fields for user identification and attribution",
+  "fields": {
+    "cookie_ga": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Google Analytics _ga cookie value",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "autoCapture": true
+    },
+    "cookie_fbp": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Facebook _fbp cookie for tracking",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "autoCapture": true
+    },
+    "cookie_fbc": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Facebook _fbc cookie (click-based)",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "autoCapture": true
+    },
+    "cookie_gcl": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Google Ads conversion linker cookie",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "autoCapture": true
+    },
+    "cookie_ttp": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "TikTok _ttp pixel cookie",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "autoCapture": true
+    },
+    "client_id": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Extracted GA client ID from _ga cookie",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "derived": true
+    },
+    "session_id": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Unique session identifier",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "autoGenerate": true
+    }
+  }
+}

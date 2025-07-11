@@ -1,0 +1,126 @@
+{
+  "description": "Device and browser information for analytics and fraud prevention",
+  "fields": {
+    "browser_name": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Browser name (Chrome, Safari, etc.)",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "browser_version": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Browser version number",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "browser_language": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Browser language setting",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "os_name": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Operating system name",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "os_version": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Operating system version",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "device_type": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Device type (desktop, mobile, tablet)",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "device_vendor": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Device manufacturer",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "screen_width": {
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "Screen width in pixels",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "screen_height": {
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "Screen height in pixels",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "viewport_width": {
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "Browser viewport width",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "viewport_height": {
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "Browser viewport height",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "autoCapture": true
+    },
+    "user_agent": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Full user agent string",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": false,
+      "encryption": "none",
+      "serverOnly": true,
+      "autoCapture": true
+    }
+  }
+}

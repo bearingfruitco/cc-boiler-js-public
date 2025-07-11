@@ -1,0 +1,228 @@
+{
+  "description": "Fields specific to debt relief and financial services",
+  "fields": {
+    "first_name": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "Customer first name",
+      "pii": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "validation": {
+        "required": true,
+        "minLength": 2,
+        "maxLength": 50,
+        "pattern": "^[a-zA-Z\\s-']+$"
+      }
+    },
+    "last_name": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "Customer last name",
+      "pii": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "validation": {
+        "required": true,
+        "minLength": 2,
+        "maxLength": 50,
+        "pattern": "^[a-zA-Z\\s-']+$"
+      }
+    },
+    "email": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "Email address",
+      "pii": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "masking": "partial",
+      "validation": {
+        "required": true,
+        "type": "email",
+        "maxLength": 255
+      }
+    },
+    "phone": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "Phone number",
+      "pii": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "masking": "partial",
+      "validation": {
+        "required": true,
+        "pattern": "^\\d{10}$",
+        "transform": "digitsOnly"
+      }
+    },
+    "zip_code": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "ZIP code",
+      "pii": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "transit",
+      "validation": {
+        "required": true,
+        "pattern": "^\\d{5}(-\\d{4})?$"
+      }
+    },
+    "state": {
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "State of residence",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "validation": {
+        "required": true,
+        "enum": ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"]
+      }
+    },
+    "enrolled_debt_amount": {
+      "type": "INTEGER",
+      "mode": "REQUIRED",
+      "description": "Total debt amount enrolled",
+      "pii": true,
+      "sensitive": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "validation": {
+        "required": true,
+        "min": 5000,
+        "max": 1000000
+      }
+    },
+    "debt_type": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Types of debt (credit card, medical, etc.)",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "validation": {
+        "enum": ["credit_card", "medical", "personal_loan", "business", "other", "multiple"]
+      }
+    },
+    "creditor_count": {
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "Number of creditors",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "validation": {
+        "min": 1,
+        "max": 50
+      }
+    },
+    "monthly_payment_ability": {
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "Monthly payment capacity",
+      "pii": true,
+      "sensitive": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "validation": {
+        "min": 0,
+        "max": 10000
+      }
+    },
+    "employment_status": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Current employment status",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "validation": {
+        "enum": ["employed", "self_employed", "unemployed", "retired", "disabled"]
+      }
+    },
+    "monthly_income": {
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "Monthly household income",
+      "pii": true,
+      "sensitive": true,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "field",
+      "validation": {
+        "min": 0,
+        "max": 100000
+      }
+    },
+    "hardship_reason": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Reason for financial hardship",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "validation": {
+        "enum": ["job_loss", "medical", "divorce", "reduced_income", "business_failure", "other"]
+      }
+    },
+    "behind_on_payments": {
+      "type": "BOOLEAN",
+      "mode": "NULLABLE",
+      "description": "Currently behind on payments",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none"
+    },
+    "consent_tcpa": {
+      "type": "BOOLEAN",
+      "mode": "REQUIRED",
+      "description": "TCPA consent for calls/texts",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "auditLog": true,
+      "validation": {
+        "required": true,
+        "mustBeTrue": true
+      }
+    },
+    "consent_credit_pull": {
+      "type": "BOOLEAN",
+      "mode": "NULLABLE",
+      "description": "Consent for credit report pull",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "auditLog": true
+    },
+    "best_time_to_call": {
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Preferred contact time",
+      "pii": false,
+      "prepopulate": false,
+      "clientVisible": true,
+      "encryption": "none",
+      "validation": {
+        "enum": ["morning", "afternoon", "evening", "anytime"]
+      }
+    }
+  }
+}
