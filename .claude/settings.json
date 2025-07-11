@@ -1,0 +1,106 @@
+{
+  "permissions": {
+    "file_system": {
+      "read": true,
+      "write": true,
+      "create_directories": true
+    },
+    "shell": {
+      "execute": true
+    }
+  },
+  "hooks": {
+    "pre-tool-use": [
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/pre-tool-use/01-dangerous-commands.py"
+        ]
+      },
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/pre-tool-use/02-design-check.py"
+        ]
+      },
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/pre-tool-use/03-conflict-check.py"
+        ]
+      },
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/pre-tool-use/04-actually-works.py"
+        ]
+      },
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/pre-tool-use/07-pii-protection.py"
+        ]
+      },
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/pre-tool-use/08-evidence-language.py"
+        ]
+      },
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/pre-tool-use/09-auto-persona.py"
+        ]
+      }
+    ],
+    "post-tool-use": [
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/post-tool-use/01-action-logger.py"
+        ]
+      },
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/post-tool-use/01-state-save.py"
+        ]
+      },
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/post-tool-use/02-metrics.py"
+        ]
+      }
+    ],
+    "stop": [
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/stop/01-save-transcript.py"
+        ]
+      }
+    ],
+    "sub-agent-stop": [
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/sub-agent-stop/01-track-completion.py"
+        ]
+      }
+    ]
+  }
+}
