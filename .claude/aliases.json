@@ -45,5 +45,8 @@
   "define-project": "init-project",
   "mt": "micro-task",
   "quick-task": "micro-task",
-  "tiny": "micro-task"
+  "tiny": "micro-task",
+  "gi": "generate-issues",
+  "gen-issues": "generate-issues",
+  "prd-to-issues": "generate-issues"
 }

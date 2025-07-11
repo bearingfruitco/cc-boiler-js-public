@@ -4,187 +4,201 @@ This is a production-ready boilerplate for Next.js 15 projects with TypeScript, 
 
 ## 🚀 Quick Start
 
-Follow the **[DAY_1_COMPLETE_GUIDE.md](./DAY_1_COMPLETE_GUIDE.md)** for complete setup instructions from zero to your first feature.
-
-## 🎯 What's Included
-
-### Core Features
-- **Next.js 15** with App Router
-- **TypeScript** with strict mode
-- **Tailwind CSS** with custom design tokens
-- **Supabase** integration (Auth + Database)
-- **Design System** with enforced rules
-
-### Claude Code Enhancements
-- **PRD-Driven Development**: Start with requirements, generate tasks automatically
-- **Task-Based Workflow**: Break features into 5-15 minute verifiable chunks
-- **Auto-Updating Documentation**: Context updates itself nightly
-- **Browser Testing**: Playwright MCP integration for E2E testing
-- **Team Collaboration**: Automatic handoffs and context sharing
-- **Security-First Forms**: Field registry with PII protection (NEW)
-- **Data Compliance**: HIPAA/GDPR support with audit logging (NEW)
-
-### Command System
-- **70+ Custom Commands**: From component creation to deployment
-- **Command Chains**: Combine commands for complex workflows
-- **Smart Resume**: Never lose context between sessions
-- **Hooks System**: Automatic validation and state saving
-
-## 📁 Project Structure
-
-```
-.
-├── .claude/                    # Claude Code configuration
-│   ├── commands/              # Custom command definitions
-│   ├── hooks/                 # Automation hooks
-│   ├── scripts/               # Utility scripts
-│   └── checkpoints/           # State snapshots
-├── app/                       # Next.js app directory
-├── components/                # React components
-│   ├── ui/                   # Base UI components
-│   ├── forms/                # Form components
-│   └── features/             # Feature-specific
-├── docs/                      # Documentation
-│   ├── design/               # Design system
-│   ├── project/              # PRDs and business logic
-│   └── technical/            # Architecture docs
-├── lib/                       # Utilities
-├── hooks/                     # React hooks
-└── tests/                     # Test files
-```
-
-## 🎨 Design System
-
-- **Typography**: 4 sizes only (text-size-1 through text-size-4)
-- **Font Weights**: 2 weights only (font-regular, font-semibold)
-- **Spacing**: 4px grid system (p-1, p-2, p-3, p-4, p-6, p-8)
-- **Colors**: 60/30/10 distribution rule
-- **Mobile-first**: 44px minimum touch targets
-
-## 🤖 Claude Code Commands
-
-### Essential Commands
-- `/sr` or `/smart-resume` - Start here every session
-- `/init` - One-time project initialization
-- `/help` - See all available commands
-
-### PRD & Task Management (New!)
-- `/prd [feature]` - Create Product Requirements Document
-- `/gt [feature]` - Generate tasks from PRD
-- `/pt [feature]` - Process tasks one by one
-- `/ts` - View task status across features
-- `/tb` - Visual task board
-
-### Development
-- `/cc ui Button` - Create component with validation
-- `/vd` - Validate design system compliance
-- `/fw start [issue#]` - Start feature from GitHub issue
-
-### Testing & Quality
-- `/btf [feature]` - Browser test flow with Playwright
-- `/vt` - Verify current task implementation
-- `/pp` - Pre-PR validation suite
-
-### Maintenance
-- `/auc` - Auto-update CLAUDE.md from codebase
-- `/checkpoint create` - Save current state
-
-## 📋 Workflow Examples
-
-### Starting a New Feature
+### New Project
 ```bash
-# 1. Create GitHub issue
-gh issue create --title "Feature: User Profile"
-
-# 2. In Claude Code:
-/fw start 1                    # Start feature workflow
-/prd user-profile             # Generate PRD
-/gt user-profile              # Generate task list
-/pt user-profile              # Process tasks one by one
-/btf user-profile             # Test in browser
-/fw complete 1                # Complete and create PR
+git clone https://github.com/bearingfruitco/claude-code-boilerplate.git my-project
+cd my-project
+rm -rf .git && git init
+# Follow: docs/setup/QUICK_START_NEW_PROJECT.md
 ```
 
-### Daily Workflow
+### Existing Project
 ```bash
-# Morning
-/sr                           # Resume where you left off
-
-# During development
-/cc ui ProfileCard            # Create components
-/vd                          # Validate continuously
-/todo add "Add avatar upload" # Track tasks
-
-# Before commits
-/qc                          # Quick check
-/checkpoint create           # Save state
+# Add Claude automation to your project
+# Follow: docs/setup/ADD_TO_EXISTING_PROJECT.md
 ```
 
-## 🔧 Setup Requirements
+### Complete Setup Guide
+For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_1_COMPLETE_GUIDE.md)**
 
-- Node.js 18+
-- Python 3.8+
-- Git
-- GitHub CLI (`gh`)
-- Claude Code CLI
+## 🎯 What You Get
 
-## 📚 Documentation
+### Instant Productivity
+- **90+ Custom Commands** - Everything from `/sr` (smart resume) to `/orch` (orchestrate agents)
+- **Zero Context Loss** - Auto-saves every 60 seconds to GitHub
+- **PRD-Driven Development** - Start with requirements, get working code
+- **Multi-Agent System** - 9 specialized personas work in parallel
 
-- **[Day 1 Complete Guide](./DAY_1_COMPLETE_GUIDE.md)** - Start here!
-- **[Claude Code Guide](./CLAUDE_CODE_GUIDE.md)** - All commands explained
-- **[Design System](./docs/design/design-system.md)** - Component patterns
-- **[API Patterns](./docs/technical/api-boilerplate.md)** - Backend structure
+### Enforced Quality
+- **Design System** - Only 4 font sizes, 2 weights, 4px grid (enforced by hooks)
+- **Security-First** - PII detection, field encryption, audit logging
+- **Test Everything** - "Actually Works" protocol blocks untested code
+- **Clean Architecture** - Consistent patterns across all features
+
+### Team Collaboration
+- **Perfect Handoffs** - Context transfers seamlessly between developers
+- **GitHub Integration** - Issues, PRs, gists all connected
+- **Conflict Prevention** - Know who's editing what in real-time
+- **Knowledge Sharing** - Patterns discovered by one help all
+
+## 📊 The Complete Workflow
+
+```
+PROJECT IDEA → PROJECT PRD → GITHUB ISSUES → FEATURE PRDS → TASKS → CODE → PR → DEPLOY
+     ↓              ↓              ↓              ↓           ↓       ↓      ↓      ↓
+/init-project  /gi PROJECT    /fw start #   /prd feature  /gt,/pt  Auto  Complete  Ship
+```
+
+## 🔑 Essential Commands
+
+```bash
+# Every Day
+/sr                # Smart Resume - start here always!
+/help              # Context-aware help
+
+# Feature Development  
+/fw start 1        # Start working on issue #1
+/prd feature       # Create Product Requirements
+/gt feature        # Generate tasks
+/pt feature        # Process tasks
+/fw complete 1     # Create PR
+
+# Quality & Testing
+/vd                # Validate design
+/btf feature       # Browser test
+/sc                # Security check
+
+# State Management
+/checkpoint        # Manual save
+/compress          # Reduce token usage
+```
+
+See **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** for all commands.
+
+## 📁 What's Inside
+
+```
+├── .claude/           # 🧠 The brain - commands, hooks, automation
+├── CLAUDE.md          # 📜 AI instructions (don't delete!)
+├── QUICK_REFERENCE.md # 🎯 Daily command cheat sheet
+├── docs/              # 📚 All documentation
+│   ├── setup/        # Getting started guides
+│   ├── workflow/     # Daily usage patterns
+│   ├── technical/    # System architecture
+│   └── claude/       # AI-specific docs
+├── field-registry/    # 🔒 Security definitions
+├── scripts/          # 🔧 Setup and utilities
+└── [your code]       # 💻 Your application
+```
+
+## 🏗️ Technical Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript (strict mode)
+- **Styling**: Tailwind CSS (custom tokens)
+- **Database**: Supabase (Auth + DB)
+- **State**: Zustand + React Query
+- **Testing**: Playwright MCP
+- **Security**: Field-level encryption, audit logging
+
+## 💡 Key Features
+
+### 1. **PRD-Driven Development**
+```bash
+/prd user-auth     # Generate requirements
+/gt user-auth      # Break into 5-15 min tasks
+/pt user-auth      # Work through systematically
+```
+
+### 2. **Design System Enforcement**
+```typescript
+// ❌ BLOCKED by hooks:
+<p className="text-sm font-bold">
+
+// ✅ ALLOWED:
+<p className="text-size-3 font-semibold">
+```
+
+### 3. **Security-First Forms**
+```bash
+/ctf ContactForm   # Creates secure form with:
+                   # - PII detection
+                   # - Field encryption
+                   # - Audit logging
+                   # - TCPA compliance
+```
+
+### 4. **Multi-Agent Orchestration**
+```bash
+/orch feature      # Assigns to specialized agents:
+                   # - Frontend: UI/UX
+                   # - Backend: APIs
+                   # - Security: Compliance
+                   # - QA: Testing
+```
+
+## 📈 Results
+
+Teams using this boilerplate report:
+- **70% faster** feature development
+- **90% fewer** design inconsistencies  
+- **Zero** context loss between sessions
+- **95% less** documentation time
 
 ## 🚦 Getting Started
 
-1. **Copy this boilerplate** to your new project
-2. **Follow DAY_1_COMPLETE_GUIDE.md** for complete setup
-3. **Run `/init`** in Claude Code (one time only)
-4. **Start building** with `/prd [feature-name]`
+### Option 1: New Project (5 minutes)
+1. Clone repo
+2. Run setup script
+3. Start Claude Code
+4. Run `/init`
+5. Define project with `/init-project`
 
-## 💡 Key Innovations
+### Option 2: Existing Project (10 minutes)
+1. Copy `.claude/` directory
+2. Add CLAUDE.md and QUICK_REFERENCE.md
+3. Run `/init`
+4. Start using commands
 
-### 1. PRD-Driven Development
-Start with clear requirements that drive the entire development process.
+## 📚 Documentation
 
-### 2. Task Decomposition
-AI works on small, verifiable tasks instead of trying to build everything at once.
+- **Setup**
+  - [Quick Start - New Project](docs/setup/QUICK_START_NEW_PROJECT.md)
+  - [Add to Existing Project](docs/setup/ADD_TO_EXISTING_PROJECT.md)
+  - [Day 1 Complete Guide](docs/setup/DAY_1_COMPLETE_GUIDE.md)
+  
+- **Daily Use**
+  - [Quick Reference](QUICK_REFERENCE.md)
+  - [Workflow Guide](docs/workflow/DAILY_WORKFLOW.md)
+  
+- **Deep Dives**
+  - [System Overview](docs/technical/SYSTEM_OVERVIEW.md)
+  - [Command List](docs/claude/CLAUDE_CODE_GUIDE.md)
+  - [Security Guide](docs/SECURITY_GUIDE.md)
 
-### 3. Auto-Updating Context
-Documentation stays fresh with nightly updates that analyze your codebase.
+## 🎓 Philosophy
 
-### 4. Browser Testing Integration
-See your features actually work with automated browser testing.
+**"Vibe Coding"**: You define WHAT to build (strategy), the system handles HOW (implementation).
 
-### 5. Zero Context Loss
-Every decision, every change, every TODO is tracked and preserved.
+- Small verifiable tasks > Large ambiguous features
+- Automated enforcement > Manual reviews
+- Context preservation > Human memory
+- Observable systems > Black boxes
 
-### 6. Advanced Observability with Hooks
-Track every action, block dangerous commands, save full transcripts for learning.
+## 🤝 Contributing
 
-## 🤝 Team Collaboration
-
-- Automatic handoff notes when switching developers
-- Context preserved in GitHub gists
-- Team-aware commands that show who's working on what
-- Seamless transitions between team members
-
-## 🛡️ Built-in Quality Checks
-
-- Design system validation on every component
-- Business logic enforcement
-- Automated testing
-- Performance monitoring
-- Security scanning
-
-## 📈 Productivity Gains
-
-Users report:
-- 70% faster feature development
-- 90% fewer design inconsistencies
-- 80% reduction in context switching time
-- 95% less time spent on documentation
+This boilerplate evolves with usage. Share your:
+- Custom commands
+- Workflow improvements  
+- Bug fixes
+- Success stories
 
 ---
 
-Built with ❤️ for developers who want to build fast without sacrificing quality.
+Built by developers tired of:
+- 🚫 Losing context between sessions
+- 🚫 Inconsistent implementations
+- 🚫 "It should work" syndrome
+- 🚫 Manual documentation
+
+Ready to build something amazing? Start with `/init-project` 🚀

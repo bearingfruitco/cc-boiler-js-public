@@ -8,6 +8,17 @@ By the end of this guide, you'll have:
 - ✅ Auto-updating documentation
 - ✅ Browser testing with Playwright
 - ✅ All automation working
+- ✅ **GitHub integration with auto-saves**
+- ✅ **Regular commits every 3 tasks**
+- ✅ **Context that never gets lost**
+
+## 🐙 How GitHub Integration Works
+
+**Automatic Features:**
+- **Gist saves**: Every 60 seconds your work state saves to GitHub gists
+- **Regular commits**: Every 3 tasks or 30 minutes
+- **Issue tracking**: All work linked to GitHub issues
+- **Smart resume**: Restores context from multiple GitHub sources
 
 ## Prerequisites
 ```bash
@@ -21,7 +32,7 @@ python3 --version
 bun --version   # Need v1.0+
 
 # If missing any:
-# Claude Code: npm install -g @anthropic-ai/claude-code (included with Claude Max)
+# Claude Code: npm install -g @anthropic-ai/claude-code (included with Claude Pro/Max)
 # Git: brew install git
 # GitHub CLI: brew install gh
 # Node: brew install node@22
@@ -45,481 +56,285 @@ claude-code --version
 source ~/.zshrc  # or restart terminal
 ```
 
-**Note**: Claude Code is now included with Claude Pro/Max subscriptions. No separate API key needed.
+## Step 0.5: Configure GitHub Access (CRITICAL)
+
+**This enables all automatic features:**
+
+```bash
+# Authenticate GitHub CLI
+gh auth login
+# Choose: GitHub.com → HTTPS → Yes → Browser
+
+# Verify authentication
+gh auth status
+# Should show: ✓ Logged in to github.com
+
+# Test GitHub access
+gh issue list --repo cli/cli --limit 3
+
+# Configure git identity
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+```
+
+**Why this matters:**
+- Enables auto-save to gists every 60 seconds
+- Allows automatic issue/PR creation
+- Powers the `/sr` smart resume feature
+- Makes `/fw` commands work properly
 
 ## Step 1: Project Creation (5 minutes)
+
+### Option A: Clone from GitHub (RECOMMENDED)
+
+```bash
+# 1. Clone the boilerplate with your project name
+git clone https://github.com/bearingfruitco/claude-code-boilerplate.git my-awesome-project
+cd my-awesome-project
+
+# 2. Remove boilerplate history and create your own
+rm -rf .git
+git init
+git add .
+git commit -m "Initial commit from Claude Code boilerplate"
+
+# 3. Create YOUR GitHub repo and push
+gh repo create my-awesome-project --private --source=. --remote=origin --push
+```
+
+### Option B: Copy from Local (If you have it)
 
 ```bash
 # Create and setup project
 mkdir my-awesome-project && cd my-awesome-project
 
 # Copy boilerplate
-cp -r /Users/shawnsmith/dev/bfc/claude-code-boilerplate-docs/boilerplate/* .
-cp -r /Users/shawnsmith/dev/bfc/claude-code-boilerplate-docs/boilerplate/.claude .
+cp -r /path/to/claude-code-boilerplate/* .
+cp -r /path/to/claude-code-boilerplate/.claude .
 
 # Initialize git
 git init && git add . && git commit -m "Initial boilerplate"
 
 # Create GitHub repo
-gh repo create my-awesome-project --private
-git push -u origin main
+gh repo create my-awesome-project --private --source=. --remote=origin --push
 ```
 
-## Step 2: Create Your Documentation Structure (10 minutes)
-
-### Create PRD (Product Requirements Document)
-```bash
-mkdir -p docs/project/features
-
-cat > docs/project/prd.md << 'EOF'
-# [Project Name] - Product Requirements Document
-
-## Executive Summary
-[One paragraph: What is this and why does it matter?]
-
-## Problem Statement
-- What problem are we solving?
-- Who experiences this problem?
-- What's the impact of not solving it?
-
-## Target Users
-- Primary: [Specific user type]
-- Secondary: [Other users]
-
-## Core Features (MVP)
-1. **Feature Name**
-   - What it does
-   - Why it's essential
-   - Success criteria
-
-## User Stories
-- As a [user], I want to [action] so that [benefit]
-- As a [user], I want to [action] so that [benefit]
-
-## Technical Requirements
-- Performance: [Page load < 3s]
-- Security: [Requirements]
-- Accessibility: [WCAG 2.1 AA]
-- Mobile: [Responsive, touch-friendly]
-
-## Success Metrics
-- [Metric 1]: Target value
-- [Metric 2]: Target value
-
-## Out of Scope (v1)
-- [What we're NOT building yet]
-EOF
-```
-
-### Create Business Logic Document
-```bash
-cat > docs/project/business-logic.md << 'EOF'
-# Business Logic & Rules
-
-## Purpose
-This document defines HOW the system works - all rules, validations, and workflows that must be enforced in code.
-
-## Core Business Rules
-
-### User Management
-1. **Registration Rules**
-   - Email must be unique
-   - Password: min 8 chars, 1 upper, 1 lower, 1 number
-   - Email verification required
-
-2. **Authentication**
-   - Session timeout: 30 days
-   - Max login attempts: 5
-   - 2FA optional but recommended
-
-### Data Validation Rules
-| Field | Rules |
-|-------|-------|
-| Email | Valid format, max 255 chars |
-| Name | Required, 2-100 chars |
-| Phone | Optional, valid format |
-
-### Business Workflows
-
-#### User Onboarding Flow
-1. User submits registration
-2. System sends verification email
-3. User clicks verification link (valid 24h)
-4. System activates account
-5. User redirected to welcome screen
-
-### API Business Rules
-- Rate limiting: 100 req/min per user
-- All timestamps in UTC
-- Soft delete only (no hard deletes)
-- Audit log all changes
-
-### Security Rules
-- PII must be encrypted at rest
-- No sensitive data in logs
-- HTTPS required for all endpoints
-EOF
-```
-
-### Evidence-Based Development (NEW)
-```bash
-# The system now enforces evidence-based language
-# Never say: "best", "optimal", "faster" without proof
-# Always say: "testing shows", "metrics indicate"
-# Hook 08-evidence-language.py enforces this automatically
-```
-
-### Auto-Persona Selection (NEW)
-```bash
-# The system automatically suggests the right persona based on:
-# - File type (e.g., *.tsx → frontend persona)
-# - Keywords (e.g., "security audit" → security persona)
-# Hook 09-auto-persona.py handles this
-```
-
-### Update CLAUDE.md
-```bash
-cat > CLAUDE.md << 'EOF'
-# Claude Code Instructions - [Project Name]
-
-## 📍 Project Documentation Locations
-- **PRD**: `docs/project/prd.md` - WHAT we're building
-- **Business Logic**: `docs/project/business-logic.md` - HOW it works
-- **Design System**: `docs/design/design-system.md` - HOW it looks
-- **Features**: `docs/project/features/` - Feature-specific docs
-
-## 🤖 Automated Features
-- **Context Updates**: This project auto-updates documentation nightly
-- **Browser Testing**: Playwright MCP enabled for E2E testing
-- **Task Management**: PRD-driven task decomposition
-
-## 🎯 Development Workflow
-1. Start with `/sr` (smart resume) every session
-2. For new features: `/project:create-prd` → `/project:generate-tasks` → `/project:process-tasks`
-3. Use `/project:auto-update-context` to refresh documentation
-4. Run `/project:browser-test-flow` for E2E testing
-
-## 🚀 Available Commands
-- `/init` - One-time setup (already done if you see this)
-- `/sr` - Smart resume (use this daily)
-- `/help` - See all commands
-- Task commands: `/project:create-prd`, `/project:generate-tasks`, `/project:process-tasks`
-- Testing: `/project:browser-test-flow`, `/project:verify-task`
-- Maintenance: `/project:auto-update-context`
-- **NEW**: `/compress-context` or `/compress` - Compress context when approaching token limits
-- **AUTO**: Persona switching based on file type and keywords
-- **AUTO**: Evidence-based language enforcement
-
-## 🏗️ Design System Rules (MANDATORY)
-
-### Typography - STRICT ENFORCEMENT
-You MUST ONLY use these font sizes and weights:
-- text-size-1: 32px (mobile: 28px) - Major headings only
-- text-size-2: 24px (mobile: 20px) - Section headers
-- text-size-3: 16px - ALL body text, buttons, inputs
-- text-size-4: 12px - Small labels, captions
-
-Font weights:
-- font-regular: 400 - For ALL body text
-- font-semibold: 600 - For ALL headings and buttons
-
-❌ NEVER use: text-sm, text-lg, text-xl, text-2xl, font-bold, font-medium
-✅ ALWAYS use: text-size-[1-4], font-regular, font-semibold
-
-### Spacing - 4px Grid ONLY
-ALL spacing must be divisible by 4:
-- ✅ Valid: p-1(4px), p-2(8px), p-3(12px), p-4(16px), p-6(24px), p-8(32px)
-- ❌ Invalid: p-5, p-7, p-10, m-5, gap-5, space-y-5
-
-### Color Distribution
-Every screen must follow 60/30/10 rule:
-- 60%: Neutral backgrounds (white, gray-50)
-- 30%: Text and borders (gray-700, gray-200)
-- 10%: Primary actions (blue-600, red-600 for errors)
-
-### Mobile Requirements
-- Minimum touch targets: 44px (use h-11 or h-12)
-- Minimum body text: 16px (text-size-3)
-- Maximum content width: max-w-md for mobile-first
-EOF
-```
-
-## Step 3: Install Dependencies & Tools (5 minutes)
+## Step 2: Initial Setup (2 minutes)
 
 ```bash
-# Install Bun (if not already installed)
-curl -fsSL https://bun.sh/install | bash
-# Or with Homebrew:
-brew install oven-sh/bun/bun
-
-# Verify Bun is installed
-bun --version
-
-# Install project dependencies
+# Install dependencies
 pnpm install
 
-# Biome is installed as a dev dependency, verify it works
-pnpm biome --version
-
-# Install Playwright MCP globally
-npm install -g @modelcontextprotocol/server-playwright
-
-# Install Python dependencies for automation
-pip3 install gitpython
-
 # Make scripts executable
-chmod +x .claude/scripts/*.sh
-chmod +x .claude/scripts/*.py
-chmod +x .claude/hooks/pre-tool-use/*.py
-chmod +x .claude/hooks/post-tool-use/*.py
+chmod +x scripts/*.sh
 
-# Set up Claude Code hooks for observability
-./setup-hooks.sh
+# Run setup script
+./scripts/setup-enhanced-boilerplate.sh
+
+# Create .env.local (add your keys later)
+cp .env.example .env.local
 ```
 
-## Step 4: Initialize Claude Code (2 minutes)
+## Step 3: Start Claude Code (30 seconds)
 
 ```bash
-# Start Claude Code
+# Start Claude Code in your project
 claude-code .
 
-# Run initialization (ONCE only)
-/init
-
-# Set up Playwright MCP
-/project:setup-playwright-mcp
-
-# Enable auto-updates
-/project:auto-update-context
+# The AI will greet you. Your first commands:
+/init              # One-time initialization (creates .claude/ configs)
 ```
 
-## Step 5: Define Your Project - Project-Level Setup (30 minutes)
+## Step 4: Define Your Project (10 minutes)
 
-### 5.1 Initialize Your Project
+Run the project initialization interview:
+
 ```bash
-# This is the FIRST thing you do for a new project!
-/init-project
-
-# Claude will interview you:
-# - What are you building?
-# - Who is your target user?
-# - What problem does it solve?
-# - What's your MVP scope?
-# - Tech stack preferences?
-
-# This creates:
-# - docs/project/PROJECT_PRD.md (overall vision)
-# - docs/project/BUSINESS_RULES.md (core logic)
-# - Updates CLAUDE.md with your project context
+/init-project      # or /ip
 ```
 
-### 5.2 Create GitHub Issues for MVP Features
+This interactive process will:
+1. Ask about your project type
+2. Define your tech stack preferences
+3. Create PROJECT_PRD.md with your vision
+4. Set up BUSINESS_RULES.md
+5. Configure project settings
 
-Based on your PROJECT_PRD, create issues for each major feature:
+Example responses:
+```
+Q: "What type of project?"
+A: "A task management app for remote teams"
 
-```bash
-# Example MVP features from PROJECT_PRD:
-# 1. User Authentication
-# 2. Quiz Management  
-# 3. Score Tracking
-# 4. Progress Dashboard
+Q: "Key features?"
+A: "Task creation, assignment, progress tracking, team chat"
 
-# Create an issue for each:
-gh issue create --title "Feature: User Authentication" \
-  --body "Users need to sign up, log in, and manage their accounts"
-# Returns: Created issue #1
-
-gh issue create --title "Feature: Quiz Management" \
-  --body "Create, edit, and organize quizzes with multiple choice questions"
-# Returns: Created issue #2
-
-gh issue create --title "Feature: Score Tracking" \
-  --body "Track and display user scores for completed quizzes"
-# Returns: Created issue #3
-
-# etc.
+Q: "Target users?"
+A: "Remote teams of 5-50 people"
 ```
 
-**Why GitHub Issues?**
-- Each issue = one feature
-- Automatic branch naming (feature/1-user-auth)
-- State tracking via gists (work-state-issue-1.json)
-- PR auto-closes issue
-- Team visibility
+## Step 5: Generate GitHub Issues (2 minutes)
 
-## Step 6: Your First Feature - Issue to Implementation (30 minutes)
-
-### 6.1 Start Feature Workflow
 ```bash
-# Pick an issue to work on (let's say User Auth is #1)
-/fw start 1
-
-# This automatically:
-# - Creates branch: feature/1-user-authentication  
-# - Sets up isolated worktree
-# - Links everything to issue #1
-# - Loads issue context
+# Convert your PROJECT_PRD into GitHub issues
+/generate-issues PROJECT    # or /gi PROJECT
 ```
 
-### 6.2 Generate Feature PRD
+This creates issues like:
+- Issue #1: User Authentication
+- Issue #2: Task Management
+- Issue #3: Team Dashboard
+- Issue #4: Real-time Chat
+
+## Step 6: Start Your First Feature (20 minutes)
+
 ```bash
-# Create detailed PRD for this feature
+# 1. Start working on first issue
+/fw start 1                # Creates branch: feature/1-user-authentication
+
+# 2. Generate detailed PRD for this feature
 /prd user-authentication
 
-# This creates: docs/project/features/user-authentication-PRD.md
-# With:
-# - User stories
-# - Acceptance criteria  
-# - Technical requirements
-# - UI specifications
-```
+# 3. Generate tasks from PRD
+/gt user-authentication     # Creates ~20 tasks
 
-### 6.3 Generate Tasks from PRD
-```bash
-# Break the PRD into small tasks
-/gt user-authentication
-
-# This creates: docs/project/features/user-authentication-tasks.md
-# With ~15-20 tasks like:
-# 1.1 Create user table schema in Supabase
-# 1.2 Set up auth endpoints in app/api/auth
-# 1.3 Create SignUpForm component
-# 1.4 Create LoginForm component
-# etc.
-```
-
-### 6.4 Process Tasks One by One
-```bash
-# Work through the tasks
+# 4. Start processing tasks
 /pt user-authentication
-
-# Claude will:
-# 1. Show task 1.1: "Create user table schema"
-# 2. Implement the solution
-# 3. Test it actually works
-# 4. Ask for your approval
-# 5. Move to task 1.2
-
-# Your work auto-saves to GitHub gist every 60 seconds!
-# Gist name: work-state-issue-1.json
 ```
 
-### 6.6 Test with Browser Automation
+The system will:
+- Work through each task (5-15 minutes each)
+- Auto-save progress every 60 seconds
+- Test implementations before moving on
+- Commit every 3 tasks
+
+## Step 7: Verify Everything Works
+
+### Check GitHub Integration
 ```bash
-/project:browser-test-flow user-registration
-
-# This:
-# - Opens browser
-# - Tests the flow
-# - Takes screenshots
-# - Reports results
+# In terminal (not Claude Code)
+gh gist list --limit 3     # Should show your saved states
+git log --oneline -5       # Should show commits
+gh issue list              # Should show your issues
 ```
 
-### 6.7 Complete Feature
+### Check Claude Commands
 ```bash
-# After all tasks done
-/fw complete 1
-
-# This:
-# - Runs all validations
-# - Creates PR
-# - Updates documentation
+# In Claude Code
+/help                      # See all commands
+/sr                        # Smart resume (shows saved state)
+/ts                        # Task status
+/sas                       # Sub-agent status
 ```
 
-## Step 6: Enable Nightly Updates (2 minutes)
-
+### Quick Component Test
 ```bash
-# Set up cron job for nightly updates
-crontab -e
+# Create a test component
+/cc ui TestButton
 
-# Add this line:
-0 2 * * * cd /path/to/your/project && python3 .claude/scripts/nightly-update.py
+# Validate design system
+/vd
 
-# Or use GitHub Actions (see .github/workflows/nightly-update.yml)
+# You should see the component created with proper styling
 ```
 
-## Daily Workflow Summary
+## Step 8: Daily Workflow Setup
 
-### First Time Setup (Once per project)
+### Morning Routine
 ```bash
-claude-code .
-/init               # One-time boilerplate setup
-/init-project       # Define what you're building (PROJECT PRD)
-
-# Then create GitHub issues for each MVP feature
-gh issue create --title "Feature: [Name]" --body "[Description]"
+/sr                        # Resume where you left off
+/ws                        # Check work status
+/todo list                 # See any TODOs
 ```
 
-### Daily Development Flow
+### During Development
 ```bash
-# 1. Start your day
-claude-code .
-/sr  # Smart resume - shows current issue/task/state
-
-# 2. Work on a feature (issue-based)
-/fw start [issue#]        # Start or resume issue
-/prd [feature-name]       # Create detailed PRD (if needed)
-/gt [feature-name]        # Generate tasks (if needed)  
-/pt [feature-name]        # Process tasks one by one
-
-# 3. During development
-/todo add "Fix this"      # Quick notes
-/vd                       # Validate design
-/btf [feature]           # Browser test
-
-# 4. Complete feature
-/fw complete [issue#]     # Creates PR, closes issue
-
-# Your work auto-saves every 60 seconds to GitHub gists!
+/cc ui ComponentName       # Create components
+/vd                        # Validate continuously
+/checkpoint create         # Manual saves
+/btf feature-name         # Browser test
 ```
 
-### The Key Pattern
+### End of Day
+```bash
+/fw complete 1            # When feature is done
+/checkpoint create "EOD"  # Final save
 ```
-GitHub Issue → Feature Workflow → PRD → Tasks → Code → PR
-     #1      →    /fw start 1   → ... → ... → ... → Closes #1
-```
 
-See `DAILY_WORKFLOW.md` for detailed examples and scenarios.
-
-## What Makes This Special
-
-1. **PRD-Driven**: Start with clear requirements
-2. **Task Decomposition**: AI handles one small task at a time
-3. **Auto-Documentation**: Context updates itself
-4. **Browser Testing**: See your app actually work
-5. **Zero Context Loss**: Everything is tracked and saved
-6. **Evidence-Based Development (NEW)**: Claims require proof - "testing shows 40% faster" not "this is better"
-7. **Auto-Persona Selection (NEW)**: Right expert for the right task - frontend specialist for UI, security analyst for audits
-8. **Token Optimization (NEW)**: Compress context command (`/compress`) when approaching limits
-
-## Troubleshooting
+## Common Issues & Solutions
 
 ### "Command not found"
 ```bash
-/help  # See all commands
-ls .claude/commands/  # Verify files exist
+# Make sure you're in Claude Code, not terminal
+# Run /init if needed
 ```
 
-### "Context seems stale"
+### "Git not configured"
 ```bash
-/project:auto-update-context  # Refresh documentation
-/sr full  # Full context restoration
+gh auth login
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
 ```
 
-### "Browser tests failing"
+### "Can't push to GitHub"
 ```bash
-# Check Playwright MCP is installed
-npm list -g @modelcontextprotocol/server-playwright
-
-# Reinstall if needed
-npm install -g @modelcontextprotocol/server-playwright
+# Check remote
+git remote -v
+# If missing, add it:
+gh repo create --private
 ```
 
-## Next Steps
+## Success Checklist
 
-1. Customize PRD template for your domain
-2. Add project-specific commands
-3. Set up team notifications
-4. Configure CI/CD integration
+- [ ] Claude Code installed and working
+- [ ] GitHub CLI authenticated
+- [ ] Project cloned/created
+- [ ] Dependencies installed
+- [ ] `/init` completed
+- [ ] `/init-project` defined your project
+- [ ] GitHub issues created
+- [ ] First feature started
+- [ ] Auto-save verified (check gists)
 
-You're now ready to build with AI-assisted development that's structured, verifiable, and maintains itself!
+## What's Next?
+
+1. **Continue First Feature**
+   ```bash
+   /pt user-authentication   # Continue tasks
+   /btf user-authentication  # Test in browser
+   /fw complete 1           # Create PR
+   ```
+
+2. **Start Next Feature**
+   ```bash
+   /fw start 2              # Start issue #2
+   /prd task-management     # Define it
+   /gt task-management      # Generate tasks
+   /orch task-management    # Use multi-agent
+   ```
+
+3. **Explore Advanced Features**
+   - `/orch` - Multi-agent orchestration
+   - `/ctf` - Create secure forms
+   - `/compress` - Optimize context
+
+## 🎉 Congratulations!
+
+You now have:
+- ✅ A working project with Claude automation
+- ✅ GitHub integration saving every 60 seconds
+- ✅ PRD-driven development workflow
+- ✅ Design system enforcement
+- ✅ Multi-agent capabilities
+- ✅ Perfect context preservation
+
+**Pro tip**: Keep `QUICK_REFERENCE.md` open in another tab for easy command access.
+
+## Need Help?
+
+- Run `/help` for command assistance
+- Check `/error-recovery` if something breaks
+- Review logs in `.claude/logs/`
+
+---
+
+Welcome to the future of AI-assisted development! 🚀
