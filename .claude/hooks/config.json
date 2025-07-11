@@ -27,6 +27,11 @@
         "description": "Check for potential conflicts"
       },
       {
+        "script": "06-biome-lint.py",
+        "enabled": true,
+        "description": "Run Biome linting and formatting checks"
+      },
+      {
         "script": "07-pii-protection.py",
         "enabled": true,
         "critical": true,

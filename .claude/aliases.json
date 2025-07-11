@@ -48,5 +48,10 @@
   "tiny": "micro-task",
   "gi": "generate-issues",
   "gen-issues": "generate-issues",
-  "prd-to-issues": "generate-issues"
+  "prd-to-issues": "generate-issues",
+  "lc": "lint-check",
+  "lint": "lint-check",
+  "format": "lint-check",
+  "test": "test-runner-bun",
+  "tr-bun": "test-runner-bun"
 }
