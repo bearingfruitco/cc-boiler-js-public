@@ -41,9 +41,24 @@ echo "----------------------------"
 MISSING_DEPS=false
 
 # Claude Code
-if ! check_command "claude-code"; then
-    echo -e "${YELLOW}→ Install from: https://claude.ai/download${NC}"
-    MISSING_DEPS=true
+if check_command "claude-code"; then
+    echo -e "${GREEN}✓${NC} Claude Code is installed"
+else
+    echo -e "${YELLOW}→ Claude Code not found. Installing...${NC}"
+    echo -e "${YELLOW}→ This is included with Claude Pro/Max subscriptions${NC}"
+    
+    # Install Claude Code
+    npm install -g @anthropic-ai/claude-code
+    
+    # Check if installation succeeded
+    if command -v claude-code &> /dev/null; then
+        echo -e "${GREEN}✓${NC} Claude Code installed successfully"
+    else
+        echo -e "${RED}✗${NC} Claude Code installation failed"
+        echo -e "${YELLOW}→ Try manually: npm install -g @anthropic-ai/claude-code${NC}"
+        echo -e "${YELLOW}→ Then restart your terminal${NC}"
+        MISSING_DEPS=true
+    fi
 fi
 
 # Git

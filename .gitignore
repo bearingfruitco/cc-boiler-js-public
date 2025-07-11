@@ -1,0 +1,4 @@
+
+# Claude Code logs and transcripts
+.claude/logs/
+.claude/transcripts/

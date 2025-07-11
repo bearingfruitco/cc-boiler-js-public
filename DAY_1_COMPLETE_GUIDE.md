@@ -12,7 +12,7 @@ By the end of this guide, you'll have:
 ## Prerequisites
 ```bash
 # Verify you have these installed:
-claude-code --version
+claude-code --version  # Need @anthropic-ai/claude-code
 git --version
 gh --version
 node --version  # Need v22+
@@ -21,7 +21,7 @@ python3 --version
 bun --version   # Need v1.0+
 
 # If missing any:
-# Claude Code: Download from Anthropic
+# Claude Code: npm install -g @anthropic-ai/claude-code (included with Claude Max)
 # Git: brew install git
 # GitHub CLI: brew install gh
 # Node: brew install node@22
@@ -29,6 +29,23 @@ bun --version   # Need v1.0+
 # Python: brew install python@3
 # Bun: curl -fsSL https://bun.sh/install | bash
 ```
+
+## Step 0: Install Claude Code (REQUIRED)
+
+⚠️ **Claude Code is required for all automation features in this boilerplate**
+
+```bash
+# Install Claude Code (included with Claude Pro/Max subscriptions)
+npm install -g @anthropic-ai/claude-code
+
+# Verify installation
+claude-code --version
+
+# If command not found, reload your shell:
+source ~/.zshrc  # or restart terminal
+```
+
+**Note**: Claude Code is now included with Claude Pro/Max subscriptions. No separate API key needed.
 
 ## Step 1: Project Creation (5 minutes)
 

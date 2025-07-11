@@ -1,5 +1,10 @@
 # Quick Setup Instructions for Team
 
+## Prerequisites
+
+1. **Claude Pro/Max Subscription** - Claude Code is included
+2. **Node.js v22+** - Required for all tools
+
 ## One-Command Setup (After Cloning)
 
 ```bash
@@ -10,6 +15,13 @@ rm -rf .git && \
 git init && \
 ./setup-all-dependencies.sh
 ```
+
+The setup script will automatically:
+- Install Claude Code (if needed)
+- Install Bun
+- Install all dependencies
+- Set up hooks
+- Configure permissions
 
 ## What This Installs
 
