@@ -1,3 +1,7 @@
+// Tailwind v4 uses CSS configuration via @theme directive
+// This file is kept for compatibility with tools that expect a JS config
+// All actual configuration is in styles/globals.css
+
 module.exports = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',

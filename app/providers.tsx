@@ -5,22 +5,21 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  // Create a client instance once per app lifecycle
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000, // 1 minute
-            gcTime: 5 * 60 * 1000, // 5 minutes
-            retry: (failureCount, error: any) => {
-              if (error?.status >= 400 && error?.status < 500) return false;
-              return failureCount < 3;
-            },
+            // Stale time of 60 seconds
+            staleTime: 60 * 1000,
+            // Cache time of 5 minutes
+            gcTime: 5 * 60 * 1000,
+            // Retry failed requests 3 times
+            retry: 3,
+            // Retry delay exponential backoff
+            retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+            // Refetch on window focus
             refetchOnWindowFocus: false,
-          },
-          mutations: {
-            retry: false,
           },
         },
       })
@@ -29,9 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }
