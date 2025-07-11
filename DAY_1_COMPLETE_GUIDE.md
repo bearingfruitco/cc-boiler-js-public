@@ -293,56 +293,118 @@ claude-code .
 /project:auto-update-context
 ```
 
-## Step 5: Your First Feature - PRD to Production (20 minutes)
+## Step 5: Define Your Project - Project-Level Setup (30 minutes)
 
-### 5.1 Create GitHub Issue
+### 5.1 Initialize Your Project
 ```bash
-gh issue create --title "Feature: User Authentication" \
-  --body "Implement user registration and login as defined in PRD"
-# Note the issue number (e.g., #1)
+# This is the FIRST thing you do for a new project!
+/init-project
+
+# Claude will interview you:
+# - What are you building?
+# - Who is your target user?
+# - What problem does it solve?
+# - What's your MVP scope?
+# - Tech stack preferences?
+
+# This creates:
+# - docs/project/PROJECT_PRD.md (overall vision)
+# - docs/project/BUSINESS_RULES.md (core logic)
+# - Updates CLAUDE.md with your project context
 ```
 
-### 5.2 Generate PRD for Feature
+### 5.2 Create GitHub Issues for MVP Features
+
+Based on your PROJECT_PRD, create issues for each major feature:
+
 ```bash
-# In Claude Code
-/project:create-prd user-authentication
+# Example MVP features from PROJECT_PRD:
+# 1. User Authentication
+# 2. Quiz Management  
+# 3. Score Tracking
+# 4. Progress Dashboard
+
+# Create an issue for each:
+gh issue create --title "Feature: User Authentication" \
+  --body "Users need to sign up, log in, and manage their accounts"
+# Returns: Created issue #1
+
+gh issue create --title "Feature: Quiz Management" \
+  --body "Create, edit, and organize quizzes with multiple choice questions"
+# Returns: Created issue #2
+
+gh issue create --title "Feature: Score Tracking" \
+  --body "Track and display user scores for completed quizzes"
+# Returns: Created issue #3
+
+# etc.
+```
+
+**Why GitHub Issues?**
+- Each issue = one feature
+- Automatic branch naming (feature/1-user-auth)
+- State tracking via gists (work-state-issue-1.json)
+- PR auto-closes issue
+- Team visibility
+
+## Step 6: Your First Feature - Issue to Implementation (30 minutes)
+
+### 6.1 Start Feature Workflow
+```bash
+# Pick an issue to work on (let's say User Auth is #1)
+/fw start 1
+
+# This automatically:
+# - Creates branch: feature/1-user-authentication  
+# - Sets up isolated worktree
+# - Links everything to issue #1
+# - Loads issue context
+```
+
+### 6.2 Generate Feature PRD
+```bash
+# Create detailed PRD for this feature
+/prd user-authentication
 
 # This creates: docs/project/features/user-authentication-PRD.md
+# With:
+# - User stories
+# - Acceptance criteria  
+# - Technical requirements
+# - UI specifications
 ```
 
-### 5.3 Generate Task List
+### 6.3 Generate Tasks from PRD
 ```bash
-/project:generate-tasks user-authentication
+# Break the PRD into small tasks
+/gt user-authentication
 
 # This creates: docs/project/features/user-authentication-tasks.md
-# With ~15-20 small, verifiable tasks
+# With ~15-20 tasks like:
+# 1.1 Create user table schema in Supabase
+# 1.2 Set up auth endpoints in app/api/auth
+# 1.3 Create SignUpForm component
+# 1.4 Create LoginForm component
+# etc.
 ```
 
-### 5.4 Start Feature Development
+### 6.4 Process Tasks One by One
 ```bash
-/fw start 1  # Using issue number
-
-# This:
-# - Creates feature branch
-# - Sets up worktree
-# - Loads PRD and tasks
-# - Prepares context
-```
-
-### 5.5 Process Tasks One by One
-```bash
-/project:process-tasks user-authentication
+# Work through the tasks
+/pt user-authentication
 
 # Claude will:
-# - Show task 1.1
-# - Implement it
-# - Wait for your approval
-# - Move to next task
-# 
-# You just review and say "yes" or provide feedback
+# 1. Show task 1.1: "Create user table schema"
+# 2. Implement the solution
+# 3. Test it actually works
+# 4. Ask for your approval
+# 5. Move to task 1.2
+
+# Your work auto-saves to GitHub gist every 60 seconds!
+# Gist name: work-state-issue-1.json
 ```
 
-### 5.6 Test with Browser Automation
+### 6.6 Test with Browser Automation
 ```bash
 /project:browser-test-flow user-registration
 
@@ -353,7 +415,7 @@ gh issue create --title "Feature: User Authentication" \
 # - Reports results
 ```
 
-### 5.7 Complete Feature
+### 6.7 Complete Feature
 ```bash
 # After all tasks done
 /fw complete 1
@@ -378,38 +440,46 @@ crontab -e
 
 ## Daily Workflow Summary
 
-### Morning (2 minutes)
+### First Time Setup (Once per project)
 ```bash
 claude-code .
-/sr  # Smart resume - shows everything you need
+/init               # One-time boilerplate setup
+/init-project       # Define what you're building (PROJECT PRD)
+
+# Then create GitHub issues for each MVP feature
+gh issue create --title "Feature: [Name]" --body "[Description]"
 ```
 
-### During Development
+### Daily Development Flow
 ```bash
-# For new features
-/project:create-prd feature-name
-/project:generate-tasks feature-name
-/project:process-tasks feature-name
+# 1. Start your day
+claude-code .
+/sr  # Smart resume - shows current issue/task/state
 
-# For testing
-/project:browser-test-flow feature-name
-/project:verify-task
+# 2. Work on a feature (issue-based)
+/fw start [issue#]        # Start or resume issue
+/prd [feature-name]       # Create detailed PRD (if needed)
+/gt [feature-name]        # Generate tasks (if needed)  
+/pt [feature-name]        # Process tasks one by one
 
-# Keep context fresh
-/project:auto-update-context
+# 3. During development
+/todo add "Fix this"      # Quick notes
+/vd                       # Validate design
+/btf [feature]           # Browser test
+
+# 4. Complete feature
+/fw complete [issue#]     # Creates PR, closes issue
+
+# Your work auto-saves every 60 seconds to GitHub gists!
 ```
 
-### Before PR
-```bash
-/pp  # Pre-PR checks
-/fw complete [issue#]
+### The Key Pattern
+```
+GitHub Issue → Feature Workflow → PRD → Tasks → Code → PR
+     #1      →    /fw start 1   → ... → ... → ... → Closes #1
 ```
 
-### End of Day
-```bash
-/checkpoint create "end of day"
-# Just close - hooks handle everything else
-```
+See `DAILY_WORKFLOW.md` for detailed examples and scenarios.
 
 ## What Makes This Special
 

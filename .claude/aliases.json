@@ -40,6 +40,9 @@
   "optimize-tokens": "compress-context",
   "ctx-compress": "compress-context",
   "token-save": "compress-context",
+  "ip": "init-project",
+  "project-setup": "init-project",
+  "define-project": "init-project",
   "mt": "micro-task",
   "quick-task": "micro-task",
   "tiny": "micro-task"
