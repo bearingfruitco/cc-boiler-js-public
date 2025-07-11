@@ -3,8 +3,10 @@
 ## Prerequisites
 
 1. **Claude Pro/Max Subscription** - Claude Code is included
-2. **Node.js v22+** - Required for all tools
-3. **GitHub CLI** - For repo creation and integration
+2. **Node.js v22+** - Required for tools
+3. **Bun v1.0+** - JavaScript runtime
+4. **pnpm v9+** - Package manager
+5. **GitHub CLI** - For repo creation and integration
 
 ## One-Command Setup (After Cloning)
 
@@ -38,20 +40,30 @@ git commit -m "Initial commit from boilerplate"
 # 3. Push to GitHub
 gh repo create my-project --private --source=. --remote=origin --push
 
-# 4. Install and setup
+# 4. Install with pnpm and setup
 pnpm install
 chmod +x scripts/*.sh
 ./scripts/setup-enhanced-boilerplate.sh
 
-# 5. Start Claude Code
+# 5. Verify tools
+bun --version        # Should show 1.0+
+pnpm biome --version # Should show 1.5+
+
+# 6. Start Claude Code
 claude-code .
 
-# 6. Initialize
-/init
-/init-project
+# 7. Initialize
+/init                # One-time setup
+/init-project        # Define YOUR project
 ```
 
 ## What Gets Set Up
+
+✅ **Development Environment**
+- Bun runtime for fast execution
+- Biome for linting and formatting
+- pnpm for efficient package management
+- Next.js 15 with TypeScript
 
 ✅ **GitHub Integration**
 - Repo created and connected
@@ -64,17 +76,42 @@ claude-code .
 - Design system enforcement
 - Multi-agent orchestration
 
-✅ **Development Environment**
-- Next.js 15 with TypeScript
-- Tailwind with design tokens
-- Supabase ready
-- Testing configured
+✅ **Code Quality**
+- Biome pre-configured
+- Git hooks with Husky
+- TypeScript strict mode
+- Test setup with Bun
+
+## Quick Commands
+
+```bash
+# Development
+bun dev              # Start dev server
+bun build            # Build for production
+bun test             # Run tests
+
+# Code Quality
+pnpm lint            # Check with Biome
+pnpm lint:fix        # Fix issues
+pnpm format          # Format code
+pnpm typecheck       # Check types
+
+# Claude Code
+/sr                  # Smart resume
+/help                # Show all commands
+/init-project        # Start new project
+```
 
 ## Quick Verification
 
 ```bash
+# Check tools
+bun --version          # Should show 1.0+
+pnpm --version         # Should show 9+
+pnpm biome --version   # Should show 1.5+
+
 # Check GitHub
-gh auth status          # Should be logged in
+gh auth status         # Should be logged in
 git remote -v          # Should show your repo
 
 # Check Claude Code
@@ -104,6 +141,12 @@ ls .claude/           # Should see config files
 
 ## Troubleshooting
 
+**"command not found: bun"**
+```bash
+curl -fsSL https://bun.sh/install | bash
+source ~/.zshrc
+```
+
 **"command not found: claude-code"**
 ```bash
 npm install -g @anthropic-ai/claude-code
@@ -119,6 +162,12 @@ gh auth login
 **"command not found: pnpm"**
 ```bash
 npm install -g pnpm@9
+```
+
+**Biome errors**
+```bash
+pnpm lint:fix     # Auto-fix most issues
+pnpm format       # Format code
 ```
 
 ## For Detailed Instructions

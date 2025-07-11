@@ -7,7 +7,7 @@ By the end of this guide, you'll have:
 - ✅ Task-based feature building
 - ✅ Auto-updating documentation
 - ✅ Browser testing with Playwright
-- ✅ All automation working
+- ✅ **Bun + Biome + pnpm** development environment
 - ✅ **GitHub integration with auto-saves**
 - ✅ **Regular commits every 3 tasks**
 - ✅ **Context that never gets lost**
@@ -27,18 +27,18 @@ claude-code --version  # Need @anthropic-ai/claude-code
 git --version
 gh --version
 node --version  # Need v22+
+bun --version   # Need v1.0+
 pnpm --version  # Need v9+
 python3 --version
-bun --version   # Need v1.0+
 
 # If missing any:
 # Claude Code: npm install -g @anthropic-ai/claude-code (included with Claude Pro/Max)
 # Git: brew install git
 # GitHub CLI: brew install gh
 # Node: brew install node@22
+# Bun: curl -fsSL https://bun.sh/install | bash
 # pnpm: npm install -g pnpm@9
 # Python: brew install python@3
-# Bun: curl -fsSL https://bun.sh/install | bash
 ```
 
 ## Step 0: Install Claude Code (REQUIRED)
@@ -77,12 +77,6 @@ git config --global user.name "Your Name"
 git config --global user.email "your.email@example.com"
 ```
 
-**Why this matters:**
-- Enables auto-save to gists every 60 seconds
-- Allows automatic issue/PR creation
-- Powers the `/sr` smart resume feature
-- Makes `/fw` commands work properly
-
 ## Step 1: Project Creation (5 minutes)
 
 ### Option A: Clone from GitHub (RECOMMENDED)
@@ -119,11 +113,17 @@ git init && git add . && git commit -m "Initial boilerplate"
 gh repo create my-awesome-project --private --source=. --remote=origin --push
 ```
 
-## Step 2: Initial Setup (2 minutes)
+## Step 2: Initial Setup with Bun + pnpm (2 minutes)
 
 ```bash
-# Install dependencies
+# Install dependencies with pnpm
 pnpm install
+
+# Verify Bun is working
+bun --version
+
+# Verify Biome is installed
+pnpm biome --version
 
 # Make scripts executable
 chmod +x scripts/*.sh
@@ -135,7 +135,38 @@ chmod +x scripts/*.sh
 cp .env.example .env.local
 ```
 
-## Step 3: Start Claude Code (30 seconds)
+## Step 3: Configure Development Tools
+
+### Biome Configuration
+The project uses Biome for linting and formatting. Configuration is in `biome.json`:
+
+```bash
+# Check code with Biome
+pnpm lint
+
+# Fix and format code
+pnpm lint:fix
+pnpm format
+```
+
+### Bun Configuration
+Bun is configured in `bunfig.toml` for:
+- Test runner with coverage
+- Auto-install missing packages
+- pnpm-style hoisting
+
+```bash
+# Run tests with Bun
+bun test
+
+# Run tests with coverage
+bun test --coverage
+
+# Run dev server with Bun
+bun dev
+```
+
+## Step 4: Start Claude Code (30 seconds)
 
 ```bash
 # Start Claude Code in your project
@@ -145,7 +176,7 @@ claude-code .
 /init              # One-time initialization (creates .claude/ configs)
 ```
 
-## Step 4: Define Your Project (10 minutes)
+## Step 5: Define Your Project (10 minutes)
 
 Run the project initialization interview:
 
@@ -160,19 +191,7 @@ This interactive process will:
 4. Set up BUSINESS_RULES.md
 5. Configure project settings
 
-Example responses:
-```
-Q: "What type of project?"
-A: "A task management app for remote teams"
-
-Q: "Key features?"
-A: "Task creation, assignment, progress tracking, team chat"
-
-Q: "Target users?"
-A: "Remote teams of 5-50 people"
-```
-
-## Step 5: Generate GitHub Issues (2 minutes)
+## Step 6: Generate GitHub Issues (2 minutes)
 
 ```bash
 # Convert your PROJECT_PRD into GitHub issues
@@ -185,7 +204,7 @@ This creates issues like:
 - Issue #3: Team Dashboard
 - Issue #4: Real-time Chat
 
-## Step 6: Start Your First Feature (20 minutes)
+## Step 7: Start Your First Feature (20 minutes)
 
 ```bash
 # 1. Start working on first issue
@@ -207,7 +226,7 @@ The system will:
 - Test implementations before moving on
 - Commit every 3 tasks
 
-## Step 7: Verify Everything Works
+## Step 8: Verify Everything Works
 
 ### Check GitHub Integration
 ```bash
@@ -215,6 +234,20 @@ The system will:
 gh gist list --limit 3     # Should show your saved states
 git log --oneline -5       # Should show commits
 gh issue list              # Should show your issues
+```
+
+### Check Development Environment
+```bash
+# Verify Bun
+bun test                   # Should run tests
+bun dev                    # Should start dev server
+
+# Verify Biome
+pnpm lint                  # Should check code
+pnpm format                # Should format code
+
+# Verify build
+bun run build              # Should build successfully
 ```
 
 ### Check Claude Commands
@@ -226,18 +259,7 @@ gh issue list              # Should show your issues
 /sas                       # Sub-agent status
 ```
 
-### Quick Component Test
-```bash
-# Create a test component
-/cc ui TestButton
-
-# Validate design system
-/vd
-
-# You should see the component created with proper styling
-```
-
-## Step 8: Daily Workflow Setup
+## Step 9: Daily Workflow Setup
 
 ### Morning Routine
 ```bash
@@ -252,6 +274,21 @@ gh issue list              # Should show your issues
 /vd                        # Validate continuously
 /checkpoint create         # Manual saves
 /btf feature-name         # Browser test
+
+# Run tests with Bun
+bun test                   # Unit tests
+bun test:e2e              # E2E tests
+```
+
+### Code Quality
+```bash
+# Biome checks (automatic with hooks)
+pnpm lint                  # Check issues
+pnpm lint:fix             # Auto-fix
+pnpm format               # Format code
+
+# Type checking
+pnpm typecheck            # TypeScript validation
 ```
 
 ### End of Day
@@ -262,79 +299,98 @@ gh issue list              # Should show your issues
 
 ## Common Issues & Solutions
 
-### "Command not found"
+### "Command not found: bun"
 ```bash
-# Make sure you're in Claude Code, not terminal
-# Run /init if needed
+# Install Bun
+curl -fsSL https://bun.sh/install | bash
+source ~/.bashrc  # or ~/.zshrc
 ```
 
-### "Git not configured"
+### "Biome errors"
 ```bash
-gh auth login
-git config --global user.name "Your Name"
-git config --global user.email "your@email.com"
+# Auto-fix most issues
+pnpm lint:fix
+
+# Format code
+pnpm format
 ```
 
-### "Can't push to GitHub"
+### "pnpm not found"
 ```bash
-# Check remote
-git remote -v
-# If missing, add it:
-gh repo create --private
+npm install -g pnpm@9
 ```
 
 ## Success Checklist
 
 - [ ] Claude Code installed and working
 - [ ] GitHub CLI authenticated
+- [ ] Bun installed and verified
+- [ ] pnpm installed and dependencies installed
+- [ ] Biome working for linting/formatting
 - [ ] Project cloned/created
-- [ ] Dependencies installed
 - [ ] `/init` completed
 - [ ] `/init-project` defined your project
 - [ ] GitHub issues created
 - [ ] First feature started
 - [ ] Auto-save verified (check gists)
+- [ ] Tests running with Bun
 
-## What's Next?
+## Scripts Available
 
-1. **Continue First Feature**
-   ```bash
-   /pt user-authentication   # Continue tasks
-   /btf user-authentication  # Test in browser
-   /fw complete 1           # Create PR
-   ```
+```bash
+# Development
+bun dev                    # Start dev server
+bun build                  # Build for production
+bun start                  # Start production server
 
-2. **Start Next Feature**
-   ```bash
-   /fw start 2              # Start issue #2
-   /prd task-management     # Define it
-   /gt task-management      # Generate tasks
-   /orch task-management    # Use multi-agent
-   ```
+# Testing
+bun test                   # Run all tests
+bun test:watch            # Watch mode
+bun test:coverage         # With coverage
+bun test:e2e              # Playwright E2E tests
 
-3. **Explore Advanced Features**
-   - `/orch` - Multi-agent orchestration
-   - `/ctf` - Create secure forms
-   - `/compress` - Optimize context
+# Code Quality
+pnpm lint                  # Biome check
+pnpm lint:fix             # Biome fix
+pnpm format               # Format code
+pnpm typecheck            # TypeScript check
+
+# Database
+pnpm db:push              # Push schema to DB
+pnpm db:studio            # Open Drizzle studio
+pnpm db:migrate           # Run migrations
+
+# Utilities
+pnpm check:all            # Run all checks
+pnpm analyze              # Bundle analysis
+```
+
+## Tech Stack Summary
+
+- **Runtime**: Bun v1.0+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript (strict mode)
+- **Package Manager**: pnpm v9
+- **Linting/Formatting**: Biome
+- **Styling**: Tailwind CSS v4
+- **Database**: Supabase + Drizzle ORM
+- **State**: Zustand + React Query (TanStack)
+- **Testing**: Bun test + Playwright
+- **Forms**: React Hook Form + Zod
+- **Icons**: Lucide React
 
 ## 🎉 Congratulations!
 
 You now have:
-- ✅ A working project with Claude automation
-- ✅ GitHub integration saving every 60 seconds
+- ✅ A working project with Bun + Biome + pnpm
+- ✅ Claude automation with GitHub integration
 - ✅ PRD-driven development workflow
 - ✅ Design system enforcement
 - ✅ Multi-agent capabilities
-- ✅ Perfect context preservation
+- ✅ Modern tooling (Bun for speed, Biome for consistency)
 
 **Pro tip**: Keep `QUICK_REFERENCE.md` open in another tab for easy command access.
 
-## Need Help?
-
-- Run `/help` for command assistance
-- Check `/error-recovery` if something breaks
-- Review logs in `.claude/logs/`
-
 ---
 
-Welcome to the future of AI-assisted development! 🚀
+Welcome to the future of AI-assisted development with modern tooling! 🚀
