@@ -15,8 +15,19 @@ By the end of this guide, you'll have:
 claude-code --version
 git --version
 gh --version
-node --version
+node --version  # Need v22+
+pnpm --version  # Need v9+
 python3 --version
+bun --version   # Need v1.0+
+
+# If missing any:
+# Claude Code: Download from Anthropic
+# Git: brew install git
+# GitHub CLI: brew install gh
+# Node: brew install node@22
+# pnpm: npm install -g pnpm@9
+# Python: brew install python@3
+# Bun: curl -fsSL https://bun.sh/install | bash
 ```
 
 ## Step 1: Project Creation (5 minutes)
@@ -219,8 +230,19 @@ EOF
 ## Step 3: Install Dependencies & Tools (5 minutes)
 
 ```bash
+# Install Bun (if not already installed)
+curl -fsSL https://bun.sh/install | bash
+# Or with Homebrew:
+brew install oven-sh/bun/bun
+
+# Verify Bun is installed
+bun --version
+
 # Install project dependencies
 pnpm install
+
+# Biome is installed as a dev dependency, verify it works
+pnpm biome --version
 
 # Install Playwright MCP globally
 npm install -g @modelcontextprotocol/server-playwright
@@ -231,6 +253,8 @@ pip3 install gitpython
 # Make scripts executable
 chmod +x .claude/scripts/*.sh
 chmod +x .claude/scripts/*.py
+chmod +x .claude/hooks/pre-tool-use/*.py
+chmod +x .claude/hooks/post-tool-use/*.py
 
 # Set up Claude Code hooks for observability
 ./setup-hooks.sh
