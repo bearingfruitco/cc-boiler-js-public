@@ -67,5 +67,8 @@
   "review-commit": "commit-review",
   "gs": "git-status",
   "status": "git-status",
-  "changes": "git-status"
+  "changes": "git-status",
+  "deps": "check-deps",
+  "dependencies": "check-deps",
+  "check-dependencies": "check-deps"
 }
