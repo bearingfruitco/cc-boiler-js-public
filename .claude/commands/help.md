@@ -14,7 +14,13 @@ Show context-aware help for all commands and workflows.
 
 ## 🆕 NEW FEATURES (Latest Updates)
 
-### Context Management & Optimization
+### Grove-Inspired Enhancements (v2.3.0)
+- **PRD Clarity Linter** - Automatic ambiguity detection in requirements
+- `/specs` - Extract and reuse successful specification patterns
+- `/prd-tests` - Generate tests from PRD acceptance criteria
+- `/grade` - Score implementation alignment with PRD (0-100%)
+
+### Context Management & Optimization (v2.2.0)
 - `/context-profile (cp)` - Manage focused context profiles for different work modes
 - `/bug-track (bt)` - Persistent bug tracking across sessions
 - `/doc-cache (dc)` - Cache external documentation locally
@@ -51,10 +57,12 @@ Show context-aware help for all commands and workflows.
 
 ### 2. PRD & Task Workflow
 ```bash
-/create-prd (prd)         # Generate Product Requirements
+/create-prd (prd)         # Generate Product Requirements (with clarity linting)
+/prd-tests                # NEW: Generate tests from acceptance criteria
 /generate-tasks (gt)      # Break PRD into tasks
 /process-tasks (pt)       # Work through tasks
-/stage-validate (sv)      # NEW: Validate stage completion
+/stage-validate (sv)      # Validate stage completion
+/grade                    # NEW: Grade implementation vs PRD
 /task-status (ts)         # View progress
 /task-board (tb)          # Visual task view
 /verify-task (vt)         # Confirm completion
@@ -65,9 +73,10 @@ Show context-aware help for all commands and workflows.
 /create-component (cc)    # Create validated component
 /validate-design (vd)     # Check design compliance
 /create-tracked-form (ctf) # Secure form with tracking
-/bug-track (bt)           # NEW: Track bugs persistently
+/bug-track (bt)           # Track bugs persistently
 /exists [name]            # Check before creating
 /facts [category]         # Show established values
+/specs                    # NEW: Specification pattern library
 ```
 
 ### 4. Documentation & Research
@@ -180,6 +189,14 @@ gh issue create --title "User Dashboard"
 ```
 
 ## 💡 Enhanced Command Aliases
+
+### Grove Enhancements
+- `specs` → spec-patterns
+- `patterns` → spec-patterns
+- `prd-tests` → prd-generate-tests
+- `gen-tests` → prd-generate-tests
+- `grade` → stage-validate-grade
+- `alignment` → stage-validate-grade
 
 ### Context Management
 - `cp` → context-profile
