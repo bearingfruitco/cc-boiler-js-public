@@ -14,8 +14,11 @@ rm -rf .git && git init
 
 ### Existing Project
 ```bash
-# Add Claude automation to your project
-# Follow: docs/setup/ADD_TO_EXISTING_PROJECT.md
+# Quick add (minimal - just commit control)
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/scripts/add-to-existing.sh | bash -s minimal
+
+# Or follow the full guide:
+# docs/setup/ADD_TO_EXISTING_PROJECT.md
 ```
 
 ### Complete Setup Guide
