@@ -2,6 +2,42 @@
 
 All notable changes to the Claude Code Boilerplate project.
 
+## [2.1.0] - January 2025
+
+### 🎨 UI Design Enhancements
+
+Based on analysis of SuperDesign and modern UI generation approaches:
+
+#### New Commands
+- **Enhanced `/create-component`**:
+  - `--wireframe` flag: Start with ASCII wireframe for rapid layout validation
+  - `--animate` flag: Plan micro-interactions before implementation
+  - `--style=ref` flag: Use extracted style references
+  
+- **New `/extract-style` command**:
+  - Extract design tokens from reference images/URLs
+  - Automatically maps to our 4-size, 2-weight design system
+  - Maintains 60/30/10 color distribution
+  - Saves themes as version-controlled JSON
+
+#### Design Workflow Improvements
+- **Flow Engineering**: Layout → Style → Animation → Implementation
+- **ASCII Wireframing**: 1-second layout validation before coding
+- **Style Extraction**: From Dribbble, Behance, or any website
+- **Animation Planning**: Define keyframes and triggers upfront
+
+#### Why These Changes
+- Prevents "AI-ish UI" through better design planning
+- Maintains our strict design system enforcement
+- Adds speed without compromising quality
+- Optional enhancements - use only when helpful
+
+### 📚 Documentation
+- Updated `/create-component.md` with wireframe flow
+- Added `/extract-style.md` command documentation
+- Enhanced `NEW_CHAT_CONTEXT.md` with UI design workflow
+- Updated `INITIAL.md` with design recommendations
+
 ## [2.0.0] - January 2025
 
 ### 🚀 Major Package Updates

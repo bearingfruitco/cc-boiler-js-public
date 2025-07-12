@@ -142,6 +142,21 @@ lib/
 /gft                    # Generate types
 ```
 
+### Enhanced UI Design Flow
+```bash
+# 1. Extract style from reference (optional)
+/extract-style https://dribbble.com/shots/123456
+
+# 2. Create component with wireframe
+/cc ui ProductCard --wireframe --animate
+# - Shows ASCII layout first
+# - Plans animations
+# - Applies design system
+
+# 3. Validate design compliance
+/vd components/ui/ProductCard.tsx
+```
+
 ### Daily Development
 ```bash
 /sr                     # Smart resume
@@ -175,6 +190,9 @@ lib/
 
 ### Development
 - `/cc` - Create component (validated)
+  - `--wireframe` - Start with ASCII layout
+  - `--animate` - Plan animations first
+- `/extract-style` - Extract design from reference
 - `/vd` - Validate design
 - `/fw` - Feature workflow
 

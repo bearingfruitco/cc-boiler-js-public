@@ -29,6 +29,9 @@
 
 ### Development
 - `/cc` - Create component
+  - `--wireframe` - ASCII layout first
+  - `--animate` - Plan animations
+- `/es` - Extract style from reference
 - `/vd` - Validate design
 - `/fw` - Feature workflow
 

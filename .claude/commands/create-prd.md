@@ -36,4 +36,41 @@ List specific functionalities needed:
 - What could go wrong?
 - How should the system respond?
 
+## 8. Documentation & Context Requirements
+### Must Read Documentation
+List with reasons why each is critical:
+```
+- url: [official API docs] 
+  why: [specific methods/patterns we'll use]
+- file: [existing code example]
+  why: [pattern to follow or gotcha to avoid]
+- doc: [library guide]
+  section: [specific section]
+  critical: [key insight that prevents errors]
+```
+
+### Research Needed
+Technologies requiring documentation research:
+- [ ] Technology 1 - focus areas
+- [ ] Technology 2 - focus areas
+
+Run `/research-docs "[tech1], [tech2]"` before implementation
+
+## 9. Implementation Phases
+### Phase 1: Foundation (Backend/Data)
+- Database schema and models
+- Core business logic
+- Basic API structure
+
+### Phase 2: Core Features
+- Complete API implementation
+- Frontend components
+- Integration and testing
+
+### Phase 3: Polish & Production
+- Error handling
+- Performance optimization
+- Security hardening
+- Final testing
+
 Save as docs/project/features/$ARGUMENTS-PRD.md
