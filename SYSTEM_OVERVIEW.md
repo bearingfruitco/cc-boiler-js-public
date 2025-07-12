@@ -1,4 +1,4 @@
-# Claude Code Boilerplate System Overview v2.3.1
+# Claude Code Boilerplate System Overview v2.3.2
 
 ## 🎯 Executive Summary
 
@@ -130,6 +130,16 @@ Based on Sean Grove's "The New Code" philosophy:
   - Safe commands (lint, test, typecheck) auto-approved
   - Production code still requires explicit approval
   - Prevents "came back to find it waiting" interruptions
+
+### Package Version Updates (v2.3.2)
+- **Updated all dependencies** to latest stable versions
+- **Fixed version mismatches** where packages requested unreleased versions
+- **Key fixes**:
+  - postgres: 3.5.0 → 3.4.7 (latest)
+  - drizzle-kit: 0.32.0 → 0.31.4 (latest)
+  - husky: 9.2.0 → 9.1.7 (latest)
+- **Tailwind CSS v4.1** properly supported
+- **pnpm updated** to 10.13.1
 
 ### Design System
 - Only 4 font sizes (text-size-[1-4])

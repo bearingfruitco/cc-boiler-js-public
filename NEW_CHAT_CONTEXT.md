@@ -1,4 +1,4 @@
-# New Chat Context - Claude Code Boilerplate v2.3.1
+# New Chat Context - Claude Code Boilerplate v2.3.2
 
 ## 🚀 Quick Start
 
@@ -12,6 +12,11 @@ You're working with an advanced AI-assisted development system that treats speci
 ```
 
 ## 🌟 Latest Features
+
+### Package Version Updates (v2.3.2)
+- **All packages updated** to latest stable versions
+- **Fixed version mismatches** for unreleased versions
+- **Verified compatibility** across all dependencies
 
 ### Workflow Enhancement (v2.3.1)
 - **Smart Auto-Approval** - No more "Can I edit this file?" interruptions!
