@@ -237,14 +237,20 @@ gh issue create --title "Feature: User Profile"
 
 ## 🔧 Technical Stack
 
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 15 (App Router + Turbopack)
 - **Language**: TypeScript (strict mode)
-- **Styling**: Tailwind CSS (custom tokens)
-- **Database**: Supabase (Auth + DB)
-- **State**: Zustand + React Query
-- **Testing**: Playwright MCP
+- **Styling**: Tailwind CSS + Radix UI primitives
+- **Database**: Supabase + Drizzle ORM + Prisma
+- **Authentication**: Auth.js v5 (next-auth) + Supabase Auth
+- **State**: Zustand + TanStack Query + SWR
+- **Testing**: Vitest + Playwright + MSW + @faker-js/faker
 - **Forms**: React Hook Form + Zod
 - **Icons**: Lucide React
+- **Date/Time**: date-fns v4 + @date-fns/tz
+- **Build Tools**: Turbopack (dev) + SWC + Biome
+- **Analytics**: RudderStack + Vercel Analytics + Sentry
+- **Performance**: Sharp (images) + Turbopack + Bundle Analyzer
+- **Security**: Jose (JWT) + Field encryption + PII protection
 
 ## 📊 Results & Benefits
 

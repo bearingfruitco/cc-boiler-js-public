@@ -94,13 +94,16 @@ Active hooks enforce rules automatically:
 
 ## 🔧 Technical Stack
 
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 15 (App Router + Turbopack)
 - **Language**: TypeScript (strict mode)
-- **Styling**: Tailwind CSS (custom tokens)
-- **Database**: Supabase
-- **State**: Zustand + React Query
-- **Testing**: Playwright MCP
-- **Security**: Field-level encryption, audit logging
+- **Styling**: Tailwind CSS + Radix UI primitives
+- **Database**: Supabase + Drizzle ORM
+- **Authentication**: Auth.js v5 (next-auth)
+- **State**: Zustand + TanStack Query
+- **Testing**: Vitest + Playwright + MSW
+- **Date/Time**: date-fns v4 with timezones
+- **Build**: Turbopack (dev) + Biome (lint/format)
+- **Security**: Field-level encryption, audit logging, PII protection
 
 ## 📁 Key Directories
 

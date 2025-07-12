@@ -103,13 +103,16 @@ See **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** for all commands.
 
 ## 🏗️ Technical Stack
 
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 15 (App Router + Turbopack)
 - **Language**: TypeScript (strict mode)
-- **Styling**: Tailwind CSS (custom tokens)
-- **Database**: Supabase (Auth + DB)
-- **State**: Zustand + React Query
-- **Testing**: Playwright MCP
-- **Security**: Field-level encryption, audit logging
+- **Styling**: Tailwind CSS + Radix UI primitives
+- **Database**: Supabase (Auth + DB) + Drizzle ORM
+- **Auth**: Auth.js v5 (next-auth)
+- **State**: Zustand + TanStack Query
+- **Testing**: Vitest + Playwright + MSW
+- **Date Handling**: date-fns v4 with timezone support
+- **Build Tools**: Turbopack + SWC + Biome
+- **Security**: Field-level encryption, audit logging, PII protection
 
 ## 💡 Key Features
 
