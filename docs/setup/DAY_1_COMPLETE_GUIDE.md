@@ -17,7 +17,7 @@ By the end of this guide, you'll have:
 
 **Automatic Features:**
 - **Gist saves**: Every 60 seconds your work state saves to GitHub gists
-- **Regular commits**: Every 3 tasks or 30 minutes
+- **Manual commits**: You control when to commit (use `/cr` command)
 - **Issue tracking**: All work linked to GitHub issues
 - **Smart resume**: Restores context from multiple GitHub sources
 - **Safety hooks**: Prevent accidental changes, deletions, and errors

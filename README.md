@@ -25,7 +25,7 @@ For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_
 
 ### Instant Productivity
 - **90+ Custom Commands** - Everything from `/sr` (smart resume) to `/orch` (orchestrate agents)
-- **Zero Context Loss** - Auto-saves every 60 seconds to GitHub
+- **Zero Context Loss** - Auto-saves work state to GitHub gists (not commits!)
 - **PRD-Driven Development** - Start with requirements, get working code
 - **Multi-Agent System** - 9 specialized personas work in parallel
 

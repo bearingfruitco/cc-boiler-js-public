@@ -61,5 +61,11 @@
   "fgen": "field-generate",
   "override-facts": "truth-override",
   "allow-changes": "truth-override",
-  "override": "truth-override"
+  "override": "truth-override",
+  "cr": "commit-review",
+  "safe-commit": "commit-review",
+  "review-commit": "commit-review",
+  "gs": "git-status",
+  "status": "git-status",
+  "changes": "git-status"
 }
