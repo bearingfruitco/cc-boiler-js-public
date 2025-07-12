@@ -1,4 +1,4 @@
-# Claude Code Boilerplate System Overview v2.3.0
+# Claude Code Boilerplate System Overview v2.3.1
 
 ## 🎯 Executive Summary
 
@@ -18,6 +18,7 @@ This is a comprehensive AI-assisted development system that combines PRD-driven 
 
 #### 2. Hooks System (Automated Enforcement)
 **Pre-Tool-Use Hooks**:
+- Smart auto-approval (safe operations proceed without interruption)
 - Design system enforcement (blocks violations)
 - PRD clarity linting (catches ambiguous language)
 - GitHub synchronization (prevents conflicts)
@@ -121,6 +122,14 @@ Based on Sean Grove's "The New Code" philosophy:
 ```
 
 ## 🛡️ Automated Protections
+
+### Workflow Enhancement (v2.3.1)
+- **Smart Auto-Approval**: Safe operations proceed without permission prompts
+  - All read operations (file reading, directory listing) auto-approved
+  - Test file modifications auto-approved
+  - Safe commands (lint, test, typecheck) auto-approved
+  - Production code still requires explicit approval
+  - Prevents "came back to find it waiting" interruptions
 
 ### Design System
 - Only 4 font sizes (text-size-[1-4])

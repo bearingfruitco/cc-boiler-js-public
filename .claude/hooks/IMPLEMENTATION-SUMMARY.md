@@ -4,6 +4,12 @@
 
 I've created a comprehensive hooks system for your multi-agent collaboration between you and Nikki. Here's what it does:
 
+### 🚀 Smart Auto-Approval (NEW in v2.3.1)
+- **No more interruptions**: Safe operations proceed automatically
+- **Test files auto-approved**: Edit test files without prompts
+- **Read operations flow**: All file reading happens instantly
+- **Production protected**: Important files still require approval
+
 ### 🔄 Automatic GitHub Sync
 - **Before any file edit**: Pulls latest changes from GitHub
 - **Prevents conflicts**: Warns if Nikki recently edited the same file

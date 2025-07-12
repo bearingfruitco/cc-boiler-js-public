@@ -10,6 +10,12 @@
   "hooks": {
     "pre-tool-use": [
       {
+        "script": "00-auto-approve-safe-ops.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Auto-approve safe read operations and test file edits"
+      },
+      {
         "script": "01-collab-sync.py",
         "enabled": true,
         "critical": true,

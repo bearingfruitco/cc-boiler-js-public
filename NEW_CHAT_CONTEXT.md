@@ -1,4 +1,4 @@
-# New Chat Context - Claude Code Boilerplate v2.3.0
+# New Chat Context - Claude Code Boilerplate v2.3.1
 
 ## 🚀 Quick Start
 
@@ -11,9 +11,16 @@ You're working with an advanced AI-assisted development system that treats speci
 /cp load [profile]     # Load focused context
 ```
 
-## 🌟 Latest Features (v2.3.0)
+## 🌟 Latest Features
 
-### Grove-Inspired Enhancements
+### Workflow Enhancement (v2.3.1)
+- **Smart Auto-Approval** - No more "Can I edit this file?" interruptions!
+  - Read operations proceed automatically
+  - Test file edits auto-approved
+  - Safe commands (lint, test) run without prompts
+  - Production code still protected
+
+### Grove-Inspired Enhancements (v2.3.0)
 1. **PRD Clarity Linter** - Catches ambiguous language automatically
 2. **Specification Patterns** - Extract/reuse successful implementations (`/specs`)
 3. **Test Generation** - PRD acceptance criteria → tests (`/prd-tests`)
@@ -63,6 +70,7 @@ IDEA → /init-project → /prd → /gt → /pt → /grade → /fw complete
 ## 🛡️ Automatic Protections
 
 The system automatically:
+- **Approves** safe operations (no more waiting!)
 - **Blocks** design violations (wrong CSS classes)
 - **Warns** about ambiguous PRD language
 - **Saves** context every 60 seconds

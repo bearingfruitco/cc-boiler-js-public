@@ -60,9 +60,30 @@ The hooks system enforces many of these rules automatically.
    - Share knowledge automatically
    - Perfect handoffs via state persistence
 
+## 🚀 Workflow Enhancement (v2.3.1)
+
+### No More "Can I Edit This File?" Interruptions!
+
+The system now auto-approves safe operations so you can work uninterrupted:
+
+**Auto-Approved Operations:**
+- ✅ Reading any file or directory
+- ✅ Editing test files (/tests/, *.test.ts, *.spec.js)
+- ✅ Running safe commands (npm test, lint, typecheck)
+- ✅ Checking file info and searching
+
+**Still Requires Approval:**
+- 🔐 Editing production code
+- 🔐 Database operations
+- 🔐 Git commits and pushes
+- 🔐 Installing packages
+
+This means you can start a task, go grab coffee, and come back to completed work instead of permission prompts!
+
 ## 🤖 How Hooks Help You
 
 ### Pre-Tool-Use Hooks (Before You Edit)
+- **00-auto-approve-safe-ops**: Auto-approves read operations and test edits
 - **01-collab-sync**: Pulls latest changes automatically
 - **02-design-check**: Blocks design violations with auto-fix
 - **03-conflict-check**: Warns if team member is editing
