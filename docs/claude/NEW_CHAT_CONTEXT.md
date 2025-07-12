@@ -9,10 +9,16 @@ claude-code .
 # 2. Resume with full context
 /sr
 
-# 3. Check current status
-/sas
+# 3. Load your context profile
+/cp load frontend   # or backend, debug, etc.
 
-# 4. Continue where you left off
+# 4. Check open bugs
+/bt list
+
+# 5. Check stage status
+/sv status
+
+# 6. Continue where you left off
 ```
 
 ## 🎯 System Overview
@@ -26,13 +32,19 @@ This is a production-ready boilerplate for AI-assisted development with:
 4. **Security-First Forms** - PII/PHI protection with field registry
 5. **Persona-Based Sub-Agents** - 9 specialized agents for parallel work
 6. **90+ Custom Commands** - Streamlined workflows with aliases
+7. **Bug Tracking** - Persistent across sessions (NEW)
+8. **Context Profiles** - Focused work modes (NEW)
+9. **Documentation Cache** - Offline docs access (NEW)
+10. **Stage Validation** - Enforce phase completion (NEW)
 
 ## 📋 Current Capabilities
 
 ### 1. PRD & Task Management
-- `/prd [feature]` - Generate Product Requirements Document
+- `/prd [feature]` - Generate PRD with stage validation gates
 - `/gt [feature]` - Generate granular tasks (5-15 min each)
 - `/pt [feature]` - Process tasks one by one
+- `/sv check [stage]` - Validate stage completion (NEW)
+- `/sv require [stage]` - Enforce stage gates (NEW)
 - `/ts` - Task status overview
 - `/tb` - Visual task board
 
@@ -113,7 +125,10 @@ Active hooks enforce rules automatically:
 ├── hooks/          # Automation & safety
 ├── personas/       # Agent personalities
 ├── orchestration/  # Multi-agent coordination
-└── checkpoints/    # State snapshots
+├── checkpoints/    # State snapshots
+├── bugs/           # Bug tracking (NEW)
+├── profiles/       # Context profiles (NEW)
+└── doc-cache/      # Documentation cache (NEW)
 
 field-registry/
 ├── core/           # Universal tracking fields
@@ -129,10 +144,13 @@ lib/
 
 ### Start New Feature
 ```bash
-/prd user-profile        # Generate PRD
+/prd user-profile        # Generate PRD with stage gates
+/dc cache "React hooks"  # Cache relevant docs
+/cp create "profile-work" # Create context profile
 /gt user-profile        # Break into tasks
 /at user-profile        # Assign to agents
 /orch user-profile      # Start parallel work
+/sv check 1             # Validate stage 1 before proceeding
 ```
 
 ### Create Secure Form
@@ -160,6 +178,9 @@ lib/
 ### Daily Development
 ```bash
 /sr                     # Smart resume
+/cp load "frontend"     # Load context profile
+/bt list --open         # Check open bugs
+/sv status              # Check stage progress
 /sas                    # Check agent status
 /vd                     # Validate design
 /checkpoint create      # Save progress
@@ -185,6 +206,8 @@ lib/
 
 ### Essential Daily
 - `/sr` - Smart Resume
+- `/cp` - Context profiles (NEW)
+- `/bt` - Bug tracking (NEW)
 - `/help` - Context-aware help
 - `/todo` - Task management
 
@@ -195,6 +218,8 @@ lib/
 - `/extract-style` - Extract design from reference
 - `/vd` - Validate design
 - `/fw` - Feature workflow
+- `/sv` - Stage validation (NEW)
+- `/dc` - Documentation cache (NEW)
 
 ### Testing
 - `/btf` - Browser test flow
@@ -234,9 +259,13 @@ lib/
 3. **Parallel Development**: Multiple specialized agents
 4. **Security by Default**: PII protection built-in
 5. **Natural Documentation**: From PRDs and handoffs
-6. **Evidence-Based Development (NEW)**: Claims backed by proof - "testing shows" not "this is best"
-7. **Smart Persona Selection (NEW)**: Auto-suggests right expert based on file/task
-8. **Token Optimization (NEW)**: `/compress` command compresses context when needed
+6. **Evidence-Based Development**: Claims backed by proof - "testing shows" not "this is best"
+7. **Smart Persona Selection**: Auto-suggests right expert based on file/task
+8. **Token Optimization**: `/compress` command compresses context when needed
+9. **Context Profiles (NEW)**: Switch between focused work modes without losing state
+10. **Persistent Bug Tracking (NEW)**: Never lose track of issues between sessions
+11. **Documentation Caching (NEW)**: Work offline with cached library docs
+12. **Stage Validation Gates (NEW)**: Ensure quality at each development phase
 
 ## 🔗 Important Files
 

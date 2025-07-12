@@ -35,6 +35,9 @@ A production-ready boilerplate for AI-assisted development using Claude Code, de
    - GitHub gist backups
    - Team handoff documentation
    - Nightly documentation updates
+   - **NEW**: Context Profiles for focused work modes
+   - **NEW**: Bug tracking persistence across sessions
+   - **NEW**: Documentation cache for offline access
 
 5. **Hooks System (Observability & Safety)**
    - Pre-tool-use: Blocks dangerous commands & PII exposure
@@ -66,14 +69,18 @@ A production-ready boilerplate for AI-assisted development using Claude Code, de
 boilerplate/
 ├── .claude/                       # Claude Code configuration
 │   ├── commands/                  # 90+ custom commands
-│   │   ├── create-prd.md         # Generate PRDs
+│   │   ├── create-prd.md         # Generate PRDs with stage gates
 │   │   ├── generate-tasks.md     # Break down into tasks
 │   │   ├── process-tasks.md      # Work through tasks
 │   │   ├── smart-resume.md       # Context restoration
+│   │   ├── bug-track.md          # Persistent bug tracking (NEW)
+│   │   ├── context-profile.md    # Context profiles (NEW)
+│   │   ├── doc-cache.md          # Documentation cache (NEW)
+│   │   ├── stage-validate.md     # Stage validation (NEW)
 │   │   ├── create-tracked-form.md # Secure form generation
 │   │   ├── orchestrate-agents.md # Multi-agent orchestration
 │   │   ├── persona.md           # Persona switching
-│   │   └── ... (80+ more)
+│   │   └── ... (90+ more)
 │   ├── hooks/                     # Automation hooks
 │   │   ├── pre-tool-use/         # Safety + PII protection
 │   │   ├── post-tool-use/        # Logging + state save
@@ -85,6 +92,17 @@ boilerplate/
 │   ├── scripts/                   # Utility scripts
 │   │   ├── nightly-update.py     # Auto-update docs
 │   │   └── install-hooks.sh      # Hook setup
+│   ├── bugs/                     # Bug tracking (NEW)
+│   │   ├── active.json          # Open bugs
+│   │   ├── resolved.json        # Fixed bugs
+│   │   └── archive/             # Old bugs
+│   ├── profiles/                 # Context profiles (NEW)
+│   │   ├── profiles.json        # User profiles
+│   │   └── presets/             # Built-in profiles
+│   ├── doc-cache/                # Documentation cache (NEW)
+│   │   ├── index.json           # Searchable index
+│   │   ├── metadata.json        # Cache metadata
+│   │   └── sources/             # Cached docs
 │   ├── checkpoints/              # State snapshots
 │   ├── logs/                     # Action logs
 │   ├── transcripts/              # Chat histories
@@ -135,6 +153,9 @@ boilerplate/
 - AI generates granular tasks
 - Work through tasks systematically
 - Each task verifiable in 5-15 minutes
+- **NEW**: Stage validation gates ensure phase completion
+- **NEW**: Context profiles suggested per phase
+- **NEW**: Documentation requirements auto-cached
 
 ### 2. **Smart Context Management**
 - Never lose context between sessions
@@ -207,13 +228,16 @@ gh issue create --title "Feature: User Profile"
 
 ### Essential Commands
 - `/sr` - Smart Resume (start every session)
+- `/cp` - Context Profile management (NEW)
+- `/bt` - Bug tracking (NEW)
 - `/help` - Contextual help system
 - `/init` - One-time project setup
 
 ### PRD & Tasks
-- `/prd` - Create Product Requirements
+- `/prd` - Create Product Requirements with stage gates
 - `/gt` - Generate task list
 - `/pt` - Process tasks one by one
+- `/sv` - Stage validation (NEW)
 - `/ts` - Task status overview
 - `/tb` - Visual task board
 
@@ -232,6 +256,8 @@ gh issue create --title "Feature: User Profile"
 
 ### Context & State
 - `/checkpoint` - Save progress
+- `/cp` - Context profiles (NEW)
+- `/dc` - Documentation cache (NEW)
 - `/cg` - Context grab
 - `/auc` - Auto-update context
 
