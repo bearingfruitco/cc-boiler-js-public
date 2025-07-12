@@ -9,10 +9,16 @@ Show context-aware help for all commands and workflows.
 /h [topic]     # short alias
 /? [topic]     # shorter alias
 
-# Topics: all, new, commands, workflows, aliases, prd, testing, security
+# Topics: all, new, commands, workflows, aliases, prd, testing, security, context
 ```
 
-## 🆕 NEW FEATURES (Latest Additions)
+## 🆕 NEW FEATURES (Latest Updates)
+
+### Context Management & Optimization
+- `/context-profile (cp)` - Manage focused context profiles for different work modes
+- `/bug-track (bt)` - Persistent bug tracking across sessions
+- `/doc-cache (dc)` - Cache external documentation locally
+- `/stage-validate (sv)` - Enforce stage completion gates
 
 ### Truth & Existence Commands
 - `/facts [category]` - Show established project values that cannot be changed
@@ -31,18 +37,13 @@ Show context-aware help for all commands and workflows.
 - `/chain field-sync` - Regenerate all field-based code
 - `/chain pre-component` - Check before creating components
 
-### New Hook Protections (Automatic)
-- **Hydration Guard** - Prevents Next.js SSR errors
-- **Truth Enforcer** - Blocks changes to established values
-- **Deletion Guard** - Warns before significant deletions
-- **Import Validator** - Fixes import path issues
-
 ## 📚 Command Categories
 
 ### 1. Context & State Management
 ```bash
 /smart-resume (sr)         # Restore full context
 /checkpoint (cp)           # Save current state
+/context-profile (cp)      # NEW: Manage context profiles
 /context-grab (cg)         # Capture working context
 /compress-context          # Reduce token usage
 /compact-prepare          # Prepare for session end
@@ -53,6 +54,7 @@ Show context-aware help for all commands and workflows.
 /create-prd (prd)         # Generate Product Requirements
 /generate-tasks (gt)      # Break PRD into tasks
 /process-tasks (pt)       # Work through tasks
+/stage-validate (sv)      # NEW: Validate stage completion
 /task-status (ts)         # View progress
 /task-board (tb)          # Visual task view
 /verify-task (vt)         # Confirm completion
@@ -63,11 +65,19 @@ Show context-aware help for all commands and workflows.
 /create-component (cc)    # Create validated component
 /validate-design (vd)     # Check design compliance
 /create-tracked-form (ctf) # Secure form with tracking
+/bug-track (bt)           # NEW: Track bugs persistently
 /exists [name]            # Check before creating
 /facts [category]         # Show established values
 ```
 
-### 4. Testing & Quality
+### 4. Documentation & Research
+```bash
+/research-docs            # Research documentation
+/doc-cache (dc)           # NEW: Cache docs locally
+/generate-docs            # Generate project docs
+```
+
+### 5. Testing & Quality
 ```bash
 /browser-test-flow (btf)  # Browser automation tests
 /test-runner (tr)         # Run unit tests
@@ -75,7 +85,7 @@ Show context-aware help for all commands and workflows.
 /audit-form-security (afs) # Security audit
 ```
 
-### 5. Team & Collaboration
+### 6. Team & Collaboration
 ```bash
 /feature-workflow (fw)    # GitHub issue workflow
 /work-status (ws)         # Team activity
@@ -83,7 +93,7 @@ Show context-aware help for all commands and workflows.
 /change-log               # Recent changes
 ```
 
-### 6. Security & Compliance
+### 7. Security & Compliance
 ```bash
 /security-check (sc)      # Security audit
 /audit-form-security      # Form security check
@@ -91,7 +101,7 @@ Show context-aware help for all commands and workflows.
 /facts env                # Show environment vars
 ```
 
-### 7. Multi-Agent Orchestration
+### 8. Multi-Agent Orchestration
 ```bash
 /orchestrate-agents (orch) # Start multi-agent work
 /spawn-agent (spawn)      # Create specialized agent
@@ -99,12 +109,13 @@ Show context-aware help for all commands and workflows.
 /sub-agent-status (sas)   # Check agent progress
 ```
 
-## 🔄 Workflow Examples
+## 🔄 Enhanced Workflows
 
-### Starting New Feature (Complete Flow)
+### Starting New Feature (With New Commands)
 ```bash
-# 1. Create issue
+# 1. Create issue & set context
 gh issue create --title "User Dashboard"
+/context-profile create "dashboard-work"
 
 # 2. Start feature
 /fw start 23
@@ -113,48 +124,68 @@ gh issue create --title "User Dashboard"
 /facts                    # See constraints
 /exists Dashboard         # Check if exists
 
-# 4. Create PRD
+# 4. Create PRD & cache docs
 /prd user-dashboard
+/doc-cache cache "React Dashboard patterns"
 
 # 5. Generate and process tasks
 /gt user-dashboard
 /pt user-dashboard
 
-# 6. Safe development
+# 6. Stage validation
+/stage-validate check 1   # Validate foundation
+
+# 7. Safe development
 /chain pre-component      # Before creating
 /cc feature Dashboard     # Create component
+/bug-track add "Issue with props" # Track any bugs
+
+# 8. Complete stage
+/stage-validate require 1 # Ensure stage complete
 /chain safe-commit       # Before committing
 
-# 7. Complete
+# 9. Complete feature
 /btf dashboard
 /fw complete 23
 ```
 
-### Daily Development
+### Context-Aware Development
 ```bash
-# Morning
-/sr                      # Resume context
-/facts                   # See constraints
-/ts                      # Check tasks
+# Morning with profiles
+/sr                              # Resume context
+/context-profile load "auth-work" # Load focused context
+/bug-track list --open           # Check open bugs
+/stage-validate status           # Check progress
 
-# Before creating
-/exists LoginForm        # Check first
-/pc LoginForm           # Full pre-check
+# Switching contexts
+/context-profile save "auth-work"
+/context-profile load "frontend-ui"
 
-# Safe commits
-/chain safe-commit      # Validate everything
+# Working with cached docs
+/doc-cache search "useEffect"
+/doc-cache show "React hooks" --section "useEffect"
 ```
 
-### Form Development
+### Bug Tracking Workflow
 ```bash
-/exists ContactForm
-/ctf ContactForm --vertical=debt
-/fg schemas             # Generate validation
-/fg factories           # Generate test data
-/afs components/forms/ContactForm.tsx
+# When error occurs
+/bug-track add "Render issue in AuthForm"
+
+# During development  
+/bug-track list --file AuthForm
+/bug-track update bug_1234 --tag "props"
+
+# When fixing
+/bug-track resolve bug_1234 "Fixed prop types"
 ```
 
-## 💡 Command Aliases
+## 💡 Enhanced Command Aliases
+
+### Context Management
+- `cp` → context-profile
+- `bt` → bug-track
+- `dc` → doc-cache
+- `sv` → stage-validate
 
 ### Most Used
 - `sr` → smart-resume
@@ -165,7 +196,7 @@ gh issue create --title "User Dashboard"
 - `gt` → generate-tasks
 - `pt` → process-tasks
 
-### New Aliases
+### Safety Aliases
 - `truth` → facts
 - `check` → exists
 - `fg` → field-generate
@@ -186,15 +217,16 @@ gh issue create --title "User Dashboard"
 ## 📊 Quick Reference Card
 
 ```
-DAILY ESSENTIALS        BEFORE CREATING        SAFE DEVELOPMENT
-/sr    - resume         /exists  - check       /chain safe-commit
-/facts - constraints    /pc      - pre-check   /vd - validate
-/ts    - tasks         /facts   - values      /btf - test
+CONTEXT MANAGEMENT      DAILY ESSENTIALS        STAGE CONTROL
+/cp load frontend      /sr    - resume         /sv check 1
+/bt list               /facts - constraints    /sv require 2
+/dc search "hooks"     /ts    - tasks         /sv status
 
 PRD WORKFLOW           TESTING                 FIELD REGISTRY
 /prd   - create PRD    /btf - browser test    /fg schemas
 /gt    - gen tasks     /tr  - unit test       /fg factories  
 /pt    - process       /afs - security        /fg masking
+/sv    - validate      /bt  - track bugs      
 ```
 
 ## 🚀 Getting More Help
@@ -202,7 +234,8 @@ PRD WORKFLOW           TESTING                 FIELD REGISTRY
 ```bash
 /help workflows          # Detailed workflow guides
 /help aliases           # All command shortcuts
-/help new               # Latest features
+/help new               # Latest features only
+/help context           # Context management guide
 /help [command]         # Specific command help
 ```
 

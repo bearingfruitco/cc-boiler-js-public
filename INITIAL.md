@@ -12,6 +12,7 @@ Welcome to the Claude Code boilerplate system. This document provides quick acce
 
 ### Setup & Installation
 - **[DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_1_COMPLETE_GUIDE.md)** - Complete setup walkthrough
+- **[NEW_FEATURES_SETUP.md](docs/setup/NEW_FEATURES_SETUP.md)** - Bug tracking, context profiles, doc cache, stage gates
 - **[QUICK_START_NEW_PROJECT.md](docs/setup/QUICK_START_NEW_PROJECT.md)** - Fast project setup
 - **[ADD_TO_EXISTING_PROJECT.md](docs/setup/ADD_TO_EXISTING_PROJECT.md)** - Add to existing projects
 - **[ENV_SETUP_GUIDE.md](docs/setup/ENV_SETUP_GUIDE.md)** - Environment configuration
@@ -54,10 +55,13 @@ Welcome to the Claude Code boilerplate system. This document provides quick acce
 
 ## 🎯 Key System Features
 
-### 1. Context Preservation
+### 1. Context Preservation & Management
 - **Never lose work** - Auto-saves to GitHub every 60 seconds
 - **Smart Resume** - `/sr` restores full context
 - **Checkpoint System** - Manual saves with `/checkpoint`
+- **Context Profiles** - `/cp` for focused work modes
+- **Bug Tracking** - `/bt` persists across sessions
+- **Doc Cache** - `/dc` for offline documentation
 
 ### 2. Design System (STRICT)
 - **4 Font Sizes**: text-size-1 (32px), text-size-2 (24px), text-size-3 (16px), text-size-4 (12px)
@@ -65,11 +69,12 @@ Welcome to the Claude Code boilerplate system. This document provides quick acce
 - **4px Grid**: ALL spacing divisible by 4
 - **Enforced by Hooks**: Violations blocked automatically
 
-### 3. PRD-Driven Development
+### 3. PRD-Driven Development with Stage Gates
 ```bash
-/prd feature-name     # Generate PRD
+/prd feature-name     # Generate PRD with stage gates
 /gt feature-name      # Generate tasks
 /pt feature-name      # Process tasks
+/sv check 1           # Validate stage completion
 /ts                   # Task status
 ```
 

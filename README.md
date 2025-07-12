@@ -45,6 +45,10 @@ For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_
 - **Knowledge Sharing** - Patterns discovered by one help all
 
 ### 🆕 Latest Enhancements
+- **Context Profiles** - Switch between focused work modes (`/cp`)
+- **Bug Tracking** - Persistent bug tracking across sessions (`/bt`)
+- **Documentation Cache** - Local caching of external docs (`/dc`)
+- **Stage Validation Gates** - Enforce phase completion (`/sv`)
 - **Truth Enforcement** - Prevents changing established values (`/facts`, `/exists`)
 - **Deletion Protection** - Warns before removing code or files
 - **Hydration Safety** - Catches Next.js SSR errors automatically
@@ -64,6 +68,8 @@ PROJECT IDEA → PROJECT PRD → GITHUB ISSUES → FEATURE PRDS → TASKS → CO
 ```bash
 # Every Day
 /sr                # Smart Resume - start here always!
+/cp load frontend  # Load context profile
+/bt list           # Check open bugs
 /help              # Context-aware help
 
 # Feature Development  
@@ -71,6 +77,7 @@ PROJECT IDEA → PROJECT PRD → GITHUB ISSUES → FEATURE PRDS → TASKS → CO
 /prd feature       # Create Product Requirements
 /gt feature        # Generate tasks
 /pt feature        # Process tasks
+/sv check 1        # Validate stage completion
 /fw complete 1     # Create PR
 
 # Quality & Testing
@@ -179,6 +186,7 @@ Teams using this boilerplate report:
   - [Quick Start - New Project](docs/setup/QUICK_START_NEW_PROJECT.md)
   - [Add to Existing Project](docs/setup/ADD_TO_EXISTING_PROJECT.md)
   - [Day 1 Complete Guide](docs/setup/DAY_1_COMPLETE_GUIDE.md)
+  - [New Features Setup](docs/setup/NEW_FEATURES_SETUP.md)
   
 - **Daily Use**
   - [Quick Reference](QUICK_REFERENCE.md)

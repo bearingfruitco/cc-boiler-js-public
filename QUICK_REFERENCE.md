@@ -4,19 +4,24 @@
 ```bash
 # Start day
 /sr                     # Resume context (ALWAYS FIRST!)
+/cp load [profile]      # Load context profile
+/bt list                # Check open bugs
 
 # Feature work
 /fw start [#]           # Start issue
 /prd [name]             # Create feature PRD
 /gt [name]              # Generate tasks
 /pt [name]              # Process tasks
+/sv check 1             # Validate stage
 
 # During work
 /vd                     # Validate design
-/todo add "note"        # Quick reminders
+/bt add "bug"           # Track bugs
+/dc search "topic"      # Search cached docs
 /checkpoint             # Manual save
 
-# Complete
+# Complete stage
+/sv require 1           # Enforce stage gate
 /fw complete [#]        # Create PR
 ```
 
@@ -24,6 +29,7 @@
 
 ### Context & State
 - `/sr` - Smart Resume
+- `/cp` - Context Profile (save/load/list)
 - `/checkpoint` - Save progress
 - `/compress` - Compress context
 
@@ -34,6 +40,15 @@
 - `/es` - Extract style from reference
 - `/vd` - Validate design
 - `/fw` - Feature workflow
+- `/bt` - Bug tracking (add/list/resolve)
+
+### Documentation
+- `/dc` - Doc cache (cache/search/show)
+- `/research-docs` - Research & cache
+
+### Stage Control
+- `/sv` - Stage validate (check/require/status)
+- `/prd` - PRD with stage gates
 
 ### Testing
 - `/btf` - Browser test flow
@@ -44,12 +59,22 @@
 - `/persona` - Switch persona
 - `/sas` - Agent status
 
+## 🆕 New Features
+- **Context Profiles**: Switch between focused work modes
+- **Bug Tracking**: Persistent across sessions
+- **Doc Cache**: Offline documentation access
+- **Stage Gates**: Enforce completion criteria
+
 ## 🔑 Key Files
 - `docs/project/PROJECT_PRD.md` - Vision
 - `docs/project/features/*` - Feature PRDs
 - `.claude/orchestration/*` - Agent plans
+- `.claude/bugs/active.json` - Open bugs
+- `.claude/profiles/*` - Context profiles
 
 ## 💡 Remember
 - Context auto-saves every 60s
 - Design violations blocked automatically
 - Everything tracked in GitHub issues
+- Bugs persist across sessions
+- Stage gates prevent incomplete work

@@ -2,6 +2,64 @@
 
 All notable changes to the Claude Code Boilerplate project.
 
+## [2.2.0] - January 2025
+
+### 🎯 Context Management & Workflow Enhancements
+
+Based on analysis of advanced context engineering workflows:
+
+#### New Commands
+- **`/bug-track` (bt)** - Persistent bug tracking across sessions
+  - Automatically syncs to GitHub gists
+  - Links bugs to specific files and lines
+  - Tracks resolution history
+  - Integrated with error detection hooks
+
+- **`/context-profile` (cp)** - Manage focused context profiles
+  - Create work-specific profiles (frontend, backend, debug)
+  - Switch contexts without losing work
+  - Presets for common workflows
+  - Shows context window usage
+
+- **`/doc-cache` (dc)** - Cache external documentation locally
+  - Works with `/research-docs` to cache results
+  - Offline access to documentation
+  - Searchable index of cached content
+  - Auto-cleanup of stale docs
+
+- **`/stage-validate` (sv)** - Enforce stage completion gates
+  - Automated validation of PRD phases
+  - Blocks progression until criteria met
+  - Integration with task system
+  - Override with documented reasons
+
+#### Enhanced PRD System
+- **Stage Gates**: Each PRD phase now has exit criteria
+- **Context Management Plan**: PRDs suggest context profiles
+- **Documentation Requirements**: Auto-cache relevant docs
+
+#### Why These Changes
+- **Never lose bugs**: Persistent tracking across all sessions
+- **Focused work**: Context profiles prevent overload
+- **Work offline**: Cached documentation always available
+- **Quality gates**: Ensure each phase is complete before moving on
+
+### 📁 New Directory Structure
+```
+.claude/
+  ├── bugs/            # Bug tracking persistence
+  ├── profiles/        # Context profile storage
+  │   └── presets/     # Built-in profiles
+  └── doc-cache/       # Cached documentation
+      └── sources/     # Original doc sources
+```
+
+### 📚 Documentation
+- Added [NEW_FEATURES_SETUP.md](docs/setup/NEW_FEATURES_SETUP.md)
+- Updated help command with new features
+- Enhanced QUICK_REFERENCE.md
+- Updated PRD template with stage gates
+
 ## [2.1.0] - January 2025
 
 ### 🎨 UI Design Enhancements
