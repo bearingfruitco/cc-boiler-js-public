@@ -1,205 +1,209 @@
-`/create-component <type> <name> [options]`
+# Help - Enhanced Command Reference
 
-### Parameters
-- `type`: Component category
-  - `ui`: Base UI components (Button, Card, Input)
-  - `form`: Form-specific (FormField, ValidationMessage)
-  - `layout`: Layout components (Container, Section)
-  - `feature`: Feature-specific components
+Show context-aware help for all commands and workflows.
 
-- `name`: Component name (PascalCase)
+## Usage
 
-- `options`:
-  - `--with-tests`: Include test file
-  - `--with-story`: Include Storybook story
-  - `--with-docs`: Include documentation
-
-### Design Rules Enforced
-✅ Typography: Only text-size-[1-4], font-[regular|semibold]
-✅ Spacing: Only 4px grid values
-✅ Colors: 60/30/10 distribution
-✅ Mobile: 44px+ touch targets
-
-### Examples
 ```bash
-# Basic UI component
-/create-component ui Button
+/help [topic]
+/h [topic]     # short alias
+/? [topic]     # shorter alias
 
-# Form component with tests
-/create-component form ContactForm --with-tests
-
-# Full feature component
-/create-component feature QuizWizard --with-tests --with-docs
+# Topics: all, new, commands, workflows, aliases, prd, testing, security
 ```
 
-### Generated Structure
-```
-components/
-  ui/
-    Button.tsx         # Component
-    Button.test.tsx    # Tests (if --with-tests)
-    Button.stories.tsx # Storybook (if --with-story)
-    Button.md          # Docs (if --with-docs)
-```
+## 🆕 NEW FEATURES (Latest Additions)
 
-### Common Issues
-❌ "Component exists" - Check the file first
-❌ "Invalid type" - Use: ui, form, layout, or feature
-❌ "Design violation" - Component template has issues
+### Truth & Existence Commands
+- `/facts [category]` - Show established project values that cannot be changed
+- `/exists [name]` - Check if component/function/route already exists
+- `/truth` - Alias for /facts (see what's established)
+- `/check` - Alias for /exists
 
-### Related Commands
-- `/validate-design` - Check after creation
-- `/test-runner generate` - Add tests later
-- `/performance-monitor` - Check render performance
-```
+### Field Registry Generation
+- `/field-generate schemas` - Generate Zod validation from registry
+- `/field-generate factories` - Generate test data factories
+- `/field-generate masking` - Generate PII masking functions
+- `/fg [type]` - Short alias for field-generate
 
-### PRD Workflow Example
+### New Safety Chains
+- `/chain safe-commit` - Validate before committing (facts → design → lint → test)
+- `/chain field-sync` - Regenerate all field-based code
+- `/chain pre-component` - Check before creating components
+
+### New Hook Protections (Automatic)
+- **Hydration Guard** - Prevents Next.js SSR errors
+- **Truth Enforcer** - Blocks changes to established values
+- **Deletion Guard** - Warns before significant deletions
+- **Import Validator** - Fixes import path issues
+
+## 📚 Command Categories
+
+### 1. Context & State Management
 ```bash
-/help prd-workflow
+/smart-resume (sr)         # Restore full context
+/checkpoint (cp)           # Save current state
+/context-grab (cg)         # Capture working context
+/compress-context          # Reduce token usage
+/compact-prepare          # Prepare for session end
+```
 
-## 🚀 Complete PRD to Production Workflow
-
-### Step 1: Create GitHub Issue
+### 2. PRD & Task Workflow
 ```bash
-gh issue create --title "Feature: Payment Integration"
-# Note issue number (e.g., #42)
+/create-prd (prd)         # Generate Product Requirements
+/generate-tasks (gt)      # Break PRD into tasks
+/process-tasks (pt)       # Work through tasks
+/task-status (ts)         # View progress
+/task-board (tb)          # Visual task view
+/verify-task (vt)         # Confirm completion
 ```
 
-### Step 2: Start Feature
+### 3. Development Commands
 ```bash
-/fw start 42
-# Creates branch and worktree
+/create-component (cc)    # Create validated component
+/validate-design (vd)     # Check design compliance
+/create-tracked-form (ctf) # Secure form with tracking
+/exists [name]            # Check before creating
+/facts [category]         # Show established values
 ```
 
-### Step 3: Generate PRD
+### 4. Testing & Quality
 ```bash
-/prd payment-integration
-# or /create-prd payment-integration
-# Creates: docs/project/features/payment-integration-PRD.md
-# Edit PRD with specific requirements
+/browser-test-flow (btf)  # Browser automation tests
+/test-runner (tr)         # Run unit tests
+/lint-check (lc)          # Biome linting
+/audit-form-security (afs) # Security audit
 ```
 
-### Step 4: Generate Tasks
+### 5. Team & Collaboration
 ```bash
-/gt payment-integration
-# or /generate-tasks payment-integration
-# Creates: docs/project/features/payment-integration-tasks.md
-# Review and adjust task list if needed
+/feature-workflow (fw)    # GitHub issue workflow
+/work-status (ws)         # Team activity
+/todo (td)                # Task management
+/change-log               # Recent changes
 ```
 
-### Step 5: Process Tasks
+### 6. Security & Compliance
 ```bash
-/pt payment-integration
-# or /process-tasks payment-integration
-# Work through each task with approval
+/security-check (sc)      # Security audit
+/audit-form-security      # Form security check
+/field-generate           # Generate from registry
+/facts env                # Show environment vars
 ```
 
-### Step 6: Test Implementation
+### 7. Multi-Agent Orchestration
 ```bash
-/btf payment-checkout
-# or /browser-test-flow payment-checkout
-# Creates automated browser tests
+/orchestrate-agents (orch) # Start multi-agent work
+/spawn-agent (spawn)      # Create specialized agent
+/persona (p)              # Switch persona mode
+/sub-agent-status (sas)   # Check agent progress
 ```
 
-### Step 7: Complete Feature
+## 🔄 Workflow Examples
+
+### Starting New Feature (Complete Flow)
 ```bash
-/fw complete 42
-# Runs all checks and creates PR
+# 1. Create issue
+gh issue create --title "User Dashboard"
+
+# 2. Start feature
+/fw start 23
+
+# 3. Check what exists
+/facts                    # See constraints
+/exists Dashboard         # Check if exists
+
+# 4. Create PRD
+/prd user-dashboard
+
+# 5. Generate and process tasks
+/gt user-dashboard
+/pt user-dashboard
+
+# 6. Safe development
+/chain pre-component      # Before creating
+/cc feature Dashboard     # Create component
+/chain safe-commit       # Before committing
+
+# 7. Complete
+/btf dashboard
+/fw complete 23
 ```
 
-### Monitoring Progress
-- `/ts` - Check task status
-- `/tb` - Visual task board
-- `/tc` - Create checkpoint
-```
-
-### Command Aliases
+### Daily Development
 ```bash
-/help aliases
+# Morning
+/sr                      # Resume context
+/facts                   # See constraints
+/ts                      # Check tasks
 
-## ⚡ Command Shortcuts
+# Before creating
+/exists LoginForm        # Check first
+/pc LoginForm           # Full pre-check
 
-### Essential Aliases
-- `/?` → `/help`
-- `/sr` → `/smart-resume`
-- `/cc` → `/create-component`
-- `/vd` → `/validate-design`
-- `/fw` → `/feature-workflow`
-
-### PRD & Task Aliases
-- `/prd` → `/create-prd`
-- `/gt` → `/generate-tasks`
-- `/pt` → `/process-tasks`
-- `/ts` → `/task-status`
-- `/tb` → `/task-board`
-- `/tc` → `/task-checkpoint`
-- `/vt` → `/verify-task`
-
-### Testing Aliases
-- `/tr` → `/test-runner`
-- `/btf` → `/browser-test-flow`
-- `/spm` → `/setup-playwright-mcp`
-
-### Workflow Aliases
-- `/ws` → `/work-status`
-- `/cp` → `/checkpoint`
-- `/cg` → `/context-grab`
-- `/td` → `/todo`
-
-### Utility Aliases
-- `/pm` → `/performance-monitor`
-- `/sc` → `/security-check`
-- `/er` → `/error-recovery`
-- `/auc` → `/auto-update-context`
+# Safe commits
+/chain safe-commit      # Validate everything
 ```
 
-### Interactive Mode
+### Form Development
 ```bash
-/help interactive
-
-## 🤝 Interactive Command Helper
-
-What would you like to do?
-
-1. Start a new feature (PRD → Tasks → Code)
-2. Resume previous work
-3. Create a component
-4. Run tests
-5. Check design compliance
-6. Fix an error
-7. Create documentation
-8. View project status
-9. Set up browser testing
-10. Update project context
-
-Enter number or search: _
+/exists ContactForm
+/ctf ContactForm --vertical=debt
+/fg schemas             # Generate validation
+/fg factories           # Generate test data
+/afs components/forms/ContactForm.tsx
 ```
 
-## Smart Help Features:
+## 💡 Command Aliases
 
-1. **Context Awareness**
-   - Shows relevant commands based on current state
-   - Suggests next logical actions
-   - Warns about missing steps
+### Most Used
+- `sr` → smart-resume
+- `cc` → create-component
+- `vd` → validate-design
+- `fw` → feature-workflow
+- `prd` → create-prd
+- `gt` → generate-tasks
+- `pt` → process-tasks
 
-2. **Search Capability**
-   - Find commands by keyword
-   - Show related commands
-   - Provide examples
+### New Aliases
+- `truth` → facts
+- `check` → exists
+- `fg` → field-generate
+- `sc` → safe-commit (chain)
+- `fs` → field-sync (chain)
+- `pc` → pre-component (chain)
 
-3. **Learning Mode**
-   - Detailed explanations
-   - Common patterns
-   - Troubleshooting tips
+## 🛡️ Automatic Protections
 
-4. **Quick Reference**
-   - Cheat sheet format
-   - Copy-paste examples
-   - Common workflows
+### What Hooks Prevent (No Action Needed)
+1. **Design violations** - Wrong CSS classes blocked
+2. **PII exposure** - No sensitive data in logs
+3. **Hydration errors** - SSR issues caught
+4. **Import mistakes** - Path errors fixed
+5. **Truth violations** - Can't change established values
+6. **Accidental deletions** - Warnings before removal
 
-5. **PRD & Task Integration**
-   - Complete workflow guidance
-   - Step-by-step instructions
-   - Progress tracking
+## 📊 Quick Reference Card
 
-This ensures developers can always find the right command without memorizing everything!
+```
+DAILY ESSENTIALS        BEFORE CREATING        SAFE DEVELOPMENT
+/sr    - resume         /exists  - check       /chain safe-commit
+/facts - constraints    /pc      - pre-check   /vd - validate
+/ts    - tasks         /facts   - values      /btf - test
+
+PRD WORKFLOW           TESTING                 FIELD REGISTRY
+/prd   - create PRD    /btf - browser test    /fg schemas
+/gt    - gen tasks     /tr  - unit test       /fg factories  
+/pt    - process       /afs - security        /fg masking
+```
+
+## 🚀 Getting More Help
+
+```bash
+/help workflows          # Detailed workflow guides
+/help aliases           # All command shortcuts
+/help new               # Latest features
+/help [command]         # Specific command help
+```
+
+The system prevents common mistakes automatically - focus on building!

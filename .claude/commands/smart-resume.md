@@ -282,6 +282,18 @@ Location: components/auth/LoginForm.tsx:145
 ## ⚡ Quick Resume
 Copy and run:
 cursor components/auth/LoginForm.tsx:145 && /validate-design
+
+## 🆕 New Safety Features Active
+- ✅ Truth Enforcement - Protecting established values
+- ✅ Deletion Guard - Warning before removals
+- ✅ Hydration Safety - Catching SSR errors
+- ✅ Import Validation - Fixing path issues
+
+## 📋 Quick Commands
+- `/facts` - See protected values
+- `/exists [name]` - Check before creating
+- `/chain safe-commit` - Validate before commit
+- `/help new` - See all new features
 ```
 
 This makes resuming work effortless - just run `/smart-resume` and you're back in context!

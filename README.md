@@ -41,6 +41,13 @@ For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_
 - **Conflict Prevention** - Know who's editing what in real-time
 - **Knowledge Sharing** - Patterns discovered by one help all
 
+### 🆕 Latest Enhancements
+- **Truth Enforcement** - Prevents changing established values (`/facts`, `/exists`)
+- **Deletion Protection** - Warns before removing code or files
+- **Hydration Safety** - Catches Next.js SSR errors automatically
+- **Import Validation** - Fixes path issues as you code
+- **Field Registry Generation** - Auto-generate Zod schemas, test factories, masking
+
 ## 📊 The Complete Workflow
 
 ```

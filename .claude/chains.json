@@ -96,6 +96,32 @@
         "work-status",
         "todo list"
       ]
+    },
+    "safe-commit": {
+      "description": "Safe commit with validation checks",
+      "commands": [
+        "facts all",
+        "validate-design",
+        "lint:fix",
+        "test-runner changed"
+      ],
+      "stopOnError": true
+    },
+    "field-sync": {
+      "description": "Sync all field registry generated code",
+      "commands": [
+        "field-generate types",
+        "field-generate schemas",
+        "field-generate factories",
+        "field-generate masking"
+      ]
+    },
+    "pre-component": {
+      "description": "Check before creating new component",
+      "commands": [
+        "exists",
+        "facts components"
+      ]
     }
   },
   "shortcuts": {
@@ -109,6 +135,9 @@
     "ts": "task-sprint",
     "tr": "task-review",
     "cm": "context-maintenance",
-    "ds": "daily-startup"
+    "ds": "daily-startup",
+    "sc": "safe-commit",
+    "fs": "field-sync",
+    "pc": "pre-component"
   }
 }

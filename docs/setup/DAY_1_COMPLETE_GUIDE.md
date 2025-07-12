@@ -11,6 +11,7 @@ By the end of this guide, you'll have:
 - ✅ **GitHub integration with auto-saves**
 - ✅ **Regular commits every 3 tasks**
 - ✅ **Context that never gets lost**
+- ✅ **Safety features that prevent common AI mistakes**
 
 ## 🐙 How GitHub Integration Works
 
@@ -19,6 +20,7 @@ By the end of this guide, you'll have:
 - **Regular commits**: Every 3 tasks or 30 minutes
 - **Issue tracking**: All work linked to GitHub issues
 - **Smart resume**: Restores context from multiple GitHub sources
+- **Safety hooks**: Prevent accidental changes, deletions, and errors
 
 ## Prerequisites
 ```bash
@@ -226,7 +228,30 @@ The system will:
 - Test implementations before moving on
 - Commit every 3 tasks
 
-## Step 8: Verify Everything Works
+## Step 8: Understanding Safety Features (NEW)
+
+### What's Protected Automatically
+
+The system now includes safety hooks that run silently:
+
+1. **Truth Enforcement** - Prevents changing established values
+   ```bash
+   /facts              # See what's protected
+   /exists Button      # Check before creating
+   ```
+
+2. **Deletion Guard** - Warns before removing code
+3. **Hydration Protection** - Catches Next.js SSR errors
+4. **Import Validation** - Fixes path issues
+
+### When You Need to Override
+```bash
+# If you need to refactor API routes or other protected values:
+/truth-override "API v2 migration"
+# Or include "refactor" in your task name
+```
+
+## Step 9: Verify Everything Works
 
 ### Check GitHub Integration
 ```bash
@@ -259,19 +284,26 @@ bun run build              # Should build successfully
 /sas                       # Sub-agent status
 ```
 
-## Step 9: Daily Workflow Setup
+## Step 10: Daily Workflow Setup
 
 ### Morning Routine
 ```bash
-/sr                        # Resume where you left off
+/sr                        # Resume where you left off (shows safety status)
+/facts                     # See protected values
 /ws                        # Check work status
 /todo list                 # See any TODOs
 ```
 
 ### During Development
 ```bash
-/cc ui ComponentName       # Create components
+# Before creating anything
+/exists ComponentName      # Check if it already exists
+/pc ComponentName         # Pre-component check chain
+
+# Safe development
+/cc ui ComponentName       # Create components (validated)
 /vd                        # Validate continuously
+/chain safe-commit        # Before committing
 /checkpoint create         # Manual saves
 /btf feature-name         # Browser test
 
@@ -334,6 +366,7 @@ npm install -g pnpm@9
 - [ ] First feature started
 - [ ] Auto-save verified (check gists)
 - [ ] Tests running with Bun
+- [ ] Safety features active (run `/sr` to confirm)
 
 ## Scripts Available
 
@@ -390,6 +423,16 @@ You now have:
 - ✅ Modern tooling (Bun for speed, Biome for consistency)
 
 **Pro tip**: Keep `QUICK_REFERENCE.md` open in another tab for easy command access.
+
+### 🆕 New Safety Features
+
+Your project now includes automatic protection against common AI mistakes:
+- **No more accidental API route changes**
+- **No more recreating existing components**
+- **No more hydration errors in production**
+- **No more inconsistent import paths**
+
+See `/help new` for all the latest features!
 
 ---
 

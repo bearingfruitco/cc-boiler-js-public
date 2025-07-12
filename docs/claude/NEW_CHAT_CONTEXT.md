@@ -83,6 +83,10 @@ Active hooks enforce rules automatically:
 - `02-design-check.py` - Blocks design violations
 - `07-pii-protection.py` - Prevents PII exposure
 - `03-conflict-check.py` - Prevents file conflicts
+- `10-hydration-guard.py` - Prevents Next.js SSR errors (NEW)
+- `11-truth-enforcer.py` - Blocks changes to established facts (NEW)
+- `12-deletion-guard.py` - Warns before deletions (NEW)
+- `13-import-validator.py` - Fixes import paths (NEW)
 
 **Post-tool-use**:
 - `01-state-save.py` - Auto-saves to GitHub
@@ -237,6 +241,25 @@ This system enables:
 - Zero context loss between sessions
 - 95% reduction in documentation effort
 - 2-5x speedup with parallel agents
+
+## 🆕 Latest Safety Features
+
+### New Commands
+- `/facts` or `/truth` - See protected values
+- `/exists` or `/check` - Verify before creating
+- `/field-generate` or `/fg` - Generate code from registry
+- `/truth-override` - Allow intentional changes
+
+### New Chains
+- `/chain safe-commit` - Validate before committing
+- `/chain field-sync` - Regenerate field code
+- `/chain pre-component` - Check before creating
+
+### New Protections (Automatic)
+- ✅ Changes to API routes blocked unless intentional
+- ✅ Warns before deleting code
+- ✅ Catches Next.js hydration errors
+- ✅ Fixes import path issues
 
 ---
 

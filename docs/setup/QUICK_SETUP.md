@@ -75,6 +75,11 @@ claude-code .
 - Hooks for automation
 - Design system enforcement
 - Multi-agent orchestration
+- Safety features (NEW)
+  - Truth enforcement
+  - Deletion protection
+  - Hydration safety
+  - Import validation
 
 ✅ **Code Quality**
 - Biome pre-configured
@@ -120,7 +125,9 @@ ls .claude/           # Should see config files
 
 # In Claude Code
 /help                 # Should show commands
-/sr                   # Should show smart resume
+/sr                   # Should show smart resume + safety status
+/facts                # Should show protected values
+/help new             # Should show new features
 ```
 
 ## Next Steps
@@ -131,12 +138,14 @@ ls .claude/           # Should see config files
    /gi PROJECT        # Generate issues
    ```
 
-2. **Start Building**
+2. **Start Building (Safely)**
    ```bash
    /fw start 1        # Start first issue
+   /exists Button     # Check before creating
    /prd feature       # Define feature
    /gt feature        # Generate tasks
    /pt feature        # Process tasks
+   /chain safe-commit # Validate before commit
    ```
 
 ## Troubleshooting

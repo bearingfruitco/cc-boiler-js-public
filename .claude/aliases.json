@@ -53,5 +53,13 @@
   "lint": "lint-check",
   "format": "lint-check",
   "test": "test-runner-bun",
-  "tr-bun": "test-runner-bun"
+  "tr-bun": "test-runner-bun",
+  "truth": "facts",
+  "check": "exists",
+  "fg": "field-generate",
+  "field-gen": "field-generate",
+  "fgen": "field-generate",
+  "override-facts": "truth-override",
+  "allow-changes": "truth-override",
+  "override": "truth-override"
 }
