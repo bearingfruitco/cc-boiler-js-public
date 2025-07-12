@@ -2,6 +2,46 @@
 
 All notable changes to the Claude Code Boilerplate project.
 
+## [2.3.0] - January 2025
+
+### 🌟 Grove-Inspired Enhancements
+
+Based on Sean Grove's "The New Code" talk from OpenAI, treating specifications as primary artifacts:
+
+#### New Features
+- **PRD Clarity Linter** - Automatically detects ambiguous language
+  - Catches terms like "fast", "secure", "optimal"
+  - Suggests specific, measurable alternatives
+  - Context-aware (stricter in requirements sections)
+  - Non-blocking warnings by default
+
+- **Specification Pattern Library** (`/specs`)
+  - Extract patterns from successful implementations
+  - Auto-tags by type (auth, forms, API, etc.)
+  - Track success metrics
+  - Apply patterns to new features
+
+- **PRD Test Generation** (`/prd-tests`)
+  - Convert acceptance criteria to executable tests
+  - Generate unit, integration, and E2E tests
+  - Link tests back to PRD sections
+  - Track coverage of requirements
+
+- **Implementation Grading** (`/grade`)
+  - Score code alignment with PRD (0-100%)
+  - Breakdown by category (functional, testing, design)
+  - Track improvement over time
+  - Export detailed reports
+
+#### Philosophy
+- **80-90% of value is communication, not code**
+- **Specifications are the "source code"**
+- **Code is a "lossy projection" of intent**
+- **Clear communication = effective programming**
+
+#### Configuration
+All Grove enhancements configurable in `.claude/config.json` under `grove_enhancements`
+
 ## [2.2.0] - January 2025
 
 ### 🎯 Context Management & Workflow Enhancements

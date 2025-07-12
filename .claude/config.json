@@ -77,5 +77,50 @@
     "vercel": {
       "enabled": false
     }
+  },
+  "grove_enhancements": {
+    "prd_linter": {
+      "enabled": true,
+      "blocking": false,
+      "custom_terms": ["blazing", "world-class", "game-changing", "revolutionary"],
+      "severity_levels": {
+        "requirements": "warning",
+        "other_sections": "info"
+      }
+    },
+    "pattern_library": {
+      "enabled": true,
+      "auto_suggest": true,
+      "min_success_rate": 0.8,
+      "auto_extract": true,
+      "extraction_triggers": ["test_complete", "feature_complete"]
+    },
+    "test_generation": {
+      "enabled": true,
+      "frameworks": {
+        "unit": "vitest",
+        "integration": "vitest",
+        "e2e": "playwright"
+      },
+      "coverage_target": 0.85,
+      "include_edge_cases": true,
+      "include_error_cases": true,
+      "auto_generate_on_prd": false
+    },
+    "implementation_grading": {
+      "enabled": true,
+      "min_grade": 0.85,
+      "block_pr": false,
+      "weights": {
+        "functional": 0.4,
+        "testing": 0.25,
+        "design": 0.15,
+        "performance": 0.1,
+        "security": 0.1
+      },
+      "grade_on": ["complete", "checkpoint"],
+      "export_reports": true,
+      "track_history": true
+    }
   }
 }

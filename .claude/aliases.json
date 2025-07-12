@@ -70,5 +70,12 @@
   "changes": "git-status",
   "deps": "check-deps",
   "dependencies": "check-deps",
-  "check-dependencies": "check-deps"
+  "check-dependencies": "check-deps",
+  "specs": "spec-patterns",
+  "patterns": "spec-patterns",
+  "prd-tests": "prd-generate-tests",
+  "gen-tests": "prd-generate-tests",
+  "grade": "stage-validate-grade",
+  "sv-grade": "stage-validate-grade",
+  "alignment": "stage-validate-grade"
 }

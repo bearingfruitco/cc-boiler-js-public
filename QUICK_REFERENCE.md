@@ -64,6 +64,10 @@
 - **Bug Tracking**: Persistent across sessions
 - **Doc Cache**: Offline documentation access
 - **Stage Gates**: Enforce completion criteria
+- **PRD Clarity**: Catches ambiguous language (`/prd` with linting)
+- **Pattern Library**: Reuse successful specs (`/specs`)
+- **Test Generation**: PRD → Tests (`/prd-tests`)
+- **Implementation Grading**: Score alignment (`/grade`)
 
 ## 🔑 Key Files
 - `docs/project/PROJECT_PRD.md` - Vision

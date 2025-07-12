@@ -55,6 +55,13 @@ For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_
 - **Import Validation** - Fixes path issues as you code
 - **Field Registry Generation** - Auto-generate Zod schemas, test factories, masking
 
+### 🌟 Grove-Inspired Enhancements (NEW!)
+- **PRD Clarity Linter** - Catches ambiguous language in requirements
+- **Specification Patterns** - Extract and reuse successful implementations (`/specs`)
+- **Test Generation from PRDs** - Acceptance criteria → executable tests (`/prd-tests`)
+- **Implementation Grading** - Score code alignment with PRD (`/grade`)
+- See [docs/updates/GROVE_ENHANCEMENTS.md](docs/updates/GROVE_ENHANCEMENTS.md) for details
+
 ## 📊 The Complete Workflow
 
 ```

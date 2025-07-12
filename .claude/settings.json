@@ -59,6 +59,13 @@
           "python3",
           ".claude/hooks/pre-tool-use/09-auto-persona.py"
         ]
+      },
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/pre-tool-use/14-prd-clarity.py"
+        ]
       }
     ],
     "post-tool-use": [
@@ -81,6 +88,13 @@
         "command": [
           "python3",
           ".claude/hooks/post-tool-use/02-metrics.py"
+        ]
+      },
+      {
+        "match": {},
+        "command": [
+          "python3",
+          ".claude/hooks/post-tool-use/03-pattern-learning.py"
         ]
       }
     ],
