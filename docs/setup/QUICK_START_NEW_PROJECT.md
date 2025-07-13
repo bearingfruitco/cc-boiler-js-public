@@ -1,190 +1,118 @@
-# 🚀 Quick Start - New Project from Boilerplate
+# Quick Start - New Project
+
+Get up and running with a new project in under 5 minutes.
 
 ## Prerequisites
+
+- Node.js 22+ and pnpm
+- GitHub account
+- Claude Code installed (claude.ai/code)
+
+## 1. Clone and Setup (2 minutes)
+
 ```bash
-# Verify you have these installed:
-claude-code --version  # Claude Code (with Claude Pro/Max)
-git --version         # Git
-gh --version          # GitHub CLI
-node --version        # Node v22+
-bun --version         # Bun v1.0+
-pnpm --version        # pnpm v9+
+# Clone the boilerplate
+git clone https://github.com/bearingfruitco/claude-code-boilerplate.git my-awesome-app
+cd my-awesome-app
+
+# Run the automated setup script
+chmod +x scripts/quick-setup.sh
+./scripts/quick-setup.sh
 ```
 
-## Option 1: Clone from GitHub (Recommended)
+The setup script will:
+- ✅ Configure YOUR repository (not the boilerplate)
+- ✅ Update all configuration files
+- ✅ Guide you through GitHub Apps installation
+- ✅ Create initial commit
+
+## 2. Install GitHub Apps (2 minutes)
+
+When prompted by the setup script, install these apps on YOUR repository:
+
+### CodeRabbit (AI Code Reviews)
+- Go to: https://github.com/marketplace/coderabbit
+- Choose "Pro" plan ($24/developer/month)
+- Select "Only select repositories" → Choose YOUR repo
+
+### Claude Code (GitHub Integration)
+- Go to: https://github.com/apps/claude
+- Click "Install"
+- Select "Only select repositories" → Choose YOUR repo
+
+## 3. Configure Environment (1 minute)
 
 ```bash
-# 1. Clone the boilerplate with your project name
-git clone https://github.com/bearingfruitco/claude-code-boilerplate.git my-awesome-project
-cd my-awesome-project
-
-# 2. Remove boilerplate history and create your own
-rm -rf .git
-git init
-git add .
-git commit -m "Initial commit from Claude Code boilerplate"
-
-# 3. Create YOUR GitHub repo and push
-gh repo create my-awesome-project --private --source=. --remote=origin --push
-
-# 4. Install dependencies with pnpm
+# Install dependencies
 pnpm install
 
-# 5. Verify Bun and Biome
-bun --version          # Should show 1.0+
-pnpm biome --version   # Should show 1.5+
+# Setup environment
+cp .env.example .env.local
 
-# 6. Start Claude Code
-claude-code .
-
-# 7. Initialize (in Claude Code)
-/init              # One-time boilerplate setup
-/init-project      # Define YOUR project (interview)
-/gi PROJECT        # Generate GitHub issues
+# Edit .env.local with your values:
+# - Supabase credentials
+# - Any API keys you need
 ```
 
-## Option 2: Use GitHub Template (If Available)
+## 4. Initialize Your Project
 
 ```bash
-# 1. Go to https://github.com/bearingfruitco/claude-code-boilerplate
-# 2. Click "Use this template" → "Create a new repository"
-# 3. Clone your new repo:
-git clone https://github.com/YOUR-USERNAME/YOUR-PROJECT.git
-cd YOUR-PROJECT
+# Open in Claude Code
+claude .
 
-# 4. Continue from step 4 above (pnpm install)
+# Or use VSCode/Cursor with Claude Code extension
+code .
 ```
 
-## Option 3: Download ZIP
+Run these commands in Claude Code:
 
 ```bash
-# 1. Download latest release
-curl -L https://github.com/bearingfruitco/claude-code-boilerplate/archive/main.zip -o boilerplate.zip
-unzip boilerplate.zip
-mv claude-code-boilerplate-main my-awesome-project
-cd my-awesome-project
-
-# 2. Initialize Git
-git init
-git add .
-git commit -m "Initial commit from Claude Code boilerplate"
-
-# 3. Continue from step 3 in Option 1
+/init                  # Initialize the system
+/init-project          # Setup YOUR project (answer questions)
+/gi PROJECT            # Generate GitHub issues
 ```
 
-## Quick Setup Commands
+## 5. Start Building!
 
 ```bash
-# After cloning, run these in sequence:
-pnpm install              # Install dependencies
-bun test                  # Verify Bun is working
-pnpm lint                 # Verify Biome is working
-chmod +x scripts/*.sh     # Make scripts executable
-./scripts/setup-enhanced-boilerplate.sh  # Run setup
+# Start development server
+pnpm dev
 
-# Start developing
-bun dev                   # Start Next.js dev server
+# Begin work on first feature
+/fw start 1            # Start working on issue #1
+/prd [feature-name]    # Create detailed PRD
+/gt [feature-name]     # Generate tasks
+/pt [feature-name]     # Process tasks
 ```
 
-## What's Included
+## What You Get
 
-### Core Technologies
-- **Runtime**: Bun v1.0+ (fast JavaScript runtime)
-- **Package Manager**: pnpm v9 (efficient dependency management)
-- **Linting/Formatting**: Biome (fast, unified tooling)
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript (strict mode)
-- **Styling**: Tailwind CSS v4
-- **Database**: Supabase + Drizzle ORM
-- **Testing**: Bun test + Playwright
-
-### Claude Code Features
-- **90+ Custom Commands** with aliases
-- **PRD-driven development** workflow
-- **Auto-save** to GitHub gists every 60s
-- **Design system** enforcement (4 sizes, 2 weights, 4px grid)
-- **Multi-agent** orchestration (9 personas)
-- **Security-first** forms with PII protection
-
-## Development Commands
-
-```bash
-# Start development
-bun dev                   # Next.js dev server
-
-# Code quality (Biome)
-pnpm lint                 # Check for issues
-pnpm lint:fix            # Auto-fix issues
-pnpm format              # Format code
-
-# Testing (Bun)
-bun test                  # Run all tests
-bun test:watch           # Watch mode
-bun test:coverage        # Coverage report
-
-# Type checking
-pnpm typecheck           # TypeScript validation
-
-# Build
-bun build                # Production build
-bun start                # Start production server
-```
-
-## What Happens Next?
-
-After `/init-project`, the system will:
-1. Interview you about your project
-2. Create PROJECT_PRD.md with your vision
-3. Generate GitHub issues for each major feature
-4. Set up your workflow
-
-Then you can start building:
-```bash
-/fw start 1        # Start first issue
-/prd feature       # Define feature
-/gt feature        # Generate tasks
-/pt feature        # Process tasks
-```
-
-## 🎯 Success Checklist
-
-- [ ] Boilerplate cloned/downloaded
-- [ ] Git initialized with YOUR repo
-- [ ] Dependencies installed with pnpm
-- [ ] Bun verified (`bun --version`)
-- [ ] Biome working (`pnpm lint`)
-- [ ] Claude Code started
-- [ ] `/init` completed
-- [ ] `/init-project` defined YOUR project
-- [ ] GitHub issues created
-- [ ] Ready to build!
-
-## Need Help?
-
-- Full setup: `docs/setup/DAY_1_COMPLETE_GUIDE.md`
-- Daily workflow: `QUICK_REFERENCE.md`
-- Bun docs: https://bun.sh/docs
-- Biome docs: https://biomejs.dev/
+- ✅ Properly configured repository
+- ✅ AI-powered code reviews on every PR
+- ✅ Design system enforcement
+- ✅ PRD-driven development workflow
+- ✅ 90+ productivity commands
+- ✅ Automated quality assurance
 
 ## Common Issues
 
-**"bun: command not found"**
-```bash
-curl -fsSL https://bun.sh/install | bash
-source ~/.zshrc  # or ~/.bashrc
-```
+### Still seeing boilerplate repo?
+Run `./scripts/quick-setup.sh` again - it will fix the configuration.
 
-**"pnpm: command not found"**
-```bash
-npm install -g pnpm@9
-```
+### GitHub Apps not reviewing?
+- Check they're installed on YOUR repo (not boilerplate)
+- Wait 2-3 minutes for initial setup
+- Verify in Settings → Integrations
 
-**Biome errors on commit**
-```bash
-pnpm lint:fix    # Auto-fix most issues
-pnpm format      # Format code
-```
+### Commands creating issues in wrong repo?
+Your `.claude/project-config.json` might be wrong. The setup script fixes this.
+
+## Next Steps
+
+- Read [QUICK_REFERENCE.md](../../QUICK_REFERENCE.md) for all commands
+- Check [DAY_1_COMPLETE_GUIDE.md](./DAY_1_COMPLETE_GUIDE.md) for detailed walkthrough
+- Start with `/fw start 1` to work on your first feature
 
 ---
 
-Ready to build fast with Bun + Biome + Claude Code! 🚀
+**Need help?** The automated setup script handles 90% of configuration. If you hit issues, check the complete guide or run `/help setup`.

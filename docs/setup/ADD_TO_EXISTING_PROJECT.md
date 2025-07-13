@@ -1,303 +1,207 @@
-# 🔧 Adding Claude Code Boilerplate to an Existing Project
+# Add Claude Code Boilerplate to Existing Project
 
-This guide helps you upgrade an existing Claude Code project with our advanced features while preserving your work.
+This guide helps you add the Claude Code automation system to an existing project.
 
-## 🎯 What This Guide Covers
+## Prerequisites
 
-- Adding boilerplate to a project already in motion
-- Preserving existing PRDs and context
-- Selective feature adoption
-- Minimal disruption approach
+- Existing Next.js project (or similar)
+- Git repository already set up
+- GitHub account
+- Claude Code installed
 
-## 📋 Pre-Installation Checklist
+## Quick Add Options
 
-Before adding the boilerplate:
-
-```bash
-# 1. Commit current work
-git add .
-git commit -m "chore: Checkpoint before adding Claude boilerplate"
-
-# 2. Note your current setup
-ls -la .claude/  # See what Claude files you already have
-```
-
-## 🚀 Installation Options
-
-### Option A: Full System (Recommended)
-Get all features - hooks, commands, personas, security:
+### Option 1: Minimal (Just Commands & Automation)
 
 ```bash
-# 1. Download the boilerplate
-curl -L https://github.com/bearingfruitco/claude-code-boilerplate/archive/main.zip -o boilerplate.zip
-unzip boilerplate.zip
+# From your project root
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/add-to-existing.sh | bash -s minimal
 
-# 2. Copy core Claude files (preserves your existing work)
-cp -r claude-code-boilerplate-main/boilerplate/.claude/* .claude/
-
-# 3. Install hooks (IMPORTANT)
-cd .claude/scripts
-./install-hooks.sh
-cd ../..
-
-# 4. Copy security and tracking systems
-cp -r claude-code-boilerplate-main/boilerplate/field-registry .
-cp -r claude-code-boilerplate-main/boilerplate/lib/security lib/
-cp -r claude-code-boilerplate-main/boilerplate/lib/forms lib/
-
-# 5. Add package dependencies
-cat claude-code-boilerplate-main/boilerplate/package.json | grep -A 20 '"dependencies"' >> package-merge.json
-# Manually merge dependencies
-
-# 6. Clean up
-rm -rf claude-code-boilerplate-main boilerplate.zip
+# This adds:
+# - .claude/ directory with all commands
+# - CLAUDE.md and QUICK_REFERENCE.md
+# - Basic hooks configuration
 ```
 
-### Option B: Core Features Only
-Just commands and basic automation:
+### Option 2: Full Integration (Recommended)
 
 ```bash
-# 1. Create directories if needed
-mkdir -p .claude/{commands,hooks,scripts,team,checkpoints}
+# Clone boilerplate to temp directory
+git clone https://github.com/bearingfruitco/claude-code-boilerplate.git temp-boilerplate
 
-# 2. Download essential files directly
-cd .claude
+# Copy core files (adjust based on your needs)
+cp -r temp-boilerplate/.claude .
+cp temp-boilerplate/CLAUDE.md .
+cp temp-boilerplate/QUICK_REFERENCE.md .
+cp temp-boilerplate/.coderabbit.yaml .
+cp -r temp-boilerplate/scripts/quick-setup.sh scripts/
 
-# Commands (90+ commands)
-curl -L https://github.com/bearingfruitco/claude-code-boilerplate/archive/main.tar.gz | \
-  tar -xz --strip=2 --wildcards "*/boilerplate/.claude/commands/*"
+# Clean up
+rm -rf temp-boilerplate
 
-# Aliases and chains
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/aliases.json
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/chains.json
-
-cd ..
+# Run setup to configure YOUR repository
+chmod +x scripts/quick-setup.sh
+./scripts/quick-setup.sh
 ```
 
-### Option C: Manual Selection
-Cherry-pick specific features:
+## Manual Integration Steps
+
+### 1. Copy Core Files
+
+Essential files to copy:
+```
+.claude/                    # All commands and automation
+CLAUDE.md                   # AI instructions
+QUICK_REFERENCE.md          # Command reference
+.coderabbit.yaml           # AI review configuration
+scripts/quick-setup.sh      # Repository setup
+```
+
+Optional (if you want full boilerplate features):
+```
+field-registry/            # Form field security
+docs/                      # Documentation templates
+```
+
+### 2. Configure Your Repository
+
+Run the setup script or manually update:
 
 ```bash
-# Just the commit control features for Nikki
-mkdir -p .claude/commands
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/commands/commit-review.md
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/commands/git-status.md
-
-# Just the PRD system
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/commands/create-prd.md
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/commands/generate-tasks.md
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/commands/process-tasks.md
-```
-
-## 📦 Preserving Your Existing Work
-
-### 1. Tag Your Current PRD
-If you already have a PRD or similar document:
-
-```bash
-# Create a reference to your existing PRD
-mkdir -p docs/project/existing
-mv YOUR_PRD.md docs/project/existing/ORIGINAL_PRD.md
-
-# Tag it for the system
-echo "---
-status: active
-created: $(date -I)
-source: pre-boilerplate
----" > docs/project/existing/ORIGINAL_PRD.md.meta
-```
-
-### 2. Convert to System Format
-```bash
-# Use the command to import your PRD
-/import-prd docs/project/existing/ORIGINAL_PRD.md
-```
-
-### 3. Preserve Context
-```bash
-# Save your current Claude context
-cp .claude/recent_context.md .claude/pre-upgrade-context.md
-
-# Merge with new context structure
-/context-merge pre-upgrade-context.md
-```
-
-## 🎛️ Configuration
-
-### Minimal config.json
-If you don't have one, create `.claude/hooks/config.json`:
-
-```json
+# Create/update .claude/project-config.json
 {
-  "github": {
-    "auto_commit": false,
-    "gist_visibility": "secret"
+  "repository": {
+    "owner": "YOUR_GITHUB_USERNAME",
+    "name": "YOUR_REPO_NAME",
+    "branch": "main"
   },
-  "hooks": {
-    "pre-tool-use": [
-      {
-        "script": "02-design-check.py",
-        "enabled": false
-      }
-    ]
+  "project": {
+    "name": "Your Project Name",
+    "type": "Your Framework"
   }
 }
 ```
 
-### Gradual Adoption
-Start with features disabled, enable as needed:
+### 3. Install GitHub Apps
 
+**CRITICAL**: Install these on YOUR repository, not the boilerplate!
+
+1. **CodeRabbit** - https://github.com/marketplace/coderabbit
+   - Select YOUR repository
+   - Choose Pro plan
+
+2. **Claude Code** - https://github.com/apps/claude
+   - Select YOUR repository
+   - Grant permissions
+
+### 4. Update Your package.json
+
+Add helpful scripts if they don't exist:
 ```json
 {
-  "features": {
-    "design_system_enforcement": false,
-    "auto_pull": false,
-    "pii_protection": true,
-    "state_saves": true
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint:fix": "next lint --fix",
+    "test": "vitest"
   }
 }
 ```
 
-## 🔍 Verifying Installation
+### 5. Configure Design System Rules
 
-### Quick Check
-```bash
-# In Claude Code
-/help              # Should show new commands
-/checkpoint test   # Test state saving
-/gs               # Test git status command
+Edit `.coderabbit.yaml` to match YOUR design system:
+```yaml
+reviews:
+  auto_review:
+    enabled: true
+  custom_patterns:
+    # Add your own patterns
+    - pattern: "YOUR_FORBIDDEN_PATTERN"
+      message: "Use YOUR_PREFERRED_PATTERN instead"
+      level: error
 ```
 
-### Full Verification
-```bash
-# Run setup verification
-python3 .claude/scripts/health-check.py
-
-# Check specific features
-ls -la .claude/commands/ | wc -l  # Should show 50+ commands
-ls -la .claude/hooks/             # Should have pre/post directories
-```
-
-## 🚦 Activation Workflow
-
-### Phase 1: Commands Only (Day 1)
-```bash
-# Just use the commands, no automation
-/sr         # Smart resume
-/checkpoint # Save state
-/cr         # Commit review
-```
-
-### Phase 2: Add State Saving (Day 2)
-```bash
-# Enable state saves
-# Edit .claude/hooks/config.json
-"post-tool-use": [
-  {
-    "script": "01-state-save.py",
-    "enabled": true
-  }
-]
-```
-
-### Phase 3: Add Safety Checks (Week 2)
-```bash
-# Enable select pre-hooks
-"pre-tool-use": [
-  {
-    "script": "07-pii-protection.py",
-    "enabled": true
-  }
-]
-```
-
-### Phase 4: Full System (When Ready)
-```bash
-# Enable all features
-./claude/scripts/enable-all-features.sh
-```
-
-## 🆘 Troubleshooting
-
-### Commands Not Found
-```bash
-# Reload aliases
-cp .claude/aliases.json ~/.claude/aliases.json
-# Restart Claude Code
-```
-
-### Hooks Not Running
-```bash
-# Check permissions
-chmod +x .claude/hooks/**/*.py
-chmod +x .claude/scripts/*.sh
-```
-
-### Conflicts with Existing Setup
-```bash
-# Backup and merge
-mv .claude .claude-backup
-# Copy new files
-# Manually merge your customizations
-```
-
-## 📝 For Nikki's Specific Case
-
-Since Nikki already has a project with a PRD:
+### 6. Initialize in Claude Code
 
 ```bash
-# 1. Add just what she needs first
-mkdir -p .claude/commands
-cd .claude/commands
+# Open your project
+claude .
 
-# Get commit control
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/commands/commit-review.md
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/commands/git-status.md
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/commands/checkpoint.md
+# Initialize
+/init
 
-# Get smart resume for context
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/commands/smart-resume.md
+# Set up project context
+/init-project
 
-# Get aliases
-cd ..
-curl -LO https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/.claude/aliases.json
-
-# 2. Tag her existing PRD
-mkdir -p ../docs/project
-echo "# Nikki's Original PRD
-$(cat PATH_TO_HER_PRD)" > ../docs/project/ACTIVE_PRD.md
-
-# 3. She can now use:
-/gs                    # Check status safely
-/cr "message"          # Commit with review
-/checkpoint            # Save state
-/sr                    # Resume with context
+# Start using commands!
+/sr              # Smart resume
+/help            # See all commands
 ```
 
-## 🎯 Success Criteria
+## Selective Integration
 
-You'll know it's working when:
-- ✅ `/help` shows new commands
-- ✅ `/checkpoint` saves without errors
-- ✅ `/gs` shows git status
-- ✅ State saves appear in `.claude/checkpoints/`
-- ✅ No unwanted auto-commits happen
+### Just Want PRD-Driven Development?
+Copy only:
+- `.claude/commands/create-prd.md`
+- `.claude/commands/generate-tasks.md`
+- `.claude/commands/process-tasks.md`
 
-## 💡 Best Practices
+### Just Want Bug Tracking?
+Copy only:
+- `.claude/commands/bug-track.md`
+- `.claude/bugs/` directory
 
-1. **Start Small** - Add features gradually
-2. **Test First** - Try commands in a test branch
-3. **Keep Backups** - Always backup `.claude/` before changes
-4. **Document Changes** - Note what you've customized
+### Just Want AI Reviews?
+- Install GitHub Apps only
+- Add `.coderabbit.yaml`
 
-## 🔗 Next Steps
+## Compatibility Notes
 
-After installation:
-1. Read `/docs/team/COMMIT_CONTROL_GUIDE.md`
-2. Try `/help` to see all commands
-3. Use `/checkpoint` frequently
-4. Work with confidence - you're in control!
+The boilerplate works best with:
+- Next.js 13+ (App Router)
+- TypeScript projects
+- Tailwind CSS
+- Git-based version control
+
+For other frameworks:
+- Commands still work
+- Adjust design system rules
+- Modify component creation templates
+
+## Migration Checklist
+
+- [ ] Copied .claude/ directory
+- [ ] Added CLAUDE.md and QUICK_REFERENCE.md
+- [ ] Configured .claude/project-config.json with YOUR repo
+- [ ] Installed CodeRabbit on YOUR repo
+- [ ] Installed Claude Code GitHub App on YOUR repo
+- [ ] Created .coderabbit.yaml with your rules
+- [ ] Ran /init in Claude Code
+- [ ] Tested with /sr command
+
+## Common Issues
+
+### "Cannot create issues in boilerplate repository!"
+Your project-config.json still points to boilerplate. Run:
+```bash
+./scripts/quick-setup.sh
+```
+
+### AI reviews not working
+- Verify apps are installed on YOUR repo
+- Check Settings → Integrations on GitHub
+- Wait 2-3 minutes after installation
+
+### Commands not found
+Make sure you copied the entire `.claude/` directory, not just parts.
+
+## Next Steps
+
+1. Run `/init-project` to set up your project PRD
+2. Use `/gi PROJECT` to create GitHub issues
+3. Start with `/fw start 1` for your first feature
+4. Enjoy AI-powered development!
 
 ---
 
-Remember: The boilerplate is designed to enhance, not replace, your workflow. Take what helps, leave what doesn't!
+**Tip**: The beauty of this system is it's additive - it won't break your existing code, just enhance your workflow!

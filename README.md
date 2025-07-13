@@ -4,21 +4,28 @@ This is a production-ready boilerplate for Next.js 15 projects with TypeScript, 
 
 ## 🚀 Quick Start
 
-### New Project
+### New Project (Updated with GitHub Apps)
 ```bash
+# Clone boilerplate
 git clone https://github.com/bearingfruitco/claude-code-boilerplate.git my-project
 cd my-project
-rm -rf .git && git init
-# Follow: docs/setup/QUICK_START_NEW_PROJECT.md
+
+# Run quick setup (handles repo config + GitHub Apps)
+chmod +x scripts/quick-setup.sh
+./scripts/quick-setup.sh
+
+# Or follow manual guide: docs/setup/DAY_1_COMPLETE_GUIDE.md
 ```
 
 ### Existing Project
 ```bash
-# Quick add (minimal - just commit control)
-curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/boilerplate/scripts/add-to-existing.sh | bash -s minimal
+# Quick add (minimal - just commands)
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/add-to-existing.sh | bash -s minimal
 
-# Or follow the full guide:
-# docs/setup/ADD_TO_EXISTING_PROJECT.md
+# Or full integration with AI reviews
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/add-to-existing.sh | bash -s full
+
+# Then run setup: ./scripts/quick-setup.sh
 ```
 
 ### Complete Setup Guide
@@ -44,7 +51,9 @@ For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_
 - **Conflict Prevention** - Know who's editing what in real-time
 - **Knowledge Sharing** - Patterns discovered by one help all
 
-### 🆕 Latest Enhancements
+### 🆕 Latest Enhancements (v2.3.2)
+- **GitHub Apps Integration** - CodeRabbit + Claude Code for AI-powered reviews
+- **Smart Repository Setup** - Prevents boilerplate repo pollution
 - **Context Profiles** - Switch between focused work modes (`/cp`)
 - **Bug Tracking** - Persistent bug tracking across sessions (`/bt`)
 - **Documentation Cache** - Local caching of external docs (`/dc`)

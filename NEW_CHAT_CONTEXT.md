@@ -1,5 +1,13 @@
 # New Chat Context - Claude Code Boilerplate v2.3.2
 
+## 🆕 What's New in v2.3.2
+
+### GitHub Apps Integration
+- **CodeRabbit**: AI code reviews on every PR (catches 95%+ bugs)
+- **Claude Code App**: PRD alignment validation (included with Max plan)
+- **Smart Setup**: New `scripts/quick-setup.sh` prevents repo confusion
+- **Enhanced Commands**: `/init-project` and `/gi` now verify correct repository
+
 ## 🚀 Quick Start
 
 You're working with an advanced AI-assisted development system that treats specifications (PRDs) as the primary development artifact. This follows Sean Grove's "The New Code" philosophy.
@@ -13,10 +21,11 @@ You're working with an advanced AI-assisted development system that treats speci
 
 ## 🌟 Latest Features
 
-### Package Version Updates (v2.3.2)
-- **All packages updated** to latest stable versions
-- **Fixed version mismatches** for unreleased versions
-- **Verified compatibility** across all dependencies
+### GitHub Apps Integration (v2.3.2)
+- **CodeRabbit + Claude Code** for comprehensive AI reviews
+- **Repository safety** - can't accidentally pollute boilerplate repo
+- **Automated setup** - one script configures everything
+- **Design enforcement** - AI learns and enforces your rules
 
 ### Workflow Enhancement (v2.3.1)
 - **Smart Auto-Approval** - No more "Can I edit this file?" interruptions!

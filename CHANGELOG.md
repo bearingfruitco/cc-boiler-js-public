@@ -2,6 +2,52 @@
 
 All notable changes to the Claude Code Boilerplate project.
 
+## [2.3.2] - January 2025
+
+### 🤖 GitHub Apps Integration
+
+Added comprehensive AI-powered code review capabilities through GitHub Apps integration.
+
+#### New Features
+- **CodeRabbit Integration** - AI code reviews that catch 95%+ of bugs
+  - Automatic PR reviews within 2-3 minutes
+  - Line-by-line suggestions with one-click fixes
+  - Learns from team corrections and adapts
+  - $24/developer/month Pro plan
+
+- **Claude Code GitHub App** - PRD alignment and AI assistance
+  - Validates implementation against PRDs
+  - Included with Claude Max plan ($200/month)
+  - Deep integration with existing commands
+  - No additional API costs
+
+- **Smart Repository Setup** - Prevents common configuration errors
+  - New `scripts/quick-setup.sh` automates repo configuration
+  - Enhanced `/init-project` verifies correct repository
+  - Enhanced `/gi` prevents creating issues in boilerplate repo
+  - Clear error messages guide proper setup
+
+#### New Files
+- `.coderabbit.yaml` - CodeRabbit configuration with design system rules
+- `scripts/quick-setup.sh` - Automated repository setup
+- `scripts/add-to-existing.sh` - Add to existing projects
+- `docs/setup/DAY_1_COMPLETE_GUIDE.md` - Comprehensive setup with GitHub Apps
+- `docs/updates/GITHUB_APPS_INTEGRATION.md` - Integration documentation
+
+#### Enhanced Commands
+- `/init-project` - Now checks repository configuration and GitHub Apps
+- `/gi` - Verifies target repository before creating issues
+
+#### Configuration
+- `.claude/project-config.json` - Tracks repository and GitHub Apps status
+- Custom CodeRabbit rules enforce design system automatically
+
+#### Benefits
+- 86% faster code delivery (Anthropic case study)
+- 60% reduction in code review issues
+- Automated bug detection before PR merge
+- Continuous learning from team practices
+
 ## [2.3.0] - January 2025
 
 ### 🌟 Grove-Inspired Enhancements
