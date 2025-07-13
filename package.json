@@ -36,25 +36,27 @@
     "clean:cache": "rm -rf .next .turbo",
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky",
-    "pre-commit": "bun run lint:fix && bun run typecheck"
+    "pre-commit": "bun run lint:fix && bun run typecheck",
+    "fix:deps": "./fix-dependencies.sh",
+    "fix:extensions": "./fix-ts-extensions.sh"
   },
   "dependencies": {
     "next": "^15.3.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "@supabase/supabase-js": "^2.48.0",
-    "@supabase/ssr": "^0.5.2",
+    "@supabase/ssr": "^0.6.1",
     "@tanstack/react-query": "^5.65.0",
     "@upstash/redis": "^1.35.1",
     "drizzle-orm": "^0.44.0",
-    "drizzle-zod": "^0.5.1",
+    "drizzle-zod": "0.5.1",
     "framer-motion": "^12.23.3",
     "lucide-react": "^0.525.0",
     "react-hook-form": "^7.60.0",
-    "@hookform/resolvers": "^5.1.1",
+    "@hookform/resolvers": "^3.10.0",
     "@rudderstack/analytics-js": "^3.21.0",
     "sharp": "^0.34.3",
-    "zod": "^4.0.5",
+    "zod": "3.25.1",
     "swr": "^2.3.4",
     "zustand": "^5.0.6",
     "immer": "^10.1.1",
@@ -67,7 +69,6 @@
     "postgres": "^3.4.7",
     "@vercel/analytics": "^1.5.0",
     "dotenv": "^17.2.0",
-    
     "date-fns": "^4.0.0",
     "@date-fns/tz": "^1.0.0",
     "@radix-ui/react-dialog": "^1.1.0",
@@ -77,7 +78,7 @@
     "@radix-ui/react-checkbox": "^1.1.0",
     "@radix-ui/react-switch": "^1.1.0",
     "next-auth": "^5.0.0-beta.25",
-    "jose": "^5.10.0",
+    "jose": "^6.0.11",
     "uuid": "^11.0.0"
   },
   "devDependencies": {
@@ -89,7 +90,7 @@
     "@testing-library/user-event": "^14.6.0",
     "@tanstack/react-query-devtools": "^5.65.0",
     "@types/bun": "^1.2.0",
-    "@types/node": "^22.16.3",
+    "@types/node": "^24.0.13",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@types/uuid": "^10.0.0",
@@ -104,12 +105,31 @@
     "webpack-bundle-analyzer": "^4.10.2",
     "msw": "^2.7.0",
     "@faker-js/faker": "^9.9.0",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.2.0",
     "tsx": "^4.20.3"
   },
   "engines": {
     "node": ">=22.0.0",
     "bun": ">=1.2.18"
   },
-  "packageManager": "pnpm@10.13.1"
+  "packageManager": "pnpm@10.13.1",
+  "pnpm": {
+    "overrides": {
+      "zod": "3.25.1",
+      "drizzle-zod": "0.5.1",
+      "@hookform/resolvers": "3.10.0",
+      "@esbuild-kit/core-utils": "3.3.2",
+      "@esbuild-kit/esm-loader": "2.6.5"
+    },
+    "onlyBuiltDependencies": [
+      "msw",
+      "@prisma/client",
+      "@prisma/engines",
+      "@sentry/cli",
+      "@tailwindcss/oxide",
+      "esbuild",
+      "prisma",
+      "sharp"
+    ]
+  }
 }
