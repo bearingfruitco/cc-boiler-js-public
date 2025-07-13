@@ -195,6 +195,8 @@ This interactive process will:
 
 ## Step 6: Generate GitHub Issues (2 minutes)
 
+**What This Does**: Converts your PROJECT_PRD into trackable GitHub issues. Each major feature becomes an issue that you'll work on.
+
 ```bash
 # Convert your PROJECT_PRD into GitHub issues
 # Replace PROJECT with your actual project name from Step 5
@@ -204,33 +206,102 @@ This interactive process will:
 /generate-issues my-saas-app    # or /gi my-saas-app
 ```
 
+**What Happens**:
+- Reads your PROJECT_PRD.md file
+- Identifies major features (authentication, dashboard, etc.)
+- Creates a GitHub issue for each feature
+- Numbers them sequentially (#1, #2, #3, etc.)
+
 This creates issues like:
 - Issue #1: User Authentication
-- Issue #2: Task Management
+- Issue #2: Task Management  
 - Issue #3: Team Dashboard
 - Issue #4: Real-time Chat
 
+**Why This Matters**: GitHub issues become your project's backbone. Everything links to them - branches, PRs, and progress tracking.
+
 ## Step 7: Start Your First Feature (20 minutes)
 
+**Overview**: This step takes you through the complete feature development workflow. You'll work on one GitHub issue from start to finish.
+
+### 7.1 Start Feature Workflow
 ```bash
-# 1. Start working on first issue
+# Start working on first issue (e.g., Issue #1: User Authentication)
 /fw start 1                # Creates branch: feature/1-user-authentication
+```
 
-# 2. Generate detailed PRD for this feature
+**What This Does**:
+- Creates a new git branch named after the issue
+- Sets up an isolated workspace for this feature
+- Links everything to GitHub issue #1
+- Loads any previous context if you've worked on this before
+
+### 7.2 Create Feature PRD (Product Requirements Document)
+```bash
+# Generate detailed PRD for this specific feature
 /prd user-authentication
+```
 
-# 3. Generate tasks from PRD
-/gt user-authentication     # Creates ~20 tasks
+**What This Does**:
+- Creates a detailed specification for JUST this feature
+- Saves to: `docs/project/features/user-authentication-PRD.md`
+- Includes:
+  - User stories ("As a user, I want to...")
+  - Acceptance criteria (checklist for "done")
+  - Technical requirements
+  - UI/UX specifications
+  - Edge cases and error handling
 
-# 4. Start processing tasks
+**Why Name It**: The name (user-authentication) becomes the identifier for all related files.
+
+### 7.3 Generate Implementation Tasks
+```bash
+# Break PRD into small, manageable tasks
+/gt user-authentication     # Creates ~15-20 tasks
+```
+
+**What This Does**:
+- Reads the PRD you just created
+- Breaks it into bite-sized tasks (5-15 minutes each)
+- Saves to: `docs/project/features/user-authentication-tasks.md`
+- Numbers tasks hierarchically (1.1, 1.2, 2.1, etc.)
+
+**Example Tasks Generated**:
+```
+1.1 Create user database schema
+1.2 Set up authentication middleware  
+1.3 Design login form component
+1.4 Implement form validation
+1.5 Create signup API endpoint
+... (continues for ~20 tasks)
+```
+
+### 7.4 Process Tasks One by One
+```bash
+# Work through tasks systematically
 /pt user-authentication
 ```
 
-The system will:
-- Work through each task (5-15 minutes each)
-- Auto-save progress every 60 seconds
-- Test implementations before moving on
-- Commit every 3 tasks
+**What This Does**:
+1. Shows you task 1.1
+2. Claude implements it
+3. **Automatically runs tests** to verify it works
+4. Asks for your approval
+5. Moves to task 1.2
+6. **Auto-saves** progress every 60 seconds
+7. **Commits** every 3 tasks
+
+**Behind the Scenes**:
+- 🔧 **Linting**: Biome auto-formats code as it's written
+- 🎨 **Design validation**: Checks Tailwind classes are correct
+- 💾 **GitHub Gist**: Saves your progress (work-state-issue-1.json)
+- ✅ **Testing**: Runs relevant tests before moving on
+
+**Your Role**: Review and approve each task. You can:
+- ✅ Approve and continue
+- 🔄 Request changes
+- ⏭️ Skip a task
+- 🛑 Stop and resume later
 
 ## Step 8: Understanding Safety Features (NEW)
 
@@ -332,6 +403,82 @@ pnpm typecheck            # TypeScript validation
 /fw complete 1            # When feature is done
 /checkpoint create "EOD"  # Final save
 ```
+
+## Step 11: Quality Assurance & Additional Tools
+
+### Built-in Quality Checks (Automatic)
+
+**What Runs Automatically**:
+
+| Tool | When It Runs | What It Checks |
+|------|--------------|----------------|
+| **Biome** | Every file save | Formatting, basic linting |
+| **TypeScript** | Pre-commit | Type safety, compile errors |
+| **Design Validation** | During `/vd` command | Tailwind classes, spacing |
+| **Git Hooks** | Before every commit | Linting + TypeScript |
+| **Test Runner** | During `/pt` tasks | Unit tests for new code |
+
+### Optional Enhanced Tools
+
+#### CodeRabbit (Recommended for Production)
+
+**What It Is**: AI-powered code reviewer that runs on every PR.
+
+**Setup** (one-time, 2 minutes):
+```bash
+# 1. Visit: https://github.com/apps/coderabbitai
+# 2. Click "Install" 
+# 3. Select your repository
+# 4. That's it! Runs automatically on PRs
+```
+
+**What It Catches That Built-in Tools Miss**:
+- 🔒 Security vulnerabilities (exposed API keys, SQL injection)
+- 🧠 Logic errors (off-by-one, null pointer exceptions)
+- ⚡ Performance issues (N+1 queries, memory leaks)
+- 📚 Best practices (SOLID principles, DRY violations)
+- 📊 Complexity (suggests simpler approaches)
+
+**When to Add It**:
+- ✅ **Yes**: Client projects, team projects, production apps
+- ❌ **Skip**: Learning projects, prototypes, personal experiments
+
+#### Other Optional Tools
+
+**1. Sentry (Error Tracking)**
+- Already configured in boilerplate
+- Add your DSN to `.env.local`
+- Catches production errors
+
+**2. Vercel Analytics**
+- Pre-installed in package.json
+- Activate in Vercel dashboard
+- Tracks Core Web Vitals
+
+**3. Bundle Analyzer**
+```bash
+pnpm analyze  # Check bundle size
+```
+
+### Your Development Flow with Quality Checks
+
+```mermaid
+graph LR
+    A[Write Code] --> B[Biome Formats]
+    B --> C[Tests Run]
+    C --> D[Commit]
+    D --> E[Pre-commit Hooks]
+    E --> F[Push to GitHub]
+    F --> G[Create PR]
+    G --> H[CodeRabbit Reviews]
+    H --> I[Merge]
+```
+
+**Key Points**:
+1. 🤖 Most quality checks are **automatic** - you don't need to think about them
+2. 🔍 Focus on `/vd` during development for immediate feedback
+3. 🚀 Add CodeRabbit when project becomes "real" (has users/clients)
+4. 📊 Use bundle analyzer before major releases
 
 ## Common Issues & Solutions
 

@@ -1,28 +1,28 @@
 # 🎯 Claude Code Quick Reference Card
 
-## 🚀 Daily Flow
+## 🚀 Daily Flow - What Each Command Does
 ```bash
 # Start day
-/sr                     # Resume context (ALWAYS FIRST!)
-/cp load [profile]      # Load context profile
-/bt list                # Check open bugs
+/sr                     # Smart Resume - Restores all context from last session
+/cp load [profile]      # Load a saved context profile (e.g., "frontend", "backend")
+/bt list                # Show all unresolved bugs you're tracking
 
 # Feature work
-/fw start [#]           # Start issue
-/prd [name]             # Create feature PRD
-/gt [name]              # Generate tasks
-/pt [name]              # Process tasks
-/sv check 1             # Validate stage
+/fw start [#]           # Start working on GitHub issue # (creates branch)
+/prd [name]             # Create detailed Product Requirements Document
+/gt [name]              # Generate ~20 implementation tasks from PRD
+/pt [name]              # Process tasks one by one with auto-testing
+/sv check 1             # Validate that stage 1 requirements are met
 
 # During work
-/vd                     # Validate design
-/bt add "bug"           # Track bugs
-/dc search "topic"      # Search cached docs
-/checkpoint             # Manual save
+/vd                     # Validate design - checks CSS classes & spacing
+/bt add "bug"           # Track a bug to fix later
+/dc search "topic"      # Search your cached documentation
+/checkpoint             # Manually save current state (auto-saves every 60s)
 
 # Complete stage
-/sv require 1           # Enforce stage gate
-/fw complete [#]        # Create PR
+/sv require 1           # Block progress until stage 1 is complete
+/fw complete [#]        # Create PR that closes GitHub issue #
 ```
 
 ## 📊 Command Categories
