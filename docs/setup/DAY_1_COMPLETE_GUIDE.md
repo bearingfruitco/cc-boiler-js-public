@@ -197,7 +197,11 @@ This interactive process will:
 
 ```bash
 # Convert your PROJECT_PRD into GitHub issues
+# Replace PROJECT with your actual project name from Step 5
 /generate-issues PROJECT    # or /gi PROJECT
+
+# Example: If your project is named "my-saas-app":
+/generate-issues my-saas-app    # or /gi my-saas-app
 ```
 
 This creates issues like:
