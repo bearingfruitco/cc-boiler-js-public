@@ -66,6 +66,12 @@
         "enabled": true,
         "critical": false,
         "description": "Validate and fix import paths"
+      },
+      {
+        "script": "16-tcpa-compliance.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Ensure lead forms have TCPA compliance when enabled"
       }
     ],
     "post-tool-use": [

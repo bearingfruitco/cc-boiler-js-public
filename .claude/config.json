@@ -176,5 +176,12 @@
       "decision",
       "findings"
     ]
+  },
+  "modules": {
+    "tcpa": {
+      "enabled": false,
+      "config_file": ".claude/tcpa.config.json",
+      "description": "TCPA compliance for lead generation forms"
+    }
   }
 }
