@@ -16,6 +16,8 @@
 
 # During work
 /vd                     # Validate design - checks CSS classes & spacing
+/dmoff                  # Turn OFF design system - use any Tailwind classes 🆕
+/dmon                   # Turn ON design system - back to strict mode 🆕
 /bt add "bug"           # Track a bug to fix later
 /dc search "topic"      # Search your cached documentation
 /checkpoint             # Manually save current state (auto-saves every 60s)

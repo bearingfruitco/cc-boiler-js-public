@@ -213,6 +213,7 @@ Teams using this boilerplate report:
 - **Deep Dives**
   - [System Overview](docs/technical/SYSTEM_OVERVIEW.md)
   - [Command List](docs/claude/CLAUDE_CODE_GUIDE.md)
+  - [Design System Customization](docs/design/DESIGN_SYSTEM_CUSTOMIZATION.md) 🆕
   - [Security Guide](docs/SECURITY_GUIDE.md)
 
 - **Release Information**

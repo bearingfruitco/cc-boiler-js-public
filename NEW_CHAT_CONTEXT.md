@@ -2,6 +2,11 @@
 
 ## 🆕 What's New in v2.3.5
 
+### Design System Flexibility
+- **Instant Toggle**: `/dmoff` to disable, `/dmon` to enable design system
+- **Full Tailwind Freedom**: Use any classes when disabled (text-sm, p-5, etc.)
+- **Smart Switching**: Toggle between strict and creative modes instantly
+
 ### Research Management System (RMS)
 - **Smart Document Updates**: No more auth-v1, auth-v2, auth-final versions
 - **Intelligent Merging**: Updates existing research instead of creating duplicates
