@@ -1,7 +1,7 @@
 {
-  "version": "2.3.2",
+  "version": "2.3.5",
   "project": {
-    "name": "FreshSlate Boilerplate",
+    "name": "Claude Code Boilerplate",
     "type": "boilerplate-system",
     "description": "AI-powered development boilerplate with strict design system"
   },
@@ -23,6 +23,7 @@
   },
   "designSystem": {
     "enforce": true,
+    "auto_fix": false,
     "rules": {
       "typography": {
         "sizes": ["text-size-1", "text-size-2", "text-size-3", "text-size-4"],
@@ -69,14 +70,53 @@
   "integrations": {
     "github": {
       "enabled": true,
-      "features": ["issues", "gists", "actions"]
+      "features": ["issues", "gists", "actions"],
+      "coderabbit": {
+        "enabled": true,
+        "ide_extension": true,
+        "pr_reviews": true,
+        "auto_fix_simple": true,
+        "respect_design_system": true
+      }
     },
     "supabase": {
       "enabled": true
     },
     "vercel": {
       "enabled": false
+    },
+    "coderabbit": {
+      "mode": "ide_first",
+      "ai_agent": "claude",
+      "review_on_save": false,
+      "review_on_commit": true
     }
+  },
+  "features": {
+    "precompact_support": true,
+    "suggestion_engine": true,
+    "command_logging": true
+  },
+  "logging": {
+    "retention_days": 30,
+    "max_log_size_mb": 100
+  },
+  "research": {
+    "auto_capture": true,
+    "auto_include": false,
+    "archive_after_days": 30,
+    "max_context_docs": 2,
+    "max_doc_size_kb": 5,
+    "summary_only": true,
+    "include_recent_only": 7,
+    "search_preview_length": 200,
+    "auto_link_features": true,
+    "templates": [
+      "analysis",
+      "planning",
+      "decision",
+      "findings"
+    ]
   },
   "grove_enhancements": {
     "prd_linter": {
@@ -122,5 +162,19 @@
       "export_reports": true,
       "track_history": true
     }
+  },
+  "research": {
+    "auto_capture": true,
+    "archive_after_days": 30,
+    "include_in_context": true,
+    "max_context_docs": 3,
+    "search_preview_length": 200,
+    "auto_link_features": true,
+    "templates": [
+      "analysis",
+      "planning",
+      "decision",
+      "findings"
+    ]
   }
 }

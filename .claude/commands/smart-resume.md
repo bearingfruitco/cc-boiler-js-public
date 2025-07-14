@@ -64,6 +64,42 @@ echo "Tests: $(npm test --silent 2>&1 | grep -E 'passed|failed' | tail -1)"
 Complete context restoration:
 
 ```bash
+# 0. Check for PreCompact Context
+PRECOMPACT_FILE=".claude/context/pre-compact-context.json"
+if [ -f "$PRECOMPACT_FILE" ]; then
+  echo "## 🔄 PreCompact Context Detected!"
+  echo "Claude previously saved context before compaction."
+  echo ""
+  
+  # Read critical files from pre-compact context
+  CRITICAL_FILES=$(jq -r '.critical_files[]' "$PRECOMPACT_FILE" 2>/dev/null)
+  TIMESTAMP=$(jq -r '.timestamp' "$PRECOMPACT_FILE" 2>/dev/null)
+  CURRENT_TASK=$(jq -r '.current_task' "$PRECOMPACT_FILE" 2>/dev/null)
+  
+  echo "📅 Saved at: $TIMESTAMP"
+  
+  if [ ! -z "$CURRENT_TASK" ] && [ "$CURRENT_TASK" != "null" ]; then
+    echo "📋 Active task: $CURRENT_TASK"
+  fi
+  
+  echo ""
+  echo "## 📚 Re-reading Critical Files..."
+  for file in $CRITICAL_FILES; do
+    if [ -f "$file" ]; then
+      echo "✓ Re-reading: $file"
+      # Force Claude to read the file
+      echo "[Please read: $file]"
+    fi
+  done
+  
+  echo ""
+  echo "✅ Context restoration complete!"
+  echo ""
+  
+  # Clean up after restoration
+  mv "$PRECOMPACT_FILE" "$PRECOMPACT_FILE.restored"
+fi
+
 # 1. Detect Current State
 echo "## 🔍 Analyzing Project State..."
 
@@ -206,6 +242,8 @@ Checks in order:
 4. GitHub gists
 5. Issue comments
 6. Modified files
+7. Recent research documents (NEW!)
+8. Feature-related research (NEW!)
 
 ### 2. **Intelligent Suggestions**
 Based on:
@@ -254,11 +292,16 @@ No need to specify:
 ✓ Checking GitHub state for issue #23
 ✓ Found saved state in GitHub
 ✓ Retrieved issue details
+✓ Found 2 related research documents (NEW!)
 
 ## 📊 Complete Work Context
 
 ### Issue #23: Add authentication components
 Branch: feature/23-auth-components
+
+### 📄 Related Research (NEW!)
+- `auth-analysis-2025-01-15.md` - JWT vs Session comparison
+- `auth-planning-2025-01-14.md` - Implementation approach
 
 ### 📁 File Status
 Modified files: 2

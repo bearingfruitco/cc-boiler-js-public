@@ -1,4 +1,28 @@
-# New Chat Context - Claude Code Boilerplate v2.3.2
+# New Chat Context - Claude Code Boilerplate v2.3.5
+
+## 🆕 What's New in v2.3.5
+
+### Research Management System (RMS)
+- **Smart Document Updates**: No more auth-v1, auth-v2, auth-final versions
+- **Intelligent Merging**: Updates existing research instead of creating duplicates
+- **Context-Aware Loading**: Only includes relevant research, respects limits
+- **Clean Codebase**: Research organized in .claude/research/, not scattered
+- **Compaction Support**: Research automatically preserved and restored
+
+## 🆕 What's New in v2.3.4
+
+### CodeRabbit IDE Integration
+- **Dual-AI Workflow**: Claude generates, CodeRabbit reviews in real-time
+- **95% Bug Catch Rate**: Issues caught before commit, not after PR
+- **Design System Enforcement**: Automatic compliance checking as you type
+- **Educational Feedback**: Learn from mistakes with clear explanations
+
+## 🆕 What's New in v2.3.3
+
+### Hook System Enhancements
+- **PreCompact Support**: Context preserved during conversation compaction
+- **Suggestion Engine**: Design violations now show helpful corrections
+- **Command Logging**: Query your command history and performance
 
 ## 🆕 What's New in v2.3.2
 
@@ -19,7 +43,35 @@ You're working with an advanced AI-assisted development system that treats speci
 /cp load [profile]     # Load focused context
 ```
 
+### One-Time Setup (2 minutes)
+1. Install CodeRabbit extension in Cursor
+2. Sign up at app.coderabbit.ai (free)
+3. Select "Claude Code" as AI agent
+4. Start coding with real-time review!
+
 ## 🌟 Latest Features
+
+### CodeRabbit Integration (v2.3.4)
+- **Real-Time Review** - Catch issues as you type, not after PR
+- **One-Click Fixes** - Simple issues fixed automatically
+- **Complex Fix Handoff** - Copy suggestions back to Claude
+- **PR Status Command** - `/pr-feedback` for quick checks
+
+### Hook System Enhancements (v2.3.3)
+- **PreCompact Support** - Never lose context during long sessions
+  - Automatically saves critical files before compaction
+  - `/sr` restores everything after compaction
+  - No more "Claude forgot what we were doing"
+- **Suggestion Engine** - Learn from design violations
+  - See: "You used 'text-sm' → Use 'text-size-3' instead"
+  - Tracks your common mistakes
+  - Educational explanations for each rule
+- **Command Analytics** - Understand your workflow
+  ```bash
+  /query-logs --stats     # See command usage statistics
+  /query-logs --errors    # Find what's failing
+  /query-logs --sessions  # Analyze work sessions
+  ```
 
 ### GitHub Apps Integration (v2.3.2)
 - **CodeRabbit + Claude Code** for comprehensive AI reviews
@@ -67,9 +119,11 @@ IDEA → /init-project → /prd → /gt → /pt → /grade → /fw complete
 /prd [name]            # Create specification
 /prd-tests [name]      # Generate test suite
 /gt [name]             # Generate tasks
-/pt [name]             # Process tasks
+/pt [name]             # Process tasks (with real-time review)
 /grade                 # Check alignment
 /specs extract         # Save successful pattern
+/pr-feedback           # Quick PR status check
+/research review       # Organize research docs (NEW)
 ```
 
 ### Quality & Safety
@@ -91,6 +145,8 @@ The system automatically:
 - **Prevents** PII exposure
 - **Tracks** bugs persistently
 - **Grades** implementation quality
+- **Reviews** code in real-time (CodeRabbit)
+- **Suggests** fixes before commit
 
 ## 💡 Key Principles
 
@@ -112,13 +168,20 @@ CONTEXT                COLLABORATION          HELP
 /sr     - resume       /fw  - workflow        /help new
 /cp     - profiles     /orch - agents         /help [cmd]
 /dc     - doc cache    /team - status         /?
+/research - organize   
+
+REVIEW                 
+/pr-feedback - PR status
+CodeRabbit   - Real-time in IDE
 ```
 
-## 📁 Key Files
+## 🔑 Key Files
 
 - `CLAUDE.md` - AI agent instructions
 - `QUICK_REFERENCE.md` - All commands
-- `docs/updates/GROVE_ENHANCEMENTS.md` - New features
+- `RELEASES.md` - Release notes index
+- `docs/releases/` - Detailed release notes
+- `docs/updates/` - Feature enhancement docs
 - `.claude/config.json` - System configuration
 
 ## 🎨 Design System

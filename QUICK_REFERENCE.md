@@ -7,11 +7,11 @@
 /cp load [profile]      # Load a saved context profile (e.g., "frontend", "backend")
 /bt list                # Show all unresolved bugs you're tracking
 
-# Feature work
+# Feature work (with CodeRabbit real-time review)
 /fw start [#]           # Start working on GitHub issue # (creates branch)
 /prd [name]             # Create detailed Product Requirements Document
 /gt [name]              # Generate ~20 implementation tasks from PRD
-/pt [name]              # Process tasks one by one with auto-testing
+/pt [name]              # Process tasks (CodeRabbit reviews as you code)
 /sv check 1             # Validate that stage 1 requirements are met
 
 # During work
@@ -19,9 +19,11 @@
 /bt add "bug"           # Track a bug to fix later
 /dc search "topic"      # Search your cached documentation
 /checkpoint             # Manually save current state (auto-saves every 60s)
+# CodeRabbit IDE      # Reviews automatically as you type in Cursor
 
 # Complete stage
 /sv require 1           # Block progress until stage 1 is complete
+/pr-feedback            # Quick PR status check (most issues already fixed)
 /fw complete [#]        # Create PR that closes GitHub issue #
 ```
 
@@ -45,21 +47,44 @@
 ### Documentation
 - `/dc` - Doc cache (cache/search/show)
 - `/research-docs` - Research & cache
+- `/research` - Organize internal research (NEW)
+  - `review` - Review pending docs
+  - `update` - Update existing research
+  - `search` - Find past analysis
+  - `context` - Add to current session
 
 ### Stage Control
 - `/sv` - Stage validate (check/require/status)
+
+### Analytics & Monitoring
+- `/query-logs` - Query command history
+  - `--stats` - View usage statistics
+  - `--errors-only` - Find recent errors
+  - `--command /cc` - Filter by command
+  - `--min-duration 5000` - Find slow operations
+  - `--sessions` - View session analysis
+- `/check-work` - Quick quality check
+  - `versions` - Check version consistency
+  - `todos` - Find incomplete work
+  - `imports` - Validate imports
 - `/prd` - PRD with stage gates
 
 ### Testing
 - `/btf` - Browser test flow
 - `/tr` - Test runner
 
+### Code Review
+- `/pr-feedback` - Quick PR status check
+- CodeRabbit IDE - Real-time review in Cursor
+
 ### Multi-Agent
 - `/orch` - Orchestrate agents
 - `/persona` - Switch persona
 - `/sas` - Agent status
 
-## 🆕 New Features
+## 🆕 New Features (v2.3.4)
+- **CodeRabbit Integration**: Real-time code review in Cursor IDE
+- **Dual-AI Workflow**: Claude generates, CodeRabbit reviews
 - **Context Profiles**: Switch between focused work modes
 - **Bug Tracking**: Persistent across sessions
 - **Doc Cache**: Offline documentation access
@@ -82,3 +107,5 @@
 - Everything tracked in GitHub issues
 - Bugs persist across sessions
 - Stage gates prevent incomplete work
+- CodeRabbit reviews code in real-time
+- Clean code before commits = faster PRs

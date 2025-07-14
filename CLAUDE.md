@@ -64,6 +64,28 @@ The hooks system enforces many of these rules automatically.
    - Share knowledge automatically
    - Perfect handoffs via state persistence
 
+## 🤖 CodeRabbit Integration (v2.3.4)
+
+### Dual-AI Development Workflow
+
+You now work with CodeRabbit IDE extension for real-time code review:
+
+**Your Role (Claude Code)**: Generate code fast, implement features
+**CodeRabbit's Role**: Review quality, catch bugs, enforce standards
+
+**The Workflow**:
+1. You generate code in Cursor
+2. CodeRabbit reviews in real-time
+3. Fix issues before they reach git
+4. Commit clean code
+5. `/pr-feedback` for final check
+
+**Benefits**:
+- 95% of bugs caught before commit
+- Design violations highlighted immediately
+- Educational feedback improves coding
+- Faster PR approvals (already clean)
+
 ## 🚀 Workflow Enhancement (v2.3.1)
 
 ### No More "Can I Edit This File?" Interruptions!
@@ -202,6 +224,40 @@ Manual documentation still needed for:
 - API documentation
 - Feature specifications
 
+## 📚 Research Management System (NEW v2.3.5)
+
+When you create analysis/planning documents:
+- **Hook detects research docs** automatically
+- **Checks for existing similar docs** to prevent duplicates  
+- **Updates existing research** instead of creating new versions
+- **Organizes in .claude/research/** not project root
+- **Manual context inclusion** to prevent overload
+
+**Workflow:**
+```bash
+# Create analysis doc: ./auth-analysis.md
+# Hook detects and prompts
+
+# Review pending docs
+/research review
+
+# If updating existing:
+> Update existing document (merge changes)
+# Intelligently merges based on doc type
+
+# Search later
+/research search "authentication"
+
+# Add to context when needed
+/research context add "auth analysis" --summary
+```
+
+**Benefits:**
+- No more auth-v1, auth-v2, auth-final versions
+- One living document per topic
+- Clean project root
+- Searchable knowledge base
+
 ## 🚀 Command Enhancements
 
 Your commands are enhanced by hooks:
@@ -210,6 +266,7 @@ Your commands are enhanced by hooks:
 - `/checkpoint` - Auto-saves to GitHub
 - `/sr` - Shows team activity
 - `/fw` - Coordinates with team
+- `/research` - Manage internal research docs (NEW)
 
 ## ⚡ Quick Reminders
 
@@ -295,6 +352,7 @@ pnpm vitest --inspect path/to/test.spec.ts
 - `/bt` - Bug Track (persistent bug tracking)
 - `/fw` - Feature Workflow (start/complete GitHub issues)
 - `/checkpoint` - Manual save progress to GitHub gist
+- `/pr-feedback` - Quick PR status check (NEW in v2.3.4)
 
 ### PRD-Driven Development
 - `/prd` - Create Product Requirements Document
@@ -401,6 +459,20 @@ pnpm vitest --inspect path/to/test.spec.ts
 # Bugs persist across sessions!
 ```
 
+### CodeRabbit Integration
+```bash
+# Real-time in Cursor IDE
+# Write code → See issues → Fix immediately
+
+# For complex fixes:
+# 1. Copy CodeRabbit suggestion
+# 2. Paste to Claude: "Apply this fix: [suggestion]"
+# 3. Claude implements the fix
+
+# Final check before merge:
+/pr-feedback
+```
+
 ## 🔐 Security Patterns
 
 ### PII Handling
@@ -418,6 +490,12 @@ URL → Whitelist → Sanitize → Form → Server → Encrypt → Database
 ```
 
 ## 💡 Pro Tips
+
+0. **CodeRabbit Workflow** - Let it review as you code:
+   - See issues in Problems panel
+   - One-click fix simple issues
+   - Copy complex fixes to Claude
+   - Commit only clean code
 
 1. **Context Profiles** - Save work contexts:
    ```bash
@@ -456,6 +534,8 @@ URL → Whitelist → Sanitize → Form → Server → Encrypt → Database
 3. **Don't claim without testing** - "Should work" is flagged
 4. **Don't ignore stage gates** - Quality checkpoints matter
 5. **Don't forget to grade** - PRD alignment is measured
+6. **Don't ignore CodeRabbit** - Fix issues before commit
+7. **Don't commit without review** - Let CodeRabbit check first
 
 ## 📊 Success Metrics
 

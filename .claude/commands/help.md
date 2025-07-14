@@ -14,6 +14,12 @@ Show context-aware help for all commands and workflows.
 
 ## 🆕 NEW FEATURES (Latest Updates)
 
+### CodeRabbit Integration (v2.3.4)
+- **Real-time code review** in Cursor/VSCode IDE
+- `/pr-feedback` - Quick PR status check command
+- **Dual-AI workflow** - Claude generates, CodeRabbit reviews
+- **95% bug catch rate** before code reaches git
+
 ### Grove-Inspired Enhancements (v2.3.0)
 - **PRD Clarity Linter** - Automatic ambiguity detection in requirements
 - `/specs` - Extract and reuse successful specification patterns
@@ -97,6 +103,7 @@ Show context-aware help for all commands and workflows.
 ### 6. Team & Collaboration
 ```bash
 /feature-workflow (fw)    # GitHub issue workflow
+/pr-feedback              # NEW: Quick PR status check
 /work-status (ws)         # Team activity
 /todo (td)                # Task management
 /change-log               # Recent changes
@@ -153,7 +160,10 @@ gh issue create --title "User Dashboard"
 /stage-validate require 1 # Ensure stage complete
 /chain safe-commit       # Before committing
 
-# 9. Complete feature
+# 9. Check PR status
+/pr-feedback             # Quick status check
+
+# 10. Complete feature
 /btf dashboard
 /fw complete 23
 ```

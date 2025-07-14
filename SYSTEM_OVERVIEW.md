@@ -49,6 +49,7 @@ PROJECT IDEA → PROJECT PRD → GITHUB ISSUES → FEATURE PRDS → TASKS → CO
 - **Profiles**: Focused work modes (frontend, backend, debug)
 - **Bug Tracking**: Persistent across sessions
 - **Doc Cache**: Offline documentation access
+- **Research Management**: Organize internal analysis/planning docs
 - **State Management**: GitHub gist-based persistence
 
 ## 🌟 Grove-Inspired Enhancements (v2.3.0)

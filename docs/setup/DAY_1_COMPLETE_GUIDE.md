@@ -58,21 +58,32 @@ gh repo create YOUR_REPO_NAME --private --source=.
 git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
 ```
 
-## Step 4: Install GitHub Apps (NEW!)
+## Step 4: Install GitHub Apps & Extensions (v2.3.4)
 
-### 4.1 Install CodeRabbit
+### 4.1 Install CodeRabbit IDE Extension (NEW!)
+1. Open Cursor (or VSCode)
+2. Go to Extensions (Cmd+Shift+X)
+3. Search for "CodeRabbit"
+4. Click Install
+5. Sign up for free account at [app.coderabbit.ai](https://app.coderabbit.ai)
+6. In extension settings:
+   - AI Agent: Select "Claude Code (claude CLI)"
+   - Review Mode: "On Commit"
+   - Auto-fix: Enable for simple issues
+
+### 4.2 Install CodeRabbit GitHub App
 1. Go to [github.com/marketplace/coderabbit](https://github.com/marketplace/coderabbit)
-2. Click "Set up a plan" → Choose Pro ($24/dev/month)
+2. Click "Set up a plan" → Choose Free tier (or Pro for teams)
 3. Select "Only select repositories" → Choose YOUR new repo
 4. Grant permissions and complete setup
 
-### 4.2 Install Claude Code GitHub App
+### 4.3 Install Claude Code GitHub App
 1. Go to [github.com/apps/claude](https://github.com/apps/claude)
 2. Click "Install"
 3. Select "Only select repositories" → Choose YOUR new repo
 4. Grant permissions (code read/write, issues, PRs)
 
-### 4.3 Configure CodeRabbit (Optional but Recommended)
+### 4.4 Configure CodeRabbit (Recommended)
 Create `.coderabbit.yaml` in your repo root:
 
 ```yaml
@@ -212,7 +223,21 @@ git push origin test/coderabbit
 # - Status checks from both
 ```
 
-## Step 10: Configure Branch Protection (Optional)
+## Step 10: Test CodeRabbit IDE Integration
+
+```bash
+# 1. Open a component file in Cursor
+# 2. Add a design violation:
+echo 'export const Bad = () => <div className="text-sm font-bold">Test</div>' > components/Bad.tsx
+
+# 3. You should see CodeRabbit highlight issues in real-time:
+# - "Use text-size-3 instead of text-sm"
+# - "Use font-semibold instead of font-bold"
+
+# 4. Click the lightbulb for quick fixes or copy to Claude
+```
+
+## Step 11: Configure Branch Protection (Optional)
 
 Go to Settings → Branches → Add rule:
 - Branch name pattern: `main`
@@ -236,37 +261,44 @@ Go to Settings → Branches → Add rule:
 ### Issue: Permission errors
 **Fix**: Ensure both apps have write access to code, issues, and PRs
 
-## Daily Workflow After Setup
+## Daily Workflow After Setup (v2.3.4)
 
 ```bash
 # Start each day
 /sr                    # Smart resume
 /bt list               # Check bugs
 
-# Work on features
+# Work on features (with real-time review)
 /fw start 1            # Start issue #1
 /prd feature-name      # Create PRD
 /gt feature-name       # Generate tasks
 /pt feature-name       # Process tasks
+# CodeRabbit reviews as you type in Cursor!
 
-# Push changes
+# Before committing (most issues already fixed)
 git add .
 git commit -m "feat: implement feature"
+# CodeRabbit does final check on commit
+
+# Push clean code
 git push
+
+# Quick PR check
+/pr-feedback           # See status summary
 
 # Create PR
 /fw complete 1         # Or manually on GitHub
-
-# Both CodeRabbit and Claude Code will review automatically!
 ```
 
 ## Success Checklist
 
 - [ ] Created YOUR repository (not using boilerplate repo)
 - [ ] Updated `.claude/project-config.json` with YOUR repo
-- [ ] Installed CodeRabbit on YOUR repo
+- [ ] Installed CodeRabbit IDE extension in Cursor
+- [ ] Installed CodeRabbit GitHub App on YOUR repo
 - [ ] Installed Claude Code GitHub App on YOUR repo
 - [ ] Created `.coderabbit.yaml` configuration
+- [ ] Tested real-time review in Cursor IDE
 - [ ] Ran `/init-project` and created PROJECT_PRD
 - [ ] Generated issues with `/gi PROJECT` in YOUR repo
 - [ ] Tested PR creation and saw both bots respond
@@ -276,8 +308,17 @@ git push
 
 1. Start with your first feature: `/fw start 1`
 2. Create detailed PRD: `/prd feature-name`
-3. Let the system guide you through implementation
-4. Watch as both AI systems ensure quality!
+3. Generate and process tasks with real-time review
+4. Watch as CodeRabbit catches issues before commit
+5. Ship clean code faster than ever!
+
+## The New Workflow (v2.3.4)
+
+**Before**: Write → Commit → Push → PR → Review → Fix → Push → Merge
+
+**Now**: Write → Review (real-time) → Fix → Commit (clean) → Push → Merge
+
+CodeRabbit in your IDE means most issues never make it to PR!
 
 ---
 

@@ -2,6 +2,124 @@
 
 All notable changes to the Claude Code Boilerplate project.
 
+## [2.3.5] - January 2025
+
+### 📚 Research Management System (RMS)
+
+Introduced intelligent organization and updating of internal research/planning documents to prevent version proliferation.
+
+#### New Features
+- **Smart Document Updates** - Detects and merges updates instead of creating duplicates
+  - Document type-aware merging (analysis, planning, decisions)
+  - Version history preserved
+  - Single source of truth per topic
+  - No more auth-v1, auth-v2, auth-final versions
+
+- **Automatic Organization** - Research docs organized, not scattered
+  - Hook detects research documents automatically
+  - Organizes in `.claude/research/` structure
+  - Links to features based on git branch
+  - Searchable index for finding past research
+
+- **Context-Aware Loading** - Prevents context overload
+  - Manual inclusion by default (`auto_include: false`)
+  - Max 2 docs, 10KB total limits
+  - Summaries only unless requested
+  - Feature-specific loading
+
+#### New Commands
+- `/research review` - Organize pending documents
+- `/research update` - Update existing research
+- `/research search` - Find past analysis
+- `/research context` - Manage research in context
+- `/research history` - View version history
+
+#### Documentation
+- New guide: `docs/guides/research-management-guide.md`
+- Updated CLAUDE.md with research workflow
+- Enhanced command references
+
+See [v2.3.5 Release Notes](docs/releases/v2.3.5.md) for full details.
+
+## [2.3.4] - January 2025
+
+### 🐰 CodeRabbit IDE Integration
+
+Introduced seamless integration with CodeRabbit IDE extension for real-time code review in Cursor/VSCode.
+
+#### New Features
+- **Dual-AI Workflow** - Claude generates, CodeRabbit reviews in real-time
+  - 95% bug catch rate before commit
+  - Design system enforcement as you type
+  - Educational feedback improves skills
+  - One-click fixes for simple issues
+
+- **PR Feedback Command** - Quick status checks
+  - `/pr-feedback` shows PR status summary
+  - Complements real-time IDE review
+  - Lightweight final check before merge
+
+- **Enhanced Configuration** - CodeRabbit-aware settings
+  - IDE extension mode in config
+  - Custom `.coderabbit.yaml` template
+  - Design system rules for CodeRabbit
+
+#### Documentation Updates
+- New integration guide: `/docs/guides/coderabbit-integration.md`
+- Updated Day 1 setup guide with IDE instructions
+- Enhanced QUICK_REFERENCE.md with new workflow
+- CLAUDE.md includes CodeRabbit best practices
+
+#### Files Modified
+- `.claude/config.json` - Added CodeRabbit integration settings
+- `.claude/commands/pr-feedback.md` - New command
+- `package.json` - Version bump to 2.3.4
+- Multiple documentation files updated
+
+See [RELEASE_NOTES_v2.3.4.md](RELEASE_NOTES_v2.3.4.md) for full details.
+
+## [2.3.3] - January 2025
+
+### 🪝 Hook System Enhancements
+
+Added three powerful enhancements based on advanced patterns from the Claude hooks ecosystem.
+
+#### New Features
+- **PreCompact Hook Support** - Preserves context during conversation compaction
+  - Automatically saves critical files before compaction
+  - Integrates with `/sr` for seamless restoration
+  - Solves "4-hour session amnesia" problem
+
+- **Command Suggestion Engine** - Educational corrections for design violations
+  - Maps violations to specific corrections
+  - Tracks patterns and shows common mistakes
+  - Categories: typography, spacing, accessibility, color
+
+- **Structured Command Logging** - Queryable command history
+  - Logs all commands with timing and results
+  - `/query-logs` command for analytics
+  - Shows usage statistics and performance insights
+
+- **Implementation Guide Hook** - Prevents common AI mistakes
+  - Detects potential duplicate files before creation
+  - Identifies overlapping functionality with existing systems
+  - Suggests better approaches and required updates
+  - Embodies "analyze, recommend, revise" pattern
+
+#### New Commands
+- `/query-logs` - Query command history and analytics
+- `/check-work` - Quick implementation quality check
+
+#### Files Added
+- `.claude/hooks/notification/01-precompact-handler.py`
+- `.claude/utils/suggestion_engine.py`
+- `.claude/hooks/post-tool-use/03-command-logger.py`
+- `.claude/hooks/pre-tool-use/15-implementation-guide.py`
+- `.claude/commands/query-logs`
+- `.claude/commands/check-work.md`
+
+See [RELEASE_NOTES_v2.3.3.md](RELEASE_NOTES_v2.3.3.md) for full details.
+
 ## [2.3.2] - January 2025
 
 ### 🤖 GitHub Apps Integration

@@ -1,24 +1,13 @@
 #!/usr/bin/env python3
 """
 Design System Enforcement Hook - Block non-compliant code before it's written
-Enhanced with Suggestion Engine for educational feedback
 Ensures all code follows the strict 4-size, 2-weight design system
 """
 
 import json
 import sys
-import os
 import re
 from pathlib import Path
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-try:
-    from utils.suggestion_engine import SuggestionEngine
-    USE_SUGGESTION_ENGINE = True
-except ImportError:
-    USE_SUGGESTION_ENGINE = False
 
 def get_config():
     """Load hook configuration"""
@@ -41,14 +30,14 @@ def is_component_file(file_path):
     
     return True
 
-def find_violations_legacy(content, config):
-    """Legacy violation detection (fallback when suggestion engine not available)"""
+def find_violations(content, config):
+    """Find all design system violations in the content"""
     violations = {
         'critical': [],
         'warnings': []
     }
     
-    design_rules = config.get('design_system', config.get('designSystem', {}))
+    design_rules = config['design_system']
     
     # Check for forbidden font sizes
     forbidden_sizes = r'(?:className|class)=["\'][^"\']*\b(?:text-(?:xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl))\b'
@@ -71,13 +60,10 @@ def find_violations_legacy(content, config):
         })
     
     # Check for non-grid spacing
-    spacing_rules = design_rules.get('rules', {}).get('spacing', {})
-    spacing_grid = spacing_rules.get('grid', 4)
-    
     spacing_pattern = r'(?:className|class)=["\'][^"\']*\b(?:p|m|gap|space-[xy])-(\d+)\b'
     for match in re.finditer(spacing_pattern, content):
         value = int(match.group(1))
-        if value % spacing_grid != 0:
+        if value % design_rules['spacing_grid'] != 0:
             violations['critical'].append({
                 'type': 'spacing',
                 'line': content[:match.start()].count('\n') + 1,
@@ -87,19 +73,16 @@ def find_violations_legacy(content, config):
             })
     
     # Check for small touch targets (buttons, links)
-    mobile_rules = design_rules.get('rules', {}).get('mobile', {})
-    min_touch_target = mobile_rules.get('minTouchTarget', 44)
-    
     touch_pattern = r'<(?:button|a|Button|Link)[^>]*(?:className|class)=["\'][^"\']*\b(?:h|height)-(\d+)\b'
     for match in re.finditer(touch_pattern, content, re.IGNORECASE):
         height = int(match.group(1)) * 4  # Tailwind units to pixels
-        if height < min_touch_target:
+        if height < design_rules['min_touch_target']:
             violations['warnings'].append({
                 'type': 'touch-target',
                 'line': content[:match.start()].count('\n') + 1,
                 'match': match.group(),
                 'current': height,
-                'minimum': min_touch_target
+                'minimum': design_rules['min_touch_target']
             })
     
     return violations
@@ -159,8 +142,29 @@ def suggest_spacing_fix(value):
         return lower
     return upper
 
-def format_violations_message_legacy(violations):
-    """Format violations into a readable message (legacy)"""
+def auto_fix_content(content, violations):
+    """Automatically fix violations in content"""
+    fixed_content = content
+    
+    # Sort violations by line number in reverse to avoid offset issues
+    all_violations = violations['critical'] + violations['warnings']
+    sorted_violations = sorted(all_violations, key=lambda v: v['line'], reverse=True)
+    
+    for violation in sorted_violations:
+        if 'fix' in violation:
+            if isinstance(violation['fix'], str):
+                # Direct string replacement
+                fixed_content = fixed_content.replace(violation['match'], violation['fix'])
+            elif isinstance(violation['fix'], int):
+                # Spacing fix
+                old_class = f"-{violation['value']}"
+                new_class = f"-{violation['fix'] // 4}"  # Convert back to Tailwind units
+                fixed_content = fixed_content.replace(old_class, new_class)
+    
+    return fixed_content
+
+def format_violations_message(violations):
+    """Format violations into a readable message"""
     if not violations['critical'] and not violations['warnings']:
         return None
     
@@ -194,7 +198,7 @@ def format_violations_message_legacy(violations):
     return message
 
 def main():
-    """Main hook logic with enhanced suggestion engine"""
+    """Main hook logic"""
     # Read input from Claude Code
     input_data = json.loads(sys.stdin.read())
     
@@ -213,92 +217,36 @@ def main():
     config = get_config()
     content = input_data.get('content', '')
     
-    # Use enhanced suggestion engine if available and enabled
-    if USE_SUGGESTION_ENGINE and config.get('features', {}).get('suggestion_engine', True):
-        engine = SuggestionEngine()
-        violations = engine.find_violations(content, file_path)
-        
-        if violations:
-            # Format message with suggestions
-            message = "🚨 DESIGN SYSTEM VIOLATIONS DETECTED\n"
-            message += f"\n📍 Found {len(violations)} violation(s) in {file_path}\n"
-            
-            # Group by category
-            by_category = {}
-            for v in violations:
-                category = v['category']
-                if category not in by_category:
-                    by_category[category] = []
-                by_category[category].append(v)
-            
-            # Show violations by category
-            for category, cat_violations in by_category.items():
-                message += f"\n{category.upper()} ({len(cat_violations)} issues):\n"
-                for v in cat_violations[:3]:  # Show first 3 per category
-                    message += engine.format_violation_message(v)
-                
-                if len(cat_violations) > 3:
-                    message += f"\n... and {len(cat_violations) - 3} more {category} violations\n"
-            
-            # Track violations for analytics
-            for v in violations:
-                engine.track_violation(v)
-            
-            # Show common mistakes
-            common = engine.get_common_mistakes(3)
-            if common:
-                message += "\n📊 Your Most Common Violations:\n"
-                for mistake in common:
-                    message += f"  • '{mistake['text']}' ({mistake['count']} times) → Use: {mistake['suggestion']}\n"
-            
-            # Get category stats
-            stats = engine.get_category_stats()
-            if stats:
-                message += "\n📈 Violation Categories:\n"
-                for category, count in sorted(stats.items(), key=lambda x: x[1], reverse=True):
-                    message += f"  • {category}: {count} total violations\n"
-            
-            # Auto-fix suggestions
-            message += "\n🔧 AUTO-FIX AVAILABLE:\n"
-            message += "These violations can be automatically fixed. The suggested replacements follow our design system.\n"
+    # Find violations
+    violations = find_violations(content, config)
+    
+    if violations['critical'] or violations['warnings']:
+        # Auto-fix if enabled
+        if config['design_system']['auto_fix']:
+            fixed_content = auto_fix_content(content, violations)
             
             # Create response
             response = {
-                "action": "block",
-                "message": message,
-                "violations_count": len(violations),
-                "categories": list(by_category.keys())
+                "action": "suggest_fix",
+                "message": format_violations_message(violations),
+                "original_content": content,
+                "fixed_content": fixed_content,
+                "fix_description": f"Auto-fixed {len(violations['critical'])} critical violations"
             }
             
-            # If config allows auto-fix, provide fixed content
-            design_config = config.get('design_system', config.get('designSystem', {}))
-            if design_config.get('auto_fix', False):
-                # Apply fixes
-                fixed_content = content
-                for v in violations:
-                    fixed_content = fixed_content.replace(v['matched_text'], v['suggestion'])
-                
-                response["action"] = "suggest_fix"
-                response["fixed_content"] = fixed_content
-                response["fix_description"] = f"Auto-fixed {len(violations)} design violations"
+            # If only warnings, allow but notify
+            if not violations['critical']:
+                response["action"] = "warn"
+                response["continue"] = True
             
             print(json.dumps(response))
-            return
-    
-    # Fallback to legacy violation detection
-    violations = find_violations_legacy(content, config)
-    
-    if violations['critical'] or violations['warnings']:
-        message = format_violations_message_legacy(violations)
-        
-        # Create response
-        response = {
-            "action": "block",
-            "message": message,
-            "violations": violations
-        }
-        
-        print(json.dumps(response))
+        else:
+            # Block with violations message
+            print(json.dumps({
+                "action": "block",
+                "message": format_violations_message(violations),
+                "violations": violations
+            }))
     else:
         # No violations - continue
         print(json.dumps({"action": "continue"}))

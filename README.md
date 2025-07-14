@@ -213,6 +213,11 @@ Teams using this boilerplate report:
   - [Command List](docs/claude/CLAUDE_CODE_GUIDE.md)
   - [Security Guide](docs/SECURITY_GUIDE.md)
 
+- **Release Information**
+  - [Current Release (v2.3.5)](RELEASES.md)
+  - [All Release Notes](docs/releases/)
+  - [Changelog](CHANGELOG.md)
+
 ## 🎓 Philosophy
 
 **"Vibe Coding"**: You define WHAT to build (strategy), the system handles HOW (implementation).
