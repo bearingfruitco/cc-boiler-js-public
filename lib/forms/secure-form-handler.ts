@@ -7,6 +7,7 @@ import { PIIDetector } from '@/lib/security/pii-detector';
 import { FieldEncryptor } from '@/lib/security/field-encryptor';
 import { AuditLogger } from '@/lib/security/audit-logger';
 import { cookies } from 'next/headers';
+import { eventQueue, LEAD_EVENTS } from '@/lib/events';
 
 interface FormSubmission {
   formData: Record<string, any>;
@@ -208,6 +209,22 @@ export class SecureFormHandler {
         fields: Object.keys(submission.formData),
         hasConsent: !!submission.formData.consent_tcpa,
         leadId: encryptedData.id,
+      });
+      
+      // 7. Fire async events (non-blocking)
+      setImmediate(() => {
+        eventQueue.emit(LEAD_EVENTS.SUBMISSION_SUCCESS, {
+          formId: submission.metadata.formId,
+          leadId: encryptedData.id,
+          sessionId: sessionId,
+          timestamp: new Date().toISOString(),
+          source: 'secure-form-handler',
+          data: {
+            hasConsent: !!submission.formData.consent_tcpa,
+            vertical: submission.formData.vertical,
+            source: tracking.utm_source,
+          },
+        });
       });
       
       return {

@@ -34,24 +34,36 @@ For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_
 ## 🎯 What You Get
 
 ### Instant Productivity
-- **90+ Custom Commands** - Everything from `/sr` (smart resume) to `/orch` (orchestrate agents)
+- **95+ Custom Commands** - Everything from `/sr` (smart resume) to `/orch` (orchestrate agents)
 - **Zero Context Loss** - Auto-saves work state to GitHub gists (not commits!)
 - **PRD-Driven Development** - Start with requirements, get working code
 - **Multi-Agent System** - 9 specialized personas work in parallel
+- **Async Event System** ⚡ - Fire-and-forget for analytics, never block users
 
 ### Enforced Quality
 - **Design System** - Only 4 font sizes, 2 weights, 4px grid (enforced by hooks)
 - **Security-First** - PII detection, field encryption, audit logging
 - **Test Everything** - "Actually Works" protocol blocks untested code
 - **Clean Architecture** - Consistent patterns across all features
+- **Async Patterns** ⚡ - Required loading states, parallel operations, timeout protection
 
 ### Team Collaboration
 - **Perfect Handoffs** - Context transfers seamlessly between developers
 - **GitHub Integration** - Issues, PRs, gists all connected
+- **Real-Time Review** - CodeRabbit catches issues as you type
 - **Conflict Prevention** - Know who's editing what in real-time
 - **Knowledge Sharing** - Patterns discovered by one help all
 
-### 🆕 Latest Enhancements (v2.3.5)
+### ⚡ Latest Enhancements (v2.3.6)
+- **Async Event System** - Fire-and-forget pattern for tracking/analytics
+- **Form Event Tracking** - Built-in `useLeadFormEvents` hook for automatic tracking
+- **Parallel Detection** - Warns about sequential awaits that could run in parallel
+- **Required Loading States** - Every async operation must show user feedback
+- **Rudderstack Bridge** - Events automatically convert to `rudderanalytics.track()` calls
+- **Timeout Protection** - All external calls have 5s timeout by default
+- **New Commands**: `/prd-async`, `/create-event-handler`, `/validate-async`
+
+### 🔄 Previous Features (v2.3.5)
 - **Research Management System** - Smart document updates, no more auth-v1, auth-v2 chaos (`/research`)
 - **GitHub Apps Integration** - CodeRabbit + Claude Code for AI-powered reviews
 - **Smart Repository Setup** - Prevents boilerplate repo pollution

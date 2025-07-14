@@ -1,17 +1,24 @@
 # 📋 Release Notes
 
-## Current Version: v2.3.5
+## Current Version: v2.3.6
 
-### Latest Release: [Research Management System](docs/releases/v2.3.5.md)
+### Latest Release: [Async Event-Driven Architecture](docs/releases/v2.3.6-async-architecture.md)
 *Released: January 2025*
 
-Intelligent organization and updating of internal research/planning documents to prevent version proliferation.
+Comprehensive async event system ensuring non-critical operations never block user experience, especially important for lead generation forms.
 
 ---
 
 ## Release History
 
 ### v2.3.x Series - AI Enhancement Features
+
+- **[v2.3.6](docs/releases/v2.3.6-async-architecture.md)** - Async Event-Driven Architecture
+  - Event queue system for fire-and-forget operations
+  - Lead form event hooks with automatic tracking
+  - Async pattern detection and enforcement
+  - Required loading states for all async operations
+  - New commands: `/prd-async`, `/create-event-handler`, `/validate-async`
 
 - **[v2.3.5](docs/releases/v2.3.5.md)** - Research Management System
   - Smart document updates (no more v1, v2, v3 versions)
@@ -45,7 +52,7 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 
 ## Quick Links
 
-- **[Latest Release](docs/releases/v2.3.5.md)** - Full details on newest features
+- **[Latest Release](docs/releases/v2.3.6-async-architecture.md)** - Full details on newest features
 - **[Changelog](CHANGELOG.md)** - Complete version history
 - **[Upgrade Guide](docs/guides/upgrading.md)** - Migration instructions
 - **[All Releases](docs/releases/)** - Detailed release notes

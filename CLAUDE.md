@@ -19,6 +19,8 @@ The hooks system enforces many of these rules automatically.
 6. **ALWAYS handle PII server-side** - All sensitive data processing on backend only
 7. **ALWAYS encrypt PII fields** - Automatic field-level encryption for sensitive data
 8. **ALWAYS audit log PII access** - Every access to sensitive data is logged
+9. **ALWAYS use event queue for non-critical ops** - Analytics, tracking, webhooks async
+10. **ALWAYS show loading states** - Every async operation needs user feedback
 
 ### NEVER
 
@@ -32,6 +34,8 @@ The hooks system enforces many of these rules automatically.
 8. **NEVER put PII in URLs** - No email/phone/SSN in query parameters
 9. **NEVER expose raw PII** - Always mask sensitive fields in UI
 10. **NEVER skip consent** - TCPA/GDPR consent required for data collection
+11. **NEVER block form submission on tracking** - Use async event queue
+12. **NEVER use sequential awaits for parallel ops** - Use Promise.all()
 
 ## 📋 Core Coding Principles
 
@@ -114,6 +118,7 @@ This means you can start a task, go grab coffee, and come back to completed work
 - **02-design-check**: Blocks design violations with auto-fix
 - **03-conflict-check**: Warns if team member is editing
 - **04-actually-works**: Prevents untested claims
+- **08-async-patterns**: Detects async anti-patterns (NEW)
 - **08-evidence-language**: Ensures claims have evidence
 - **09-auto-persona**: Suggests best persona for task
 
@@ -142,6 +147,7 @@ This means you can start a task, go grab coffee, and come back to completed work
 /lib
   /api           # API utilities
   /db            # Database utilities
+  /events        # Event queue system (NEW)
 /hooks           # Custom React hooks
 /.claude
   /hooks         # Hook scripts
@@ -188,6 +194,98 @@ This means you can start a task, go grab coffee, and come back to completed work
    - Consent recorded
    - Retention policies enforced
 
+## ⚡ Async & Event-Driven Architecture
+
+### Event Queue System
+
+1. **Core Principle**: Don't block the user
+   ```typescript
+   // ❌ BAD: Blocks form submission
+   await trackToGoogle(data);
+   await trackToFacebook(data);
+   await sendWebhook(data);
+   
+   // ✅ GOOD: Fire and forget
+   eventQueue.emit(LEAD_EVENTS.FORM_SUBMIT, data);
+   ```
+
+2. **Event Pattern Usage**
+   ```typescript
+   import { eventQueue, LEAD_EVENTS } from '@/lib/events';
+   
+   // Critical path (must complete)
+   await eventQueue.emit('validation.required', data, { async: false });
+   
+   // Non-critical (fire and forget)
+   eventQueue.emit(LEAD_EVENTS.PIXEL_FIRE, data);
+   ```
+
+3. **Form Integration**
+   ```typescript
+   // Use the hook for automatic event tracking
+   const { trackFormSubmit, trackSubmissionResult } = useLeadFormEvents('form-name');
+   
+   const onSubmit = async (data) => {
+     const startTime = await trackFormSubmit(data); // Critical
+     
+     try {
+       const result = await api.submit(data); // Critical
+       trackSubmissionResult(true, startTime); // Non-blocking
+     } catch (error) {
+       trackSubmissionResult(false, startTime); // Non-blocking
+     }
+   };
+   ```
+
+4. **Loading States Required**
+   ```typescript
+   // Every async operation needs feedback
+   import { LoadingState, ErrorState } from '@/components/ui/async-states';
+   
+   if (isLoading) return <LoadingState message="Processing..." />;
+   if (error) return <ErrorState error={error} retry={handleRetry} />;
+   ```
+
+5. **Parallel Operations**
+   ```typescript
+   // ✅ Load independent data in parallel
+   const [user, preferences, permissions] = await Promise.all([
+     fetchUser(id),
+     fetchPreferences(id),
+     fetchPermissions(id)
+   ]);
+   
+   // ❌ Don't await sequentially
+   const user = await fetchUser(id);
+   const preferences = await fetchPreferences(id);
+   ```
+
+6. **Timeout Protection**
+   ```typescript
+   // All external calls need timeouts
+   const controller = new AbortController();
+   const timeoutId = setTimeout(() => controller.abort(), 5000);
+   
+   try {
+     const response = await fetch(url, { signal: controller.signal });
+   } finally {
+     clearTimeout(timeoutId);
+   }
+   ```
+
+### Event Types
+
+- **Lead Events**: Form interactions, submissions, tracking
+- **Analytics Events**: Page views, actions, conversions
+- **System Events**: Errors, performance, monitoring
+
+### Commands for Async
+
+- `/create-event-handler` - Create event handler with retry logic
+- `/prd-async` - Add async requirements to PRD
+- `/validate-async` - Check async pattern compliance
+- `/test-async-flow` - Test event chains
+
 ## 🧪 Testing Requirements
 
 Before saying "fixed" or "should work":
@@ -209,6 +307,12 @@ Before saying "fixed" or "should work":
    - Log intermediate values
    - Verify expected output
    - Test failure paths
+
+4. **For Async Operations**
+   - Test timeout scenarios
+   - Verify loading states
+   - Check error recovery
+   - Test parallel execution
 
 ## 📝 Documentation (Auto-Generated)
 
@@ -275,6 +379,7 @@ Your commands are enhanced by hooks:
 3. **Work is auto-saved** - Focus on coding, not backing up
 4. **Testing is required** - "Should work" gets flagged
 5. **Knowledge is shared** - Your solutions help the team
+6. **Events are async** - Don't block the user experience
 
 ## 🎯 The Bottom Line
 
@@ -285,6 +390,7 @@ But remember:
 - **Design consistency matters**
 - **Team coordination prevents waste**
 - **Every session teaches something**
+- **User experience is paramount**
 
 Work with the system, not against it. The hooks are there to help you succeed.
 
@@ -357,18 +463,21 @@ pnpm vitest --inspect path/to/test.spec.ts
 ### PRD-Driven Development
 - `/prd` - Create Product Requirements Document
 - `/prd-tests` - Generate tests from PRD acceptance criteria
+- `/prd-async` - Add async requirements to PRD (NEW)
 - `/grade` - Score implementation alignment with PRD (0-100%)
 - `/specs` - Extract and reuse successful patterns
 
 ### Development Helpers
 - `/cc` - Create Component (enforces design system)
 - `/ctf` - Create Tracked Form (with PII protection)
+- `/create-event-handler` - Create async event handler (NEW)
 - `/dc` - Doc Cache (cache external documentation)
 - `/sv` - Stage Validate (enforce completion gates)
 - `/orch` - Orchestrate (multi-agent task assignment)
 
 ### Quality Assurance
 - `/vd` - Validate Design (check compliance)
+- `/validate-async` - Validate async patterns (NEW)
 - `/facts` - Find And Check Tailwind Styles
 - `/research-docs` - Fetch and cache documentation
 
@@ -384,6 +493,7 @@ pnpm vitest --inspect path/to/test.spec.ts
 - **SWR** + **TanStack Query** for data fetching
 - **Zustand** for client state
 - **Biome** for linting/formatting (replaces ESLint/Prettier)
+- **Event Queue** for async operations (NEW)
 
 ### Key Directories
 ```
@@ -396,6 +506,7 @@ pnpm vitest --inspect path/to/test.spec.ts
 /lib                 # Core utilities
   /api              # API client utilities
   /db               # Database schema (Drizzle)
+  /events           # Event queue system (NEW)
   /security         # PII encryption, audit logging
   /monitoring       # Sentry, Better Stack integration
 /hooks               # Custom React hooks
@@ -413,15 +524,17 @@ pnpm vitest --inspect path/to/test.spec.ts
 1. **Project Idea** → Create PROJECT PRD
 2. **Project PRD** → Generate GitHub Issues
 3. **GitHub Issue** → Create FEATURE PRD
-4. **Feature PRD** → Generate implementation tasks
-5. **Tasks** → Write code with design enforcement
-6. **Code** → Grade against PRD (must score >80%)
-7. **Approved** → Create PR
-8. **PR Merged** → Deploy
+4. **Feature PRD** → Add async requirements
+5. **Async PRD** → Generate implementation tasks
+6. **Tasks** → Write code with design enforcement
+7. **Code** → Grade against PRD (must score >80%)
+8. **Approved** → Create PR
+9. **PR Merged** → Deploy
 
 ### PRD Quality Enforcement
 - Clarity linting catches vague language
 - Measurable acceptance criteria required
+- Async requirements documented
 - Test cases generated from criteria
 - Implementation graded objectively
 
@@ -434,6 +547,7 @@ pnpm vitest --inspect path/to/test.spec.ts
 
 # This generates:
 # - Form component with PII protection
+# - Event tracking hooks
 # - Server-side submission handler
 # - Field-level encryption
 # - Audit logging
@@ -536,6 +650,7 @@ URL → Whitelist → Sanitize → Form → Server → Encrypt → Database
 5. **Don't forget to grade** - PRD alignment is measured
 6. **Don't ignore CodeRabbit** - Fix issues before commit
 7. **Don't commit without review** - Let CodeRabbit check first
+8. **Don't block on tracking** - Use event queue for async
 
 ## 📊 Success Metrics
 
@@ -545,9 +660,11 @@ Your work is automatically tracked:
 - Bug resolution rate
 - Test coverage
 - Performance benchmarks
+- Event processing metrics
 
 Aim for:
 - 100% design compliance
 - >80% PRD alignment
 - <24hr bug resolution
 - >80% test coverage
+- <100ms event processing

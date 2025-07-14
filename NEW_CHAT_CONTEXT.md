@@ -1,4 +1,38 @@
-# New Chat Context - Claude Code Boilerplate v2.3.5
+# New Chat Context - Claude Code Boilerplate v2.3.6
+
+## 🆕 What's New in v2.3.6
+
+### Async Event-Driven Architecture
+- **Event Queue System**: Fire-and-forget pattern for non-critical operations
+- **No More Blocking**: Analytics and tracking run asynchronously
+- **Parallel Processing**: Automatic detection of operations that can run in parallel
+- **Required Loading States**: Every async operation must show user feedback
+- **Smart Form Events**: Built-in tracking hooks for lead generation
+- **Timeout Protection**: All external calls have automatic timeout handling
+
+### New Commands
+- `/create-event-handler` - Create async event handler with retry logic
+- `/prd-async` - Add async requirements section to any PRD
+- `/validate-async` - Check code for async anti-patterns
+- `/test-async-flow` - Test event chains end-to-end
+
+### Enhanced Form Generation
+```typescript
+// Forms now include automatic event tracking that flows through Rudderstack
+const { trackFormSubmit, trackSubmissionResult } = useLeadFormEvents('form-name');
+
+// All events automatically sent to Rudderstack with proper formatting:
+// - Form Viewed
+// - Form Started  
+// - Form Field Changed
+// - Form Submitted
+// - Lead Captured
+// - Consent Given
+
+// Non-blocking tracking through existing analytics infrastructure
+eventQueue.emit(LEAD_EVENTS.FORM_SUBMIT, data);
+// → Automatically bridged to: rudderanalytics.track('Form Submitted', data)
+```
 
 ## 🆕 What's New in v2.3.5
 
@@ -56,6 +90,42 @@ You're working with an advanced AI-assisted development system that treats speci
 
 ## 🌟 Latest Features
 
+### Async Event System (v2.3.6)
+```typescript
+import { eventQueue, LEAD_EVENTS } from '@/lib/events';
+
+// Critical path - await required
+await api.submitForm(data);
+
+// Non-critical - fire and forget
+eventQueue.emit(LEAD_EVENTS.PIXEL_FIRE, data);
+eventQueue.emit(LEAD_EVENTS.WEBHOOK_SEND, data);
+
+// Parallel operations
+const [user, prefs, perms] = await Promise.all([
+  fetchUser(),
+  fetchPreferences(),
+  fetchPermissions()
+]);
+```
+
+### Design System Toggle (v2.3.5)
+```bash
+/dmoff                  # Freedom mode - use any Tailwind classes
+# Now you can use: text-sm, p-5, font-bold, etc.
+
+/dmon                   # Strict mode - back to 4 sizes, 2 weights
+# Only: text-size-[1-4], font-regular/semibold, 4px grid
+```
+
+### Research Management (v2.3.5)
+```bash
+/research review        # See pending research docs
+/research update        # Update existing instead of creating new
+/research search auth   # Find past analysis
+/research context       # Add relevant docs to current session
+```
+
 ### CodeRabbit Integration (v2.3.4)
 - **Real-Time Review** - Catch issues as you type, not after PR
 - **One-Click Fixes** - Simple issues fixed automatically
@@ -106,14 +176,15 @@ You're working with an advanced AI-assisted development system that treats speci
 ## 🎯 Core Workflow
 
 ```
-IDEA → /init-project → /prd → /gt → /pt → /grade → /fw complete
+IDEA → /init-project → /prd → /prd-async → /gt → /pt → /grade → /fw complete
 ```
 
 1. **Define** specifications clearly (PRD)
-2. **Generate** tests from acceptance criteria
-3. **Implement** through micro-tasks
-4. **Grade** alignment with original intent
-5. **Extract** patterns for future reuse
+2. **Add** async requirements 
+3. **Generate** tests from acceptance criteria
+4. **Implement** through micro-tasks
+5. **Grade** alignment with original intent
+6. **Extract** patterns for future reuse
 
 ## 📋 Essential Commands
 
@@ -122,6 +193,7 @@ IDEA → /init-project → /prd → /gt → /pt → /grade → /fw complete
 /sr                    # Resume where you left off
 /fw start [#]          # Start GitHub issue
 /prd [name]            # Create specification
+/prd-async [name]      # Add async requirements (NEW)
 /prd-tests [name]      # Generate test suite
 /gt [name]             # Generate tasks
 /pt [name]             # Process tasks (with real-time review)
@@ -134,10 +206,17 @@ IDEA → /init-project → /prd → /gt → /pt → /grade → /fw complete
 ### Quality & Safety
 ```bash
 /vd                    # Validate design
+/validate-async        # Check async patterns (NEW)
 /sv check              # Stage validation
 /facts                 # Protected values
 /exists [name]         # Check before creating
 /bt add "bug"          # Track bugs
+```
+
+### Async Development (NEW)
+```bash
+/create-event-handler  # Create event handler
+/test-async-flow       # Test event chains
 ```
 
 ## 🛡️ Automatic Protections
@@ -146,6 +225,7 @@ The system automatically:
 - **Approves** safe operations (no more waiting!)
 - **Blocks** design violations (wrong CSS classes)
 - **Warns** about ambiguous PRD language
+- **Detects** async anti-patterns (NEW)
 - **Saves** context every 60 seconds
 - **Prevents** PII exposure
 - **Tracks** bugs persistently
@@ -160,14 +240,16 @@ The system automatically:
 3. **Automated enforcement** - Hooks handle compliance
 4. **Pattern learning** - Success builds on success
 5. **Objective quality** - Measurable alignment
+6. **User experience first** - Never block on non-critical ops
 
 ## 🔑 Quick Reference
 
 ```
 SPECIFICATIONS          DEVELOPMENT            QUALITY
 /prd    - create       /cc  - component       /grade  - alignment
-/specs  - patterns     /vd  - design check    /sv     - stages
-/prd-tests - tests     /bt  - bug track       /btf    - browser
+/prd-async - async     /vd  - design check    /sv     - stages
+/specs  - patterns     /bt  - bug track       /btf    - browser
+/prd-tests - tests     /validate-async        
 
 CONTEXT                COLLABORATION          HELP
 /sr     - resume       /fw  - workflow        /help new
@@ -175,9 +257,9 @@ CONTEXT                COLLABORATION          HELP
 /dc     - doc cache    /team - status         /?
 /research - organize   
 
-REVIEW                 
-/pr-feedback - PR status
-CodeRabbit   - Real-time in IDE
+REVIEW                 EVENTS (NEW)
+/pr-feedback          /create-event-handler
+CodeRabbit (IDE)      /test-async-flow
 ```
 
 ## 🔑 Key Files
@@ -196,6 +278,10 @@ CodeRabbit   - Real-time in IDE
 - Font weights: `font-regular`, `font-semibold` only
 - Spacing: 4px grid (p-1, p-2, p-3, p-4, p-6, p-8)
 - Colors: 60% neutral, 30% primary, 10% accent
+
+**Toggle with:**
+- `/dmoff` - Disable enforcement, use any Tailwind
+- `/dmon` - Re-enable strict mode
 
 ## 🚦 Getting Help
 
@@ -216,5 +302,6 @@ This system helps you:
 - Measure alignment objectively
 - Learn from successes
 - Collaborate seamlessly
+- Build performant UIs
 
 Ready to start? Try `/init-project` or `/sr` to resume existing work!

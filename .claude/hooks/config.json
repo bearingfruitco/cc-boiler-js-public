@@ -16,6 +16,12 @@
         "description": "Auto-approve safe read operations and test file edits"
       },
       {
+        "script": "08-async-patterns.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Detect and warn about async anti-patterns"
+      },
+      {
         "script": "01-collab-sync.py",
         "enabled": true,
         "critical": true,

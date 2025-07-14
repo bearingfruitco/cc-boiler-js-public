@@ -261,7 +261,7 @@ Go to Settings → Branches → Add rule:
 ### Issue: Permission errors
 **Fix**: Ensure both apps have write access to code, issues, and PRs
 
-## Daily Workflow After Setup (v2.3.4)
+## Daily Workflow After Setup (v2.3.6)
 
 ```bash
 # Start each day
@@ -271,9 +271,28 @@ Go to Settings → Branches → Add rule:
 # Work on features (with real-time review)
 /fw start 1            # Start issue #1
 /prd feature-name      # Create PRD
+/prd-async feature-name # Add async requirements (NEW!)
 /gt feature-name       # Generate tasks
 /pt feature-name       # Process tasks
 # CodeRabbit reviews as you type in Cursor!
+
+# Create forms with automatic tracking
+/create-tracked-form ContactForm --vertical=standard
+# This generates a form with:
+# - Event tracking that never blocks submission
+# - Loading states for all async operations
+# - Automatic Rudderstack integration
+
+# Add event handlers for async operations
+/create-event-handler user-activity
+# Generates handler with retry logic and timeout protection
+
+# Validate async patterns before committing
+/validate-async
+# Checks for:
+# - Sequential awaits that could be parallel
+# - Missing loading states
+# - Blocking analytics calls
 
 # Before committing (most issues already fixed)
 git add .
@@ -304,21 +323,187 @@ git push
 - [ ] Tested PR creation and saw both bots respond
 - [ ] No references to boilerplate repo remain
 
+## Async Event System (v2.3.6) - CRITICAL FOR FORMS!
+
+### Understanding Fire-and-Forget Pattern
+
+The async event system ensures that tracking, analytics, and non-critical operations NEVER block user interactions:
+
+```typescript
+// ❌ OLD WAY - Blocks form submission
+const handleSubmit = async (data) => {
+  await api.submitForm(data);           // Critical - must wait
+  await analytics.track('Form Submit'); // Blocks user!
+  await sendWebhook(data);             // Blocks user!
+  await firePixel(data);               // Blocks user!
+};
+
+// ✅ NEW WAY - Non-blocking
+const handleSubmit = async (data) => {
+  // Critical path only
+  await api.submitForm(data);
+  
+  // Fire and forget - user continues immediately
+  eventQueue.emit(LEAD_EVENTS.FORM_SUBMIT, {
+    formId: 'contact-form',
+    ...data
+  });
+  // All tracking happens asynchronously!
+};
+```
+
+### When to Use Each Pattern
+
+**Use `await` (blocking) for:**
+- Form submission to your API
+- Payment processing
+- User authentication
+- Any operation the user expects to complete
+
+**Use `eventQueue.emit()` (non-blocking) for:**
+- Analytics tracking (Google Analytics, Rudderstack)
+- Marketing pixels (Facebook, Google Ads)
+- Webhooks to external services
+- Email notifications
+- Logging and monitoring
+- Any operation the user doesn't need to wait for
+
+### Command Usage Examples
+
+#### Creating a Tracked Form
+```bash
+/create-tracked-form LeadForm --vertical=debt --compliance=tcpa
+```
+
+**Variables explained:**
+- `LeadForm` - The component name (will create `components/forms/LeadForm.tsx`)
+- `--vertical` - Business vertical: `debt`, `healthcare`, or `standard`
+- `--compliance` - Compliance level: `standard`, `hipaa`, `gdpr`, or `tcpa`
+
+#### Creating Event Handlers
+```bash
+/create-event-handler pixel-fire
+```
+
+This generates:
+```typescript
+// lib/events/handlers/pixel-fire.ts
+import { eventQueue, LEAD_EVENTS } from '@/lib/events';
+
+// Register handler
+eventQueue.on(LEAD_EVENTS.PIXEL_FIRE, async (data) => {
+  try {
+    // Your pixel firing logic here
+    await fetch('https://pixel.example.com/track', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      signal: AbortSignal.timeout(3000), // 3s timeout
+    });
+  } catch (error) {
+    // Log but don't throw - this is non-critical
+    console.error('Pixel fire failed:', error);
+  }
+});
+```
+
+#### Adding Async Requirements to PRDs
+```bash
+/prd-async contact-form
+```
+
+This adds a section to your PRD:
+```markdown
+## Async Requirements
+
+### Critical Path (Must Complete)
+1. Form validation
+2. API submission
+3. Success/error response
+
+### Non-Critical (Fire-and-Forget)
+1. Analytics tracking (Rudderstack)
+2. Marketing pixels (Facebook, Google)
+3. CRM webhook
+4. Email notification
+
+### Loading States Required
+- Submit button: "Submitting..." with spinner
+- Inline validation: Show checking state
+- Success message: Animate in
+
+### Timeout Handling
+- API calls: 5 second timeout
+- Show timeout error after 5s
+- Allow retry on timeout
+```
+
+### Integration with Existing Rudderstack
+
+The event system automatically bridges to your existing Rudderstack setup:
+
+```typescript
+// You emit this:
+eventQueue.emit(LEAD_EVENTS.FORM_SUBMIT, {
+  formId: 'contact-form',
+  email: 'user@example.com',
+  utm_source: 'google',
+  // ... other data
+});
+
+// System automatically calls:
+rudderanalytics.track('Form Submitted', {
+  form_id: 'contact-form',
+  email: 'user@example.com',
+  context: {
+    campaign: {
+      source: 'google'
+    }
+  }
+});
+```
+
+**No changes needed to your Rudderstack configuration!**
+
+### Parallel Operations
+
+```bash
+/validate-async
+```
+
+This command will catch and suggest fixes for:
+
+```typescript
+// ❌ Sequential (slow)
+const user = await fetchUser();
+const preferences = await fetchPreferences();
+const permissions = await fetchPermissions();
+
+// ✅ Parallel (fast)
+const [user, preferences, permissions] = await Promise.all([
+  fetchUser(),
+  fetchPreferences(),
+  fetchPermissions()
+]);
+```
+
 ## Next Steps
 
 1. Start with your first feature: `/fw start 1`
 2. Create detailed PRD: `/prd feature-name`
-3. Generate and process tasks with real-time review
-4. Watch as CodeRabbit catches issues before commit
-5. Ship clean code faster than ever!
+3. Add async requirements: `/prd-async feature-name`
+4. Generate and process tasks with real-time review
+5. Create forms with `/create-tracked-form`
+6. Validate async patterns with `/validate-async`
+7. Watch as CodeRabbit catches issues before commit
+8. Ship clean code faster than ever!
 
-## The New Workflow (v2.3.4)
+## The New Workflow (v2.3.6)
 
 **Before**: Write → Commit → Push → PR → Review → Fix → Push → Merge
 
-**Now**: Write → Review (real-time) → Fix → Commit (clean) → Push → Merge
+**Now**: Write → Review (real-time) → Fix → Validate Async → Commit (clean) → Push → Merge
 
-CodeRabbit in your IDE means most issues never make it to PR!
+CodeRabbit in your IDE + Async validation means clean, performant code every time!
 
 ---
 

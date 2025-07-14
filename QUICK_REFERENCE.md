@@ -10,14 +10,20 @@
 # Feature work (with CodeRabbit real-time review)
 /fw start [#]           # Start working on GitHub issue # (creates branch)
 /prd [name]             # Create detailed Product Requirements Document
+/prd-async [name]       # Add async requirements to PRD ⚡ NEW
 /gt [name]              # Generate ~20 implementation tasks from PRD
 /pt [name]              # Process tasks (CodeRabbit reviews as you code)
 /sv check 1             # Validate that stage 1 requirements are met
 
+# Create forms with tracking
+/create-tracked-form ContactForm --vertical=standard --compliance=tcpa  # ⚡ NEW
+# Options: --vertical=[debt|healthcare|standard] --compliance=[standard|hipaa|gdpr|tcpa]
+
 # During work
 /vd                     # Validate design - checks CSS classes & spacing
-/dmoff                  # Turn OFF design system - use any Tailwind classes 🆕
-/dmon                   # Turn ON design system - back to strict mode 🆕
+/validate-async         # Check async patterns compliance ⚡ NEW
+/dmoff                  # Turn OFF design system - use any Tailwind classes
+/dmon                   # Turn ON design system - back to strict mode
 /bt add "bug"           # Track a bug to fix later
 /dc search "topic"      # Search your cached documentation
 /checkpoint             # Manually save current state (auto-saves every 60s)
@@ -46,6 +52,21 @@
 - `/dm` - Design mode (on/off/custom/shadcn) 🆕
 - `/fw` - Feature workflow
 - `/bt` - Bug tracking (add/list/resolve)
+
+### Async & Events ⚡ NEW
+- `/create-event-handler [name]` - Create async event handler with retry logic
+  - Example: `/create-event-handler pixel-fire`
+- `/prd-async [feature]` - Add async requirements section to PRD
+  - Defines critical vs non-critical operations
+  - Specifies loading states and timeouts
+- `/validate-async` - Check code for async anti-patterns
+  - Sequential awaits that could be parallel
+  - Missing loading states
+  - Blocking analytics calls
+- `/test-async-flow [form-name]` - Test complete event chain
+- `/create-tracked-form [name] [options]` - Generate form with event tracking
+  - `--vertical=[debt|healthcare|standard]`
+  - `--compliance=[standard|hipaa|gdpr|tcpa]`
 
 ### Documentation
 - `/dc` - Doc cache (cache/search/show)
@@ -85,17 +106,50 @@
 - `/persona` - Switch persona
 - `/sas` - Agent status
 
-## 🆕 New Features (v2.3.4)
-- **CodeRabbit Integration**: Real-time code review in Cursor IDE
-- **Dual-AI Workflow**: Claude generates, CodeRabbit reviews
-- **Context Profiles**: Switch between focused work modes
-- **Bug Tracking**: Persistent across sessions
-- **Doc Cache**: Offline documentation access
-- **Stage Gates**: Enforce completion criteria
-- **PRD Clarity**: Catches ambiguous language (`/prd` with linting)
-- **Pattern Library**: Reuse successful specs (`/specs`)
-- **Test Generation**: PRD → Tests (`/prd-tests`)
-- **Implementation Grading**: Score alignment (`/grade`)
+## ⚡ Async Event Patterns (v2.3.6)
+
+### Fire-and-Forget Pattern
+```typescript
+// ❌ OLD - Blocks user
+await analytics.track('Form Submit');
+await sendWebhook(data);
+
+// ✅ NEW - Non-blocking
+eventQueue.emit(LEAD_EVENTS.FORM_SUBMIT, data);
+```
+
+### When to Use Each
+**Use `await` for:**
+- API submissions
+- Payment processing  
+- Authentication
+- Data user needs to see
+
+**Use `eventQueue.emit()` for:**
+- Analytics (Rudderstack, GA)
+- Marketing pixels
+- Webhooks
+- Email notifications
+- Audit logs
+
+### Loading States Required
+```typescript
+// Hook enforces this pattern
+const [isSubmitting, setIsSubmitting] = useState(false);
+// Must show loading state during async operations
+```
+
+## 🆕 New Features (v2.3.6)
+- **Async Event System**: Fire-and-forget for non-critical operations
+- **Automatic Rudderstack Bridge**: Events auto-convert to track() calls
+- **Form Event Tracking**: Built-in hooks for lead generation
+- **Parallel Detection**: Warns about sequential awaits
+- **Required Loading States**: Every async op needs user feedback
+- **Timeout Protection**: All external calls have 5s default timeout
+
+## 🔄 Previous Features (v2.3.5)
+- **Design System Toggle**: `/dmoff` to disable, `/dmon` to enable
+- **Research Management**: Smart doc updates, no more v1/v2/v3 versions
 
 ## 🔑 Key Files
 - `docs/project/PROJECT_PRD.md` - Vision

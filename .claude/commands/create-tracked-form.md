@@ -60,32 +60,89 @@ export function $ARGUMENTS() {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
+    setSubmitError(null);
     
     try {
+      // Track form submission start (critical path)
+      const startTime = await trackFormSubmit(data);
+      
+      // Submit to API with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const response = await fetch('/api/forms/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           formId: '$ARGUMENTS',
+          sessionId,
           data,
           // Tracking data handled server-side
         }),
+        signal: controller.signal,
       });
       
-      if (!response.ok) throw new Error('Submission failed');
+      clearTimeout(timeoutId);
       
-      // Success handling
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Submission failed');
+      }
+      
+      const result = await response.json();
+      
+      // Track success (non-blocking)
+      trackSubmissionResult(true, startTime);
+      
+      // Success UI handling
+      form.reset();
+      // Show success message or redirect
+      
     } catch (error) {
-      // Error handling
+      const errorObj = error instanceof Error ? error : new Error('Unknown error');
+      setSubmitError(errorObj);
+      
+      // Track failure (non-blocking)
+      trackSubmissionResult(false, Date.now(), { 
+        error: errorObj.message 
+      });
+      
+      if (errorObj.name === 'AbortError') {
+        setSubmitError(new Error('Request timed out. Please try again.'));
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Track form start on first interaction
+  const handleFirstInteraction = () => {
+    trackFormStart();
+  };
+  
   return (
     <Card className="max-w-md mx-auto">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      {submitError && (
+        <ErrorState 
+          error={submitError} 
+          retry={() => form.handleSubmit(onSubmit)()} 
+        />
+      )}
+      
+      <form 
+        onSubmit={form.handleSubmit(onSubmit)} 
+        onFocus={handleFirstInteraction}
+        className="space-y-4"
+      >
         {/* Generated form fields with proper security */}
+        
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          fullWidth
+        >
+          {isSubmitting ? <LoadingState message="Submitting..." /> : 'Submit'}
+        </Button>
       </form>
     </Card>
   );
