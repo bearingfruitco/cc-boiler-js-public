@@ -26,6 +26,20 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Temporary fix scripts
+fix-*.sh
+push-*.sh
+git-*.sh
+reorganize-*.sh
+cleanup-*.sh
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+tsconfig.tsbuildinfo
+
 # Local env files
 .env
 .env.local
@@ -62,3 +76,8 @@ Thumbs.db
 # pnpm-lock.yaml
 # yarn.lock
 # package-lock.json
+
+# Temporary fix scripts
+fix-*.sh
+push-*.sh
+git-*.sh

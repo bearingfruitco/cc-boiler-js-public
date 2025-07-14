@@ -1,111 +1,168 @@
-# 🚀 Claude Code Quick Reference Card
+# 🎯 Claude Code Quick Reference Card
 
-## Starting Your Session
+## 🚀 Daily Flow - What Each Command Does
 ```bash
-/sr                    # Smart Resume - Start here!
-/help                  # Full command reference
-/help new              # See latest features
+# Start day
+/sr                     # Smart Resume - Restores all context from last session
+/cp load [profile]      # Load a saved context profile (e.g., "frontend", "backend")
+/bt list                # Show all unresolved bugs you're tracking
+
+# Feature work (with CodeRabbit real-time review)
+/fw start [#]           # Start working on GitHub issue # (creates branch)
+/prd [name]             # Create detailed Product Requirements Document
+/prd-async [name]       # Add async requirements to PRD ⚡ NEW
+/gt [name]              # Generate ~20 implementation tasks from PRD
+/pt [name]              # Process tasks (CodeRabbit reviews as you code)
+/sv check 1             # Validate that stage 1 requirements are met
+
+# Create forms with tracking
+/create-tracked-form ContactForm --vertical=standard --compliance=tcpa  # ⚡ NEW
+# Options: --vertical=[debt|healthcare|standard] --compliance=[standard|hipaa|gdpr|tcpa]
+
+# During work
+/vd                     # Validate design - checks CSS classes & spacing
+/validate-async         # Check async patterns compliance ⚡ NEW
+/dmoff                  # Turn OFF design system - use any Tailwind classes
+/dmon                   # Turn ON design system - back to strict mode
+/bt add "bug"           # Track a bug to fix later
+/dc search "topic"      # Search your cached documentation
+/checkpoint             # Manually save current state (auto-saves every 60s)
+# CodeRabbit IDE      # Reviews automatically as you type in Cursor
+
+# Complete stage
+/sv require 1           # Block progress until stage 1 is complete
+/pr-feedback            # Quick PR status check (most issues already fixed)
+/fw complete [#]        # Create PR that closes GitHub issue #
 ```
 
-## 🛡️ New Safety Features (Automatic)
-- **Truth Enforcement** - Prevents changing established values
-- **Deletion Guard** - Warns before removing code
-- **Hydration Protection** - Catches Next.js SSR errors
-- **Import Validation** - Fixes path issues
+## 📊 Command Categories
 
-## Essential Daily Commands
+### Context & State
+- `/sr` - Smart Resume
+- `/cp` - Context Profile (save/load/list)
+- `/checkpoint` - Save progress
+- `/compress` - Compress context
 
-### Before Creating Anything
-```bash
-/exists Button         # Check if already exists
-/facts                 # See established values
-/pc Button            # Pre-component check (chain)
+### Development
+- `/cc` - Create component
+  - `--wireframe` - ASCII layout first
+  - `--animate` - Plan animations
+- `/es` - Extract style from reference
+- `/vd` - Validate design
+- `/dm` - Design mode (on/off/custom/shadcn) 🆕
+- `/fw` - Feature workflow
+- `/bt` - Bug tracking (add/list/resolve)
+
+### Async & Events ⚡ NEW
+- `/create-event-handler [name]` - Create async event handler with retry logic
+  - Example: `/create-event-handler pixel-fire`
+- `/prd-async [feature]` - Add async requirements section to PRD
+  - Defines critical vs non-critical operations
+  - Specifies loading states and timeouts
+- `/validate-async` - Check code for async anti-patterns
+  - Sequential awaits that could be parallel
+  - Missing loading states
+  - Blocking analytics calls
+- `/test-async-flow [form-name]` - Test complete event chain
+- `/create-tracked-form [name] [options]` - Generate form with event tracking
+  - `--vertical=[debt|healthcare|standard]`
+  - `--compliance=[standard|hipaa|gdpr|tcpa]`
+
+### Documentation
+- `/dc` - Doc cache (cache/search/show)
+- `/research-docs` - Research & cache
+- `/research` - Organize internal research (NEW)
+  - `review` - Review pending docs
+  - `update` - Update existing research
+  - `search` - Find past analysis
+  - `context` - Add to current session
+
+### Stage Control
+- `/sv` - Stage validate (check/require/status)
+
+### Analytics & Monitoring
+- `/query-logs` - Query command history
+  - `--stats` - View usage statistics
+  - `--errors-only` - Find recent errors
+  - `--command /cc` - Filter by command
+  - `--min-duration 5000` - Find slow operations
+  - `--sessions` - View session analysis
+- `/check-work` - Quick quality check
+  - `versions` - Check version consistency
+  - `todos` - Find incomplete work
+  - `imports` - Validate imports
+- `/prd` - PRD with stage gates
+
+### Testing
+- `/btf` - Browser test flow
+- `/tr` - Test runner
+
+### Code Review
+- `/pr-feedback` - Quick PR status check
+- CodeRabbit IDE - Real-time review in Cursor
+
+### Multi-Agent
+- `/orch` - Orchestrate agents
+- `/persona` - Switch persona
+- `/sas` - Agent status
+
+## ⚡ Async Event Patterns (v2.3.6)
+
+### Fire-and-Forget Pattern
+```typescript
+// ❌ OLD - Blocks user
+await analytics.track('Form Submit');
+await sendWebhook(data);
+
+// ✅ NEW - Non-blocking
+eventQueue.emit(LEAD_EVENTS.FORM_SUBMIT, data);
 ```
 
-### Development Flow
-```bash
-/cc ui Button          # Create component (validated)
-/vd                    # Validate design
-/chain safe-commit     # Before git commit
+### When to Use Each
+**Use `await` for:**
+- API submissions
+- Payment processing  
+- Authentication
+- Data user needs to see
+
+**Use `eventQueue.emit()` for:**
+- Analytics (Rudderstack, GA)
+- Marketing pixels
+- Webhooks
+- Email notifications
+- Audit logs
+
+### Loading States Required
+```typescript
+// Hook enforces this pattern
+const [isSubmitting, setIsSubmitting] = useState(false);
+// Must show loading state during async operations
 ```
 
-### PRD → Code Workflow
-```bash
-/prd feature           # Create PRD
-/gt feature            # Generate tasks
-/pt feature            # Process tasks
-/btf feature           # Browser test
-```
+## 🆕 New Features (v2.3.6)
+- **Async Event System**: Fire-and-forget for non-critical operations
+- **Automatic Rudderstack Bridge**: Events auto-convert to track() calls
+- **Form Event Tracking**: Built-in hooks for lead generation
+- **Parallel Detection**: Warns about sequential awaits
+- **Required Loading States**: Every async op needs user feedback
+- **Timeout Protection**: All external calls have 5s default timeout
 
-### Field Registry
-```bash
-/ctf ContactForm       # Create tracked form
-/fg schemas            # Generate Zod schemas
-/fg factories          # Generate test data
-```
+## 🔄 Previous Features (v2.3.5)
+- **Design System Toggle**: `/dmoff` to disable, `/dmon` to enable
+- **Research Management**: Smart doc updates, no more v1/v2/v3 versions
 
-## 🔥 Quick Chains (New!)
-```bash
-/chain safe-commit     # Validate before commit
-/chain field-sync      # Regenerate field code
-/chain pre-component   # Check before creating
-```
+## 🔑 Key Files
+- `docs/project/PROJECT_PRD.md` - Vision
+- `docs/project/features/*` - Feature PRDs
+- `.claude/orchestration/*` - Agent plans
+- `.claude/bugs/active.json` - Open bugs
+- `.claude/profiles/*` - Context profiles
 
-## 💡 Common Scenarios
-
-### "I need to change an API route"
-```bash
-/truth-override "API v2 migration"
-# Or include "refactor" in task name
-```
-
-### "Claude deleted my code!"
-```bash
-# Deletion guard will warn first
-# Use git to restore if needed
-```
-
-### "Getting hydration errors"
-```bash
-# Hook catches automatically
-# Shows how to fix with useEffect
-```
-
-### "Import paths are wrong"
-```bash
-# Hook warns and suggests fix
-# Use @/ for root imports
-```
-
-## 🎯 Key Aliases
-- `sr` → smart-resume
-- `truth` → facts
-- `check` → exists
-- `fg` → field-generate
-- `sc` → safe-commit (chain)
-- `override` → truth-override
-
-## 📊 What's Protected
-
-Run `/facts` to see:
-- API routes
-- Component names
-- Environment variables
-- Database schema
-- Type definitions
-
-## 🚦 Hook Status Indicators
-
-- 🚫 **Blocked** - Action prevented (must fix)
-- ⚠️ **Warning** - Proceed with caution
-- ✅ **Allowed** - Intentional change detected
-- 📝 **Info** - FYI, no action needed
-
-## 🆘 Quick Help
-```bash
-/help [command]        # Specific command help
-/help workflows        # Complete workflows
-/help new             # Latest features
-```
-
-Remember: The system prevents mistakes automatically. Focus on building!
+## 💡 Remember
+- Context auto-saves every 60s
+- Design violations blocked automatically
+- Everything tracked in GitHub issues
+- Bugs persist across sessions
+- Stage gates prevent incomplete work
+- CodeRabbit reviews code in real-time
+- Clean code before commits = faster PRs
