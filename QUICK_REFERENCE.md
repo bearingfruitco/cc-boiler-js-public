@@ -41,6 +41,7 @@
   - `--animate` - Plan animations
 - `/es` - Extract style from reference
 - `/vd` - Validate design
+- `/dm` - Design mode (on/off/custom/shadcn) 🆕
 - `/fw` - Feature workflow
 - `/bt` - Bug tracking (add/list/resolve)
 
