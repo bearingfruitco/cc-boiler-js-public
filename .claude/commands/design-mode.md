@@ -20,6 +20,96 @@ Quickly toggle between strict design system and flexible modes.
 /design-mode status    # Check current settings
 ```
 
+## Implementation
+
+```bash
+#!/bin/bash
+
+HOOKS_DIR=".claude/hooks/pre-tool-use"
+DESIGN_HOOK="02-design-check.py"
+CONFIG_FILE=".claude/hooks/config.json"
+
+case "$1" in
+    "off")
+        # Disable the hook
+        if [ -f "$HOOKS_DIR/$DESIGN_HOOK" ]; then
+            mv "$HOOKS_DIR/$DESIGN_HOOK" "$HOOKS_DIR/$DESIGN_HOOK.disabled"
+        fi
+        
+        # Update config to disable enforcement
+        if [ -f "$CONFIG_FILE" ]; then
+            # Use Python to update JSON (works everywhere)
+            python3 -c "
+import json
+with open('$CONFIG_FILE', 'r') as f:
+    config = json.load(f)
+config['design_system']['enforce'] = False
+with open('$CONFIG_FILE', 'w') as f:
+    json.dump(config, f, indent=2)
+"
+        fi
+        
+        # Clear CodeRabbit design rules
+        echo "reviews:
+  auto_review:
+    enabled: true" > .coderabbit.yaml
+        
+        echo "🎨 Design system DISABLED - Use any Tailwind classes freely!"
+        echo "✅ You can now use: text-sm, text-lg, font-bold, p-5, gap-7, etc."
+        ;;
+        
+    "on")
+        # Enable the hook
+        if [ -f "$HOOKS_DIR/$DESIGN_HOOK.disabled" ]; then
+            mv "$HOOKS_DIR/$DESIGN_HOOK.disabled" "$HOOKS_DIR/$DESIGN_HOOK"
+        fi
+        
+        # Update config to enable enforcement
+        if [ -f "$CONFIG_FILE" ]; then
+            python3 -c "
+import json
+with open('$CONFIG_FILE', 'r') as f:
+    config = json.load(f)
+config['design_system']['enforce'] = True
+with open('$CONFIG_FILE', 'w') as f:
+    json.dump(config, f, indent=2)
+"
+        fi
+        
+        # Restore CodeRabbit rules
+        cat > .coderabbit.yaml << 'EOF'
+reviews:
+  auto_review:
+    enabled: true
+  
+  custom_patterns:
+    - pattern: "text-sm|text-lg|text-xl|font-bold|font-medium"
+      message: "Use design tokens: text-size-[1-4], font-regular/semibold"
+      level: error
+    
+    - pattern: "p-5|m-7|gap-5|space-x-5|space-y-5"
+      message: "Use 4px grid: p-4, p-6, p-8"
+      level: error
+EOF
+        
+        echo "📐 Design system ENABLED - Enforcing 4 sizes, 2 weights, 4px grid"
+        ;;
+        
+    *)
+        # Check current status
+        if [ -f "$HOOKS_DIR/$DESIGN_HOOK" ]; then
+            echo "📐 Design system is currently ENABLED"
+            echo "   Enforcing: 4 font sizes, 2 weights, 4px grid"
+            echo "   Run: /dm off - to disable"
+        else
+            echo "🎨 Design system is currently DISABLED"
+            echo "   You can use any Tailwind classes"
+            echo "   Run: /dm on - to enable"
+        fi
+        ;;
+esac
+```
+
 ## Quick Actions
 
 ### Disable for Creative Freedom

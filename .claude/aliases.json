@@ -77,5 +77,9 @@
   "gen-tests": "prd-generate-tests",
   "grade": "stage-validate-grade",
   "sv-grade": "stage-validate-grade",
-  "alignment": "stage-validate-grade"
+  "alignment": "stage-validate-grade",
+  "dm": "design-mode",
+  "ds": "design-mode",
+  "dmoff": "design-mode off",
+  "dmon": "design-mode on"
 }
