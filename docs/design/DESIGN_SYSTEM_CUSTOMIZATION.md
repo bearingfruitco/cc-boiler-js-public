@@ -1,5 +1,15 @@
 # Customizing or Replacing the Design System
 
+## 🚀 Quick Toggle Commands (NEW!)
+
+```bash
+/dmoff    # Turn OFF design system - instant freedom!
+/dmon     # Turn ON design system - back to strict mode
+/dm       # Check current status
+```
+
+That's it! No scripts, no terminal, just instant toggle in Claude Code.
+
 ## Overview
 
 The Claude Code Boilerplate enforces a strict design system (4 font sizes, 2 weights, 4px grid) to ensure consistency. However, you may want to:
