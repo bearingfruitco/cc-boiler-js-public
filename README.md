@@ -51,7 +51,8 @@ For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_
 - **Conflict Prevention** - Know who's editing what in real-time
 - **Knowledge Sharing** - Patterns discovered by one help all
 
-### 🆕 Latest Enhancements (v2.3.2)
+### 🆕 Latest Enhancements (v2.3.5)
+- **Research Management System** - Smart document updates, no more auth-v1, auth-v2 chaos (`/research`)
 - **GitHub Apps Integration** - CodeRabbit + Claude Code for AI-powered reviews
 - **Smart Repository Setup** - Prevents boilerplate repo pollution
 - **Context Profiles** - Switch between focused work modes (`/cp`)
@@ -201,6 +202,7 @@ Teams using this boilerplate report:
 - **Setup**
   - [Quick Start - New Project](docs/setup/QUICK_START_NEW_PROJECT.md)
   - [Add to Existing Project](docs/setup/ADD_TO_EXISTING_PROJECT.md)
+  - [**v2.3.5 Migration Guide**](docs/setup/EXISTING_PROJECT_V2.3.5_GUIDE.md) 🆕
   - [Day 1 Complete Guide](docs/setup/DAY_1_COMPLETE_GUIDE.md)
   - [New Features Setup](docs/setup/NEW_FEATURES_SETUP.md)
   

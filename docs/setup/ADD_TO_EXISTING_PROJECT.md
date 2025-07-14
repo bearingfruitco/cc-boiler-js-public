@@ -1,5 +1,7 @@
 # Add Claude Code Boilerplate to Existing Project
 
+> **📚 For v2.3.5 with Research Management System**: See [EXISTING_PROJECT_V2.3.5_GUIDE.md](./EXISTING_PROJECT_V2.3.5_GUIDE.md) for updated migration strategies including RMS.
+
 This guide helps you add the Claude Code automation system to an existing project.
 
 ## Prerequisites
