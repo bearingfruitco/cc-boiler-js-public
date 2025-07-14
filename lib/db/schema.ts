@@ -1,10 +1,11 @@
 import { pgTable, text, timestamp, uuid, boolean, integer, jsonb } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
 // Users table
 export const users = pgTable('users', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
   email: text('email').unique().notNull(),
   name: text('name'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -13,7 +14,7 @@ export const users = pgTable('users', {
 
 // Form submissions table (for tracked forms)
 export const formSubmissions = pgTable('form_submissions', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
   formName: text('form_name').notNull(),
   data: jsonb('data').notNull(),
   userId: uuid('user_id').references(() => users.id),
@@ -24,7 +25,7 @@ export const formSubmissions = pgTable('form_submissions', {
 
 // Audit logs table (for PII access tracking)
 export const auditLogs = pgTable('audit_logs', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
   userId: uuid('user_id').references(() => users.id),
   action: text('action').notNull(),
   resource: text('resource').notNull(),

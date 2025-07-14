@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 // TCPA Certificates table
 export const tcpaCertificates = pgTable('tcpa_certificates', {
-  id: text('id').primaryKey().defaultRandom(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   leadId: text('lead_id').notNull(),
   certUrl: text('cert_url').notNull(),
   certType: text('cert_type').notNull().$type<'trustedform' | 'jornaya'>(),
@@ -26,7 +26,7 @@ export const tcpaCertificates = pgTable('tcpa_certificates', {
 
 // TCPA Consents table
 export const tcpaConsents = pgTable('tcpa_consents', {
-  id: text('id').primaryKey().defaultRandom(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   leadId: text('lead_id').notNull(),
   consentText: text('consent_text').notNull(),
   consentedAt: timestamp('consented_at').notNull(),
@@ -44,7 +44,7 @@ export const tcpaConsents = pgTable('tcpa_consents', {
 
 // TCPA Verifications table
 export const tcpaVerifications = pgTable('tcpa_verifications', {
-  id: text('id').primaryKey().defaultRandom(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   certificateId: text('certificate_id').notNull(),
   verifiedAt: timestamp('verified_at').notNull().defaultNow(),
   valid: boolean('valid').notNull(),
