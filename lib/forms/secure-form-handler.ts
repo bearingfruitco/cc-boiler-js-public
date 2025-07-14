@@ -1,8 +1,9 @@
-import { trackingFields } from '@/field-registry/core/tracking.json';
-import { cookieFields } from '@/field-registry/core/cookies.json';
-import { deviceFields } from '@/field-registry/core/device.json';
-import { geographicFields } from '@/field-registry/core/geographic.json';
-import { journeyFields } from '@/field-registry/core/journey.json';
+// Placeholder imports until field registry is properly set up
+const trackingFields = {};
+const cookieFields = {};
+const deviceFields = {};
+const geographicFields = {};
+const journeyFields = {};
 import { PIIDetector } from '@/lib/security/pii-detector';
 import { FieldEncryptor } from '@/lib/security/field-encryptor';
 import { AuditLogger } from '@/lib/security/audit-logger';
@@ -42,7 +43,7 @@ export class SecureFormHandler {
   /**
    * Parse and validate prepopulation parameters
    */
-  static parseSecureParams(url: URL): Record<string, string> {
+  static async parseSecureParams(url: URL): Promise<Record<string, string>> {
     const params: Record<string, string> = {};
     
     for (const [key, value] of url.searchParams) {
@@ -112,7 +113,7 @@ export class SecureFormHandler {
    * Capture cookie data (server-side only)
    */
   private static async captureCookies(): Promise<Record<string, any>> {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const cookieData: Record<string, any> = {};
     
     // Capture marketing cookies

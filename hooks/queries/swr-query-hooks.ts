@@ -2,7 +2,7 @@
 // SWR query hooks for data fetching
 
 import useSWR, { SWRConfiguration } from 'swr';
-import { useSWRInfinite } from 'swr/infinite';
+import useSWRInfinite from 'swr/infinite';
 
 // Types
 interface Lead {

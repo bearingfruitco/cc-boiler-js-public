@@ -2,7 +2,7 @@ import { withErrorHandler, responses, ApiError } from '@/app/api/lib/handler';
 import { createClient } from '@/lib/supabase/server';
 
 export const GET = withErrorHandler(async (request, { params }) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   // Get the user ID from params
   const { id } = params;
@@ -25,7 +25,7 @@ export const GET = withErrorHandler(async (request, { params }) => {
 });
 
 export const PATCH = withErrorHandler(async (request, { params }) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { id } = params;
   
   // Get the current user
@@ -59,7 +59,7 @@ export const PATCH = withErrorHandler(async (request, { params }) => {
 });
 
 export const DELETE = withErrorHandler(async (request, { params }) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { id } = params;
   
   // Get the current user

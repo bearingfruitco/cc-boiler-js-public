@@ -10,7 +10,7 @@ const submissionCache = new Map<string, number>();
 export async function POST(request: Request) {
   try {
     // Get request metadata
-    const headersList = headers();
+    const headersList = await headers();
     const ipAddress = headersList.get('x-forwarded-for') || 
                      headersList.get('x-real-ip') || 
                      'unknown';
