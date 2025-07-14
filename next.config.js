@@ -7,10 +7,6 @@ const nextConfig = {
   experimental: {
     // Enable typed routes
     typedRoutes: true,
-    // PPR (Partial Prerendering)
-    ppr: true,
-    // React compiler
-    reactCompiler: true,
     // Server actions configuration
     serverActions: {
       bodySizeLimit: '2mb',
@@ -56,13 +52,6 @@ const nextConfig = {
     
     // Tailwind v4 doesn't need special webpack config
     return config;
-  },
-  
-  // Sentry configuration
-  sentry: {
-    hideSourceMaps: true,
-    disableServerWebpackPlugin: process.env.NODE_ENV === 'development',
-    disableClientWebpackPlugin: process.env.NODE_ENV === 'development',
   },
   
   // Security headers
