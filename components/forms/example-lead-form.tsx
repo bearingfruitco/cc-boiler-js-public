@@ -1,12 +1,13 @@
-// components/forms/LeadFormExample.tsx
+// components/forms/example-lead-form.tsx
 'use client';
 
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useLeadStore, useLeadFormActions } from '@/stores';
+import { useFormStore } from '@/stores/form-store';
 import { useCreateLead } from '@/hooks/mutations';
+import { useLeadFormEvents } from '@/hooks/use-event-system';
 import { ChevronRight, AlertCircle } from 'lucide-react';
 
 // Validation schema
@@ -22,15 +23,27 @@ const leadFormSchema = z.object({
 
 type LeadFormData = z.infer<typeof leadFormSchema>;
 
-export function LeadFormExample() {
-  // Zustand store
-  const formData = useLeadStore((state) => state.formData);
-  const attribution = useLeadStore((state) => state.attribution);
-  const { updateField, updateMultipleFields, trackFieldInteraction } = useLeadFormActions();
-  const completionPercentage = useLeadStore((state) => state.getCompletionPercentage());
+export function ExampleLeadForm() {
+  // Form store
+  const { 
+    formData, 
+    updateFormField, 
+    updateMultipleFields, 
+    trackFieldInteraction,
+    setSubmitting,
+    isSubmitting 
+  } = useFormStore();
   
-  // SWR mutation
-  const { createLeadWithStoreData, isCreating, error: submitError } = useCreateLead();
+  // Event tracking
+  const {
+    trackFormStart,
+    trackFieldChange,
+    trackFormSubmit,
+    trackSubmissionResult
+  } = useLeadFormEvents('example-lead-form');
+  
+  // Mutation hook
+  const { mutate: createLead, isLoading: isCreating, error: submitError } = useCreateLead();
   
   // React Hook Form
   const {
@@ -52,25 +65,63 @@ export function LeadFormExample() {
     },
   });
   
-  // Sync form changes to Zustand
+  // Track form start on first interaction
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      trackFormStart();
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('focus', handleFirstInteraction, true);
+    };
+    
+    document.addEventListener('click', handleFirstInteraction);
+    document.addEventListener('focus', handleFirstInteraction, true);
+    
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('focus', handleFirstInteraction, true);
+    };
+  }, [trackFormStart]);
+  
+  // Sync form changes to store and track changes
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
       if (name && type === 'change') {
-        updateField(name as any, value[name as keyof LeadFormData]);
-        trackFieldInteraction(name);
+        const fieldValue = value[name as keyof LeadFormData];
+        const oldValue = formData[name];
+        
+        updateFormField(name, fieldValue);
+        trackFieldChange(name, oldValue, fieldValue, !errors[name as keyof LeadFormData]);
       }
     });
     return () => subscription.unsubscribe();
-  }, [watch, updateField, trackFieldInteraction]);
+  }, [watch, updateFormField, trackFieldChange, formData, errors]);
+  
+  // Calculate completion percentage
+  const calculateCompletion = () => {
+    const fields = ['name', 'email', 'phone', 'debtAmount', 'state', 'debtTypes', 'agreeToTerms'];
+    const completed = fields.filter(field => {
+      const value = formData[field];
+      if (field === 'debtTypes') return Array.isArray(value) && value.length > 0;
+      if (field === 'agreeToTerms') return value === true;
+      return value && value !== '';
+    }).length;
+    return (completed / fields.length) * 100;
+  };
   
   // Handle form submission
   const onSubmit = async (data: LeadFormData) => {
+    const startTime = await trackFormSubmit(data);
+    setSubmitting(true);
+    
     try {
       // Update store with final data
       updateMultipleFields(data);
       
-      // Submit via SWR mutation
-      const result = await createLeadWithStoreData();
+      // Submit via mutation
+      const result = await createLead(data);
+      
+      // Track success
+      trackSubmissionResult(true, startTime);
       
       // Redirect on success
       if (result?.id) {
@@ -78,6 +129,11 @@ export function LeadFormExample() {
       }
     } catch (error) {
       console.error('Form submission error:', error);
+      trackSubmissionResult(false, startTime, {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
   
@@ -88,6 +144,8 @@ export function LeadFormExample() {
     { value: 'student_loan', label: 'Student Loans' },
     { value: 'other', label: 'Other' },
   ];
+  
+  const completionPercentage = calculateCompletion();
   
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -116,6 +174,8 @@ export function LeadFormExample() {
           type="text"
           className="w-full h-12 px-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
           placeholder="John Doe"
+          onFocus={() => trackFieldInteraction('name', 'focus')}
+          onBlur={() => trackFieldInteraction('name', 'blur')}
         />
         {errors.name && (
           <p className="text-size-4 text-red-600 flex items-center gap-1">
@@ -136,6 +196,8 @@ export function LeadFormExample() {
           type="email"
           className="w-full h-12 px-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
           placeholder="john@example.com"
+          onFocus={() => trackFieldInteraction('email', 'focus')}
+          onBlur={() => trackFieldInteraction('email', 'blur')}
         />
         {errors.email && (
           <p className="text-size-4 text-red-600 flex items-center gap-1">
@@ -156,6 +218,8 @@ export function LeadFormExample() {
           type="tel"
           className="w-full h-12 px-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
           placeholder="5551234567"
+          onFocus={() => trackFieldInteraction('phone', 'focus')}
+          onBlur={() => trackFieldInteraction('phone', 'blur')}
         />
         {errors.phone && (
           <p className="text-size-4 text-red-600 flex items-center gap-1">
@@ -178,6 +242,8 @@ export function LeadFormExample() {
             type="number"
             className="w-full h-12 pl-8 pr-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
             placeholder="25000"
+            onFocus={() => trackFieldInteraction('debtAmount', 'focus')}
+            onBlur={() => trackFieldInteraction('debtAmount', 'blur')}
           />
         </div>
         {errors.debtAmount && (
@@ -197,6 +263,8 @@ export function LeadFormExample() {
           {...register('state')}
           id="state"
           className="w-full h-12 px-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+          onFocus={() => trackFieldInteraction('state', 'focus')}
+          onBlur={() => trackFieldInteraction('state', 'blur')}
         >
           <option value="">Select your state</option>
           <option value="CA">California</option>
@@ -226,6 +294,7 @@ export function LeadFormExample() {
                 value={type.value}
                 {...register('debtTypes')}
                 className="w-5 h-5 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500"
+                onChange={() => trackFieldInteraction('debtTypes', 'change')}
               />
               <span className="text-size-3 text-gray-700">{type.label}</span>
             </label>
@@ -246,6 +315,7 @@ export function LeadFormExample() {
             {...register('agreeToTerms')}
             type="checkbox"
             className="w-5 h-5 mt-1 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500"
+            onChange={() => trackFieldInteraction('agreeToTerms', 'change')}
           />
           <span className="text-size-4 text-gray-600">
             By submitting this form, I agree to be contacted by FreshSlate and its partners
@@ -272,10 +342,10 @@ export function LeadFormExample() {
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={isCreating}
+        disabled={isSubmitting || isCreating}
         className="w-full h-12 px-4 rounded-xl font-semibold text-size-3 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 transition-all flex items-center justify-center gap-2"
       >
-        {isCreating ? (
+        {isSubmitting || isCreating ? (
           'Submitting...'
         ) : (
           <>
@@ -284,15 +354,6 @@ export function LeadFormExample() {
           </>
         )}
       </button>
-      
-      {/* Attribution Info (hidden) */}
-      {attribution.utm_source && (
-        <div className="hidden">
-          <p>Source: {attribution.utm_source}</p>
-          <p>Medium: {attribution.utm_medium}</p>
-          <p>Campaign: {attribution.utm_campaign}</p>
-        </div>
-      )}
     </form>
   );
 }

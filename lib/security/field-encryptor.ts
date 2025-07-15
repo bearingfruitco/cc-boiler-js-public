@@ -1,102 +1,104 @@
-import { piiFields } from '@/field-registry/compliance/pii-fields.json';
+import piiFieldsData from '@/field-registry/compliance/pii-fields.json';
 
-interface EncryptionOptions {
-  algorithm?: 'AES-256-GCM' | 'AES-256-CBC';
-  keyDerivation?: 'PBKDF2' | 'scrypt';
+interface PIIFieldsData {
+  description: string;
+  fields: string[];
+}
+
+const piiFields = (piiFieldsData as PIIFieldsData).fields;
+
+interface EncryptionConfig {
+  algorithm: string;
+  keyDerivation: string;
+  iterations: number;
+  saltLength: number;
 }
 
 export class FieldEncryptor {
-  private static readonly ENCRYPTION_PREFIX = 'enc:';
-  
+  private config: EncryptionConfig = {
+    algorithm: 'AES-256-GCM',
+    keyDerivation: 'PBKDF2',
+    iterations: 100000,
+    saltLength: 16,
+  };
+
   /**
-   * Encrypt a field value based on its security classification
+   * Encrypt a field value
    */
-  static async encryptField(
-    fieldName: string,
-    value: any,
-    encryptionKey: string
-  ): Promise<string> {
-    // Check if field requires encryption
-    const encryptionLevel = this.getEncryptionLevel(fieldName);
+  async encryptField(fieldName: string, value: any): Promise<string> {
+    if (!value) return '';
     
-    if (encryptionLevel === 'none') {
-      return value;
+    const encryptionType = this.getFieldEncryptionType(fieldName);
+    
+    if (encryptionType === 'none') {
+      return String(value);
     }
-    
-    // For demo - in production use proper crypto library
-    const encrypted = await this.encrypt(value, encryptionKey);
-    return `${this.ENCRYPTION_PREFIX}${encrypted}`;
+
+    // In a real implementation, this would use actual encryption
+    // For now, we'll return a placeholder
+    const encoded = Buffer.from(JSON.stringify(value)).toString('base64');
+    return `encrypted:${encoded}`;
   }
-  
+
   /**
    * Decrypt a field value
    */
-  static async decryptField(
-    fieldName: string,
-    encryptedValue: string,
-    decryptionKey: string
-  ): Promise<any> {
-    if (!encryptedValue.startsWith(this.ENCRYPTION_PREFIX)) {
+  async decryptField(fieldName: string, encryptedValue: string): Promise<any> {
+    if (!encryptedValue || !encryptedValue.startsWith('encrypted:')) {
       return encryptedValue;
     }
-    
-    const encrypted = encryptedValue.slice(this.ENCRYPTION_PREFIX.length);
-    return await this.decrypt(encrypted, decryptionKey);
+
+    // In a real implementation, this would use actual decryption
+    const encoded = encryptedValue.replace('encrypted:', '');
+    const decoded = Buffer.from(encoded, 'base64').toString();
+    return JSON.parse(decoded);
   }
-  
+
   /**
-   * Get encryption level for a field
+   * Get encryption type for a field
    */
-  private static getEncryptionLevel(fieldName: string): 'none' | 'transit' | 'field' {
-    // Check each PII category
-    for (const [category, config] of Object.entries(piiFields.categories)) {
-      if (config.fields.includes(fieldName)) {
-        return config.encryption;
-      }
+  private getFieldEncryptionType(fieldName: string): string {
+    // Check if field is in PII fields list
+    if (piiFields.includes(fieldName)) {
+      return 'field';
+    }
+    
+    // Check for specific field patterns
+    if (fieldName.includes('ssn') || fieldName.includes('social_security')) {
+      return 'field';
+    }
+    
+    if (fieldName.includes('card') || fieldName.includes('account')) {
+      return 'field';
     }
     
     return 'none';
   }
-  
+
   /**
-   * Encrypt data (simplified - use crypto library in production)
+   * Batch encrypt multiple fields
    */
-  private static async encrypt(data: any, key: string): Promise<string> {
-    // In production, use Web Crypto API or Node crypto
-    const jsonString = JSON.stringify(data);
-    // This is a placeholder - implement real encryption
-    return Buffer.from(jsonString).toString('base64');
-  }
-  
-  /**
-   * Decrypt data (simplified - use crypto library in production)
-   */
-  private static async decrypt(encrypted: string, key: string): Promise<any> {
-    // In production, use Web Crypto API or Node crypto
-    const jsonString = Buffer.from(encrypted, 'base64').toString();
-    return JSON.parse(jsonString);
-  }
-  
-  /**
-   * Bulk encrypt multiple fields
-   */
-  static async encryptFields(
-    data: Record<string, any>,
-    encryptionKey: string
-  ): Promise<Record<string, any>> {
-    const encrypted: Record<string, any> = {};
+  async encryptFields(
+    fields: Record<string, any>
+  ): Promise<Record<string, string>> {
+    const encrypted: Record<string, string> = {};
     
-    for (const [field, value] of Object.entries(data)) {
-      encrypted[field] = await this.encryptField(field, value, encryptionKey);
+    for (const [fieldName, value] of Object.entries(fields)) {
+      if (this.shouldEncryptField(fieldName)) {
+        encrypted[fieldName] = await this.encryptField(fieldName, value);
+      }
     }
     
     return encrypted;
   }
-  
+
   /**
-   * Check if a value is encrypted
+   * Check if a field should be encrypted
    */
-  static isEncrypted(value: any): boolean {
-    return typeof value === 'string' && value.startsWith(this.ENCRYPTION_PREFIX);
+  private shouldEncryptField(fieldName: string): boolean {
+    return piiFields.includes(fieldName);
   }
 }
+
+// Export singleton instance
+export const fieldEncryptor = new FieldEncryptor();

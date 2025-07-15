@@ -6,32 +6,27 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAnalyticsStore } from '@/stores';
+import { usePathname } from 'next/navigation';
+import { useAnalyticsStore } from '@/stores/analytics-store';
 
 export function Analytics() {
+  const pathname = usePathname();
+  const { initialize, trackPageView } = useAnalyticsStore();
+
   useEffect(() => {
-    // Initialize analytics session
-    const analytics = useAnalyticsStore.getState();
-    analytics.initialize({
-      writeKey: process.env.NEXT_PUBLIC_RUDDERSTACK_KEY || '',
-      dataPlaneUrl: process.env.NEXT_PUBLIC_RUDDERSTACK_URL || '',
+    // Initialize analytics on mount
+    initialize();
+  }, [initialize]);
+
+  useEffect(() => {
+    // Track page view on route change
+    trackPageView(pathname, {
+      url: window.location.href,
+      path: pathname,
+      referrer: document.referrer,
+      title: document.title,
     });
-
-    // Track page view
-    analytics.trackPageView();
-
-    // Set up page view tracking on route changes
-    const handleRouteChange = () => {
-      analytics.trackPageView();
-    };
-
-    // Listen for route changes (Next.js App Router)
-    window.addEventListener('popstate', handleRouteChange);
-
-    return () => {
-      window.removeEventListener('popstate', handleRouteChange);
-    };
-  }, []);
+  }, [pathname, trackPageView]);
 
   // This component doesn't render anything
   return null;

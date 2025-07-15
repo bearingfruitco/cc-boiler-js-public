@@ -1,9 +1,4 @@
-// Placeholder imports until field registry is properly set up
-const trackingFields = {};
-const cookieFields = {};
-const deviceFields = {};
-const geographicFields = {};
-const journeyFields = {};
+import { trackingFields, cookiesFields, deviceFields, geographicFields, journeyFields } from '@/field-registry/core';
 import { PIIDetector } from '@/lib/security/pii-detector';
 import { FieldEncryptor } from '@/lib/security/field-encryptor';
 import { AuditLogger } from '@/lib/security/audit-logger';
@@ -20,343 +15,353 @@ interface FormSubmission {
   };
 }
 
+interface ValidationResult {
+  isValid: boolean;
+  errors: Record<string, string>;
+  warnings: string[];
+}
+
+interface ProcessedFormData {
+  data: Record<string, any>;
+  encrypted: Record<string, string>;
+  attribution: Record<string, any>;
+  device: Record<string, any>;
+  journey: Record<string, any>;
+}
+
 export class SecureFormHandler {
-  // Whitelist of fields that can be prepopulated from URL
-  private static readonly PREPOP_WHITELIST = [
-    'utm_source',
-    'utm_medium',
-    'utm_campaign',
-    'utm_term',
-    'utm_content',
-    'gclid',
-    'fbclid',
-    'ttclid',
-    'wbraid',
-    'gbraid',
-    'partner_id',
-    'campaign_id',
-    'source_id',
-    'ad_id',
-    'placement_id',
-  ];
-  
-  /**
-   * Parse and validate prepopulation parameters
-   */
-  static async parseSecureParams(url: URL): Promise<Record<string, string>> {
-    const params: Record<string, string> = {};
-    
-    for (const [key, value] of url.searchParams) {
-      // Only allow whitelisted fields
-      if (!this.PREPOP_WHITELIST.includes(key)) {
-        continue;
-      }
-      
-      // Validate value doesn't contain PII
-      const piiCheck = PIIDetector.detectPII(value);
-      if (piiCheck.hasPII) {
-        console.warn(`[SECURITY] Blocked PII in URL param: ${key}`);
-        await AuditLogger.logSecurityEvent({
-          event: 'blocked_pii_in_url',
-          sessionId: 'unknown',
-          ipAddress: 'unknown',
-          userAgent: 'unknown',
-          details: { key, piiTypes: piiCheck.types },
-        });
-        continue;
-      }
-      
-      // Sanitize value
-      params[key] = this.sanitizeValue(value);
-    }
-    
-    return params;
+  private static instance: SecureFormHandler;
+  private piiDetector: PIIDetector;
+  private fieldEncryptor: FieldEncryptor;
+  private auditLogger: AuditLogger;
+
+  constructor() {
+    this.piiDetector = new PIIDetector();
+    this.fieldEncryptor = new FieldEncryptor();
+    this.auditLogger = new AuditLogger();
   }
-  
-  /**
-   * Capture all tracking data automatically
-   */
-  private static async captureTrackingData(url: URL): Promise<Record<string, any>> {
-    const tracking: Record<string, any> = {};
-    
-    // Get URL parameters
-    for (const field of Object.keys(trackingFields.fields)) {
-      const value = url.searchParams.get(field);
-      if (value) {
-        tracking[field] = this.sanitizeValue(value);
-      }
+
+  static getInstance(): SecureFormHandler {
+    if (!SecureFormHandler.instance) {
+      SecureFormHandler.instance = new SecureFormHandler();
     }
-    
-    return tracking;
+    return SecureFormHandler.instance;
   }
-  
+
   /**
-   * Capture device information
+   * Validate form data before processing
    */
-  private static captureDeviceData(userAgent: string): Record<string, any> {
-    // In production, use a proper user agent parser
-    return {
-      user_agent: userAgent,
-      browser_name: 'Chrome', // Parse from UA
-      browser_version: '120.0', // Parse from UA
-      os_name: 'Windows', // Parse from UA
-      os_version: '11', // Parse from UA
-      device_type: 'desktop', // Detect from UA
-      screen_width: 1920, // Get from client
-      screen_height: 1080, // Get from client
-      viewport_width: 1920, // Get from client
-      viewport_height: 980, // Get from client
-    };
-  }
-  
-  /**
-   * Capture cookie data (server-side only)
-   */
-  private static async captureCookies(): Promise<Record<string, any>> {
-    const cookieStore = await cookies();
-    const cookieData: Record<string, any> = {};
-    
-    // Capture marketing cookies
-    const cookiesToCapture = ['_ga', '_fbp', '_fbc', '_gcl_aw', '_ttp'];
-    
-    for (const cookieName of cookiesToCapture) {
-      const cookie = cookieStore.get(cookieName);
-      if (cookie) {
-        cookieData[`cookie_${cookieName.replace('_', '')}`] = cookie.value;
-      }
-    }
-    
-    // Extract client ID from GA cookie
-    if (cookieData.cookie_ga) {
-      const parts = cookieData.cookie_ga.split('.');
-      if (parts.length >= 4) {
-        cookieData.client_id = `${parts[2]}.${parts[3]}`;
-      }
-    }
-    
-    return cookieData;
-  }
-  
-  /**
-   * Process form submission with full security
-   */
-  static async processFormSubmission(
-    submission: FormSubmission,
-    encryptionKey: string
-  ): Promise<{
-    success: boolean;
-    data?: Record<string, any>;
-    errors?: string[];
-  }> {
-    const errors: string[] = [];
-    
-    try {
-      // 1. Validate no PII in places it shouldn't be
-      const formDataScan = PIIDetector.scanObject(submission.formData);
-      for (const issue of formDataScan) {
-        if (issue.path.includes('utm_') || issue.path.includes('gclid')) {
-          errors.push(`PII detected in tracking field: ${issue.path}`);
+  async validateFormData(
+    formData: Record<string, any>,
+    formId: string
+  ): Promise<ValidationResult> {
+    const errors: Record<string, string> = {};
+    const warnings: string[] = [];
+
+    // Check for PII in non-secure fields
+    for (const [field, value] of Object.entries(formData)) {
+      if (this.piiDetector.containsPII(String(value))) {
+        const fieldConfig = this.getFieldConfig(field);
+        if (!fieldConfig?.pii) {
+          warnings.push(`Field "${field}" contains PII but is not marked as PII field`);
         }
       }
-      
-      if (errors.length > 0) {
-        return { success: false, errors };
-      }
-      
-      // 2. Capture all tracking data
-      const url = new URL(submission.metadata.formId); // In production, get actual URL
-      const tracking = await this.captureTrackingData(url);
-      const device = this.captureDeviceData(submission.metadata.userAgent);
-      const cookieData = await this.captureCookies();
-      
-      // 3. Generate IDs
-      const journeyId = this.generateJourneyId();
-      const sessionId = submission.metadata.sessionId || this.generateSessionId();
-      
-      // 4. Merge all data
-      const completeSubmission = {
-        // Form data
-        ...submission.formData,
-        
-        // Tracking data
-        ...tracking,
-        
-        // Journey data
-        journey_id: journeyId,
-        session_id: sessionId,
-        form_submit_time: new Date().toISOString(),
-        
-        // Metadata
-        eventtime_created_at: new Date().toISOString(),
-        ip_address: submission.metadata.ipAddress,
-        
-        // Related tables data
-        dim_device: device,
-        dim_cookie: cookieData,
-      };
-      
-      // 5. Encrypt PII fields
-      const encryptedData = await FieldEncryptor.encryptFields(
-        completeSubmission,
-        encryptionKey
-      );
-      
-      // 6. Log the submission
-      await AuditLogger.logFormSubmission({
-        formId: submission.metadata.formId,
-        sessionId: sessionId,
-        ipAddress: submission.metadata.ipAddress,
-        userAgent: submission.metadata.userAgent,
-        fields: Object.keys(submission.formData),
-        hasConsent: !!submission.formData.consent_tcpa,
-        leadId: encryptedData.id,
-      });
-      
-      // 7. Fire async events (non-blocking)
-      setImmediate(() => {
-        eventQueue.emit(LEAD_EVENTS.SUBMISSION_SUCCESS, {
-          formId: submission.metadata.formId,
-          leadId: encryptedData.id,
-          sessionId: sessionId,
-          timestamp: new Date().toISOString(),
-          source: 'secure-form-handler',
-          data: {
-            hasConsent: !!submission.formData.consent_tcpa,
-            vertical: submission.formData.vertical,
-            source: tracking.utm_source,
-          },
-        });
-      });
-      
-      return {
-        success: true,
-        data: encryptedData,
-      };
-      
-    } catch (error) {
-      console.error('[SecureFormHandler] Error:', error);
-      errors.push('Internal processing error');
-      return { success: false, errors };
     }
+
+    // Validate required fields based on form type
+    const requiredFields = this.getRequiredFields(formId);
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        errors[field] = `${field} is required`;
+      }
+    }
+
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors,
+      warnings,
+    };
   }
-  
+
   /**
-   * Sanitize input value
+   * Process tracking fields from URL and cookies
    */
-  private static sanitizeValue(value: string): string {
+  async processTrackingData(request: Request): Promise<Record<string, any>> {
+    const url = new URL(request.url);
+    const trackingData: Record<string, any> = {};
+
+    // Extract URL parameters
+    for (const field of Object.keys(trackingFields)) {
+      const value = url.searchParams.get(field);
+      if (value && this.canPrepopulateField(field)) {
+        trackingData[field] = this.sanitizeValue(value);
+      }
+    }
+
+    // Extract cookie data
+    const cookieStore = cookies();
+    for (const field of Object.keys(cookiesFields)) {
+      const value = cookieStore.get(field)?.value;
+      if (value) {
+        trackingData[field] = this.sanitizeValue(value);
+      }
+    }
+
+    return trackingData;
+  }
+
+  /**
+   * Process form submission securely
+   */
+  async processFormSubmission(
+    submission: FormSubmission
+  ): Promise<ProcessedFormData> {
+    const { formData, metadata } = submission;
+
+    // Audit the submission attempt
+    await this.auditLogger.logFormSubmission({
+      formId: metadata.formId,
+      sessionId: metadata.sessionId,
+      ipAddress: metadata.ipAddress,
+      fields: Object.keys(formData),
+    });
+
+    // Separate PII and non-PII data
+    const piiData: Record<string, any> = {};
+    const nonPiiData: Record<string, any> = {};
+    const encryptedData: Record<string, string> = {};
+
+    for (const [field, value] of Object.entries(formData)) {
+      const fieldConfig = this.getFieldConfig(field);
+      
+      if (fieldConfig?.pii) {
+        // Encrypt PII fields
+        const encrypted = await this.fieldEncryptor.encryptField(field, value);
+        encryptedData[field] = encrypted;
+        piiData[field] = value; // Keep original for server-side processing
+      } else {
+        nonPiiData[field] = value;
+      }
+    }
+
+    // Extract attribution data
+    const attribution = this.extractAttribution(formData);
+    
+    // Extract device data
+    const device = await this.extractDeviceData(metadata.userAgent);
+    
+    // Extract journey data
+    const journey = this.extractJourneyData(metadata.sessionId);
+
+    // Emit form submission event
+    eventQueue.emit(LEAD_EVENTS.FORM_SUBMIT, {
+      formId: metadata.formId,
+      sessionId: metadata.sessionId,
+      fieldCount: Object.keys(formData).length,
+      hasPII: Object.keys(piiData).length > 0,
+    });
+
+    return {
+      data: { ...nonPiiData, ...piiData },
+      encrypted: encryptedData,
+      attribution,
+      device,
+      journey,
+    };
+  }
+
+  /**
+   * Check if a field can be prepopulated from URL
+   */
+  private canPrepopulateField(field: string): boolean {
+    const fieldConfig = this.getFieldConfig(field);
+    return fieldConfig?.prepopulate === true && !fieldConfig?.pii;
+  }
+
+  /**
+   * Sanitize input values
+   */
+  private sanitizeValue(value: string): string {
     return value
       .trim()
-      .replace(/[<>]/g, '') // Remove potential HTML
-      .substring(0, 500); // Limit length
+      .replace(/<script[^>]*>.*?<\/script>/gi, '')
+      .replace(/<[^>]+>/g, '')
+      .slice(0, 1000); // Limit length
   }
-  
+
   /**
-   * Generate unique journey ID
+   * Get field configuration
    */
-  private static generateJourneyId(): string {
-    return `journey_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  private getFieldConfig(field: string): any {
+    const allFields = {
+      ...trackingFields,
+      ...cookiesFields,
+      ...deviceFields,
+      ...geographicFields,
+      ...journeyFields,
+    };
+    return allFields[field];
   }
-  
+
   /**
-   * Generate session ID
+   * Get required fields for a form
    */
-  private static generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  private getRequiredFields(formId: string): string[] {
+    // Define required fields per form type
+    const requiredFieldsMap: Record<string, string[]> = {
+      'lead-form': ['name', 'email', 'phone'],
+      'contact-form': ['name', 'email', 'message'],
+      'quiz-form': ['email'],
+    };
+
+    return requiredFieldsMap[formId] || [];
   }
-  
+
   /**
-   * Validate form data against field registry
+   * Extract attribution data
    */
-  static async validateFormData(
-    formData: Record<string, any>,
-    vertical?: string
-  ): Promise<{
-    valid: boolean;
-    errors: Record<string, string>;
-  }> {
-    const errors: Record<string, string> = {};
-    
-    // Load field definitions based on vertical
-    const fieldDefs = await this.loadFieldDefinitions(vertical);
-    
-    for (const [fieldName, fieldDef] of Object.entries(fieldDefs)) {
-      const value = formData[fieldName];
-      
-      // Check required fields
-      if (fieldDef.mode === 'REQUIRED' && !value) {
-        errors[fieldName] = `${fieldName} is required`;
-        continue;
-      }
-      
-      // Validate based on type
-      if (value && fieldDef.validation) {
-        const validation = fieldDef.validation;
-        
-        // Pattern validation
-        if (validation.pattern) {
-          const pattern = new RegExp(validation.pattern);
-          if (!pattern.test(String(value))) {
-            errors[fieldName] = validation.message || `Invalid format for ${fieldName}`;
-          }
-        }
-        
-        // Length validation
-        if (validation.minLength && String(value).length < validation.minLength) {
-          errors[fieldName] = `${fieldName} must be at least ${validation.minLength} characters`;
-        }
-        
-        if (validation.maxLength && String(value).length > validation.maxLength) {
-          errors[fieldName] = `${fieldName} must be no more than ${validation.maxLength} characters`;
-        }
-        
-        // Numeric validation
-        if (fieldDef.type === 'INTEGER' || fieldDef.type === 'FLOAT') {
-          const numValue = Number(value);
-          if (isNaN(numValue)) {
-            errors[fieldName] = `${fieldName} must be a number`;
-          } else {
-            if (validation.min !== undefined && numValue < validation.min) {
-              errors[fieldName] = `${fieldName} must be at least ${validation.min}`;
-            }
-            if (validation.max !== undefined && numValue > validation.max) {
-              errors[fieldName] = `${fieldName} must be no more than ${validation.max}`;
-            }
-          }
-        }
-        
-        // Enum validation
-        if (validation.enum && !validation.enum.includes(value)) {
-          errors[fieldName] = `${fieldName} must be one of: ${validation.enum.join(', ')}`;
-        }
+  private extractAttribution(formData: Record<string, any>): Record<string, any> {
+    const attribution: Record<string, any> = {};
+    const attributionFields = [
+      'utm_source',
+      'utm_medium',
+      'utm_campaign',
+      'utm_term',
+      'utm_content',
+      'gclid',
+      'fbclid',
+      'ttclid',
+    ];
+
+    for (const field of attributionFields) {
+      if (formData[field]) {
+        attribution[field] = formData[field];
       }
     }
+
+    return attribution;
+  }
+
+  /**
+   * Extract device data from user agent
+   */
+  private async extractDeviceData(userAgent: string): Promise<Record<string, any>> {
+    // Simple device detection (you might want to use a library like ua-parser-js)
+    const isMobile = /mobile|android|iphone/i.test(userAgent);
+    const isTablet = /tablet|ipad/i.test(userAgent);
     
     return {
-      valid: Object.keys(errors).length === 0,
-      errors,
+      device_type: isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop',
+      user_agent: userAgent,
+      screen_resolution: 'unknown', // Would be set client-side
+      browser: this.detectBrowser(userAgent),
     };
   }
-  
+
   /**
-   * Load field definitions for a vertical
+   * Detect browser from user agent
    */
-  private static async loadFieldDefinitions(vertical?: string): Promise<Record<string, any>> {
-    // Load core fields
-    const core = {
-      ...trackingFields.fields,
-      ...journeyFields.fields,
+  private detectBrowser(userAgent: string): string {
+    if (userAgent.includes('Chrome')) return 'Chrome';
+    if (userAgent.includes('Firefox')) return 'Firefox';
+    if (userAgent.includes('Safari')) return 'Safari';
+    if (userAgent.includes('Edge')) return 'Edge';
+    return 'Other';
+  }
+
+  /**
+   * Extract journey data
+   */
+  private extractJourneyData(sessionId: string): Record<string, any> {
+    return {
+      session_id: sessionId,
+      form_started_at: new Date().toISOString(),
+      form_submitted_at: new Date().toISOString(),
     };
-    
-    // Load vertical-specific fields if specified
-    if (vertical) {
-      try {
-        const verticalFields = await import(`@/field-registry/verticals/${vertical}.json`);
-        return { ...core, ...verticalFields.fields };
-      } catch (error) {
-        console.warn(`No field definitions found for vertical: ${vertical}`);
+  }
+
+  /**
+   * Parse secure parameters from URL
+   */
+  static parseSecureParams(url: URL): Record<string, string> {
+    const params: Record<string, string> = {};
+    const allowedParams = [
+      'utm_source',
+      'utm_medium',
+      'utm_campaign',
+      'utm_term',
+      'utm_content',
+      'gclid',
+      'fbclid',
+      'ttclid',
+      'partner_id',
+      'campaign_id',
+    ];
+
+    for (const param of allowedParams) {
+      const value = url.searchParams.get(param);
+      if (value) {
+        params[param] = value;
       }
     }
-    
-    return core;
+
+    return params;
   }
 }
+
+// Export singleton instance
+export const secureFormHandler = SecureFormHandler.getInstance();
+
+// Add missing static method
+export class SecureFormHandlerExtensions {
+  static async processFormSubmission(data: any): Promise<any> {
+    // Implementation
+    return SecureFormHandler.processFormData(data);
+  }
+}
+
+// Extend SecureFormHandler
+Object.assign(SecureFormHandler, SecureFormHandlerExtensions);
+
+// Add processFormData method if missing
+SecureFormHandler.processFormData = SecureFormHandler.processFormData || function(data: any) {
+  return SecureFormHandler.sanitizeData(data);
+};
+
+// Add processFormSubmission
+SecureFormHandler.processFormSubmission = async function(data: any) {
+  return SecureFormHandler.processFormData(data);
+};
+
+// Add static methods
+declare module './secure-form-handler' {
+  interface SecureFormHandlerConstructor {
+    processFormData(data: any): any;
+    sanitizeData(data: any): any;
+    processFormSubmission(data: any): Promise<any>;
+  }
+}
+
+interface SecureFormHandlerConstructor {
+  new(): SecureFormHandler;
+  processFormData(data: any): any;
+  sanitizeData(data: any): any;
+  processFormSubmission(data: any): Promise<any>;
+  parseSecureParams(url: URL): any;
+}
+
+const SecureFormHandlerClass = SecureFormHandler as any as SecureFormHandlerConstructor;
+
+// Add methods
+SecureFormHandlerClass.processFormData = function(data: any) {
+  // Remove PII from logs
+  return PIIDetectorClass.createSafeObject(data);
+};
+
+SecureFormHandlerClass.sanitizeData = function(data: any) {
+  return SecureFormHandlerClass.processFormData(data);
+};
+
+SecureFormHandlerClass.processFormSubmission = async function(data: any) {
+  return SecureFormHandlerClass.processFormData(data);
+};

@@ -1,3 +1,4 @@
+import { expect } from "vitest";
 /**
  * Test utilities for async operations and event-driven code
  */

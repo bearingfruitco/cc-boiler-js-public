@@ -1,57 +1,68 @@
-import type { RudderAnalytics } from '@rudderstack/analytics-js';
+// Rudderstack Analytics Integration
+import type { RudderAnalytics, RudderAnalyticsPreloader } from '@/types/rudderstack';
 
 declare global {
   interface Window {
-    rudderanalytics?: RudderAnalytics;
+    rudderanalytics?: RudderAnalytics | RudderAnalyticsPreloader;
   }
 }
 
-export function initAnalytics() {
-  if (typeof window === 'undefined' || !process.env.NEXT_PUBLIC_RUDDERSTACK_KEY) {
-    return;
+export function initializeRudderstack(): void {
+  if (typeof window === 'undefined') return;
+  
+  // Create the analytics queue if it doesn't exist
+  if (!window.rudderanalytics) {
+    window.rudderanalytics = [] as any;
   }
-
-  // Load RudderStack
-  (function() {
-    const rudderanalytics = window.rudderanalytics = [];
+  
+  const analytics = window.rudderanalytics;
+  
+  // Setup the analytics queue
+  if (Array.isArray(analytics)) {
     const methods = [
       'load', 'page', 'track', 'identify', 'alias', 'group',
       'ready', 'reset', 'getAnonymousId', 'setAnonymousId'
     ];
     
-    for (let i = 0; i < methods.length; i++) {
-      const method = methods[i];
-      rudderanalytics[method] = function(...args) {
-        rudderanalytics.push([method].concat(args));
+    methods.forEach((method) => {
+      (analytics as any)[method] = function(...args: any[]) {
+        (analytics as any).push([method, ...args]);
       };
-    }
-    
-    rudderanalytics.load(
-      process.env.NEXT_PUBLIC_RUDDERSTACK_KEY,
-      process.env.NEXT_PUBLIC_RUDDERSTACK_DATA_PLANE_URL
-    );
-    
-    const script = document.createElement('script');
-    script.src = 'https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js';
-    script.async = true;
-    document.head.appendChild(script);
-  })();
+    });
+  }
+  
+  // Load the SDK if we have keys
+  const writeKey = process.env.NEXT_PUBLIC_RUDDERSTACK_KEY;
+  const dataPlaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_URL;
+  
+  if (writeKey && dataPlaneUrl && !Array.isArray(analytics)) {
+    analytics.load(writeKey, dataPlaneUrl);
+  }
 }
 
-export function trackEvent(event: string, properties?: Record<string, any>) {
-  if (typeof window !== 'undefined' && window.rudderanalytics) {
+export function track(event: string, properties?: any): void {
+  if (typeof window !== 'undefined' && window.rudderanalytics && !Array.isArray(window.rudderanalytics)) {
     window.rudderanalytics.track(event, properties);
   }
 }
 
-export function identifyUser(userId: string, traits?: Record<string, any>) {
-  if (typeof window !== 'undefined' && window.rudderanalytics) {
-    window.rudderanalytics.identify(userId, traits);
+export function page(name?: string, properties?: any): void {
+  if (typeof window !== 'undefined' && window.rudderanalytics && !Array.isArray(window.rudderanalytics)) {
+    window.rudderanalytics.page(name || undefined, properties);
   }
 }
 
-export function pageView(name?: string, properties?: Record<string, any>) {
-  if (typeof window !== 'undefined' && window.rudderanalytics) {
-    window.rudderanalytics.page(name, properties);
+export function identify(userId?: string, traits?: any): void {
+  if (typeof window !== 'undefined' && window.rudderanalytics && !Array.isArray(window.rudderanalytics)) {
+    if (userId) {
+      window.rudderanalytics.identify(userId, traits);
+    }
   }
 }
+
+export const rudderstack = {
+  initialize: initializeRudderstack,
+  track,
+  page,
+  identify,
+};

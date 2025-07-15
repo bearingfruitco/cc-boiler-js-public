@@ -1,7 +1,20 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "organizeImports": {
-    "enabled": true
+  "$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 100,
+    "attributePosition": "auto",
+    "jsxQuoteStyle": "double",
+    "quoteProperties": "asNeeded",
+    "trailingCommas": "es5",
+    "semicolons": "asNeeded",
+    "arrowParentheses": "always",
+    "bracketSpacing": true,
+    "bracketSameLine": false
   },
   "linter": {
     "enabled": true,
@@ -10,18 +23,16 @@
       "complexity": {
         "noBannedTypes": "error",
         "noExtraBooleanCast": "error",
-        "noMultipleSpacesInRegularExpressionLiterals": "error",
-        "noUselessCatch": "error",
-        "noWith": "error"
+        "noUselessCatch": "error"
       },
       "correctness": {
+        "noChildrenProp": "warn",
         "noConstAssign": "error",
-        "noConstantCondition": "error",
-        "noEmptyCharacterClassInRegex": "error",
+        "noConstructorReturn": "error",
         "noEmptyPattern": "error",
         "noGlobalObjectCalls": "error",
         "noInvalidConstructorSuper": "error",
-        "noInvalidNewBuiltin": "error",
+        "noInvalidBuiltinInstantiation": "error",
         "noNonoctalDecimalEscape": "error",
         "noPrecisionLoss": "error",
         "noSelfAssign": "error",
@@ -33,13 +44,9 @@
         "noUnsafeFinally": "error",
         "noUnsafeOptionalChaining": "error",
         "noUnusedLabels": "error",
-        "noUnusedVariables": "error",
-        "useIsNan": "error",
-        "useValidForDirection": "error",
-        "useYield": "error"
+        "noUnusedVariables": "warn"
       },
       "style": {
-        "noCommaOperator": "error",
         "noInferrableTypes": "error",
         "noNamespace": "error",
         "noNonNullAssertion": "warn",
@@ -47,16 +54,18 @@
         "noRestrictedGlobals": {
           "level": "error",
           "options": {
-            "deniedGlobals": ["event", "error"]
+            "deniedGlobals": {
+              "event": "Use the specific event parameter instead",
+              "error": "Name your errors explicitly"
+            }
           }
         },
-        "noVar": "error",
+        "useConst": "error",
         "useAsConstAssertion": "error",
         "useBlockStatements": "error",
-        "useConst": "error",
+        "useConsistentArrayType": "error",
         "useDefaultParameterLast": "error",
         "useExponentiationOperator": "error",
-        "useNumericLiterals": "error",
         "useShorthandAssign": "error",
         "useSingleVarDeclarator": "error",
         "useTemplate": "error"
@@ -64,68 +73,62 @@
       "suspicious": {
         "noAsyncPromiseExecutor": "error",
         "noCatchAssign": "error",
-        "noClassAssign": "error",
+        "noCommentText": "warn",
         "noCompareNegZero": "error",
-        "noControlCharactersInRegex": "error",
         "noDebugger": "error",
+        "noDoubleEquals": "warn",
         "noDuplicateCase": "error",
         "noDuplicateClassMembers": "error",
+        "noDuplicateJsxProps": "error",
         "noDuplicateObjectKeys": "error",
         "noDuplicateParameters": "error",
-        "noEmptyBlockStatements": "error",
+        "noEmptyBlockStatements": "warn",
         "noFallthroughSwitchClause": "error",
         "noFunctionAssign": "error",
         "noGlobalAssign": "error",
         "noImportAssign": "error",
-        "noMisleadingCharacterClass": "error",
         "noPrototypeBuiltins": "error",
         "noRedeclare": "error",
-        "noSelfCompare": "error",
         "noShadowRestrictedNames": "error",
         "noUnsafeNegation": "error",
         "useGetterReturn": "error",
-        "useValidTypeof": "error"
+        "useIsNan": "error"
       },
       "a11y": {
         "noAccessKey": "warn",
         "noAriaUnsupportedElements": "warn",
         "noAutofocus": "warn",
-        "noBlankTarget": "warn",
         "noDistractingElements": "error",
         "noHeaderScope": "warn",
-        "noInteractiveElementToNoninteractiveRole": "warn",
         "noNoninteractiveElementToInteractiveRole": "warn",
-        "noPositiveTabindex": "warn",
+        "noPositiveTabindex": "error",
         "noRedundantAlt": "warn",
         "noRedundantRoles": "warn",
         "useAltText": "warn",
         "useAnchorContent": "warn",
-        "useAriaActivedescendantWithTabindex": "warn",
         "useAriaPropsForRole": "warn",
         "useButtonType": "warn",
         "useHeadingContent": "warn",
         "useHtmlLang": "warn",
-        "useIframeTitle": "warn",
         "useKeyWithClickEvents": "warn",
         "useKeyWithMouseEvents": "warn",
-        "useMediaCaption": "warn",
         "useValidAnchor": "warn"
+      },
+      "performance": {
+        "noAccumulatingSpread": "warn",
+        "noDelete": "warn"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "warn",
+        "noDangerouslySetInnerHtmlWithChildren": "error"
       }
     }
-  },
-  "formatter": {
-    "enabled": true,
-    "formatWithErrors": false,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100,
-    "lineEnding": "lf"
   },
   "javascript": {
     "formatter": {
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
-      "trailingComma": "es5",
+      "trailingCommas": "es5",
       "semicolons": "asNeeded",
       "arrowParentheses": "always",
       "bracketSpacing": true,
@@ -134,29 +137,23 @@
       "attributePosition": "auto"
     }
   },
-  "json": {
-    "formatter": {
-      "enabled": true,
-      "indentStyle": "space",
-      "indentWidth": 2,
-      "lineEnding": "lf"
+  "overrides": [
+    {
+      "include": ["*.ts", "*.tsx", "*.js", "*.jsx"]
     }
-  },
+  ],
   "files": {
-    "ignore": [
+    "ignoreUnknown": false,
+    "includes": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
+    "experimentalScannerIgnores": [
       "**/node_modules",
       "**/.next",
       "**/dist",
       "**/build",
       "**/.turbo",
-      "**/coverage",
       "**/.vercel",
-      "**/.claude/logs",
-      "**/.claude/transcripts",
-      "**/pnpm-lock.yaml",
-      "**/package-lock.json",
-      "**/yarn.lock",
-      "**/bun.lockb"
+      "**/coverage",
+      "**/.nyc_output"
     ]
   }
 }

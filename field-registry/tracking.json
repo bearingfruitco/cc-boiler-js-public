@@ -1,0 +1,46 @@
+{
+  "description": "Field tracking configuration for analytics and compliance",
+  "version": "1.0.0",
+  "tracking": {
+    "analytics": {
+      "enabled": true,
+      "events": {
+        "form_viewed": true,
+        "form_started": true,
+        "field_focused": true,
+        "field_changed": true,
+        "form_submitted": true
+      }
+    },
+    "compliance": {
+      "tcpa": {
+        "required": true,
+        "fields": ["consent_tcpa"]
+      },
+      "gdpr": {
+        "required": false,
+        "fields": ["consent_gdpr"]
+      }
+    }
+  },
+  "fields": {
+    "first_name": {
+      "track": true,
+      "events": ["focus", "blur", "change"]
+    },
+    "last_name": {
+      "track": true,
+      "events": ["focus", "blur", "change"]
+    },
+    "email": {
+      "track": true,
+      "events": ["focus", "blur", "change"],
+      "sensitive": true
+    },
+    "phone": {
+      "track": true,
+      "events": ["focus", "blur", "change"],
+      "sensitive": true
+    }
+  }
+}

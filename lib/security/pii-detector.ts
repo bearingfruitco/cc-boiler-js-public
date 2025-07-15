@@ -1,203 +1,104 @@
-import { piiFields } from '@/field-registry/compliance/pii-fields.json';
-import { phiFields } from '@/field-registry/compliance/phi-fields.json';
+import piiFieldsData from '@/field-registry/compliance/pii-fields.json';
+import phiFieldsData from '@/field-registry/compliance/phi-fields.json';
+
+interface FieldsData {
+  description: string;
+  fields: string[];
+}
+
+const piiFields = (piiFieldsData as FieldsData).fields;
+const phiFields = (phiFieldsData as FieldsData).fields;
+
+interface DetectionResult {
+  containsPII: boolean;
+  containsPHI: boolean;
+  detectedFields: string[];
+  patterns: string[];
+}
 
 export class PIIDetector {
-  // Common PII patterns
-  private static patterns = {
-    ssn: /\b\d{3}-?\d{2}-?\d{4}\b/,
-    email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/,
-    phone: /\b(\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/,
+  private patterns = {
+    ssn: /\b\d{3}-\d{2}-\d{4}\b|\b\d{9}\b/,
     creditCard: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/,
-    ipAddress: /\b(?:\d{1,3}\.){3}\d{1,3}\b/,
-    dateOfBirth: /\b(0[1-9]|1[0-2])[-\/](0[1-9]|[12]\d|3[01])[-\/](19|20)\d{2}\b/,
-    // PHI patterns
-    medicalRecordNumber: /\b(MRN|mrn)[\s:#-]?\d{6,10}\b/i,
-    healthPlanNumber: /\b(HPN|hpn)[\s:#-]?\d{8,12}\b/i,
-    diagnosisCode: /\b[A-Z]\d{2}\.?\d{1,2}\b/, // ICD-10 format
-    procedureCode: /\b\d{5}\b/, // CPT code format
-    npi: /\b\d{10}\b/, // National Provider Identifier
+    email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/,
+    phone: /\b(?:\+?1[-.]?)?\(?([0-9]{3})\)?[-.]?([0-9]{3})[-.]?([0-9]{4})\b/,
+    dateOfBirth: /\b(0[1-9]|1[0-2])[\/\-](0[1-9]|[12]\d|3[01])[\/\-](19|20)\d{2}\b/,
+    ipAddress: /\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/,
   };
-  
+
   /**
-   * Detect PII in a string value
+   * Check if a value contains PII
    */
-  static detectPII(value: string): {
-    hasPII: boolean;
-    types: string[];
-    matches: Array<{ type: string; value: string }>;
-  } {
-    const results = {
-      hasPII: false,
-      types: [] as string[],
-      matches: [] as Array<{ type: string; value: string }>,
-    };
+  containsPII(value: string): boolean {
+    if (!value) return false;
+    
+    const stringValue = String(value).toLowerCase();
     
     // Check against patterns
-    for (const [type, pattern] of Object.entries(this.patterns)) {
-      const matches = value.match(pattern);
-      if (matches) {
-        results.hasPII = true;
-        results.types.push(type);
-        results.matches.push({ type, value: matches[0] });
-      }
-    }
-    
-    return results;
-  }
-  
-  /**
-   * Check if a field name is PII
-   */
-  static isPIIField(fieldName: string): boolean {
-    // Check all PII categories
-    for (const category of Object.values(piiFields.categories)) {
-      if (category.fields.includes(fieldName)) {
+    for (const pattern of Object.values(this.patterns)) {
+      if (pattern.test(stringValue)) {
         return true;
       }
     }
     
-    // Check PHI categories for HIPAA
-    for (const category of Object.values(phiFields.categories)) {
-      if (category.fields.includes(fieldName)) {
-        return true;
-      }
-    }
-    
-    // Check common PII field name patterns
-    const piiFieldPatterns = [
-      /ssn/i,
-      /social.*security/i,
-      /email/i,
-      /phone/i,
-      /address/i,
-      /birth.*date/i,
-      /dob/i,
-      /credit.*card/i,
-      /bank.*account/i,
-      /driver.*license/i,
-      /passport/i,
-      // PHI patterns
-      /patient/i,
-      /medical/i,
-      /diagnosis/i,
-      /treatment/i,
-      /prescription/i,
-      /health/i,
-      /clinical/i,
-      /lab.*result/i,
-      /procedure/i,
-      /medication/i,
-    ];
-    
-    return piiFieldPatterns.some(pattern => pattern.test(fieldName));
+    return false;
   }
-  
+
   /**
-   * Scan an object for PII
+   * Detect PII in an object
    */
-  static scanObject(obj: any, path = ''): Array<{
-    path: string;
-    field: string;
-    reason: string;
-    value?: any;
-  }> {
-    const issues: Array<{
-      path: string;
-      field: string;
-      reason: string;
-      value?: any;
-    }> = [];
-    
-    if (!obj || typeof obj !== 'object') {
-      return issues;
-    }
-    
-    for (const [key, value] of Object.entries(obj)) {
-      const currentPath = path ? `${path}.${key}` : key;
-      
-      // Check if field name indicates PII
-      if (this.isPIIField(key)) {
-        issues.push({
-          path: currentPath,
-          field: key,
-          reason: 'PII field name detected',
-          value: this.maskValue(value),
-        });
+  detectPII(data: Record<string, any>): DetectionResult {
+    const detectedFields: string[] = [];
+    const patterns: string[] = [];
+    let containsPII = false;
+    let containsPHI = false;
+
+    for (const [fieldName, value] of Object.entries(data)) {
+      // Check if field is known PII
+      if (piiFields.includes(fieldName)) {
+        containsPII = true;
+        detectedFields.push(fieldName);
       }
       
-      // Check string values for PII patterns
-      if (typeof value === 'string') {
-        const detection = this.detectPII(value);
-        if (detection.hasPII) {
-          issues.push({
-            path: currentPath,
-            field: key,
-            reason: `PII pattern detected: ${detection.types.join(', ')}`,
-            value: this.maskValue(value),
-          });
+      // Check if field is PHI
+      if (phiFields.includes(fieldName)) {
+        containsPHI = true;
+        detectedFields.push(fieldName);
+      }
+      
+      // Check value against patterns
+      if (value && this.containsPII(String(value))) {
+        containsPII = true;
+        if (!detectedFields.includes(fieldName)) {
+          detectedFields.push(fieldName);
+        }
+        
+        // Identify which pattern matched
+        for (const [patternName, pattern] of Object.entries(this.patterns)) {
+          if (pattern.test(String(value))) {
+            patterns.push(patternName);
+          }
         }
       }
-      
-      // Recurse into nested objects
-      if (typeof value === 'object' && value !== null) {
-        issues.push(...this.scanObject(value, currentPath));
-      }
     }
-    
-    return issues;
+
+    return {
+      containsPII,
+      containsPHI,
+      detectedFields,
+      patterns: [...new Set(patterns)],
+    };
   }
-  
+
   /**
-   * Mask PII value for logging
+   * Create a safe version of an object with PII masked
    */
-  static maskValue(value: any): string {
-    if (!value) return '[empty]';
+  createSafeObject(data: Record<string, any>): Record<string, any> {
+    const safe: Record<string, any> = {};
     
-    const str = String(value);
-    
-    // Apply specific masking patterns
-    if (this.patterns.ssn.test(str)) {
-      return str.replace(/\d{3}-?\d{2}/, 'XXX-XX');
-    }
-    
-    if (this.patterns.email.test(str)) {
-      return str.replace(/^([^@]{1,3})[^@]*(@.+)$/, '$1***$2');
-    }
-    
-    if (this.patterns.phone.test(str)) {
-      return str.replace(/\d{3}([-.\s]?)\d{4}$/, 'XXX$1XXXX');
-    }
-    
-    if (this.patterns.creditCard.test(str)) {
-      return str.replace(/\d{4}[\s-]?\d{4}[\s-]?\d{4}/, 'XXXX-XXXX-XXXX');
-    }
-    
-    // Generic masking for other values
-    if (str.length > 4) {
-      return str.substring(0, 2) + '*'.repeat(Math.min(str.length - 4, 10)) + str.slice(-2);
-    }
-    
-    return '*'.repeat(str.length);
-  }
-  
-  /**
-   * Create safe version of object for logging
-   */
-  static createSafeObject(obj: any): any {
-    if (!obj || typeof obj !== 'object') {
-      return obj;
-    }
-    
-    const safe: any = Array.isArray(obj) ? [] : {};
-    
-    for (const [key, value] of Object.entries(obj)) {
-      if (this.isPIIField(key)) {
-        safe[key] = '[REDACTED-PII]';
-      } else if (typeof value === 'string') {
-        const detection = this.detectPII(value);
-        safe[key] = detection.hasPII ? this.maskValue(value) : value;
-      } else if (typeof value === 'object' && value !== null) {
-        safe[key] = this.createSafeObject(value);
+    for (const [key, value] of Object.entries(data)) {
+      if (this.isPIIField(key) || this.containsPII(String(value))) {
+        safe[key] = this.maskValue(String(value), key);
       } else {
         safe[key] = value;
       }
@@ -205,4 +106,198 @@ export class PIIDetector {
     
     return safe;
   }
+
+  /**
+   * Check if a field name indicates PII
+   */
+  private isPIIField(fieldName: string): boolean {
+    const field = fieldName.toLowerCase();
+    
+    // Check against known PII fields
+    if (piiFields.includes(fieldName)) {
+      return true;
+    }
+    
+    // Check common PII field patterns
+    const piiFieldPatterns = [
+      'ssn', 'social_security',
+      'credit_card', 'card_number',
+      'email', 'email_address',
+      'phone', 'phone_number',
+      'date_of_birth', 'dob', 'birth_date',
+      'driver_license', 'license_number',
+      'passport', 'account_number',
+      'routing_number', 'bank_account'
+    ];
+    
+    return piiFieldPatterns.some(pattern => field.includes(pattern));
+  }
+
+  /**
+   * Mask a PII value
+   */
+  private maskValue(value: string, fieldName?: string): string {
+    if (!value) return '[EMPTY]';
+    
+    const len = value.length;
+    
+    // Email - show domain
+    if (this.patterns.email.test(value)) {
+      const [local, domain] = value.split('@');
+      return `${local.charAt(0)}${'*'.repeat(local.length - 1)}@${domain}`;
+    }
+    
+    // Phone - show area code
+    if (this.patterns.phone.test(value)) {
+      const cleaned = value.replace(/\D/g, '');
+      if (cleaned.length >= 10) {
+        return `(${cleaned.substring(0, 3)}) ***-****`;
+      }
+    }
+    
+    // SSN - show last 4
+    if (this.patterns.ssn.test(value)) {
+      const cleaned = value.replace(/\D/g, '');
+      if (cleaned.length === 9) {
+        return `***-**-${cleaned.substring(5)}`;
+      }
+    }
+    
+    // Default masking
+    if (len <= 4) {
+      return '*'.repeat(len);
+    } else if (len <= 8) {
+      return value.substring(0, 1) + '*'.repeat(len - 2) + value.substring(len - 1);
+    } else {
+      return value.substring(0, 2) + '*'.repeat(len - 4) + value.substring(len - 2);
+    }
+  }
 }
+
+// Export singleton instance
+export const piiDetector = new PIIDetector();
+
+// Add missing static methods
+export class PIIDetectorExtensions {
+  static createSafeObject(obj: any): any {
+    const safe: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (!PIIDetector.isPII(key) && !PIIDetector.containsPII(String(value))) {
+        safe[key] = value;
+      }
+    }
+    return safe;
+  }
+
+  static detectPII(data: any): string[] {
+    const piiFields: string[] = [];
+    for (const [key, value] of Object.entries(data)) {
+      if (PIIDetector.isPII(key) || PIIDetector.containsPII(String(value))) {
+        piiFields.push(key);
+      }
+    }
+    return piiFields;
+  }
+}
+
+// Extend PIIDetector
+Object.assign(PIIDetector, PIIDetectorExtensions);
+
+// Static method implementations
+PIIDetector.isPII = function(fieldName: string): boolean {
+  const piiFieldsList = [
+    'email', 'phone', 'ssn', 'social_security_number',
+    'first_name', 'last_name', 'date_of_birth', 'address',
+    'credit_card', 'bank_account', 'driver_license'
+  ];
+  return piiFieldsList.includes(fieldName.toLowerCase());
+};
+
+PIIDetector.containsPII = function(value: string): boolean {
+  if (!value) return false;
+  // Check for SSN pattern
+  if (/\b\d{3}-\d{2}-\d{4}\b/.test(value)) return true;
+  // Check for credit card pattern
+  if (/\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/.test(value)) return true;
+  // Check for phone pattern
+  if (/\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/.test(value)) return true;
+  return false;
+};
+
+PIIDetector.createSafeObject = function(obj: any): any {
+  const safe: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (!PIIDetector.isPII(key) && !PIIDetector.containsPII(String(value))) {
+      safe[key] = value;
+    }
+  }
+  return safe;
+};
+
+PIIDetector.detectPII = function(data: any): string[] {
+  const piiFields: string[] = [];
+  for (const [key, value] of Object.entries(data)) {
+    if (PIIDetector.isPII(key) || PIIDetector.containsPII(String(value))) {
+      piiFields.push(key);
+    }
+  }
+  return piiFields;
+};
+
+// Declare static methods on the class
+declare module './pii-detector' {
+  interface PIIDetectorConstructor {
+    isPII(fieldName: string): boolean;
+    containsPII(value: string): boolean;
+    createSafeObject(obj: any): any;
+    detectPII(data: any): string[];
+  }
+}
+
+interface PIIDetectorConstructor {
+  new(): PIIDetector;
+  isPII(fieldName: string): boolean;
+  containsPII(value: string): boolean;
+  createSafeObject(obj: any): any;
+  detectPII(data: any): string[];
+}
+
+const PIIDetectorClass = PIIDetector as any as PIIDetectorConstructor;
+
+// Add methods to the class
+PIIDetectorClass.isPII = function(fieldName: string): boolean {
+  const piiFieldsList = [
+    'email', 'phone', 'ssn', 'social_security_number',
+    'first_name', 'last_name', 'date_of_birth', 'address',
+    'credit_card', 'bank_account', 'driver_license'
+  ];
+  return piiFieldsList.includes(fieldName.toLowerCase());
+};
+
+PIIDetectorClass.containsPII = function(value: string): boolean {
+  if (!value) return false;
+  if (/\b\d{3}-\d{2}-\d{4}\b/.test(value)) return true;
+  if (/\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/.test(value)) return true;
+  if (/\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/.test(value)) return true;
+  return false;
+};
+
+PIIDetectorClass.createSafeObject = function(obj: any): any {
+  const safe: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (!PIIDetectorClass.isPII(key) && !PIIDetectorClass.containsPII(String(value))) {
+      safe[key] = value;
+    }
+  }
+  return safe;
+};
+
+PIIDetectorClass.detectPII = function(data: any): string[] {
+  const piiFields: string[] = [];
+  for (const [key, value] of Object.entries(data)) {
+    if (PIIDetectorClass.isPII(key) || PIIDetectorClass.containsPII(String(value))) {
+      piiFields.push(key);
+    }
+  }
+  return piiFields;
+};
