@@ -10,6 +10,73 @@ GitHub Issue → Feature PRD → Tasks → Implementation → PR (closes issue)
    Gist stores state              State auto-saved every 60 seconds
 ```
 
+## 🚦 Decision Tree: What to Do When Claude Gives You a Plan
+
+```mermaid
+graph TD
+    A[Claude provides a plan/suggestion] --> B{Is it more than 30 min work?}
+    B -->|No| C[Quick Fix Mode]
+    B -->|Yes| D{Does it change core functionality?}
+    
+    C --> C1[Create quick issue]
+    C1 --> C2[/fw quick ##]
+    
+    D -->|No| E[Standard Issue]
+    D -->|Yes| F[Feature with PRD]
+    
+    E --> E1[gh issue create]
+    E1 --> E2[/fw start ##]
+    E2 --> E3[Work through tasks]
+    
+    F --> F1[gh issue create]
+    F1 --> F2[/fw start ##]
+    F2 --> F3[/prd feature-name]
+    F3 --> F4[/gt feature-name]
+    F4 --> F5[/pt feature-name]
+```
+
+## 📋 Quick Reference: When to Use What
+
+| Scenario | GitHub Issue? | PRD? | Why |
+|----------|--------------|------|-----|
+| Bug fix (<30 min) | ✅ Quick issue | ❌ | Just track it |
+| Validation/testing | ✅ Standard | ❌ | Plan is clear |
+| New UI component | ✅ Standard | ❌ | Scope is limited |
+| New feature | ✅ Full issue | ✅ | Needs full spec |
+| Architecture change | ✅ Full issue | ✅ | Impacts system |
+| Claude gives complex plan | ✅ Always | ✅ If >2hr | Don't lose context |
+
+## 🎯 The "Accept Claude's Plan" Workflow
+
+When Claude gives you a plan (like a validation plan), here's the exact workflow:
+
+```bash
+# 1. DON'T just say "yes, let's do it"
+# INSTEAD, capture it immediately:
+
+# Option A: Quick capture (for any plan)
+/research-docs save "validation-plan-2024-01-15"
+# This saves to .claude/research/
+
+# Option B: Direct to issue (recommended)
+gh issue create --title "Core Functionality Validation" \
+  --body "[paste Claude's entire plan]" \
+  --label "validation"
+# Note the issue number!
+
+# 2. Decide complexity:
+# - Under 2 hours? Start directly
+/fw start 27
+
+# - Over 2 hours or multiple phases? Create PRD
+/fw start 27
+/prd core-validation
+# Paste Claude's plan into the PRD structure
+
+# 3. NOW tell Claude:
+"I've created issue #27 for this. Let's start with Phase 1"
+```
+
 ## 📅 Daily Workflow
 
 ### Morning: Resume Where You Left Off
@@ -50,6 +117,17 @@ gh issue create --title "Feature: Quiz Creation" \
 # Note the issue number (e.g., #24)
 ```
 
+**Option C: Claude just gave you a plan**
+```bash
+# Capture it immediately!
+gh issue create --title "Implement: [Plan Summary]" \
+  --body "$(pbpaste)" \  # Mac: paste from clipboard
+  --label "from-claude"
+
+# Or save to research first
+/research-docs save "claude-plan-$(date +%Y%m%d)"
+```
+
 #### Step 2: Start Feature Workflow
 
 ```bash
@@ -63,10 +141,10 @@ gh issue create --title "Feature: Quiz Creation" \
 # ✓ Prepares context
 ```
 
-#### Step 3: Create Feature PRD
+#### Step 3: Create Feature PRD (When Needed)
 
 ```bash
-# Generate detailed PRD for this feature
+# Use PRD for complex features or multi-phase work
 /prd quiz-creation
 
 # This creates:
@@ -76,6 +154,8 @@ gh issue create --title "Feature: Quiz Creation" \
 # - Acceptance criteria
 # - Technical requirements
 # - UI/UX specifications
+# - Stage gates
+# - Async requirements
 ```
 
 #### Step 4: Generate and Process Tasks
@@ -140,6 +220,95 @@ gh issue create --title "Feature: Quiz Creation" \
 
 # Just close terminal - state already saved!
 # Tomorrow: /sr will restore everything
+```
+
+## 🚨 Common Mistakes & Fixes
+
+### Mistake 1: "Just accepting plans"
+```bash
+# ❌ Wrong:
+Claude: "Here's a plan for validation..."
+You: "Yes, let's do it"
+
+# ✅ Right:
+Claude: "Here's a plan for validation..."
+You: "Let me capture this first"
+gh issue create --title "..." --body "[plan]"
+/fw start ##
+"Now let's start with step 1"
+```
+
+### Mistake 2: "Not sure if I need a PRD"
+```bash
+# Use this command to help decide:
+/think-through "Do I need a PRD for [feature]?"
+
+# Or use this rule:
+# - Changes multiple files/systems? → PRD
+# - Adds new user-facing feature? → PRD  
+# - Just fixing/validating? → No PRD
+# - Over 2 hours of work? → PRD
+```
+
+### Mistake 3: "Lost track of what we decided"
+```bash
+# Always available:
+/research-docs list  # See all saved plans
+/fw status          # Current issue status
+/checkpoint list    # Recent save points
+gh issue list --assignee @me  # All your work
+```
+
+## 💡 New Habits to Build
+
+1. **The Pause Habit**
+   ```
+   Claude gives plan → PAUSE → Create issue → THEN proceed
+   ```
+
+2. **The Context Check**
+   ```bash
+   # Before accepting any plan:
+   /fw status  # Am I already working on something?
+   /todo list  # Do I have pending tasks?
+   ```
+
+3. **The Handoff Mindset**
+   ```
+   "Would future me (or a teammate) understand what to do?"
+   If no → Create issue with full context
+   ```
+
+## 🔄 Integrated Workflow for Complex Plans
+
+When Claude gives you a multi-phase plan:
+
+```bash
+# 1. Claude just gave you a validation plan
+# DON'T just proceed!
+
+# 2. Quick capture
+gh issue create \
+  --title "Critical: Core Functionality Validation" \
+  --body "$(pbpaste)" \
+  --label critical,validation \
+  --milestone "MVP"
+
+# 3. Since it's multi-phase, create PRD
+/fw start 28  # Use the issue number
+/prd core-validation
+
+# 4. The PRD will structure it properly with:
+# - Stage gates between phases
+# - Clear exit criteria
+# - Testable outcomes
+
+# 5. Generate tasks from phases
+/gt core-validation
+
+# 6. Now tell Claude:
+"I've created issue #28 and PRD. Starting with Phase 1 now."
+/pt core-validation  # Work through systematically
 ```
 
 ## 🔄 Switching Between Features
@@ -232,6 +401,21 @@ gh issue create --title "Bug: Form validation error" --label bug
 /fw restore 24
 ```
 
+### "Claude gave me a complex plan"
+```bash
+# 1. Save it immediately
+/research-docs save "claude-plan-validation"
+
+# 2. Create issue with the plan
+gh issue create --title "Implement: Validation Plan" \
+  --body "$(cat .claude/research/claude-plan-validation.md)"
+
+# 3. Decide if it needs PRD
+/think-through "Does this validation plan need a PRD?"
+# If yes: /prd validation-plan
+# If no: just /fw start ##
+```
+
 ## 🎯 Key Points to Remember
 
 1. **Always start with a GitHub issue** - It's your anchor point
@@ -240,6 +424,7 @@ gh issue create --title "Bug: Form validation error" --label bug
 4. **PRDs provide detailed specs** - Generated from issue description
 5. **Tasks are granular** - 5-15 minute chunks from PRD
 6. **Everything links back to the issue** - Branches, PRs, gists
+7. **Capture Claude's plans immediately** - Don't lose context
 
 ## 📈 Example: Full Feature Flow
 
@@ -263,6 +448,37 @@ gh issue create --title "Feature: User Profile" --body "Users need profiles"
 /fw complete 26  # Create PR, closes issue #26
 ```
 
+## 📈 Example: Handling Claude's Plans
+
+```bash
+# Claude provides validation plan
+Claude: "Here's a 4-phase validation plan..."
+
+# Your response:
+"Great plan! Let me capture this properly."
+
+# Create issue
+gh issue create \
+  --title "Core Functionality Validation" \
+  --body "[paste plan]" \
+  --label "validation,critical"
+# Created issue #29
+
+# Start work
+/fw start 29
+
+# Since it's 4 phases (>2hr), create PRD
+/prd core-validation
+# Paste Claude's plan when prompted
+
+# Generate tasks
+/gt core-validation
+
+# Now work through it
+/pt core-validation
+"Starting with Phase 1: Make It Accessible"
+```
+
 ## 🔗 How It All Connects
 
 ```
@@ -273,5 +489,17 @@ Issue #26 "User Profile"
     ├── State: work-state-issue-26.json (GitHub gist)
     └── PR: "feat: add user profile (#26)" → Closes #26
 ```
+
+## 🎓 Learning the System
+
+### Quick Commands When Unsure
+```bash
+/help workflow      # Today's workflow reminders
+/best-practice      # Shows example of perfect workflow
+/mistakes-check     # Analyzes your recent workflow
+```
+
+### The Golden Rule
+**Every piece of work should have a GitHub issue as its "home"** - even if it's just a 30-minute task. This prevents the "accepting plans and losing track" problem.
 
 This is your daily development cycle. Issues organize work, PRDs define it, tasks break it down, and GitHub tracks it all!
