@@ -34,11 +34,13 @@ For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_
 ## 🎯 What You Get
 
 ### Instant Productivity
-- **95+ Custom Commands** - Everything from `/sr` (smart resume) to `/orch` (orchestrate agents)
+- **100+ Custom Commands** - Everything from `/sr` (smart resume) to `/orch` (orchestrate agents)
 - **Zero Context Loss** - Auto-saves work state to GitHub gists (not commits!)
 - **PRD-Driven Development** - Start with requirements, get working code
 - **Multi-Agent System** - 9 specialized personas work in parallel
 - **Async Event System** ⚡ - Fire-and-forget for analytics, never block users
+- **Smart Issue Creation** 🎯 - Capture Claude responses directly to GitHub with duplicate detection (v2.4.0)
+- **Dependency Tracking** 📦 - Know what components depend on each other (v2.4.0)
 
 ### Enforced Quality
 - **Design System** - Only 4 font sizes, 2 weights, 4px grid (enforced by hooks)

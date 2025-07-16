@@ -1,4 +1,4 @@
-# Claude Code Boilerplate System Overview v2.3.6
+# Claude Code Boilerplate System Overview v2.4.0
 
 ## 🎯 Executive Summary
 
@@ -8,7 +8,7 @@ This is a comprehensive AI-assisted development system that combines PRD-driven 
 
 ### Core Components
 
-#### 1. Command System (95+ Commands)
+#### 1. Command System (100+ Commands)
 - **Context Management**: Smart resume, checkpoints, context profiles
 - **PRD Workflow**: Specification-driven development with clarity linting
 - **Development**: Component creation, design validation, bug tracking
@@ -16,6 +16,8 @@ This is a comprehensive AI-assisted development system that combines PRD-driven 
 - **Testing**: Browser automation, unit tests, PRD-based test generation
 - **Collaboration**: Multi-agent orchestration, GitHub integration
 - **Grading**: Implementation alignment scoring
+- **Smart Issue Creation**: Capture Claude responses to GitHub issues with duplicate detection
+- **Dependency Tracking**: Lightweight component dependency management
 
 #### 2. Hooks System (Automated Enforcement)
 **Pre-Tool-Use Hooks**:
@@ -26,12 +28,15 @@ This is a comprehensive AI-assisted development system that combines PRD-driven 
 - GitHub synchronization (prevents conflicts)
 - Security checks (PII protection)
 - Truth enforcement (protects established values)
+- Creation guard (prevents duplicate components)
+- Dependency tracking (alerts when modifying shared components)
 
 **Post-Tool-Use Hooks**:
 - Auto-save to GitHub gists every 60s
 - Pattern extraction from successful implementations
 - Event metrics tracking
 - Performance monitoring
+- Response capture (for issue creation)
 
 #### 3. PRD-Driven Development
 ```
@@ -65,6 +70,24 @@ PROJECT IDEA → PROJECT PRD → GITHUB ISSUES → FEATURE PRDS → ASYNC REQUIR
 - **State Management**: GitHub gist-based persistence
 
 ## 🌟 Latest Enhancements
+
+### Smart Issue Creation (v2.4.0)
+- **Capture-to-Issue Command**: `/capture-to-issue` or `/cti`
+- **Duplicate Detection**: AI-powered similarity checking before creating issues
+- **Smart Linking**: Automatically links to PRDs, parent issues, and sessions
+- **Component Tracking**: Tracks which components are mentioned/affected
+
+### Dependency Management (v2.4.0)
+- **Lightweight Tracking**: Using @used-by comments in code
+- **Automatic Alerts**: Warns when modifying components with dependents
+- **Simple Commands**: `/deps check Button`, `/deps scan`
+- **Breaking Change Detection**: Identifies removed props/exports
+
+### Creation Guard (v2.4.0)
+- **Automatic Existence Check**: Before creating any component
+- **Smart Suggestions**: Shows similar components if exact match not found
+- **Usage Information**: Shows where existing components are used
+- **Prevents Duplicate Work**: No more recreating existing components
 
 ### Async Event System (v2.3.6)
 - **Event Queue Implementation**: Fire-and-forget for analytics, tracking

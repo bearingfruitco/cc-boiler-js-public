@@ -39,7 +39,16 @@ This is a production-ready boilerplate for AI-assisted development with:
 
 ## 📋 Current Capabilities
 
-### 1. PRD & Task Management
+### 1. Smart Issue & Context Management (NEW v2.4.0)
+- `/cti [title]` - Capture Claude's response to GitHub issue
+  - Checks for duplicate issues automatically
+  - Links to PRDs and parent issues
+  - Tracks components and dependencies
+- `/deps check [component]` - See what uses a component
+- `/deps scan` - Update all dependency tracking
+- `/exists [name]` - Check before creating (now automatic)
+
+### 2. PRD & Task Management
 - `/prd [feature]` - Generate PRD with stage validation gates
 - `/gt [feature]` - Generate granular tasks (5-15 min each)
 - `/pt [feature]` - Process tasks one by one
@@ -48,7 +57,7 @@ This is a production-ready boilerplate for AI-assisted development with:
 - `/ts` - Task status overview
 - `/tb` - Visual task board
 
-### 2. Design System (STRICTLY ENFORCED)
+### 3. Design System (STRICTLY ENFORCED)
 ```
 Font Sizes: ONLY text-size-1, text-size-2, text-size-3, text-size-4
 Font Weights: ONLY font-regular, font-semibold
@@ -57,7 +66,7 @@ Colors: 60/30/10 distribution rule
 Touch Targets: Minimum 44px (h-11)
 ```
 
-### 3. Security & Data Protection
+### 4. Security & Data Protection
 - **Field Registry**: `/field-registry/` defines all data fields
 - **PII/PHI Protection**: Automatic detection and blocking
 - **Encryption**: Field-level encryption for sensitive data
@@ -69,7 +78,7 @@ Commands:
 - `/afs [file]` - Audit form security
 - `/gft` - Generate field types from registry
 
-### 4. Persona-Based Sub-Agents
+### 5. Persona-Based Sub-Agents
 Available personas:
 - **frontend** - UI/UX specialist
 - **backend** - Server architect
@@ -88,21 +97,24 @@ Commands:
 - `/at [feature]` - Visualize task assignments
 - `/orchestration-view` - See visual diagram
 
-### 5. Hooks System
+### 6. Hooks System
 Active hooks enforce rules automatically:
 
 **Pre-tool-use**:
 - `02-design-check.py` - Blocks design violations
 - `07-pii-protection.py` - Prevents PII exposure
 - `03-conflict-check.py` - Prevents file conflicts
-- `10-hydration-guard.py` - Prevents Next.js SSR errors (NEW)
-- `11-truth-enforcer.py` - Blocks changes to established facts (NEW)
-- `12-deletion-guard.py` - Warns before deletions (NEW)
-- `13-import-validator.py` - Fixes import paths (NEW)
+- `10-hydration-guard.py` - Prevents Next.js SSR errors
+- `11-truth-enforcer.py` - Blocks changes to established facts
+- `12-deletion-guard.py` - Warns before deletions
+- `13-import-validator.py` - Fixes import paths
+- `14-creation-guard.py` - Prevents duplicate components (NEW v2.4.0)
+- `15-dependency-tracker.py` - Alerts on shared component changes (NEW v2.4.0)
 
 **Post-tool-use**:
 - `01-state-save.py` - Auto-saves to GitHub
 - `02-metrics.py` - Tracks compliance
+- `03-response-capture.py` - Captures Claude responses for issues (NEW v2.4.0)
 
 ## 🔧 Technical Stack
 
@@ -220,6 +232,9 @@ lib/
 - `/fw` - Feature workflow
 - `/sv` - Stage validation (NEW)
 - `/dc` - Documentation cache (NEW)
+- `/deps` - Check dependencies (NEW v2.4.0)
+- `/cti` - Capture to issue (NEW v2.4.0)
+- `/exists` - Check before creating (Enhanced v2.4.0)
 
 ### Testing
 - `/btf` - Browser test flow

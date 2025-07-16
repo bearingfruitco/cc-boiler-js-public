@@ -1,6 +1,7 @@
 # Exists - Check if Something Already Exists
 
 Quick check to see if a component, function, type, or route already exists before creating it.
+Now integrated with dependency tracking and automatic creation guard.
 
 ## Usage
 

@@ -81,5 +81,11 @@
   "dm": "design-mode",
   "ds": "design-mode",
   "dmoff": "design-mode off",
-  "dmon": "design-mode on"
+  "dmon": "design-mode on",
+  "deps": "dependency-check",
+  "dep": "dependency-check",
+  "dependencies": "dependency-check",
+  "cti": "capture-to-issue",
+  "capture": "capture-to-issue",
+  "issue-capture": "capture-to-issue"
 }

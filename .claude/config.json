@@ -183,5 +183,83 @@
       "config_file": ".claude/tcpa.config.json",
       "description": "TCPA compliance for lead generation forms"
     }
+  },
+  "dependencies": {
+    "auto_track": true,
+    "scan_on_commit": true,
+    "track_hooks": true,
+    "track_utils": true,
+    "alert_threshold": 3,
+    "check_circular": true,
+    "update_imports": true
+  },
+  "capture_to_issue": {
+    "similarity_threshold": 0.8,
+    "check_by_default": true,
+    "include_components": true,
+    "include_dependencies": true,
+    "max_content_length": 5000,
+    "auto_link_prd": true,
+    "search_scope": "open"
+  },
+  "hooks": {
+    "creation_guard": {
+      "enabled": true,
+      "check_components": true,
+      "check_functions": true,
+      "check_api_routes": true,
+      "suggest_alternatives": true
+    },
+    "dependency_tracker": {
+      "enabled": true,
+      "alert_on_change": true,
+      "min_dependents_for_alert": 3
+    },
+    "response_capture": {
+      "enabled": true,
+      "auto_capture": true,
+      "capture_plans": true,
+      "capture_summaries": true,
+      "max_captures": 50
+    },
+    "post-tool-use": [
+      {
+        "name": "state-save",
+        "enabled": true,
+        "throttle": 60
+      },
+      {
+        "name": "metrics",
+        "enabled": true
+      },
+      {
+        "name": "response-capture",
+        "enabled": true
+      }
+    ],
+    "pre-tool-use": [
+      {
+        "name": "design-check",
+        "enabled": true
+      },
+      {
+        "name": "pii-protection",
+        "enabled": true
+      },
+      {
+        "name": "creation-guard",
+        "enabled": true
+      },
+      {
+        "name": "dependency-tracker",
+        "enabled": true
+      }
+    ]
+  },
+  "github": {
+    "gist_visibility": "secret",
+    "pr_update_frequency": "on_change",
+    "issue_duplicate_check": true,
+    "auto_link_issues": true
   }
 }
