@@ -1,0 +1,114 @@
+{
+  "id": "req_ContactForm_42",
+  "source": {
+    "type": "github_issue",
+    "reference": "42",
+    "url": "https://github.com/yourorg/yourrepo/issues/42",
+    "title": "Create comprehensive contact form for lead generation"
+  },
+  "component": "ContactForm",
+  "requirements": {
+    "fields": {
+      "count": 13,
+      "names": [
+        "firstName",
+        "lastName", 
+        "email",
+        "phone",
+        "company",
+        "jobTitle",
+        "address",
+        "city",
+        "state",
+        "zipCode",
+        "country",
+        "message",
+        "consent"
+      ],
+      "required": [
+        "firstName",
+        "lastName",
+        "email", 
+        "phone",
+        "address",
+        "city",
+        "state",
+        "zipCode",
+        "country",
+        "message",
+        "consent"
+      ],
+      "optional": [
+        "company",
+        "jobTitle"
+      ]
+    },
+    "features": [
+      "Corporate email validation (no gmail, yahoo, etc)",
+      "Phone number formatting with country code",
+      "Address autocomplete using Google Places",
+      "TCPA consent checkbox with timestamp",
+      "Honeypot field for bot protection",
+      "Client-side validation with Zod",
+      "Server-side validation matching client",
+      "Success/error state handling",
+      "Loading states during submission",
+      "Accessibility compliant (WCAG 2.1 AA)"
+    ],
+    "constraints": [
+      "All fields except company and jobTitle are required",
+      "No inline styles allowed",
+      "Must use design system components",
+      "Mobile-first responsive design",
+      "Form must be under 50KB gzipped",
+      "Submit button disabled until valid",
+      "Preserve form data on validation errors"
+    ],
+    "validations": [
+      {
+        "type": "pattern",
+        "field": "email",
+        "value": "^[a-zA-Z0-9._%+-]+@(?!gmail\\.com|yahoo\\.com|hotmail\\.com|outlook\\.com)[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        "errorMessage": "Please use a corporate email address"
+      },
+      {
+        "type": "pattern", 
+        "field": "phone",
+        "value": "^\\+?[1-9]\\d{1,14}$",
+        "errorMessage": "Please enter a valid phone number"
+      },
+      {
+        "type": "minimum",
+        "field": "message",
+        "value": 10,
+        "errorMessage": "Message must be at least 10 characters"
+      }
+    ],
+    "ui": {
+      "layout": "vertical",
+      "maxWidth": "max-w-md",
+      "fieldSpacing": "space-y-4",
+      "submitButtonText": "Submit Inquiry",
+      "successMessage": "Thank you! We'll be in touch within 24 hours.",
+      "errorMessage": "There was an error submitting your form. Please try again."
+    }
+  },
+  "testRequirements": {
+    "coverage": 90,
+    "e2e": true,
+    "accessibility": true,
+    "unitTests": [
+      "Field count verification",
+      "Required field validation",
+      "Corporate email validation",
+      "Phone formatting",
+      "Form submission flow",
+      "Error state handling"
+    ]
+  },
+  "locked": true,
+  "lockedAt": "2024-01-15T10:00:00Z",
+  "lockedBy": "/pin-requirements",
+  "version": 1,
+  "description": "Comprehensive contact form for B2B lead generation with 13 fields, corporate email validation, and full accessibility compliance as specified in Issue #42"
+}

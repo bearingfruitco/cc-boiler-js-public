@@ -1,16 +1,16 @@
-# Claude Code Boilerplate System Overview v2.4.0
+# Claude Code Boilerplate System Overview v2.6.0
 
 ## 🎯 Executive Summary
 
-This is a comprehensive AI-assisted development system that combines PRD-driven development, automated quality enforcement, persistent context management, seamless team collaboration, and async event-driven architecture. It treats specifications as the primary development artifact, following Sean Grove's vision of "The New Code."
+This is a comprehensive AI-assisted development system that combines PRD-driven development, PRP methodology for one-pass implementation, automated quality enforcement, persistent context management, seamless team collaboration, and async event-driven architecture. It treats specifications as the primary development artifact, following Sean Grove's vision of "The New Code."
 
 ## 🏗️ System Architecture
 
 ### Core Components
 
-#### 1. Command System (100+ Commands)
+#### 1. Command System (110+ Commands)
 - **Context Management**: Smart resume, checkpoints, context profiles
-- **PRD Workflow**: Specification-driven development with clarity linting
+- **PRD/PRP Workflow**: Specification-driven development with validation loops
 - **Development**: Component creation, design validation, bug tracking
 - **Async Operations**: Event handlers, parallel processing, loading states
 - **Testing**: Browser automation, unit tests, PRD-based test generation
@@ -38,15 +38,15 @@ This is a comprehensive AI-assisted development system that combines PRD-driven 
 - Performance monitoring
 - Response capture (for issue creation)
 
-#### 3. PRD-Driven Development
+#### 3. PRP-Enhanced Development (v2.6.0)
 ```
-PROJECT IDEA → PROJECT PRD → GITHUB ISSUES → FEATURE PRDS → ASYNC REQUIREMENTS → TASKS → CODE → PR → DEPLOY
+IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION → PR → DEPLOY
 ```
-- Specifications are the primary artifact
-- Async requirements documented upfront
-- Clear acceptance criteria become executable tests
-- Implementation graded against original intent
-- Successful patterns extracted for reuse
+- **Product Requirement Prompts (PRPs)**: Everything needed for one-pass success
+- **Curated Codebase Intelligence**: Exact patterns and gotchas
+- **4-Level Validation Loops**: Continuous quality gates
+- **AI Documentation**: Condensed, optimized reference material
+- **Automated Runner**: Execute validation loops programmatically
 
 #### 4. Event-Driven Architecture (v2.3.6)
 - **Event Queue**: Browser-compatible async event system
@@ -70,6 +70,22 @@ PROJECT IDEA → PROJECT PRD → GITHUB ISSUES → FEATURE PRDS → ASYNC REQUIR
 - **State Management**: GitHub gist-based persistence
 
 ## 🌟 Latest Enhancements
+
+### Product Requirement Prompts - PRP System (v2.6.0)
+- **One-Pass Implementation**: Complete context for production-ready code
+- **Validation Loops**: 4-level quality gates (syntax → components → integration → production)
+- **AI Documentation**: Pre-digested docs for common patterns
+- **PRP Runner**: Automated validation execution with fix mode
+- **Template Library**: Base, TypeScript, Planning templates
+- **Integration**: Works with existing PRD, requirements, and grading systems
+
+### Requirement Fidelity System (v2.5.0)
+- **Requirement Locking**: Pin requirements from GitHub issues to prevent drift
+- **Context Anchoring**: Add immutable context that appears in every prompt
+- **Drift Detection**: Automated hooks block changes that violate requirements
+- **Continuous Validation**: Check compliance every 10 commands
+- **Compliance Reviews**: Post-implementation validation with detailed reports
+- **Test Generation**: Auto-generate tests from locked requirements
 
 ### Smart Issue Creation (v2.4.0)
 - **Capture-to-Issue Command**: `/capture-to-issue` or `/cti`
@@ -158,26 +174,33 @@ PROJECT IDEA → PROJECT PRD → GITHUB ISSUES → FEATURE PRDS → ASYNC REQUIR
 /gi PROJECT            # Generate GitHub issues
 ```
 
-### 2. Feature Development
+### 2. Feature Development with PRP
 ```bash
 /fw start [#]          # Start from GitHub issue
-/prd [feature]         # Create clear specification
-/prd-async [feature]   # Add async requirements
-/prd-tests [feature]   # Generate test suite
+/create-prp [feature]  # Generate comprehensive PRP
+/prp-execute [name]    # Validate readiness
 /gt [feature]          # Break into micro-tasks
 /pt [feature]          # Process systematically
 ```
 
-### 3. Quality Assurance
+### 3. Traditional PRD Flow
+```bash
+/prd [feature]         # Create specification
+/prd-async [feature]   # Add async requirements
+/prd-tests [feature]   # Generate test suite
+/grade                 # Check alignment
+```
+
+### 4. Quality Assurance
 ```bash
 /vd                    # Design compliance
 /validate-async        # Async pattern check
-/grade                 # PRD alignment score
+/prp-execute --level 4 # Full production validation
 /btf                   # Browser testing
 /sv check              # Stage validation
 ```
 
-### 4. Collaboration
+### 5. Collaboration
 ```bash
 /specs extract         # Save successful patterns
 /bt add                # Track bugs persistently
@@ -185,6 +208,12 @@ PROJECT IDEA → PROJECT PRD → GITHUB ISSUES → FEATURE PRDS → ASYNC REQUIR
 ```
 
 ## 🛡️ Automated Protections
+
+### PRP Validation Loops (v2.6.0)
+- **Level 1**: Syntax & Standards (lint, typecheck, design)
+- **Level 2**: Component Testing (unit, hooks, components)
+- **Level 3**: Integration Testing (e2e, api, accessibility)
+- **Level 4**: Production Readiness (performance, security, bundle)
 
 ### Workflow Enhancement (v2.3.1)
 - **Smart Auto-Approval**: Safe operations proceed without permission prompts
@@ -229,25 +258,29 @@ Teams using this system report:
 - **95% less** documentation time
 - **85%+** PRD alignment scores
 - **50% reduction** in async-related bugs
+- **One-pass implementation** success with PRPs
 
 ## 🔑 Key Innovations
 
-### 1. Specifications as Code
-PRDs are versioned, testable, executable artifacts that drive development.
+### 1. PRP Methodology
+Complete context for AI to generate production-ready code on first attempt.
 
-### 2. Zero Context Loss
+### 2. Specifications as Code
+PRDs and PRPs are versioned, testable, executable artifacts.
+
+### 3. Zero Context Loss
 Everything persists through GitHub gists, enabling perfect handoffs.
 
-### 3. Automated Enforcement
+### 4. Automated Enforcement
 Rules are enforced by hooks, not documentation.
 
-### 4. Pattern Learning
+### 5. Pattern Learning
 System learns from successful implementations and shares knowledge.
 
-### 5. Objective Quality
+### 6. Objective Quality
 Implementation quality measured against original specifications.
 
-### 6. Event-Driven Architecture
+### 7. Event-Driven Architecture
 Non-critical operations never block user experience.
 
 ## 🚀 Getting Started
@@ -258,6 +291,7 @@ git clone [repo]
 cd my-project
 /init
 /init-project
+./setup-prp.sh         # Setup PRP system
 ```
 
 ### Daily Workflow
@@ -265,8 +299,8 @@ cd my-project
 /sr                    # Resume context
 /cp load frontend      # Load profile
 /fw start [#]          # Start feature
-/prd [name]            # Define specs
-/prd-async [name]      # Add async specs
+/create-prp [name]     # Generate PRP
+/prp-execute [name]    # Validate implementation
 /grade                 # Check alignment
 ```
 
@@ -280,6 +314,13 @@ docs/
 ├── examples/          # Clear PRD examples
 ├── updates/           # Feature updates
 └── claude/            # AI-specific docs
+
+PRPs/
+├── templates/         # PRP templates
+├── ai_docs/           # AI-optimized documentation
+├── scripts/           # Automation tools
+├── active/            # Current PRPs
+└── completed/         # Reference PRPs
 ```
 
 ## 🎯 Philosophy
@@ -293,6 +334,7 @@ Core principles:
 - Observable systems over black boxes
 - Continuous learning and improvement
 - User experience is paramount
+- One-pass implementation success
 
 ## 🔮 Future Vision
 
@@ -303,5 +345,6 @@ This system represents the future of AI-assisted development where:
 - Knowledge compounds over time
 - Teams collaborate seamlessly
 - Performance is never sacrificed
+- Implementation succeeds on first attempt
 
 The person who communicates most effectively is the most valuable programmer.

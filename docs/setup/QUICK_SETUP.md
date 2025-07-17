@@ -21,7 +21,8 @@ git commit -m "Initial commit from boilerplate" && \
 gh repo create my-project --private --source=. --remote=origin --push && \
 pnpm install && \
 chmod +x scripts/*.sh && \
-./scripts/setup-enhanced-boilerplate.sh
+./scripts/setup-enhanced-boilerplate.sh && \
+./setup-prp.sh
 ```
 
 ## Step-by-Step Alternative
@@ -45,14 +46,17 @@ pnpm install
 chmod +x scripts/*.sh
 ./scripts/setup-enhanced-boilerplate.sh
 
-# 5. Verify tools
+# 5. Setup PRP system (NEW in v2.6.0)
+./setup-prp.sh
+
+# 6. Verify tools
 bun --version        # Should show 1.0+
 pnpm biome --version # Should show 1.5+
 
-# 6. Start Claude Code
+# 7. Start Claude Code
 claude-code .
 
-# 7. Initialize
+# 8. Initialize
 /init                # One-time setup
 /init-project        # Define YOUR project
 ```
@@ -71,11 +75,15 @@ claude-code .
 - Issue/PR automation ready
 
 ✅ **Claude Code System**
-- 90+ custom commands
+- 110+ custom commands
 - Hooks for automation
 - Design system enforcement
 - Multi-agent orchestration
-- Safety features (NEW)
+- PRP methodology (NEW v2.6.0)
+  - One-pass implementation
+  - 4-level validation loops
+  - AI documentation
+- Safety features
   - Truth enforcement
   - Deletion protection
   - Hydration safety
@@ -86,6 +94,7 @@ claude-code .
 - Git hooks with Husky
 - TypeScript strict mode
 - Test setup with Bun
+- PRP validation runner
 
 ## Quick Commands
 
@@ -101,10 +110,16 @@ pnpm lint:fix        # Fix issues
 pnpm format          # Format code
 pnpm typecheck       # Check types
 
-# Claude Code
+# Claude Code (Traditional)
 /sr                  # Smart resume
 /help                # Show all commands
 /init-project        # Start new project
+/prd                 # Create PRD
+
+# Claude Code (PRP - NEW)
+/create-prp          # Create PRP for one-pass success
+/prp-execute         # Run validation loops
+/prp feature-name    # Quick PRP creation
 ```
 
 ## Quick Verification
@@ -122,31 +137,38 @@ git remote -v          # Should show your repo
 # Check Claude Code
 claude-code --version  # Should work
 ls .claude/           # Should see config files
+ls PRPs/              # Should see PRP structure (NEW)
 
 # In Claude Code
 /help                 # Should show commands
 /sr                   # Should show smart resume + safety status
 /facts                # Should show protected values
 /help new             # Should show new features
+/prp --help           # Should show PRP help (NEW)
 ```
 
 ## Next Steps
 
-1. **Define Your Project**
-   ```bash
-   /init-project      # Interactive setup
-   /gi PROJECT        # Generate issues
-   ```
+### Option 1: Traditional PRD Workflow
+```bash
+/init-project      # Interactive setup
+/gi PROJECT        # Generate issues
+/fw start 1        # Start first issue
+/prd feature       # Define feature
+/gt feature        # Generate tasks
+/pt feature        # Process tasks
+```
 
-2. **Start Building (Safely)**
-   ```bash
-   /fw start 1        # Start first issue
-   /exists Button     # Check before creating
-   /prd feature       # Define feature
-   /gt feature        # Generate tasks
-   /pt feature        # Process tasks
-   /chain safe-commit # Validate before commit
-   ```
+### Option 2: PRP Workflow (NEW - Recommended)
+```bash
+/init-project             # Interactive setup
+/gi PROJECT               # Generate issues
+/fw start 1               # Start first issue
+/create-prp feature-name  # Generate comprehensive PRP
+/prp-execute feature-name # Validate readiness
+# Implement following PRP blueprint
+/prp-execute feature-name # Re-validate after implementation
+```
 
 ## Troubleshooting
 
@@ -179,6 +201,15 @@ pnpm lint:fix     # Auto-fix most issues
 pnpm format       # Format code
 ```
 
+**PRP validation failures**
+```bash
+/prp-execute feature --fix     # Try auto-fix
+/prp-execute feature --level 1 # Run specific level
+/prp-execute feature --verbose # See detailed output
+```
+
 ## For Detailed Instructions
 
-See [DAY_1_COMPLETE_GUIDE.md](./DAY_1_COMPLETE_GUIDE.md)
+- [DAY_1_COMPLETE_GUIDE.md](./DAY_1_COMPLETE_GUIDE.md) - Full setup guide
+- [PRP_WORKFLOW_GUIDE.md](../workflow/PRP_WORKFLOW_GUIDE.md) - PRP methodology guide
+- [DAILY_WORKFLOW.md](../workflow/DAILY_WORKFLOW.md) - Daily development workflow

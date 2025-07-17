@@ -1,4 +1,21 @@
-# New Chat Context - Claude Code Boilerplate v2.3.6
+# New Chat Context - Claude Code Boilerplate v2.5.0
+
+## 🆕 What's New in v2.5.0
+
+### Requirement Fidelity System 🔒
+- **Problem Solved**: AI can no longer change requirements (e.g., reducing 13 fields to 7)
+- **Requirement Locking**: `/pin-requirements 42 ContactForm` - Lock specs from GitHub issues
+- **Context Anchoring**: `/anchor-context "13 fields required"` - Add immutable context
+- **Drift Detection**: Hooks block any changes that violate locked requirements
+- **Compliance Reviews**: `/review-requirements` - Validate implementation matches specs
+- **Test Generation**: `/test-requirements` - Auto-generate tests from requirements
+
+### New Commands
+- `/pin-requirements` (`/pin`, `/pr`) - Lock requirements from issues
+- `/anchor-context` (`/ac`) - Add permanent context
+- `/review-requirements` (`/rr`) - Check compliance
+- `/test-requirements` (`/tr-gen`) - Generate requirement tests
+- `/grade --requirements` - Pre-implementation confidence check
 
 ## 🆕 What's New in v2.3.6
 

@@ -1,0 +1,166 @@
+{
+  "_metadata": {
+    "version": "2.0",
+    "lastUpdated": "2024-01-15",
+    "description": "Production database schema - DO NOT MODIFY without migration",
+    "database": "PostgreSQL 15",
+    "locked": true
+  },
+  "tables": {
+    "products": {
+      "description": "Product catalog",
+      "fields": {
+        "id": {
+          "type": "UUID",
+          "constraints": "PRIMARY KEY DEFAULT gen_random_uuid()",
+          "required": true
+        },
+        "brand": {
+          "type": "VARCHAR(50)",
+          "constraints": "NOT NULL REFERENCES brands(name)",
+          "required": true,
+          "validation": "Must be from approved brands list"
+        },
+        "name": {
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "required": true,
+          "validation": "Min 3 chars, max 200 chars"
+        },
+        "sku": {
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE NOT NULL",
+          "required": true,
+          "pattern": "^[A-Z]{2}-[0-9]{6}$"
+        },
+        "price": {
+          "type": "DECIMAL(10,2)",
+          "constraints": "NOT NULL CHECK (price > 0)",
+          "required": true
+        },
+        "currency": {
+          "type": "VARCHAR(3)",
+          "constraints": "DEFAULT 'USD'",
+          "required": false,
+          "enum": ["USD", "EUR", "GBP", "CAD"]
+        },
+        "category": {
+          "type": "VARCHAR(100)",
+          "constraints": "NOT NULL",
+          "required": true,
+          "enum": ["footwear", "apparel", "accessories", "equipment"]
+        },
+        "subcategory": {
+          "type": "VARCHAR(100)",
+          "required": false
+        },
+        "active": {
+          "type": "BOOLEAN",
+          "constraints": "DEFAULT true",
+          "required": false
+        },
+        "created_at": {
+          "type": "TIMESTAMPTZ",
+          "constraints": "DEFAULT NOW()",
+          "required": false
+        },
+        "updated_at": {
+          "type": "TIMESTAMPTZ",
+          "constraints": "DEFAULT NOW()",
+          "required": false
+        }
+      },
+      "indexes": [
+        "CREATE INDEX idx_products_brand ON products(brand)",
+        "CREATE INDEX idx_products_category ON products(category)",
+        "CREATE INDEX idx_products_active ON products(active)"
+      ]
+    },
+    "brands": {
+      "description": "Approved brands reference table",
+      "fields": {
+        "name": {
+          "type": "VARCHAR(50)",
+          "constraints": "PRIMARY KEY",
+          "required": true
+        },
+        "data": {
+          "type": "JSONB",
+          "constraints": "NOT NULL",
+          "required": true,
+          "description": "Full brand data from BrandDatabase.json"
+        }
+      }
+    },
+    "orders": {
+      "description": "Customer orders",
+      "fields": {
+        "id": {
+          "type": "UUID",
+          "constraints": "PRIMARY KEY DEFAULT gen_random_uuid()",
+          "required": true
+        },
+        "customer_id": {
+          "type": "UUID",
+          "constraints": "NOT NULL REFERENCES customers(id)",
+          "required": true
+        },
+        "status": {
+          "type": "VARCHAR(50)",
+          "constraints": "NOT NULL DEFAULT 'pending'",
+          "required": true,
+          "enum": ["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]
+        },
+        "total": {
+          "type": "DECIMAL(10,2)",
+          "constraints": "NOT NULL",
+          "required": true
+        },
+        "created_at": {
+          "type": "TIMESTAMPTZ",
+          "constraints": "DEFAULT NOW()",
+          "required": false
+        }
+      }
+    },
+    "order_items": {
+      "description": "Individual items within orders",
+      "fields": {
+        "id": {
+          "type": "UUID",
+          "constraints": "PRIMARY KEY DEFAULT gen_random_uuid()",
+          "required": true
+        },
+        "order_id": {
+          "type": "UUID",
+          "constraints": "NOT NULL REFERENCES orders(id) ON DELETE CASCADE",
+          "required": true
+        },
+        "product_id": {
+          "type": "UUID",
+          "constraints": "NOT NULL REFERENCES products(id)",
+          "required": true
+        },
+        "quantity": {
+          "type": "INTEGER",
+          "constraints": "NOT NULL CHECK (quantity > 0)",
+          "required": true
+        },
+        "price": {
+          "type": "DECIMAL(10,2)",
+          "constraints": "NOT NULL",
+          "required": true
+        }
+      }
+    }
+  },
+  "enums": {
+    "product_category": ["footwear", "apparel", "accessories", "equipment"],
+    "order_status": ["pending", "processing", "shipped", "delivered", "cancelled", "refunded"],
+    "currency_code": ["USD", "EUR", "GBP", "CAD"]
+  },
+  "migrations": {
+    "naming": "V{version}__{description}.sql",
+    "example": "V001__initial_schema.sql"
+  }
+}

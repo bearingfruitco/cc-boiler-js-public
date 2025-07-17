@@ -1,4 +1,4 @@
-# NEW CHAT CONTEXT - Claude Code Boilerplate System
+# NEW CHAT CONTEXT - Claude Code Boilerplate System v2.6.0
 
 ## 🚀 Quick Start for New Session
 
@@ -9,14 +9,14 @@ claude-code .
 # 2. Resume with full context
 /sr
 
-# 3. Load your context profile
+# 3. Check active PRPs (NEW)
+ls PRPs/active/
+
+# 4. Load your context profile
 /cp load frontend   # or backend, debug, etc.
 
-# 4. Check open bugs
+# 5. Check open bugs
 /bt list
-
-# 5. Check stage status
-/sv status
 
 # 6. Continue where you left off
 ```
@@ -26,20 +26,31 @@ claude-code .
 This is a production-ready boilerplate for AI-assisted development with:
 
 ### Core Features
-1. **PRD-Driven Development** - Start with requirements, generate tasks automatically
-2. **Design System Enforcement** - 4 sizes, 2 weights, 4px grid (enforced by hooks)
-3. **Context Preservation** - Never lose work between sessions
-4. **Security-First Forms** - PII/PHI protection with field registry
-5. **Persona-Based Sub-Agents** - 9 specialized agents for parallel work
-6. **90+ Custom Commands** - Streamlined workflows with aliases
-7. **Bug Tracking** - Persistent across sessions (NEW)
-8. **Context Profiles** - Focused work modes (NEW)
-9. **Documentation Cache** - Offline docs access (NEW)
-10. **Stage Validation** - Enforce phase completion (NEW)
+1. **PRP Methodology** 🆕 - One-pass implementation with validation loops
+2. **PRD-Driven Development** - Start with requirements, generate tasks automatically
+3. **Design System Enforcement** - 4 sizes, 2 weights, 4px grid (enforced by hooks)
+4. **Context Preservation** - Never lose work between sessions
+5. **Security-First Forms** - PII/PHI protection with field registry
+6. **Persona-Based Sub-Agents** - 9 specialized agents for parallel work
+7. **110+ Custom Commands** - Streamlined workflows with aliases
+8. **4-Level Validation** 🆕 - Syntax → Components → Integration → Production
+9. **AI Documentation** 🆕 - Pre-digested docs for common patterns
 
 ## 📋 Current Capabilities
 
-### 1. Smart Issue & Context Management (NEW v2.4.0)
+### 1. PRP System (NEW v2.6.0)
+- `/create-prp [feature]` or `/prp` - Generate comprehensive PRP
+- `/prp-execute [name]` - Run validation loops
+- `/prp-exec --fix` - Auto-fix common issues
+- `/prp-exec --level 1` - Run specific validation level
+- PRPs include:
+  - Complete implementation blueprint
+  - Curated codebase patterns
+  - Known gotchas and warnings
+  - 4-level validation loops
+  - Links to pinned requirements
+
+### 2. Smart Issue & Context Management
 - `/cti [title]` - Capture Claude's response to GitHub issue
   - Checks for duplicate issues automatically
   - Links to PRDs and parent issues
@@ -48,25 +59,26 @@ This is a production-ready boilerplate for AI-assisted development with:
 - `/deps scan` - Update all dependency tracking
 - `/exists [name]` - Check before creating (now automatic)
 
-### 2. PRD & Task Management
+### 3. PRD & Task Management
 - `/prd [feature]` - Generate PRD with stage validation gates
 - `/gt [feature]` - Generate granular tasks (5-15 min each)
 - `/pt [feature]` - Process tasks one by one
-- `/sv check [stage]` - Validate stage completion (NEW)
-- `/sv require [stage]` - Enforce stage gates (NEW)
+- `/sv check [stage]` - Validate stage completion
+- `/sv require [stage]` - Enforce stage gates
 - `/ts` - Task status overview
 - `/tb` - Visual task board
 
-### 3. Design System (STRICTLY ENFORCED)
+### 4. Design System (STRICTLY ENFORCED)
 ```
 Font Sizes: ONLY text-size-1, text-size-2, text-size-3, text-size-4
 Font Weights: ONLY font-regular, font-semibold
 Spacing: ONLY multiples of 4 (p-1, p-2, p-3, p-4, p-6, p-8)
 Colors: 60/30/10 distribution rule
 Touch Targets: Minimum 44px (h-11)
+Toggle: /dmoff to disable, /dmon to re-enable
 ```
 
-### 4. Security & Data Protection
+### 5. Security & Data Protection
 - **Field Registry**: `/field-registry/` defines all data fields
 - **PII/PHI Protection**: Automatic detection and blocking
 - **Encryption**: Field-level encryption for sensitive data
@@ -78,7 +90,7 @@ Commands:
 - `/afs [file]` - Audit form security
 - `/gft` - Generate field types from registry
 
-### 5. Persona-Based Sub-Agents
+### 6. Persona-Based Sub-Agents
 Available personas:
 - **frontend** - UI/UX specialist
 - **backend** - Server architect
@@ -97,7 +109,7 @@ Commands:
 - `/at [feature]` - Visualize task assignments
 - `/orchestration-view` - See visual diagram
 
-### 6. Hooks System
+### 7. Hooks System
 Active hooks enforce rules automatically:
 
 **Pre-tool-use**:
@@ -108,13 +120,13 @@ Active hooks enforce rules automatically:
 - `11-truth-enforcer.py` - Blocks changes to established facts
 - `12-deletion-guard.py` - Warns before deletions
 - `13-import-validator.py` - Fixes import paths
-- `14-creation-guard.py` - Prevents duplicate components (NEW v2.4.0)
-- `15-dependency-tracker.py` - Alerts on shared component changes (NEW v2.4.0)
+- `14-creation-guard.py` - Prevents duplicate components
+- `15-dependency-tracker.py` - Alerts on shared component changes
 
 **Post-tool-use**:
 - `01-state-save.py` - Auto-saves to GitHub
 - `02-metrics.py` - Tracks compliance
-- `03-response-capture.py` - Captures Claude responses for issues (NEW v2.4.0)
+- `03-response-capture.py` - Captures Claude responses for issues
 
 ## 🔧 Technical Stack
 
@@ -133,14 +145,21 @@ Active hooks enforce rules automatically:
 
 ```
 .claude/
-├── commands/        # 90+ custom commands
+├── commands/        # 110+ custom commands
 ├── hooks/          # Automation & safety
 ├── personas/       # Agent personalities
 ├── orchestration/  # Multi-agent coordination
 ├── checkpoints/    # State snapshots
-├── bugs/           # Bug tracking (NEW)
-├── profiles/       # Context profiles (NEW)
-└── doc-cache/      # Documentation cache (NEW)
+├── bugs/           # Bug tracking
+├── profiles/       # Context profiles
+└── doc-cache/      # Documentation cache
+
+PRPs/               # Product Requirement Prompts (NEW)
+├── templates/      # PRP templates
+├── ai_docs/        # AI-optimized documentation
+├── scripts/        # Validation runner
+├── active/         # Current PRPs
+└── completed/      # Reference PRPs
 
 field-registry/
 ├── core/           # Universal tracking fields
@@ -154,7 +173,30 @@ lib/
 
 ## 🚦 Workflow Examples
 
-### Start New Feature
+### PRP Workflow (NEW - Recommended)
+```bash
+# Start from GitHub issue
+/fw start 45
+
+# Create PRP for one-pass implementation
+/create-prp user avatar upload
+
+# Validate environment
+/prp-execute avatar-upload --level 1
+
+# Implement following blueprint
+# ... code ...
+
+# Validate after each phase
+/prp-execute avatar-upload --level 2  # After components
+/prp-execute avatar-upload --level 3  # After integration
+/prp-execute avatar-upload --level 4  # Before PR
+
+# Complete
+/fw complete
+```
+
+### Traditional PRD Workflow
 ```bash
 /prd user-profile        # Generate PRD with stage gates
 /dc cache "React hooks"  # Cache relevant docs
@@ -172,26 +214,12 @@ lib/
 /gft                    # Generate types
 ```
 
-### Enhanced UI Design Flow
-```bash
-# 1. Extract style from reference (optional)
-/extract-style https://dribbble.com/shots/123456
-
-# 2. Create component with wireframe
-/cc ui ProductCard --wireframe --animate
-# - Shows ASCII layout first
-# - Plans animations
-# - Applies design system
-
-# 3. Validate design compliance
-/vd components/ui/ProductCard.tsx
-```
-
 ### Daily Development
 ```bash
 /sr                     # Smart resume
 /cp load "frontend"     # Load context profile
 /bt list --open         # Check open bugs
+ls PRPs/active/         # Check active PRPs (NEW)
 /sv status              # Check stage progress
 /sas                    # Check agent status
 /vd                     # Validate design
@@ -216,25 +244,27 @@ lib/
 
 ## 📊 Command Categories
 
+### PRP Commands (NEW)
+- `/create-prp` or `/prp` - Generate PRP
+- `/prp-execute` or `/prp-exec` - Run validation
+- `/prp-run` - Alias for execute
+
 ### Essential Daily
 - `/sr` - Smart Resume
-- `/cp` - Context profiles (NEW)
-- `/bt` - Bug tracking (NEW)
+- `/cp` - Context profiles
+- `/bt` - Bug tracking
 - `/help` - Context-aware help
 - `/todo` - Task management
 
 ### Development
 - `/cc` - Create component (validated)
-  - `--wireframe` - Start with ASCII layout
-  - `--animate` - Plan animations first
-- `/extract-style` - Extract design from reference
 - `/vd` - Validate design
 - `/fw` - Feature workflow
-- `/sv` - Stage validation (NEW)
-- `/dc` - Documentation cache (NEW)
-- `/deps` - Check dependencies (NEW v2.4.0)
-- `/cti` - Capture to issue (NEW v2.4.0)
-- `/exists` - Check before creating (Enhanced v2.4.0)
+- `/sv` - Stage validation
+- `/dc` - Documentation cache
+- `/deps` - Check dependencies
+- `/cti` - Capture to issue
+- `/exists` - Check before creating
 
 ### Testing
 - `/btf` - Browser test flow
@@ -251,42 +281,51 @@ lib/
 - `/persona` - Switch persona
 - `/sas` - Agent status
 
-## 🎯 Current Project State
+## 🎯 PRP Validation Levels
 
-[This section should be updated with your specific project details]
+### 🔴 Level 1: Syntax & Standards
+- Linting and formatting
+- TypeScript checking
+- Design system validation
+- Import validation
 
-### Active Features
-- Feature: [name]
-- Branch: [current-branch]
-- Tasks: [X/Y complete]
-- Agents: [active personas]
+### 🟡 Level 2: Component Testing
+- Unit tests
+- Component tests
+- Hook tests
+- Isolated functionality
 
-### Recent Changes
-- [List recent significant changes]
+### 🟢 Level 3: Integration Testing
+- E2E tests
+- API integration
+- Real database queries
+- User workflows
 
-### Next Steps
-- [Immediate next actions]
+### 🔵 Level 4: Production Readiness
+- Lighthouse scores
+- Bundle size analysis
+- Security audit
+- Requirement grading
 
 ## 💡 Key Innovations
 
-1. **Zero Context Loss**: Everything auto-saved and restored
-2. **Design Enforcement**: Violations blocked before they happen
-3. **Parallel Development**: Multiple specialized agents
-4. **Security by Default**: PII protection built-in
-5. **Natural Documentation**: From PRDs and handoffs
-6. **Evidence-Based Development**: Claims backed by proof - "testing shows" not "this is best"
-7. **Smart Persona Selection**: Auto-suggests right expert based on file/task
-8. **Token Optimization**: `/compress` command compresses context when needed
-9. **Context Profiles (NEW)**: Switch between focused work modes without losing state
-10. **Persistent Bug Tracking (NEW)**: Never lose track of issues between sessions
-11. **Documentation Caching (NEW)**: Work offline with cached library docs
-12. **Stage Validation Gates (NEW)**: Ensure quality at each development phase
+1. **One-Pass Implementation**: PRPs provide everything needed upfront
+2. **4-Level Validation**: Quality gates at each development stage
+3. **Zero Context Loss**: Everything auto-saved and restored
+4. **Design Enforcement**: Violations blocked before they happen
+5. **Parallel Development**: Multiple specialized agents
+6. **Security by Default**: PII protection built-in
+7. **Natural Documentation**: From PRDs and handoffs
+8. **Evidence-Based Development**: Claims backed by proof
+9. **Smart Persona Selection**: Auto-suggests right expert
+10. **Token Optimization**: `/compress` command when needed
 
 ## 🔗 Important Files
 
 - `CLAUDE.md` - AI behavior rules
 - `SYSTEM_OVERVIEW.md` - Complete system docs
-- `DAY_1_COMPLETE_GUIDE.md` - Setup instructions
+- `PRPs/README.md` - PRP methodology guide
+- `docs/workflow/PRP_WORKFLOW_GUIDE.md` - PRP workflow
 - `field-registry/README.md` - Data field docs
 - `docs/SECURITY_GUIDE.md` - Security documentation
 
@@ -297,35 +336,18 @@ If something seems wrong:
 2. Check `/sas` for agent status
 3. Run `/help` for suggestions
 4. Check hooks with `/error-recovery`
+5. For PRPs: `/prp-execute --verbose`
 
 ## 📈 Metrics
 
 This system enables:
+- One-pass implementation success (NEW)
 - 70% faster development
 - 90% fewer design inconsistencies
 - Zero context loss between sessions
 - 95% reduction in documentation effort
 - 2-5x speedup with parallel agents
 
-## 🆕 Latest Safety Features
-
-### New Commands
-- `/facts` or `/truth` - See protected values
-- `/exists` or `/check` - Verify before creating
-- `/field-generate` or `/fg` - Generate code from registry
-- `/truth-override` - Allow intentional changes
-
-### New Chains
-- `/chain safe-commit` - Validate before committing
-- `/chain field-sync` - Regenerate field code
-- `/chain pre-component` - Check before creating
-
-### New Protections (Automatic)
-- ✅ Changes to API routes blocked unless intentional
-- ✅ Warns before deleting code
-- ✅ Catches Next.js hydration errors
-- ✅ Fixes import path issues
-
 ---
 
-**Remember**: You don't need to remember anything - the system remembers for you. Just run `/sr` at the start of each session!
+**Remember**: Choose the right tool - PRPs for clear implementation, PRDs for exploration, both for complete development!

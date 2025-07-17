@@ -1,0 +1,60 @@
+{
+  "id": "req_ColorPalette_manual",
+  "source": {
+    "type": "manual",
+    "reference": "design-system-v2",
+    "url": "figma.com/file/xyz"
+  },
+  "component": "ColorPalette",
+  "requirements": {
+    "constants": {
+      "colors": {
+        "primary": {
+          "50": "#EFF6FF",
+          "500": "#3B82F6",
+          "600": "#2563EB",
+          "700": "#1D4ED8",
+          "900": "#1E3A8A"
+        },
+        "secondary": {
+          "500": "#EC4899",
+          "600": "#DB2777",
+          "700": "#BE185D"
+        },
+        "neutral": {
+          "50": "#FAFAFA",
+          "100": "#F4F4F5",
+          "200": "#E4E4E7",
+          "700": "#3F3F46",
+          "800": "#27272A",
+          "900": "#18181B"
+        },
+        "semantic": {
+          "success": "#10B981",
+          "warning": "#F59E0B",
+          "error": "#EF4444",
+          "info": "#3B82F6"
+        }
+      }
+    },
+    "constraints": [
+      "Only use defined color values",
+      "No hex codes outside this palette",
+      "Use semantic colors for states",
+      "Primary-600 is the main brand color"
+    ],
+    "validations": [
+      {
+        "type": "pattern",
+        "field": "colorValue",
+        "value": "^(#[0-9A-F]{6}|rgb\\(|rgba\\(|var\\(--)",
+        "errorMessage": "Invalid color format"
+      }
+    ]
+  },
+  "locked": true,
+  "lockedAt": "2024-01-15T10:00:00Z",
+  "lockedBy": "/pin-requirements manual",
+  "version": 1,
+  "description": "Official color palette - no deviations allowed"
+}

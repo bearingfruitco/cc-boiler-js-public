@@ -1,0 +1,136 @@
+{
+  "_metadata": {
+    "version": "1.0",
+    "lastUpdated": "2024-01-15",
+    "description": "Official brand database with all brand-specific information",
+    "locked": true,
+    "source": "Marketing team approved list"
+  },
+  "brands": {
+    "Nike": {
+      "id": "brand_nike",
+      "fullName": "Nike, Inc.",
+      "shortName": "Nike",
+      "founded": 1964,
+      "headquarters": "Beaverton, Oregon, USA",
+      "tagline": "Just Do It",
+      "logos": {
+        "primary": "/assets/logos/nike-swoosh.svg",
+        "wordmark": "/assets/logos/nike-wordmark.svg"
+      },
+      "colors": {
+        "primary": "#111111",
+        "secondary": "#FFFFFF",
+        "accent": "#FA5400"
+      },
+      "tier": "premium",
+      "category": "sportswear",
+      "allowedRegions": ["US", "CA", "UK", "EU", "JP", "AU"],
+      "minimumOrderValue": 50,
+      "shippingDays": 3,
+      "returnWindow": 60,
+      "features": {
+        "customization": true,
+        "memberProgram": "Nike Membership",
+        "sustainabilityScore": 8
+      },
+      "apiConfig": {
+        "endpoint": "https://api.nike.com/v2",
+        "authType": "oauth2",
+        "rateLimit": 1000
+      },
+      "seoKeywords": ["nike shoes", "nike sportswear", "just do it"],
+      "description": "Leading global sportswear brand known for innovative athletic footwear, apparel, and equipment."
+    },
+    "Adidas": {
+      "id": "brand_adidas",
+      "fullName": "Adidas AG",
+      "shortName": "Adidas",
+      "founded": 1949,
+      "headquarters": "Herzogenaurach, Germany",
+      "tagline": "Impossible Is Nothing",
+      "logos": {
+        "primary": "/assets/logos/adidas-trefoil.svg",
+        "wordmark": "/assets/logos/adidas-wordmark.svg"
+      },
+      "colors": {
+        "primary": "#000000",
+        "secondary": "#FFFFFF",
+        "accent": "#ECEFF1"
+      },
+      "tier": "premium",
+      "category": "sportswear",
+      "allowedRegions": ["US", "CA", "UK", "EU", "JP", "AU", "DE"],
+      "minimumOrderValue": 45,
+      "shippingDays": 4,
+      "returnWindow": 30,
+      "features": {
+        "customization": true,
+        "memberProgram": "adiClub",
+        "sustainabilityScore": 9
+      },
+      "apiConfig": {
+        "endpoint": "https://api.adidas.com/v1",
+        "authType": "apikey",
+        "rateLimit": 500
+      },
+      "seoKeywords": ["adidas shoes", "three stripes", "adidas originals"],
+      "description": "German multinational corporation that designs and manufactures shoes, clothing and accessories."
+    },
+    "Puma": {
+      "id": "brand_puma",
+      "fullName": "Puma SE",
+      "shortName": "Puma",
+      "founded": 1948,
+      "headquarters": "Herzogenaurach, Germany",
+      "tagline": "Forever Faster",
+      "logos": {
+        "primary": "/assets/logos/puma-cat.svg",
+        "wordmark": "/assets/logos/puma-wordmark.svg"
+      },
+      "colors": {
+        "primary": "#000000",
+        "secondary": "#FFFFFF",
+        "accent": "#FF0000"
+      },
+      "tier": "standard",
+      "category": "sportswear",
+      "allowedRegions": ["US", "CA", "UK", "EU", "JP"],
+      "minimumOrderValue": 35,
+      "shippingDays": 5,
+      "returnWindow": 30,
+      "features": {
+        "customization": false,
+        "memberProgram": "Puma Plus",
+        "sustainabilityScore": 7
+      },
+      "apiConfig": {
+        "endpoint": "https://api.puma.com/v1",
+        "authType": "basic",
+        "rateLimit": 300
+      },
+      "seoKeywords": ["puma shoes", "puma sports", "forever faster"],
+      "description": "German multinational company that designs and manufactures athletic and casual footwear."
+    }
+  },
+  "tiers": {
+    "premium": {
+      "benefits": ["Free shipping", "Extended returns", "Early access"],
+      "displayPriority": 1
+    },
+    "standard": {
+      "benefits": ["Standard shipping", "30-day returns"],
+      "displayPriority": 2
+    }
+  },
+  "validation": {
+    "brandName": {
+      "pattern": "^(Nike|Adidas|Puma)$",
+      "caseSensitive": true
+    },
+    "minimumOrder": {
+      "currency": "USD",
+      "includesShipping": false
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "id": "req_BrandConfig_manual",
+  "source": {
+    "type": "manual",
+    "reference": "brand-guidelines-v1",
+    "url": "internal-docs/brand-guidelines.md"
+  },
+  "component": "BrandConfig",
+  "requirements": {
+    "constants": {
+      "approvedBrands": ["Nike", "Adidas", "Puma", "New Balance", "Under Armour"],
+      "forbiddenBrands": ["Fake Brand", "Knockoff Co"],
+      "premiumTier": ["Nike", "Adidas"],
+      "budgetTier": ["Puma", "New Balance"]
+    },
+    "validations": [
+      {
+        "type": "includes",
+        "field": "brandName",
+        "value": ["Nike", "Adidas", "Puma", "New Balance", "Under Armour"],
+        "errorMessage": "Brand must be from approved list"
+      }
+    ],
+    "constraints": [
+      "Only approved brands can be used in any UI",
+      "Premium tier brands get special badge",
+      "No brand modifications allowed",
+      "Case-sensitive matching required"
+    ]
+  },
+  "locked": true,
+  "lockedAt": "2024-01-15T10:00:00Z",
+  "lockedBy": "/pin-requirements manual",
+  "version": 1,
+  "description": "Approved brand names and tier classifications - immutable"
+}

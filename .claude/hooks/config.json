@@ -39,6 +39,18 @@
         "description": "Check for potential conflicts"
       },
       {
+        "script": "05-auto-context-inclusion.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Automatically include relevant context files based on work"
+      },
+      {
+        "script": "06-requirement-drift-detector.py",
+        "enabled": true,
+        "critical": true,
+        "description": "Prevent requirement violations and drift from locked specifications"
+      },
+      {
         "script": "06-biome-lint.py",
         "enabled": true,
         "description": "Run Biome linting and formatting checks"
@@ -74,10 +86,34 @@
         "description": "Validate and fix import paths"
       },
       {
+        "script": "14-creation-guard.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Prevent duplicate component creation"
+      },
+      {
+        "script": "15-dependency-tracker.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Alert on shared component changes"
+      },
+      {
         "script": "16-tcpa-compliance.py",
         "enabled": true,
         "critical": false,
         "description": "Ensure lead forms have TCPA compliance when enabled"
+      },
+      {
+        "script": "16-prp-validator.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Validate PRP structure and content"
+      },
+      {
+        "script": "17-ai-docs-check.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Suggest relevant AI documentation"
       }
     ],
     "post-tool-use": [
@@ -96,6 +132,11 @@
         "script": "03-team-notify.py",
         "enabled": false,
         "description": "Notify team of changes (optional)"
+      },
+      {
+        "script": "04-prp-metrics.py",
+        "enabled": true,
+        "description": "Track PRP execution metrics"
       }
     ],
     "notification": [
@@ -108,6 +149,24 @@
         "script": "smart-suggest.py",
         "enabled": true,
         "description": "Context-aware command suggestions"
+      },
+      {
+        "script": "continuous-requirement-validator.py",
+        "enabled": true,
+        "description": "Validate requirements every N commands to detect drift early"
+      },
+      {
+        "script": "context-db-awareness.py",
+        "enabled": true,
+        "description": "Suggest relevant context files based on current work"
+      }
+    ],
+    "pre-compact": [
+      {
+        "script": "requirement-context-preserver.py",
+        "enabled": true,
+        "critical": true,
+        "description": "Preserve locked requirements and anchors during conversation compaction"
       }
     ],
     "stop": [
@@ -149,5 +208,23 @@
     "allowed_font_weights": ["font-regular", "font-semibold"],
     "spacing_grid": 4,
     "min_touch_target": 44
+  },
+  "requirement_enforcement": {
+    "enabled": true,
+    "strict_mode": true,
+    "continuous_validation": true,
+    "validation_frequency": 10,
+    "auto_test_generation": true,
+    "block_on_violation": true
+  },
+  "prp_validation": {
+    "enabled": true,
+    "strict_mode": true,
+    "auto_fix": true,
+    "metrics_tracking": true
+  },
+  "ai_docs": {
+    "auto_suggest": true,
+    "enforcement_level": "warn"
   }
 }

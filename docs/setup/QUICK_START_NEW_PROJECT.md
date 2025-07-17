@@ -1,10 +1,10 @@
 # Quick Start - New Project
 
-Get up and running with a new project in under 5 minutes.
+Get up and running with a new project in under 5 minutes with full PRP support.
 
 ## Prerequisites
 
-- Node.js 22+ and pnpm
+- Node.js 22+ and pnpm (or bun)
 - GitHub account
 - Claude Code installed (claude.ai/code)
 
@@ -18,13 +18,18 @@ cd my-awesome-app
 # Run the automated setup script
 chmod +x scripts/quick-setup.sh
 ./scripts/quick-setup.sh
+
+# Setup PRP system (NEW)
+chmod +x setup-prp.sh
+./setup-prp.sh
 ```
 
-The setup script will:
+The setup scripts will:
 - ✅ Configure YOUR repository (not the boilerplate)
 - ✅ Update all configuration files
 - ✅ Guide you through GitHub Apps installation
 - ✅ Create initial commit
+- ✅ Setup PRP templates and validation loops
 
 ## 2. Install GitHub Apps (2 minutes)
 
@@ -72,13 +77,28 @@ Run these commands in Claude Code:
 /gi PROJECT            # Generate GitHub issues
 ```
 
-## 5. Start Building!
+## 5. Start Building with PRPs!
 
+### Option A: PRP Workflow (Recommended)
 ```bash
 # Start development server
 pnpm dev
 
-# Begin work on first feature
+# Begin work with PRP methodology
+/fw start 1            # Start working on issue #1
+/create-prp implement issue #1  # Generate comprehensive PRP
+/prp-execute feature-name       # Validate environment
+# ... implement following PRP blueprint ...
+/prp-execute feature-name       # Final validation
+/fw complete           # Create PR
+```
+
+### Option B: Traditional PRD Workflow
+```bash
+# Start development server
+pnpm dev
+
+# Traditional PRD approach
 /fw start 1            # Start working on issue #1
 /prd [feature-name]    # Create detailed PRD
 /gt [feature-name]     # Generate tasks
@@ -91,8 +111,30 @@ pnpm dev
 - ✅ AI-powered code reviews on every PR
 - ✅ Design system enforcement
 - ✅ PRD-driven development workflow
-- ✅ 90+ productivity commands
+- ✅ **PRP methodology for one-pass implementation**
+- ✅ **4-level validation loops**
+- ✅ **AI-optimized documentation**
+- ✅ 110+ productivity commands
 - ✅ Automated quality assurance
+
+## PRP Quick Reference
+
+```bash
+# Create PRPs
+/prp user authentication      # Short alias
+/create-prp checkout flow     # Full command
+
+# Execute validation
+/prp-execute auth            # Run all validations
+/prp-execute auth --fix      # Auto-fix issues
+/prp-execute auth --level 1  # Just syntax checks
+
+# Validation levels
+Level 1: Syntax & Standards (continuous)
+Level 2: Component Testing (after components)
+Level 3: Integration Testing (after connecting)
+Level 4: Production Readiness (before PR)
+```
 
 ## Common Issues
 
@@ -107,12 +149,21 @@ Run `./scripts/quick-setup.sh` again - it will fix the configuration.
 ### Commands creating issues in wrong repo?
 Your `.claude/project-config.json` might be wrong. The setup script fixes this.
 
+### PRP validation failing?
+- Run with `--verbose` flag for details
+- Use `--fix` to auto-fix common issues
+- Check `/bt list` for known bugs
+
 ## Next Steps
 
-- Read [QUICK_REFERENCE.md](../../QUICK_REFERENCE.md) for all commands
-- Check [DAY_1_COMPLETE_GUIDE.md](./DAY_1_COMPLETE_GUIDE.md) for detailed walkthrough
-- Start with `/fw start 1` to work on your first feature
+- Read [PRP_WORKFLOW_GUIDE.md](../workflow/PRP_WORKFLOW_GUIDE.md) for PRP methodology
+- Check [QUICK_REFERENCE.md](../../QUICK_REFERENCE.md) for all commands
+- Review [DAY_1_COMPLETE_GUIDE.md](./DAY_1_COMPLETE_GUIDE.md) for detailed walkthrough
+- Start with `/fw start 1` and `/prp` for your first feature
 
 ---
 
-**Need help?** The automated setup script handles 90% of configuration. If you hit issues, check the complete guide or run `/help setup`.
+**Need help?** 
+- PRP issues: Check `PRPs/README.md`
+- Setup issues: Run `/help setup`
+- Validation issues: Use `/prp-execute --help`
