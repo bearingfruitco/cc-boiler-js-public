@@ -37,7 +37,9 @@ For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_
 ## 🎯 What You Get
 
 ### Instant Productivity
-- **110+ Custom Commands** - Everything from `/sr` (smart resume) to `/prp` (create PRP)
+- **112+ Custom Commands** - Everything from `/sr` (smart resume) to `/ut` (ultra-think)
+- **UltraThink Mode** 🤯 - 32k+ token deep thinking with parallel agents (NEW!)
+- **Visual Planning** 📸 - Ray Fernando-style screenshot-based iteration (NEW!)
 - **PRP Methodology** 🚀 - One-pass implementation with validation loops (v2.6.0)
 - **Zero Context Loss** - Auto-saves work state to GitHub gists (not commits!)
 - **PRD-Driven Development** - Start with requirements, get working code

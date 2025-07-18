@@ -8,10 +8,11 @@ This is a comprehensive AI-assisted development system that combines PRD-driven 
 
 ### Core Components
 
-#### 1. Command System (110+ Commands)
+#### 1. Command System (112+ Commands)
 - **Context Management**: Smart resume, checkpoints, context profiles
 - **PRD/PRP Workflow**: Specification-driven development with validation loops
 - **Development**: Component creation, design validation, bug tracking
+- **Deep Thinking**: UltraThink with auto-parallel agents, visual planning
 - **Async Operations**: Event handlers, parallel processing, loading states
 - **Testing**: Browser automation, unit tests, PRD-based test generation
 - **Collaboration**: Multi-agent orchestration, GitHub integration

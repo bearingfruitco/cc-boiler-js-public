@@ -106,5 +106,11 @@
   "prp-exec": "prp-execute",
   "prp-run": "prp-execute",
   "execute-prp": "prp-execute",
-  "run-prp": "prp-execute"
+  "run-prp": "prp-execute",
+  "ut": "ultra-think",
+  "ultrathink": "ultra-think",
+  "deep-think": "ultra-think",
+  "vp": "visual-plan",
+  "visual": "visual-plan",
+  "screenshot-plan": "visual-plan"
 }
