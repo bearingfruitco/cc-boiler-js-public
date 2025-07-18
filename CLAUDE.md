@@ -454,6 +454,8 @@ pnpm vitest --inspect path/to/test.spec.ts
 
 ### Core Workflow Commands
 - `/sr` - Smart Resume (ALWAYS run first)
+- `/ut` - Ultra Think - Deep analysis with parallel agents (NEW!)
+- `/vp` - Visual Plan - Screenshot-based iterative planning (NEW!)
 - `/cp` - Context Profile (load/save work contexts)
 - `/bt` - Bug Track (persistent bug tracking)
 - `/fw` - Feature Workflow (start/complete GitHub issues)
@@ -480,6 +482,79 @@ pnpm vitest --inspect path/to/test.spec.ts
 - `/validate-async` - Validate async patterns (NEW)
 - `/facts` - Find And Check Tailwind Styles
 - `/research-docs` - Fetch and cache documentation
+
+## 🤖 Deep Thinking & Parallel Agents (NEW!)
+
+### Automatic Thinking Enhancement
+Your regular commands now automatically use deeper thinking when needed:
+- **Complexity Detection**: Analyzes task complexity (1-10 scale)
+- **Auto-Enhancement**: Adds "think carefully" or "UltraThink" to complex commands
+- **Smart Triggers**: PRDs, task generation, refactoring auto-trigger deep thinking
+
+**Examples of auto-enhancement:**
+```bash
+# Simple command stays simple
+/cc Button
+
+# Complex command gets enhanced automatically
+/prd "authentication system"
+# → /prd [Think step by step] "authentication system"
+
+/refactor "optimize database queries across 10 files"
+# → [UltraThink deeply about this]: /refactor...
+# → Auto-spawns 3 parallel agents
+```
+
+### UltraThink Mode
+Activate extended thinking (32k+ tokens) with automatic parallel agents:
+```bash
+/ut "complex refactoring task"
+/ultra-think "analyze architecture"
+```
+
+**Auto-triggers for:**
+- Architecture planning
+- Complex refactoring (5+ files)
+- Performance optimization
+- Security analysis
+- UI/UX overhauls
+
+**Parallel Agent Types:**
+- **UI Tasks**: Design analyst, Pattern researcher, A11y reviewer
+- **Architecture**: System analyst, Performance optimizer, Security reviewer
+- **Debugging**: Root cause analyst, Pattern reviewer, Solution researcher
+- **Refactoring**: Dependency mapper, Impact analyzer, Migration planner
+
+### Visual Planning Mode
+Ray Fernando-style iterative planning with screenshots:
+```bash
+/vp "fix mobile layout issues"
+# Drag screenshots into interface
+# Describe problems
+# Iterate: "keep planning"
+```
+
+**Features:**
+- Screenshot drag-and-drop
+- Automatic design system checking
+- Mobile/tablet consideration
+- Iterative refinement
+
+### Enhanced Workflow Example
+```bash
+# Complex UI fix with visual evidence
+/vp "dashboard performance issues"
+# Drag performance screenshots
+# Auto-spawns 3 specialized agents
+# Each analyzes independently
+# Synthesizes comprehensive plan
+
+# Architecture planning
+/ut "migrate to microservices"
+# Spawns architecture specialists
+# Analyzes dependencies
+# Creates phased migration plan
+```
 
 ## 🏗️ Architecture Overview
 
