@@ -24,6 +24,28 @@ if [ ! -f "CLAUDE.md" ] || [ ! -d ".claude" ]; then
     exit 1
 fi
 
+# Check for .env.local
+echo "🔐 Checking environment configuration..."
+if [ ! -f ".env.local" ]; then
+    echo "⚠️  WARNING: .env.local not found!"
+    echo ""
+    if [ -f ".env.example" ]; then
+        echo "Creating .env.local from .env.example..."
+        cp .env.example .env.local
+        echo "✓ Created .env.local"
+        echo ""
+        echo "⚠️  IMPORTANT: Edit .env.local and add your actual API keys!"
+        echo "   All values are currently placeholders."
+        echo ""
+    else
+        echo "❌ ERROR: .env.example not found!"
+        echo "Cannot create .env.local"
+    fi
+else
+    echo "✓ .env.local exists"
+fi
+echo ""
+
 # Check current remote
 CURRENT_REMOTE=$(git config --get remote.origin.url 2>/dev/null || echo "none")
 echo "Current git remote: $CURRENT_REMOTE"

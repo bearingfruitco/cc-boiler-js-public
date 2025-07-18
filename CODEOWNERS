@@ -1,0 +1,29 @@
+# CODEOWNERS
+# This file defines who is automatically requested for review when someone opens a pull request.
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owners - will be requested for review for all changes
+* @shawnsmith
+
+# Claude-specific configuration and commands
+/.claude/ @shawnsmith
+/CLAUDE.md @shawnsmith
+/QUICK_REFERENCE.md @shawnsmith
+
+# PRP system
+/PRPs/ @shawnsmith
+
+# Documentation
+/docs/ @shawnsmith
+*.md @shawnsmith
+
+# Security-sensitive files
+.env.example @shawnsmith
+.mcp.json @shawnsmith
+/field-registry/ @shawnsmith
+
+# Core configuration
+package.json @shawnsmith
+tsconfig.json @shawnsmith
+tailwind.config.js @shawnsmith
+next.config.js @shawnsmith

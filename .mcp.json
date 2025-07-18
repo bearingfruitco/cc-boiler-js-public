@@ -1,5 +1,6 @@
 {
   "version": "1.0",
+  "$schema": "IMPORTANT: All API keys below are PLACEHOLDERS. Replace with your actual keys before use.",
   "mcpServers": {
     "brave-search": {
       "command": "npx",

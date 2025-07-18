@@ -30,6 +30,13 @@ pnpm-debug.log*
 fix-*.sh
 push-*.sh
 git-*.sh
+
+# Additional Claude directories for security
+.claude/captures/
+.claude/dependencies/active/
+.claude/context/
+.claude/analytics/
+.claude/requirements/
 reorganize-*.sh
 cleanup-*.sh
 
@@ -60,6 +67,10 @@ next-env.d.ts
 .claude/checkpoints/
 .claude/team/
 .claude/orchestration/active/
+.claude/backups/
+.claude/context/
+.claude/captures/
+.claude/dependencies/active/
 
 # IDE
 .vscode/

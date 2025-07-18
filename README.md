@@ -292,3 +292,22 @@ Built by developers tired of:
 - 🚫 Manual documentation
 
 Ready to build something amazing? Start with `/init-project` and `/prp` 🚀
+
+## 🔒 Security
+
+This boilerplate contains no secrets or API keys. All sensitive values in configuration files are placeholders.
+
+**Important:**
+- Copy `.env.example` to `.env.local` and add your real values
+- Update `.mcp.json` with your actual API keys
+- Never commit `.env.local` or any file with real secrets
+- Keep all API keys and tokens in environment variables
+
+**MCP Configuration:**
+The `.mcp.json` file contains placeholder values for various services. Replace these before use:
+- `YOUR_BRAVE_API_KEY` - For web search functionality
+- `YOUR_GITHUB_PAT` - For GitHub integration
+- `YOUR_SUPABASE_SERVICE_ROLE_KEY` - For database access
+- And other service-specific keys
+
+See [SETUP_SECURITY.md](docs/setup/SETUP_SECURITY.md) for detailed security setup instructions.
