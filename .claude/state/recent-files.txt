@@ -1,0 +1,3 @@
+test.py
+/test/file.py
+/test/file.tsx

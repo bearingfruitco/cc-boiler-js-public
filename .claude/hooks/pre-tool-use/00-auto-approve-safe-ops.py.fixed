@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""
+Auto-Approve Safe Operations Hook - FIXED VERSION
+Follows Claude Code hook requirements exactly
+"""
+
+import json
+import sys
+import os
+from pathlib import Path
+
+# Define safe operations that can be auto-approved
+SAFE_READ_OPERATIONS = {
+    'Read',
+    'MultiRead',
+    'ListDirectory',
+    'DirectoryTree',
+    'GetFileInfo',
+    'SearchFiles'
+}
+
+# Safe directories for write operations
+SAFE_WRITE_DIRECTORIES = [
+    '/tests/',
+    '/test/',
+    '/__tests__/',
+    '/.claude/checkpoints/',
+    '/.claude/transcripts/',
+    '/tmp/',
+    '/.cache/'
+]
+
+def is_safe_write_path(path):
+    """Check if the path is in a safe directory for auto-approval"""
+    if not path:
+        return False
+    
+    path_str = str(path).replace('\\', '/')
+    
+    for safe_dir in SAFE_WRITE_DIRECTORIES:
+        if safe_dir in path_str:
+            return True
+    
+    path_obj = Path(path_str)
+    if path_obj.name.endswith(('.test.ts', '.test.tsx', '.test.js', '.test.jsx', 
+                              '.spec.ts', '.spec.tsx', '.spec.js', '.spec.jsx')):
+        return True
+    
+    return False
+
+def main():
+    """Main hook logic"""
+    try:
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
+        
+        # Extract tool name - handle multiple formats
+        tool_name = input_data.get('tool_name', '')
+        if not tool_name and 'tool_use' in input_data:
+            tool_name = input_data['tool_use'].get('name', '')
+        
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
+        
+        # Check if this is a safe read operation
+        if tool_name in SAFE_READ_OPERATIONS:
+            # Auto-approve with proper JSON output
+            print(json.dumps({
+                "action": "approve",
+                "reason": f"Auto-approved: {tool_name} (safe read operation)"
+            }))
+            return
+        
+        # Check write operations in safe directories
+        if tool_name in ['Write', 'Edit']:
+            path = tool_input.get('file_path', tool_input.get('path', ''))
+            if is_safe_write_path(path):
+                print(json.dumps({
+                    "action": "approve",
+                    "reason": f"Auto-approved: {tool_name} to test file"
+                }))
+                return
+        
+        # For all other operations, continue with normal flow
+        print(json.dumps({"action": "continue"}))
+        
+    except Exception as e:
+        # On any error, output valid JSON to continue
+        print(json.dumps({
+            "action": "continue",
+            "message": f"Hook error: {str(e)}"
+        }))
+
+if __name__ == '__main__':
+    main()

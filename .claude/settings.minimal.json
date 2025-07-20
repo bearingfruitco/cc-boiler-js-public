@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [],
+    "deny": [],
+    "defaultMode": "default"
+  },
+  "env": {},
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/00-auto-approve-safe-ops.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/02-design-check.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/post-tool-use/01-state-save.py"
+          }
+        ]
+      }
+    ]
+  }
+}

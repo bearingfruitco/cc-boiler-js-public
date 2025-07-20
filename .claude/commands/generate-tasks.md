@@ -131,3 +131,67 @@ OR
 Save the enhanced task list as: docs/project/features/$ARGUMENTS-tasks.md
 
 The auto-orchestration hook will analyze this file and provide intelligent suggestions!
+
+## PRP Integration: --from-prp
+
+When generating tasks from a PRP instead of PRD:
+
+```bash
+/gt auth --from-prp
+```
+
+This mode:
+1. **Loads PRP Implementation Blueprint**
+   - Uses detailed task breakdown from PRP
+   - Maintains task dependencies
+   - Includes validation gates
+
+2. **Enriches Tasks with Context**
+   ```yaml
+   Task: Implement JWT utilities
+   Context:
+     - Pattern: Use existing src/utils/crypto.py
+     - Gotcha: Token expiry must be configurable
+     - Validation: Must pass test_jwt_security.py
+   ```
+
+3. **Adds Validation Checkpoints**
+   - After each task group
+   - Links to PRP validation levels
+   - Auto-triggers `/prp-execute --level N`
+
+4. **Maintains PRP Linkage**
+   - Tasks reference PRP sections
+   - Progress updates PRP status
+   - Validation results tracked
+
+## Example Output with --from-prp:
+
+```markdown
+## Tasks for: user-authentication (from PRP)
+
+### Phase 1: Data Models (3 tasks)
+- [ ] TASK-001: Create user model with required fields
+  - Context: See PRPs/active/auth.md#data-models
+  - Pattern: Extend BaseModel from src/models/base.py
+  - Validate: /prp-execute auth --level 1
+
+- [ ] TASK-002: Add password hashing utilities  
+  - Gotcha: Use bcrypt with min rounds=12
+  - Ref: PRPs/ai_docs/security_patterns.md
+
+[Checkpoint: Run Level 1 validation]
+
+### Phase 2: Core Logic (4 tasks)
+...
+```
+
+## Differences from Standard Mode:
+
+| Aspect | Standard (/gt) | PRP Mode (/gt --from-prp) |
+|--------|---------------|---------------------------|
+| Source | PRD document | PRP blueprint |
+| Detail | High-level tasks | Detailed implementation |
+| Context | Basic | Rich with patterns/gotchas |
+| Validation | Manual | Automated checkpoints |
+| Tracking | Simple | Integrated with PRP status |

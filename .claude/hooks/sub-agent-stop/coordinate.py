@@ -188,46 +188,42 @@ def prevent_conflicts(agent_id, file_path):
     return True
 
 def main():
-    """Main hook logic"""
-    input_data = json.loads(sys.stdin.read())
+    try:
+        """Main hook logic"""
+        input_data = json.loads(sys.stdin.read())
     
-    # This hook is called when a sub-agent completes
-    agent_id = input_data.get('agent_id')
-    event_type = input_data.get('event_type', 'task_complete')
+        # This hook is called when a sub-agent completes
+        agent_id = input_data.get('agent_id')
+        event_type = input_data.get('event_type', 'task_complete')
     
-    if event_type == 'task_complete':
-        task_id = input_data.get('task_id')
-        artifacts = input_data.get('artifacts', {})
+        if event_type == 'task_complete':
+            task_id = input_data.get('task_id')
+            artifacts = input_data.get('artifacts', {})
         
-        report = handle_task_completion(agent_id, task_id, artifacts)
+            report = handle_task_completion(agent_id, task_id, artifacts)
         
-        print(json.dumps({
-            "action": "continue",
-            "message": report,
-            "next_task": input_data.get('next_task')
-        }))
-    
-    elif event_type == 'file_check':
-        file_path = input_data.get('file_path')
-        allowed = prevent_conflicts(agent_id, file_path)
-        
-        if not allowed:
             print(json.dumps({
-                "action": "block",
-                "message": f"Agent {agent_id} not authorized to modify {file_path}"
+                sys.exit(0)
             }))
+    
+        elif event_type == 'file_check':
+            file_path = input_data.get('file_path')
+            allowed = prevent_conflicts(agent_id, file_path)
+        
+            if not allowed:
+                print(json.dumps({
+                sys.exit(2)
+            else:
+                    elif event_type == 'status_request':
+            report = generate_status_report()
+            print(json.dumps({
+                "action": "info",
+                "message": report
+            }))
+    
         else:
-            print(json.dumps({"action": "continue"}))
-    
-    elif event_type == 'status_request':
-        report = generate_status_report()
-        print(json.dumps({
-            "action": "info",
-            "message": report
-        }))
-    
-    else:
-        print(json.dumps({"action": "continue"}))
+            sys.exit(0)
 
+    except Exception as e:
 if __name__ == "__main__":
     main()

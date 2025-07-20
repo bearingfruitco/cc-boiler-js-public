@@ -1,27 +1,123 @@
 #!/bin/bash
 
 # Quick Setup Script for Claude Code Boilerplate
-# This ensures proper repository configuration
+# This ensures proper repository configuration and PRP system setup
 
 set -e
 
 echo "🚀 Claude Code Boilerplate - Quick Setup"
 echo "========================================"
-echo "Version: 2.3.2 with GitHub Apps Integration"
+echo "Version: 2.6.0 with PRP System Integration"
 echo ""
-
-# Check if we're in a git repository
-if [ ! -d .git ]; then
-    echo "⚠️  No git repository found. Initializing..."
-    git init
-    echo "✓ Initialized git repository"
-fi
 
 # Check if we have the boilerplate files
 if [ ! -f "CLAUDE.md" ] || [ ! -d ".claude" ]; then
     echo "❌ ERROR: Claude Code boilerplate files not found!"
     echo "Please run this from the boilerplate directory."
     exit 1
+fi
+
+# Setup PRP System directories
+echo "📁 Setting up PRP system..."
+mkdir -p PRPs/{templates,ai_docs,active,completed,execution_logs}
+mkdir -p .claude/metrics/{prp_progress,prp_validation}
+mkdir -p .claude/context
+echo "✓ PRP directories created"
+
+# Create PRP base template if it doesn't exist
+if [ ! -f "PRPs/templates/prp_base.md" ]; then
+    cat > PRPs/templates/prp_base.md << 'EOF'
+# PRP: [FEATURE NAME]
+
+## Metadata
+- **Created**: [DATE]
+- **Author**: [AUTHOR]
+- **Confidence**: [1-10]
+- **Complexity**: [Low/Medium/High]
+
+## Goal
+[Clear description of what needs to be built]
+
+## Why
+- **Business Value**: [Impact on users/system]
+- **Technical Need**: [Problems this solves]
+
+## What
+[User-visible behavior and technical requirements]
+
+### Success Criteria
+- [ ] [Specific measurable outcome]
+- [ ] [Performance requirement]
+- [ ] [Security requirement]
+
+## All Needed Context
+
+### Documentation & References
+```yaml
+- url: [documentation link]
+  why: [specific reason needed]
+  
+- file: [codebase example]
+  pattern: [what to follow]
+  gotcha: [what to avoid]
+```
+
+### Known Gotchas
+- CRITICAL: [Important warning]
+- GOTCHA: [Common mistake to avoid]
+- WARNING: [Performance consideration]
+
+## Implementation Blueprint
+
+### Phase 1: Foundation
+- Task 1: [Description]
+- Task 2: [Description]
+
+### Phase 2: Core Features
+- Task 3: [Description]
+- Task 4: [Description]
+
+## Validation Loops
+
+### Level 1: Syntax & Standards
+```bash
+bun run lint
+bun run typecheck
+```
+
+### Level 2: Component Testing
+```bash
+bun test [feature]
+```
+
+### Level 3: Integration Testing
+```bash
+bun run test:e2e [feature]
+```
+
+### Level 4: Production Readiness
+```bash
+bun run lighthouse
+bun run analyze
+```
+
+## Confidence Score: [X]/10
+
+### Scoring Rationale:
+- Documentation: [X]/2
+- Patterns: [X]/2
+- Gotchas: [X]/2
+- Tests: [X]/2
+- Automation: [X]/2
+EOF
+    echo "✓ Created PRP base template"
+fi
+
+# Check if we're in a git repository
+if [ ! -d .git ]; then
+    echo "⚠️  No git repository found. Initializing..."
+    git init
+    echo "✓ Initialized git repository"
 fi
 
 # Check for .env.local
@@ -124,10 +220,16 @@ if [[ $CURRENT_REMOTE == *"claude-code-boilerplate"* ]]; then
     "coderabbit": false,
     "claude_code": false,
     "checked_at": null
+  },
+  "prp": {
+    "enabled": true,
+    "default_template": "prp_base.md",
+    "validation_levels": 4,
+    "auto_research": true
   }
 }
 EOF
-        echo "✓ Created .claude/project-config.json"
+        echo "✓ Created .claude/project-config.json with PRP enabled"
     fi
     
     # Update package.json name
@@ -142,6 +244,22 @@ else
     echo "✓ Git remote is already configured correctly!"
     GITHUB_USER=$(echo $CURRENT_REMOTE | sed -n 's/.*github.com[:/]\([^/]*\)\/.*/\1/p')
     REPO_NAME=$(basename -s .git $CURRENT_REMOTE)
+fi
+
+# Add PRP runner script to package.json if not present
+if ! grep -q "prp:run" package.json; then
+    echo "📦 Adding PRP scripts to package.json..."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        sed -i '' '/"scripts": {/a\
+    "prp:run": "bun run PRPs/scripts/prp-runner.ts",\
+    "prp:validate": "bun run PRPs/scripts/prp-runner.ts --prp",
+' package.json
+    else
+        # Linux
+        sed -i '/"scripts": {/a\    "prp:run": "bun run PRPs/scripts/prp-runner.ts",\n    "prp:validate": "bun run PRPs/scripts/prp-runner.ts --prp",' package.json
+    fi
+    echo "✓ Added PRP scripts"
 fi
 
 echo ""
@@ -192,11 +310,60 @@ EOF
     echo "✓ Created .coderabbit.yaml"
 fi
 
+# Create PRP Quick Start guide
+if [ ! -f "PRPs/QUICK_START.md" ]; then
+    cat > PRPs/QUICK_START.md << 'EOF'
+# PRP Quick Start Guide
+
+## Essential Commands
+
+```bash
+# Create a new PRP
+/create-prp [feature-name]
+
+# Convert existing PRD to PRP
+/prd-to-prp [feature-name]
+
+# Validate PRP completeness
+/prp-validate [feature-name]
+
+# Generate tasks from PRP
+/gt [feature] --from-prp
+
+# Execute validation loops
+/prp-execute [feature-name]
+
+# Check progress
+/prp-status [feature-name]
+
+# Complete and archive
+/prp-complete [feature-name]
+```
+
+## Workflow
+
+1. Create or convert: `/create-prp payment-system`
+2. Validate: `/prp-validate payment-system`
+3. Generate tasks: `/gt payment-system --from-prp`
+4. Work: `/pt payment-system`
+5. Validate: `/prp-execute payment-system`
+6. Complete: `/prp-complete payment-system`
+
+## Tips
+
+- Always validate before starting implementation
+- Run Level 1 validation continuously
+- Use `--fix` flag for auto-corrections
+- Check `/prp-status` for blockers
+EOF
+    echo "✓ Created PRP Quick Start guide"
+fi
+
 # Commit changes
 echo ""
 echo "💾 Saving configuration..."
-git add .claude/project-config.json package.json .coderabbit.yaml
-git commit -m "chore: configure repository settings" || echo "No changes to commit"
+git add -A
+git commit -m "chore: configure repository with PRP system" || echo "No changes to commit"
 
 # Final instructions
 echo ""
@@ -205,12 +372,23 @@ echo "================="
 echo ""
 echo "Repository: $GITHUB_USER/$REPO_NAME"
 echo ""
+echo "🚀 PRP System Features:"
+echo "- Product Requirement Prompts for one-pass success"
+echo "- 4-level validation loops"
+echo "- Automated progress tracking"
+echo "- Pattern extraction and learning"
+echo ""
 echo "Next steps:"
 echo "1. Open in Claude Code: claude ."
 echo "2. Run: /init"
 echo "3. Run: /init-project"
-echo "4. Run: /gi PROJECT"
+echo "4. Try PRP: /create-prp test-feature"
 echo ""
-echo "Your project is ready for PRD-driven development with AI-powered reviews!"
+echo "📚 Documentation:"
+echo "- PRP Guide: PRPs/QUICK_START.md"
+echo "- Commands: QUICK_REFERENCE.md"
+echo "- Workflow: docs/workflow/UNIFIED_PRP_WORKFLOW.md"
+echo ""
+echo "Your project is ready for AI-driven development with automated quality gates!"
 echo ""
 echo "🎉 Happy coding!"

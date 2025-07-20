@@ -1,0 +1,19 @@
+{
+  "enabledMcpjsonServers": [
+    "brave-search",
+    "puppeteer",
+    "stagehand",
+    "browserbase",
+    "github",
+    "supabase",
+    "Prisma-Local",
+    "Prisma-Remote",
+    "Sentry",
+    "dbt-mcp",
+    "upstash",
+    "cloudflare-observability",
+    "cloudflare-bindings",
+    "bright-data",
+    "context7"
+  ]
+}
