@@ -213,41 +213,39 @@ def get_modified_files():
         return []
 
 def main():
-    """Main hook logic"""
-    # Read input from Claude Code
-    input_data = json.loads(sys.stdin.read())
+    try:
+        """Main hook logic"""
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
     
-    # This is a post-tool-use hook, so we capture after responses
-    # Get Claude's last response (this would need integration with Claude Code)
-    # For now, we'll check if there's a response to capture
+        # This is a post-tool-use hook, so we capture after responses
+        # Get Claude's last response (this would need integration with Claude Code)
+        # For now, we'll check if there's a response to capture
     
-    config = get_config()
+        config = get_config()
     
-    # Check if response capture is enabled
-    if not config.get('capture', {}).get('auto_capture', True):
-        print(json.dumps({"action": "continue"}))
-        return
+        # Check if response capture is enabled
+        if not config.get('capture', {}).get('auto_capture', True):
+                    return
     
-    # In a real implementation, we'd get Claude's actual response
-    # For this example, we'll check if the tool operation suggests a response was given
-    if input_data.get('tool') == 'assistant_response':
-        content = input_data.get('content', '')
+        # In a real implementation, we'd get Claude's actual response
+        # For this example, we'll check if the tool operation suggests a response was given
+        if input_data.get('tool') == 'assistant_response':
+            content = input_data.get('content', '')
         
-        if should_capture_response(content):
-            sections = extract_sections(content)
-            metadata = get_current_context()
+            if should_capture_response(content):
+                sections = extract_sections(content)
+                metadata = get_current_context()
             
-            if sections['summary'] or sections['plan']:
-                capture_id = save_captured_response(content, sections, metadata)
+                if sections['summary'] or sections['plan']:
+                    capture_id = save_captured_response(content, sections, metadata)
                 
-                print(json.dumps({
-                    "action": "log",
-                    "message": f"📸 Response captured: {capture_id}\nUse /capture-to-issue to create GitHub issue",
-                    "continue": True
-                }))
-                return
+                    print(json.dumps({
+                        sys.exit(0)
+                    return
     
-    print(json.dumps({"action": "continue"}))
+        sys.exit(0)
 
+    except Exception as e:
 if __name__ == "__main__":
     main()

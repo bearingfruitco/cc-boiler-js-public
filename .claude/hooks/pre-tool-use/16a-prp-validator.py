@@ -2,6 +2,7 @@
 """
 PRP Validator Hook - Ensures PRPs follow the methodology
 Validates structure, content quality, and dependencies
+NOTE: Only runs when editing PRP files to avoid conflicts with design validator
 """
 
 import json
@@ -11,6 +12,18 @@ from pathlib import Path
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+def hook(action):
+    """Main hook function - only validate PRP files"""
+    
+    # Only validate when editing PRP files
+    file_path = action.get('path', '')
+    if not any(marker in file_path for marker in ['PRPs/', '.prp', 'prp.md', 'prp_']):
+        return  # Not a PRP file, skip validation
+    
+    # Only validate on write operations
+    if action.get('tool') not in ['EditTool', 'CreateTool', 'WriteFileTool']:
+        return
 
 def get_config():
     """Load hook configuration"""
@@ -135,29 +148,52 @@ def extract_prp_info(content):
     return info
 
 def main():
-    """Main hook logic"""
-    # Read input from Claude Code
-    input_data = json.loads(sys.stdin.read())
+    try:
+        """Main hook logic"""
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
     
-    # Only process file write/edit operations
-    if input_data['tool'] not in ['write_file', 'edit_file', 'str_replace']:
-        print(json.dumps({"action": "continue"}))
-        return
+        # Only process file write/edit operations
+
+        # Extract tool name - handle multiple formats
+
+        tool_name = input_data.get('tool_name', '')
+
+        if not tool_name and 'tool_use' in input_data:
+
+            tool_name = input_data['tool_use'].get('name', '')
+
+        if not tool_name:
+
+            tool_name = input_data.get('tool', '')
+
     
-    file_path = input_data.get('path', '')
+
+        # Extract parameters
+
+        tool_input = input_data.get('tool_input', {})
+
+        if not tool_input and 'tool_use' in input_data:
+
+            tool_input = input_data['tool_use'].get('parameters', {})
+
     
-    # Only validate PRP files
-    if not file_path.endswith('.md') or 'PRPs/' not in file_path:
-        print(json.dumps({"action": "continue"}))
-        return
+
+        if tool_name not in ['Write', 'Edit', 'str_replace']:
+                    return
     
-    # Skip README and other non-PRP markdown files
+        file_path = tool_input.get('file_path', tool_input.get('path', '')
+    
+        # Only validate PRP files
+        if not file_path.endswith('.md') or 'PRPs/' not in file_path:
+            # sys.exit(0)
+    except Exception as e:
+other non-PRP markdown files
     if file_path.endswith('README.md') or '/templates/' in file_path:
-        print(json.dumps({"action": "continue"}))
+        # sys.exit(0)
         return
     
-    content = input_data.get('content', '')
-    config = get_config()
+    content = input_dafig()
     
     # Extract PRP info
     prp_info = extract_prp_info(content)
@@ -171,11 +207,10 @@ def main():
             message += f"  ❌ {section}\n"
         message += "\n📚 Use PRP templates in PRPs/templates/ as a guide"
         
-        print(json.dumps({
-            "action": "block",
-            "message": message,
+        # print(message,
             "missing_sections": missing_sections
-        }))
+        , file=sys.stderr)
+            sys.exit(2)
         return
     
     # Validate content quality
@@ -206,11 +241,10 @@ def main():
             
             message += "\n💡 Fix critical issues before proceeding"
             
-            print(json.dumps({
-                "action": "block",
-                "message": message,
+            # print(message,
                 "issues": issues
-            }))
+            , file=sys.stderr)
+            sys.exit(2)
             return
         else:
             # Non-critical issues - warn but allow
@@ -227,12 +261,11 @@ def main():
             if not prp_info['references_patterns']:
                 message += "\n💡 Tip: Reference existing patterns to follow"
             
-            print(json.dumps({
-                "action": "warn",
-                "message": message,
+            # print(message,
                 "issues": issues,
                 "prp_info": prp_info
-            }))
+            , file=sys.stderr)
+            sys.exit(1)
             return
     
     # All good - provide positive feedback
@@ -246,13 +279,12 @@ def main():
     
     if strengths:
         message = f"✅ PRP looks good! Strengths: {', '.join(strengths)}"
-        print(json.dumps({
-            "action": "continue",
-            "message": message,
+        # print(message,
             "prp_info": prp_info
-        }))
+        )  # Info message
+            sys.exit(0)
     else:
-        print(json.dumps({"action": "continue"}))
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

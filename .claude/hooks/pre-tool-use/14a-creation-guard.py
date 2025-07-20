@@ -10,21 +10,23 @@ import os
 import re
 import subprocess
 from pathlib import Path
+from datetime import datetime
 
 def get_config():
     """Load hook configuration"""
     config_path = Path(__file__).parent.parent / 'config.json'
-    with open(config_path) as f:
-        return json.load(f)
+    if config_path.exists():
+        with open(config_path) as f:
+            return json.load(f)
+    return {'hooks': {'creation_guard': {'enabled': True}}}
 
-def extract_creation_intent(input_data):
+def extract_creation_intent(tool_name, tool_input):
     """Detect if this is a creation operation and extract name"""
-    tool = input_data.get('tool')
-    path = input_data.get('path', '')
-    content = input_data.get('content', '')
+    path = tool_input.get('file_path', tool_input.get('path', ''))
+    content = tool_input.get('content', '')
     
     # Check for component creation patterns
-    if tool == 'write_file':
+    if tool_name == 'Write':
         # New file creation
         if path.endswith(('.tsx', '.jsx', '.ts', '.js')):
             # Extract component/function name from path
@@ -43,7 +45,7 @@ def extract_creation_intent(input_data):
             }
     
     # Check for function/hook creation in content
-    if tool in ['write_file', 'edit_file']:
+    if tool_name in ['Write', 'Edit']:
         # Look for new exports
         export_patterns = [
             r'export\s+(?:default\s+)?(?:function|const)\s+(\w+)',
@@ -125,9 +127,9 @@ def check_exists(name, type='component'):
         results['similar'] = similar_names[:5]  # Top 5 similar
     
     # Get usage information
-    if results['found']:
+    if results['found'] and results['locations']:
         results['usage'] = find_usage_locations(name)
-        results['info'] = get_component_info(results['locations'][0]) if results['locations'] else None
+        results['info'] = get_component_info(results['locations'][0])
     
     return results
 
@@ -136,18 +138,19 @@ def find_similar_names(name, type):
     similar = []
     
     # Simple similarity check - could be enhanced with fuzzy matching
-    cmd = f"find . -name '*.tsx' -o -name '*.jsx' -o -name '*.ts' -o -name '*.js' | grep -i {name[:3]} | head -10"
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    
-    if result.stdout.strip():
-        for file_path in result.stdout.strip().split('\n'):
-            component_name = Path(file_path).stem
-            if component_name != name and len(component_name) > 2:
-                similar.append({
-                    'name': component_name,
-                    'path': file_path,
-                    'similarity': calculate_similarity(name, component_name)
-                })
+    if len(name) >= 3:
+        cmd = f"find . -name '*.tsx' -o -name '*.jsx' -o -name '*.ts' -o -name '*.js' | grep -i {name[:3]} | head -10"
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        
+        if result.stdout.strip():
+            for file_path in result.stdout.strip().split('\n'):
+                component_name = Path(file_path).stem
+                if component_name != name and len(component_name) > 2:
+                    similar.append({
+                        'name': component_name,
+                        'path': file_path,
+                        'similarity': calculate_similarity(name, component_name)
+                    })
     
     # Sort by similarity
     similar.sort(key=lambda x: x['similarity'], reverse=True)
@@ -186,18 +189,21 @@ def get_component_info(file_path):
     if not os.path.exists(file_path):
         return None
     
-    with open(file_path, 'r') as f:
-        content = f.read()
-    
-    info = {
-        'created': get_file_creation_date(file_path),
-        'modified': get_file_modified_date(file_path),
-        'size': len(content),
-        'exports': extract_exports(content),
-        'props': extract_props(content)
-    }
-    
-    return info
+    try:
+        with open(file_path, 'r') as f:
+            content = f.read()
+        
+        info = {
+            'created': get_file_creation_date(file_path),
+            'modified': get_file_modified_date(file_path),
+            'size': len(content),
+            'exports': extract_exports(content),
+            'props': extract_props(content)
+        }
+        
+        return info
+    except:
+        return None
 
 def get_file_creation_date(file_path):
     """Get file creation date from git"""
@@ -208,7 +214,6 @@ def get_file_creation_date(file_path):
 def get_file_modified_date(file_path):
     """Get last modified date"""
     try:
-        from datetime import datetime
         stat = os.stat(file_path)
         return datetime.fromtimestamp(stat.st_mtime).isoformat()
     except:
@@ -255,14 +260,14 @@ def format_exists_message(creation_intent, exists_result):
 📍 Found at: {exists_result['locations'][0]}
 """
     
-    if exists_result['info']:
+    if exists_result.get('info'):
         info = exists_result['info']
         message += f"""📅 Created: {info['created'][:10] if info['created'] != 'unknown' else 'unknown'}
 📝 Last modified: {info['modified'][:19] if info['modified'] != 'unknown' else 'unknown'}
 📦 Exports: {', '.join(info['exports']) if info['exports'] else 'none'}
 """
     
-    if exists_result['usage']:
+    if exists_result.get('usage'):
         message += f"""
 📊 Used in {len(exists_result['usage'])} places:
 """
@@ -282,7 +287,7 @@ To update existing:
   • Or run: /open {exists_result['locations'][0]}
 """
     
-    if exists_result['similar']:
+    if exists_result.get('similar'):
         message += f"""
 📝 Similar components found:
 """
@@ -292,55 +297,60 @@ To update existing:
     return message
 
 def main():
-    """Main hook logic"""
-    # Read input from Claude Code
-    input_data = json.loads(sys.stdin.read())
-    
-    # Only process creation operations
-    if input_data['tool'] not in ['write_file', 'create_file']:
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    config = get_config()
-    
-    # Check if creation guard is enabled
-    if not config.get('hooks', {}).get('creation_guard', {}).get('enabled', True):
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    # Extract creation intent
-    creation_intent = extract_creation_intent(input_data)
-    
-    if not creation_intent:
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    # Check if already exists
-    exists_result = check_exists(creation_intent['name'], creation_intent['type'])
-    
-    if exists_result['found']:
-        message = format_exists_message(creation_intent, exists_result)
+    try:
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
         
-        if message:
-            print(json.dumps({
-                "action": "warn",
-                "message": message,
-                "existing_locations": exists_result['locations'],
-                "allow_continue": True,
-                "suggestions": [
-                    f"Update {exists_result['locations'][0]}",
-                    f"Create as {creation_intent['name']}V2",
-                    f"Check /deps {creation_intent['name']}"
-                ]
-            }))
+        # Extract tool name - handle multiple formats
+        tool_name = input_data.get('tool_name', '')
+        if not tool_name and 'tool_use' in input_data:
+            tool_name = input_data['tool_use'].get('name', '')
+        if not tool_name:
+            tool_name = input_data.get('tool', '')
+        
+        # Only process creation operations
+        if tool_name not in ['Write', 'create_file']:
+            sys.exit(0)
             return
-    
-    # If not found, log that it's safe to create
-    print(json.dumps({
-        "action": "log", 
-        "message": f"✅ {creation_intent['name']} does not exist - safe to create",
-        "continue": True
-    }))
+        
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
+        
+        config = get_config()
+        
+        # Check if creation guard is enabled
+        if not config.get('hooks', {}).get('creation_guard', {}).get('enabled', True):
+            sys.exit(0)
+            return
+        
+        # Extract creation intent
+        creation_intent = extract_creation_intent(tool_name, tool_input)
+        
+        if not creation_intent:
+            sys.exit(0)
+            return
+        
+        # Check if already exists
+        exists_result = check_exists(creation_intent['name'], creation_intent['type'])
+        
+        if exists_result['found']:
+            message = format_exists_message(creation_intent, exists_result)
+            
+            if message:
+                print(message)  # Warning shown in transcript
+        sys.exit(0)
+                return
+        
+        # If not found, log that it's safe to create
+        print(json.dumps({
+            sys.exit(0)
+        
+    except Exception as e:
+        print(json.dumps({
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)

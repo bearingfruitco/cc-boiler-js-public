@@ -29,9 +29,7 @@ def get_current_pr():
         if prs:
             return prs[0]['number']
     except:
-        pass
-    
-    return None
+            return None
 
 def check_coderabbit_review(pr_number):
     """Check if CodeRabbit has reviewed"""
@@ -49,7 +47,6 @@ def check_coderabbit_review(pr_number):
             if comment.get('user', {}).get('login') == 'coderabbitai':
                 return parse_coderabbit_comment(comment['body'])
     except:
-        pass
     
     return None
 
@@ -77,49 +74,52 @@ def parse_coderabbit_comment(body):
     return issues
 
 def main():
-    # This runs periodically (every 5 minutes via cron or systemd)
-    pr_number = get_current_pr()
+    try:
+        # This runs periodically (every 5 minutes via cron or systemd)
+        pr_number = get_current_pr()
     
-    if not pr_number:
-        return
+        if not pr_number:
+            return
     
-    # Check for new feedback
-    feedback = check_coderabbit_review(pr_number)
+        # Check for new feedback
+        feedback = check_coderabbit_review(pr_number)
     
-    if feedback:
-        # Check if we've already notified
-        notified_file = Path(f".claude/notifications/pr-{pr_number}-notified.json")
+        if feedback:
+            # Check if we've already notified
+            notified_file = Path(f".claude/notifications/pr-{pr_number}-notified.json")
         
-        if not notified_file.exists():
-            # First time seeing this feedback
-            notified_file.parent.mkdir(exist_ok=True)
+            if not notified_file.exists():
+                # First time seeing this feedback
+                notified_file.parent.mkdir(exist_ok=True)
             
-            # Create notification
-            total_issues = (
-                len(feedback.get('errors', [])) +
-                len(feedback.get('warnings', [])) +
-                len(feedback.get('design_violations', []))
-            )
+                # Create notification
+                total_issues = (
+                    len(feedback.get('errors', [])) +
+                    len(feedback.get('warnings', [])) +
+                    len(feedback.get('design_violations', []))
+                )
             
-            if total_issues > 0:
-                print(f"\n🐰 CodeRabbit Review Ready for PR #{pr_number}")
-                print(f"Found {total_issues} issue(s) to address:")
+                if total_issues > 0:
+                    print(f"\n🐰 CodeRabbit Review Ready for PR #{pr_number}")
+                    print(f"Found {total_issues} issue(s) to address:")
                 
-                if feedback.get('errors'):
-                    print(f"  - {len(feedback['errors'])} errors")
-                if feedback.get('warnings'):
-                    print(f"  - {len(feedback['warnings'])} warnings")
-                if feedback.get('design_violations'):
-                    print(f"  - {len(feedback['design_violations'])} design violations")
+                    if feedback.get('errors'):
+                        print(f"  - {len(feedback['errors'])} errors")
+                    if feedback.get('warnings'):
+                        print(f"  - {len(feedback['warnings'])} warnings")
+                    if feedback.get('design_violations'):
+                        print(f"  - {len(feedback['design_violations'])} design violations")
                 
-                print(f"\nRun: /pr-feedback {pr_number}")
+                    print(f"\nRun: /pr-feedback {pr_number}")
                 
-                # Mark as notified
-                with open(notified_file, 'w') as f:
-                    json.dump({
-                        'notified_at': datetime.now().isoformat(),
-                        'issues': feedback
-                    }, f)
+                    # Mark as notified
+                    with open(notified_file, 'w') as f:
+                        json.dump({
+                            'notified_at': datetime.now().isoformat(),
+                            'issues': feedback
+                        }, f)
 
+    except Exception as e:
+    sys.exit(0)
 if __name__ == "__main__":
     main()

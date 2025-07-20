@@ -23,8 +23,11 @@ except ImportError:
 def get_config():
     """Load hook configuration"""
     config_path = Path(__file__).parent.parent / 'config.json'
-    with open(config_path) as f:
-        return json.load(f)
+    try:
+        with open(config_path) as f:
+            return json.load(f)
+    except:
+        return {}
 
 def is_component_file(file_path):
     """Check if this is a component file that needs design validation"""
@@ -77,7 +80,9 @@ def find_violations_legacy(content, config):
     spacing_pattern = r'(?:className|class)=["\'][^"\']*\b(?:p|m|gap|space-[xy])-(\d+)\b'
     for match in re.finditer(spacing_pattern, content):
         value = int(match.group(1))
-        if value % spacing_grid != 0:
+        # Convert Tailwind units: 1 = 4px, 2 = 8px, etc.
+        pixel_value = value * 4
+        if value not in [1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 20, 24, 32]:
             violations['critical'].append({
                 'type': 'spacing',
                 'line': content[:match.start()].count('\n') + 1,
@@ -146,18 +151,12 @@ def suggest_font_weight_fix(match):
 
 def suggest_spacing_fix(value):
     """Suggest nearest valid spacing value"""
-    grid = 4
-    if value % grid == 0:
-        return value
+    # Valid Tailwind spacing values that follow 4px grid
+    valid_values = [1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 20, 24, 32]
     
-    # Find nearest multiple of 4
-    lower = (value // grid) * grid
-    upper = lower + grid
-    
-    # Return closer value
-    if value - lower < upper - value:
-        return lower
-    return upper
+    # Find nearest valid value
+    closest = min(valid_values, key=lambda x: abs(x - value))
+    return closest
 
 def format_violations_message_legacy(violations):
     """Format violations into a readable message (legacy)"""
@@ -174,7 +173,7 @@ def format_violations_message_legacy(violations):
                 if isinstance(v['fix'], str):
                     message += f"    → Fix: {v['fix']}\n"
                 elif v['type'] == 'spacing':
-                    message += f"    → Use: {v['fix'] // 4} (multiple of 4)\n"
+                    message += f"    → Use: p-{v['fix']} or m-{v['fix']}\n"
         
         if len(violations['critical']) > 5:
             message += f"  ... and {len(violations['critical']) - 5} more\n"
@@ -188,120 +187,99 @@ def format_violations_message_legacy(violations):
     message += "\n📚 Design Rules:\n"
     message += "  • Font sizes: text-size-1, text-size-2, text-size-3, text-size-4\n"
     message += "  • Font weights: font-regular, font-semibold\n"
-    message += "  • Spacing: multiples of 4 (p-1, p-2, p-3, p-4, p-6, p-8...)\n"
+    message += "  • Spacing: p-1, p-2, p-3, p-4, p-6, p-8 (4px grid)\n"
     message += "  • Touch targets: minimum 44px (h-11)\n"
     
     return message
 
 def main():
     """Main hook logic with enhanced suggestion engine"""
-    # Read input from Claude Code
-    input_data = json.loads(sys.stdin.read())
-    
-    # Only process file write operations
-    if input_data['tool'] not in ['write_file', 'edit_file', 'str_replace']:
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    file_path = input_data.get('path', '')
-    
-    # Only validate component files
-    if not is_component_file(file_path):
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    config = get_config()
-    content = input_data.get('content', '')
-    
-    # Use enhanced suggestion engine if available and enabled
-    if USE_SUGGESTION_ENGINE and config.get('features', {}).get('suggestion_engine', True):
-        engine = SuggestionEngine()
-        violations = engine.find_violations(content, file_path)
+    try:
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
         
-        if violations:
-            # Format message with suggestions
-            message = "🚨 DESIGN SYSTEM VIOLATIONS DETECTED\n"
-            message += f"\n📍 Found {len(violations)} violation(s) in {file_path}\n"
-            
-            # Group by category
-            by_category = {}
-            for v in violations:
-                category = v['category']
-                if category not in by_category:
-                    by_category[category] = []
-                by_category[category].append(v)
-            
-            # Show violations by category
-            for category, cat_violations in by_category.items():
-                message += f"\n{category.upper()} ({len(cat_violations)} issues):\n"
-                for v in cat_violations[:3]:  # Show first 3 per category
-                    message += engine.format_violation_message(v)
-                
-                if len(cat_violations) > 3:
-                    message += f"\n... and {len(cat_violations) - 3} more {category} violations\n"
-            
-            # Track violations for analytics
-            for v in violations:
-                engine.track_violation(v)
-            
-            # Show common mistakes
-            common = engine.get_common_mistakes(3)
-            if common:
-                message += "\n📊 Your Most Common Violations:\n"
-                for mistake in common:
-                    message += f"  • '{mistake['text']}' ({mistake['count']} times) → Use: {mistake['suggestion']}\n"
-            
-            # Get category stats
-            stats = engine.get_category_stats()
-            if stats:
-                message += "\n📈 Violation Categories:\n"
-                for category, count in sorted(stats.items(), key=lambda x: x[1], reverse=True):
-                    message += f"  • {category}: {count} total violations\n"
-            
-            # Auto-fix suggestions
-            message += "\n🔧 AUTO-FIX AVAILABLE:\n"
-            message += "These violations can be automatically fixed. The suggested replacements follow our design system.\n"
-            
-            # Create response
-            response = {
-                "action": "block",
-                "message": message,
-                "violations_count": len(violations),
-                "categories": list(by_category.keys())
-            }
-            
-            # If config allows auto-fix, provide fixed content
-            design_config = config.get('design_system', config.get('designSystem', {}))
-            if design_config.get('auto_fix', False):
-                # Apply fixes
-                fixed_content = content
-                for v in violations:
-                    fixed_content = fixed_content.replace(v['matched_text'], v['suggestion'])
-                
-                response["action"] = "suggest_fix"
-                response["fixed_content"] = fixed_content
-                response["fix_description"] = f"Auto-fixed {len(violations)} design violations"
-            
-            print(json.dumps(response))
+        # Extract tool name - handle multiple formats
+        tool_name = input_data.get('tool_name', '')
+        if not tool_name and 'tool_use' in input_data:
+            tool_name = input_data['tool_use'].get('name', '')
+        
+        # Only process file write operations
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            sys.exit(0)
             return
-    
-    # Fallback to legacy violation detection
-    violations = find_violations_legacy(content, config)
-    
-    if violations['critical'] or violations['warnings']:
-        message = format_violations_message_legacy(violations)
         
-        # Create response
-        response = {
-            "action": "block",
-            "message": message,
-            "violations": violations
-        }
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
         
-        print(json.dumps(response))
-    else:
-        # No violations - continue
-        print(json.dumps({"action": "continue"}))
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        
+        # Only validate component files
+        if not is_component_file(file_path):
+            sys.exit(0)
+            return
+        
+        # Get configuration
+        config = get_config()
+        content = tool_input.get('content', tool_input.get('new_str', ''))
+        
+        # Skip if no content
+        if not content:
+            sys.exit(0)
+            return
+        
+        # Use suggestion engine if enabled
+        if USE_SUGGESTION_ENGINE and config.get('features', {}).get('suggestion_engine', True):
+            try:
+                engine = SuggestionEngine()
+                violations = engine.find_violations(content, file_path)
+                
+                if violations:
+                    # Format message with suggestions
+                    message = "🚨 DESIGN SYSTEM VIOLATIONS DETECTED\n"
+                    message += f"\n📍 Found {len(violations)} violation(s) in {file_path}\n"
+                    
+                    # Show first few violations
+                    for v in violations[:5]:
+                        message += f"\n• Line {v.get('line', '?')}: {v.get('type', 'violation')}\n"
+                        message += f"  Current: {v.get('matched_text', '')}\n"
+                        message += f"  Fix: {v.get('suggestion', '')}\n"
+                    
+                    if len(violations) > 5:
+                        message += f"\n... and {len(violations) - 5} more violations\n"
+                    
+                    # Add design rules reminder
+                    message += "\n📚 Remember:\n"
+                    message += "  • Font sizes: text-size-[1-4] only\n"
+                    message += "  • Font weights: font-regular, font-semibold only\n"
+                    message += "  • Spacing: 4px grid (p-1, p-2, p-3, p-4, p-6, p-8...)\n"
+                    
+                    print(message
+                    , file=sys.stderr)
+        sys.exit(2)
+                    return
+            except Exception as e:
+                # If suggestion engine fails, fall back to legacy
+                pass
+        
+        # Fallback to legacy violation detection
+        violations = find_violations_legacy(content, config)
+        
+        if violations['critical'] or violations['warnings']:
+            message = format_violations_message_legacy(violations)
+            print(message
+            , file=sys.stderr)
+        sys.exit(2)
+        else:
+            # No violations - continue
+            sys.exit(0)
+    
+    except Exception as e:
+        # On any error, output valid JSON to continue
+        print(json.dumps({
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)

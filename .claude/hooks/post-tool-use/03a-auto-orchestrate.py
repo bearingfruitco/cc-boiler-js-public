@@ -188,28 +188,26 @@ def format_orchestration_suggestion(domains, structure, strategy, feature_name):
     return message
 
 def main():
-    """Main hook logic"""
-    input_data = json.loads(sys.stdin.read())
+    try:
+        """Main hook logic"""
+        input_data = json.loads(sys.stdin.read())
     
-    # Only analyze after task generation
-    if input_data.get('tool') != 'write_file':
-        print(json.dumps({"action": "continue"}))
-        return
+        # Only analyze after task generation
+        if input_data.get('tool') != 'Write':
+                    return
         
-    file_path = input_data.get('path', '')
+        file_path = input_data.get('path', '')
     
-    # Check if this is a tasks file
-    if not re.search(r'-tasks\.md$', file_path):
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    content = input_data.get('content', '')
+        # Check if this is a tasks file
+        if not re.search(r'-tasks\.md$', file_path):
+            # sys.exit(0)
+    except Exception as e:
+ta.get('content', '')
     if not content:
-        print(json.dumps({"action": "continue"}))
+        # sys.exit(0)
         return
     
-    # Extract feature name
-    feature_name = Path(file_path).stem.replace('-tasks', '')
+    # Extract feature em.replace('-tasks', '')
     
     # Load personas config
     personas_config = load_personas()
@@ -242,24 +240,14 @@ def main():
         if len(active_domains) > 0:
             auto_command += f" --agents={min(len(active_domains), 5)}"
         
-        print(json.dumps({
-            "action": "suggest",
-            "message": message,
-            "auto_command": auto_command,
-            "metadata": {
-                "domains": list(domains.keys()),
-                "domain_counts": dict(domains),
-                "task_count": structure['task_count'],
-                "feature": feature_name,
-                "strategy": strategy.get('description') if strategy else None
-            }
-        }))
+        # print(json.dumps({
+            sys.exit(0)
     else:
         # Single agent is fine
         if active_domains:
             primary_domain = max(domains.items(), key=lambda x: x[1])[0]
             
-            print(json.dumps({
+            # print(json.dumps({
                 "action": "info",
                 "message": f"ℹ️ Task Analysis: Primary domain is '{primary_domain}' ({domains[primary_domain]} references). "
                           f"Single agent can handle this efficiently.\n"
@@ -271,7 +259,7 @@ def main():
                 }
             }))
         else:
-            print(json.dumps({"action": "continue"}))
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()

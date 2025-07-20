@@ -13,6 +13,7 @@ import json
 import os
 import re
 from pathlib import Path
+from datetime import datetime
 
 def get_task_complexity(command_info):
     """Analyze task complexity on a scale of 1-10"""
@@ -279,30 +280,40 @@ def enhance_command_with_thinking(command, complexity):
         return f"{thinking}: {command}"
 
 def main():
-    # Read hook input
-    hook_input = json.loads(sys.stdin.read())
-    
-    # Analyze complexity
-    complexity = get_task_complexity(hook_input)
-    
-    # Original command
-    original_command = hook_input.get('command', '')
-    enhanced_command = original_command
-    
-    # Should we enhance thinking?
-    if should_enhance_thinking(hook_input, complexity):
-        enhanced_command = enhance_command_with_thinking(original_command, complexity)
-    
-    # Should we spawn parallel agents?
-    spawn_agents = should_spawn_parallel_agents(hook_input, complexity)
-    
-    if spawn_agents:
-        # Determine agent types
-        agents = determine_agent_types(hook_input)
+    try:
+        # Read hook input
+        hook_input = json.loads(sys.stdin.read())
         
-        # Add parallel agent instructions
-        enhanced_command = f"""
-[ULTRATHINK MODE AUTO-ACTIVATED - Complexity: {complexity}/10]
+        # Extract tool name - handle multiple formats
+        tool_name = hook_input.get('tool_name', '')
+        if not tool_name and 'tool_use' in hook_input:
+            tool_name = hook_input['tool_use'].get('name', '')
+        
+        # This hook only processes custom commands or complex file operations
+        if tool_name not in ['Bash', 'Write', 'Edit'] or not hook_input.get('command'):
+            sys.exit(0)
+            return
+        
+        # Analyze complexity
+        complexity = get_task_complexity(hook_input)
+        
+        # Original command
+        original_command = hook_input.get('command', '')
+        enhanced_command = original_command
+        
+        # Should we enhance thinking?
+        if should_enhance_thinking(hook_input, complexity):
+            enhanced_command = enhance_command_with_thinking(original_command, complexity)
+        
+        # Should we spawn parallel agents?
+        spawn_agents = should_spawn_parallel_agents(hook_input, complexity)
+        
+        if spawn_agents:
+            # Determine agent types
+            agents = determine_agent_types(hook_input)
+            
+            # Add parallel agent instructions
+            enhanced_command = f"""[ULTRATHINK MODE AUTO-ACTIVATED - Complexity: {complexity}/10]
 
 Enhanced request: {enhanced_command}
 
@@ -312,46 +323,43 @@ Spawning {len(agents)} specialized agents:
 Each agent will analyze independently with extended thinking.
 Results will be synthesized into a comprehensive solution.
 """
-        
-        # Create agent prompts
-        prompts_file = Path.home() / '.claude' / 'context' / 'agent-prompts.json'
-        prompts_file.parent.mkdir(exist_ok=True)
-        
-        agent_prompts = {
-            f"agent_{i}": create_agent_prompt(agent, original_command, hook_input)
-            for i, agent in enumerate(agents)
-        }
-        
-        with open(prompts_file, 'w') as f:
-            json.dump(agent_prompts, f, indent=2)
-    
-    # Log thinking enhancement
-    log_file = Path.home() / '.claude' / 'logs' / 'thinking-enhancement.log'
-    log_file.parent.mkdir(exist_ok=True)
-    
-    with open(log_file, 'a') as f:
-        f.write(f"\n--- Thinking Enhancement ---\n")
-        f.write(f"Time: {json.dumps(hook_input.get('timestamp', 'unknown'))}\n")
-        f.write(f"Original: {original_command}\n")
-        f.write(f"Complexity: {complexity}/10\n")
-        f.write(f"Enhanced: {enhanced_command != original_command}\n")
-        f.write(f"Parallel Agents: {spawn_agents}\n")
-    
-    # Return result
-    if enhanced_command != original_command or spawn_agents:
-        print(json.dumps({
-            "action": "continue",
-            "enhanced_command": enhanced_command,
-            "metadata": {
-                "complexity": complexity,
-                "thinking_enhanced": enhanced_command != original_command,
-                "parallel_agents": spawn_agents,
-                "agent_count": len(agents) if spawn_agents else 0
+            
+            # Create agent prompts
+            prompts_file = Path('.claude/context/agent-prompts.json')
+            prompts_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            agent_prompts = {
+                f"agent_{i}": create_agent_prompt(agent, original_command, hook_input)
+                for i, agent in enumerate(agents)
             }
-        }))
-    else:
-        # No enhancement needed
-        print(json.dumps({"action": "continue"}))
+            
+            with open(prompts_file, 'w') as f:
+                json.dump(agent_prompts, f, indent=2)
+        
+        # Log thinking enhancement
+        log_file = Path('.claude/logs/thinking-enhancement.log')
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(log_file, 'a') as f:
+            f.write(f"\n--- Thinking Enhancement ---\n")
+            f.write(f"Time: {datetime.now().isoformat()}\n")
+            f.write(f"Original: {original_command}\n")
+            f.write(f"Complexity: {complexity}/10\n")
+            f.write(f"Enhanced: {enhanced_command != original_command}\n")
+            f.write(f"Parallel Agents: {spawn_agents}\n")
+        
+        # Return result
+        if enhanced_command != original_command or spawn_agents:
+            print(json.dumps({
+                sys.exit(0)
+        else:
+            # No enhancement needed
+            sys.exit(0)
+            
+    except Exception as e:
+        print(json.dumps({
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)

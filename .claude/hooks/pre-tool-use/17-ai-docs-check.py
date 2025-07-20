@@ -186,24 +186,48 @@ def get_ai_doc_snippet(doc_name):
     return snippets.get(doc_name, 'Patterns and best practices')
 
 def main():
-    """Main hook logic"""
-    # Read input from Claude Code
-    input_data = json.loads(sys.stdin.read())
+    try:
+        """Main hook logic"""
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
     
-    # Only process file write/edit operations
-    if input_data['tool'] not in ['write_file', 'edit_file', 'str_replace']:
-        print(json.dumps({"action": "continue"}))
-        return
+        # Only process file write/edit operations
+
+        # Extract tool name - handle multiple formats
+
+        tool_name = input_data.get('tool_name', '')
+
+        if not tool_name and 'tool_use' in input_data:
+
+            tool_name = input_data['tool_use'].get('name', '')
+
+        if not tool_name:
+
+            tool_name = input_data.get('tool', '')
+
     
-    file_path = input_data.get('path', '')
-    content = input_data.get('content', '')
+
+        # Extract parameters
+
+        tool_input = input_data.get('tool_input', {})
+
+        if not tool_input and 'tool_use' in input_data:
+
+            tool_input = input_data['tool_use'].get('parameters', {})
+
     
-    # Skip if it's an AI doc itself
-    if 'ai_docs/' in file_path:
-        print(json.dumps({"action": "continue"}))
-        return
+
+        if tool_name not in ['Write', 'Edit', 'str_replace']:
+                    return
     
-    # Check for AI docs usage
+        file_path = tool_input.get('file_path', tool_input.get('path', '')
+        content = input_data.get('content', '')
+    
+        # Skip if it's an AI doc itself
+        if 'ai_docs/' in file_path:
+            # sys.exit(0)
+    except Exception as e:
+s usage
     recommendations = check_ai_docs_usage(content, file_path)
     
     if recommendations:
@@ -266,7 +290,7 @@ def main():
             # But let's be helpful and just warn strongly
             message = "⚠️ IMPORTANT: " + message
         
-        print(json.dumps({
+        # print(json.dumps({
             "action": action,
             "message": message,
             "recommendations": [r['doc'] for r in recommendations],
@@ -278,15 +302,11 @@ def main():
             doc_refs = re.findall(r'ai_docs/(\w+\.md)', content)
             if doc_refs:
                 # Positive reinforcement
-                print(json.dumps({
-                    "action": "continue",
-                    "message": f"✅ Good AI docs usage: {', '.join(set(doc_refs))}",
-                    "ai_docs_referenced": list(set(doc_refs))
+                # print(json.dumps({
+                    sys.exit(0)
                 }))
             else:
-                print(json.dumps({"action": "continue"}))
+                # sys.exit(0)
         else:
-            print(json.dumps({"action": "continue"}))
-
-if __name__ == "__main__":
+            print(json.dumps"__main__":
     main()

@@ -114,6 +114,12 @@
         "enabled": true,
         "critical": false,
         "description": "Suggest relevant AI documentation"
+      },
+      {
+        "script": "19-tdd-enforcer.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Enforce TDD workflow - tests before implementation"
       }
     ],
     "post-tool-use": [
@@ -137,6 +143,11 @@
         "script": "04-prp-metrics.py",
         "enabled": true,
         "description": "Track PRP execution metrics"
+      },
+      {
+        "script": "06-test-auto-runner.py",
+        "enabled": true,
+        "description": "Run tests automatically after code changes"
       }
     ],
     "notification": [
@@ -192,6 +203,13 @@
         "enabled": true,
         "description": "Coordinate multi-agent tasks"
       }
+    ],
+    "user-prompt-submit": [
+      {
+        "script": "01-tdd-suggester.py",
+        "enabled": true,
+        "description": "Suggest TDD workflow when starting implementation"
+      }
     ]
   },
   "github": {
@@ -226,5 +244,13 @@
   "ai_docs": {
     "auto_suggest": true,
     "enforcement_level": "warn"
+  },
+  "tdd": {
+    "enabled": true,
+    "enforcement_level": "warn",
+    "auto_run_tests": true,
+    "test_timeout": 15,
+    "suggest_on_implementation": true,
+    "block_without_tests": false
   }
 }

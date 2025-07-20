@@ -120,44 +120,57 @@ def format_evidence_message(issues):
     return message
 
 def main():
-    """Main hook logic"""
-    input_data = json.loads(sys.stdin.read())
-    
-    # Only check documentation and comments
-    relevant_files = ['.md', '.mdx', '.txt', '.ts', '.tsx', '.js', '.jsx']
-    file_path = input_data.get('path', '')
-    
-    if not any(file_path.endswith(ext) for ext in relevant_files):
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    # Skip checking for certain operations
-    if input_data['tool'] not in ['write_file', 'edit_file', 'str_replace']:
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    content = input_data.get('content', '')
-    
-    # Find unsupported claims
-    issues = find_unsupported_claims(content)
-    
-    if issues:
-        # For documentation files, warn but don't block
-        if file_path.endswith('.md') or file_path.endswith('.mdx'):
-            print(json.dumps({
-                "action": "warn",
-                "message": format_evidence_message(issues),
-                "continue": True
-            }))
+    try:
+        # Read input
+        input_data = json.loads(sys.stdin.read())
+        
+        # Extract tool name - handle multiple formats
+        tool_name = input_data.get('tool_name', '')
+        if not tool_name and 'tool_use' in input_data:
+            tool_name = input_data['tool_use'].get('name', '')
+        if not tool_name:
+            tool_name = input_data.get('tool', '')
+        
+        # Only check write operations
+        if tool_name not in ['Write', 'Edit', 'str_replace']:
+            sys.exit(0)
+            return
+        
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
+        
+        # Only check documentation and comments
+        relevant_files = ['.md', '.mdx', '.txt', '.ts', '.tsx', '.js', '.jsx']
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        
+        if not any(file_path.endswith(ext) for ext in relevant_files):
+            sys.exit(0)
+            return
+        
+        # Get content
+        content = tool_input.get('content', tool_input.get('new_str', ''))
+        
+        # Find unsupported claims
+        issues = find_unsupported_claims(content)
+        
+        if issues:
+            # For documentation files, warn but don't block
+            if file_path.endswith('.md') or file_path.endswith('.mdx'):
+                print(format_evidence_message(issues))  # Warning shown in transcript
+        sys.exit(0)
+            else:
+                # For code comments, just warn
+                print(format_evidence_message(issues))  # Warning shown in transcript
+        sys.exit(0)
         else:
-            # For code comments, just warn
-            print(json.dumps({
-                "action": "warn",
-                "message": format_evidence_message(issues),
-                "continue": True
-            }))
-    else:
-        print(json.dumps({"action": "continue"}))
+            sys.exit(0)
+            
+    except Exception as e:
+        print(json.dumps({
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)

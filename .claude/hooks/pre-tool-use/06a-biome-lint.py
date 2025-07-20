@@ -8,6 +8,8 @@ import json
 import sys
 import subprocess
 from pathlib import Path
+import tempfile
+import os
 
 def run_biome_check(file_path):
     """Run Biome linter on the file"""
@@ -16,7 +18,8 @@ def run_biome_check(file_path):
         result = subprocess.run(
             ["pnpm", "biome", "check", file_path],
             capture_output=True,
-            text=True
+            text=True,
+            cwd=os.getcwd()
         )
         
         return {
@@ -38,7 +41,8 @@ def run_biome_format_check(file_path):
         result = subprocess.run(
             ["pnpm", "biome", "format", file_path],
             capture_output=True,
-            text=True
+            text=True,
+            cwd=os.getcwd()
         )
         
         return {
@@ -55,7 +59,8 @@ def auto_fix_with_biome(file_path):
         result = subprocess.run(
             ["pnpm", "biome", "check", "--apply", file_path],
             capture_output=True,
-            text=True
+            text=True,
+            cwd=os.getcwd()
         )
         
         if result.returncode == 0:
@@ -72,11 +77,11 @@ def parse_biome_output(output):
     """Parse Biome output for specific issues"""
     issues = []
     
-    if "error" in output.lower():
+    if "error" in output.lower() or "warning" in output.lower():
         # Extract error messages
         lines = output.split('\n')
         for line in lines:
-            if '⚠' in line or '✖' in line:
+            if '⚠' in line or '✖' in line or 'error' in line.lower():
                 issues.append(line.strip())
     
     return issues
@@ -126,76 +131,76 @@ def format_biome_report(check_result, format_result, file_path):
 
 def main():
     """Main hook logic"""
-    # Read input
-    input_data = json.loads(sys.stdin.read())
-    
-    # Only check on write operations
-    if input_data.get('tool') not in ['write_file', 'edit_file', 'str_replace']:
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    file_path = input_data.get('path', '')
-    content = input_data.get('content', '')
-    
-    # Check if file should be linted
-    if not should_check_file(file_path):
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    # Write content to temp file for checking
-    temp_path = Path(f"/tmp/biome-check-{Path(file_path).name}")
     try:
-        with open(temp_path, 'w') as f:
-            f.write(content)
+        # Read input
+        input_data = json.loads(sys.stdin.read())
         
-        # Run Biome checks
-        check_result = run_biome_check(str(temp_path))
-        format_result = run_biome_format_check(str(temp_path))
+        # Extract tool name - handle multiple formats
+        tool_name = input_data.get('tool_name', '')
+        if not tool_name and 'tool_use' in input_data:
+            tool_name = input_data['tool_use'].get('name', '')
+        if not tool_name:
+            tool_name = input_data.get('tool', '')
         
-        # Clean up temp file
-        temp_path.unlink()
+        # Only check on write operations
+        if tool_name not in ['Write', 'Edit', 'str_replace']:
+            sys.exit(0)
+            return
         
-        # If there are issues
-        if not check_result['success'] or format_result.get('needs_format'):
-            # Try auto-fix
-            with open(temp_path, 'w') as f:
-                f.write(content)
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
+        
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        content = tool_input.get('content', tool_input.get('new_str', ''))
+        
+        # Check if file should be linted
+        if not should_check_file(file_path):
+            sys.exit(0)
+            return
+        
+        # Create temp file for checking
+        with tempfile.NamedTemporaryFile(mode='w', suffix=Path(file_path).suffix, delete=False) as temp:
+            temp.write(content)
+            temp_path = temp.name
+        
+        try:
+            # Run Biome checks
+            check_result = run_biome_check(temp_path)
+            format_result = run_biome_format_check(temp_path)
             
-            fix_result = auto_fix_with_biome(str(temp_path))
-            
-            if fix_result['success']:
-                # Suggest the fixed version
-                response = {
-                    "action": "suggest_fix",
-                    "message": format_biome_report(check_result, format_result, file_path),
-                    "original_content": content,
-                    "fixed_content": fix_result['content'],
-                    "fix_description": "Auto-fixed with Biome (linting + formatting)"
-                }
+            # If there are issues
+            if not check_result['success'] or format_result.get('needs_format'):
+                # Try auto-fix
+                fix_result = auto_fix_with_biome(temp_path)
+                
+                if fix_result['success'] and fix_result['content'] != content:
+                    # Suggest the fixed version
+                    message = format_biome_report(check_result, format_result, file_path)
+                    message += f"\n✨ Auto-fixed version available with corrections applied."
+                    
+                    print(message)  # Warning
+            sys.exit(0)
+                else:
+                    # Just warn about issues
+                    print(format_biome_report(check_result, format_result, file_path),
+                        "continue": True
+                    , file=sys.stderr)
+            sys.exit(1)
             else:
-                # Block if can't auto-fix
-                response = {
-                    "action": "warn",
-                    "message": format_biome_report(check_result, format_result, file_path),
-                    "continue": True  # Allow proceeding with warnings
-                }
-            
-            temp_path.unlink(missing_ok=True)
-            print(json.dumps(response))
-        else:
-            # No issues, continue
-            print(json.dumps({"action": "continue"}))
-    
+                # No issues, continue
+                sys.exit(0)
+                
+        finally:
+            # Clean up temp file
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+        
     except Exception as e:
         # On error, log but don't block
         print(json.dumps({
-            "action": "continue",
-            "message": f"Biome check failed: {str(e)}"
-        }))
-    finally:
-        # Ensure temp file is cleaned up
-        if temp_path.exists():
-            temp_path.unlink()
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()

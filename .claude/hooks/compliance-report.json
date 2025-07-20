@@ -1,0 +1,312 @@
+{
+  "timestamp": "2025-07-20T10:02:32.012550",
+  "settings_issues": [],
+  "compliant_hooks": [],
+  "non_compliant_hooks": [
+    {
+      "path": ".claude/hooks/pre-tool-use/00-auto-approve-safe-ops.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/01-collab-sync.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/05b-prp-context-loader.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Should read input from sys.stdin",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/06-requirement-drift-detector.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/08-evidence-language.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/09-auto-persona.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/11-truth-enforcer.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/12-deletion-guard.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/14-prd-clarity.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/16-tcpa-compliance.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/18-auto-parallel-agents.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/00a-dangerous-commands.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/02-design-check.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/03-conflict-check.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/04-actually-works.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/05-code-quality.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/07-pii-protection-simple.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/08a-async-patterns.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/10-hydration-guard.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/13-import-validator.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/14a-creation-guard.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/pre-tool-use/15a-dependency-tracker.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/post-tool-use/01-state-save.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/post-tool-use/01a-action-logger.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/post-tool-use/02-metrics.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/post-tool-use/03-pattern-learning.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/post-tool-use/03c-response-capture.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/post-tool-use/04-research-capture.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/post-tool-use/04a-prp-metrics.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/post-tool-use/10-prp-progress-tracker.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format",
+        "Should read input from sys.stdin",
+        "Complex hook should consider timeout (60s default)"
+      ]
+    },
+    {
+      "path": ".claude/hooks/stop/01-save-transcript.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format"
+      ]
+    },
+    {
+      "path": ".claude/hooks/stop/handoff-prep.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format"
+      ]
+    },
+    {
+      "path": ".claude/hooks/stop/knowledge-share.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format"
+      ]
+    },
+    {
+      "path": ".claude/hooks/stop/save-state.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format"
+      ]
+    },
+    {
+      "path": ".claude/hooks/notification/context-db-awareness.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format"
+      ]
+    },
+    {
+      "path": ".claude/hooks/notification/continuous-requirement-validator.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format"
+      ]
+    },
+    {
+      "path": ".claude/hooks/notification/smart-suggest.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format"
+      ]
+    },
+    {
+      "path": ".claude/hooks/notification/team-aware.py",
+      "message": "Uses old 'action' field - should use decision/continue",
+      "issues": [
+        "Uses old 'action' output format"
+      ]
+    }
+  ],
+  "missing_hooks": [],
+  "summary": {
+    "total": 38,
+    "compliant": 0,
+    "non_compliant": 38,
+    "missing": 0
+  }
+}

@@ -89,9 +89,7 @@ def main():
                                 critical_files.append(str(rf))
                                 print(f"📚 Including research: {rf.name}")
                 except:
-                    pass
-                
-                # Also check for recent general research (last 7 days)
+                                    # Also check for recent general research (last 7 days)
                 from datetime import timedelta
                 week_ago = datetime.now() - timedelta(days=7)
                 
@@ -129,10 +127,9 @@ def main():
                 try:
                     context_data["current_task"] = current_task_file.read_text().strip()
                 except:
-                    pass
+                    # sys.exit(0)
             
-            # Save context
-            with open(context_file, 'w') as f:
+    le, 'w') as f:
                 json.dump(context_data, f, indent=2)
             
             # Output message to Claude
@@ -158,7 +155,7 @@ def main():
     except Exception as e:
         # Don't fail the hook chain
         print(f"⚠️  PreCompact handler error: {str(e)}", file=sys.stderr)
-        pass
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

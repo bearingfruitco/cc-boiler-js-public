@@ -29,7 +29,7 @@ def extract_command_info(tool_use):
             }
     
     # Handle file operations
-    if tool_name in ['write_file', 'edit_file', 'read_file']:
+    if tool_name in ['Write', 'Edit', 'Read']:
         return {
             'type': 'file_operation',
             'command': tool_name,
@@ -52,7 +52,7 @@ def extract_changed_files(tool_use):
     
     changed_files = []
     
-    if tool_name in ['write_file', 'edit_file']:
+    if tool_name in ['Write', 'Edit']:
         file_path = parameters.get('path', '')
         if file_path:
             changed_files.append(file_path)
@@ -145,18 +145,15 @@ def main():
     # Extract tool use information
     tool_use = input_data.get('tool_use', {})
     if not tool_use:
-        print(json.dumps({"action": "continue"}))
-        return
+                return
     
     # Extract command information
     cmd_info = extract_command_info(tool_use)
     
     # Only log Claude commands and important operations
     if cmd_info['type'] not in ['claude_command', 'file_operation']:
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    # Determine status
+        # sys.exit(0)
+
     result = tool_use.get('result', {})
     status = 'unknown'
     error = None
@@ -205,7 +202,7 @@ def main():
         pass
     
     # Continue execution
-    print(json.dumps({"action": "continue"}))
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

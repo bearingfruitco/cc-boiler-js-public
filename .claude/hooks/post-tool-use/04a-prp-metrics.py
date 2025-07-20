@@ -138,83 +138,85 @@ def analyze_prp_completion(file_path):
     return False
 
 def main():
-    """Main hook logic"""
-    # Read input from Claude Code
-    input_data = json.loads(sys.stdin.read())
+    try:
+        """Main hook logic"""
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
     
-    # Get file path and operation
-    file_path = input_data.get('path', '')
-    tool = input_data.get('tool', '')
+        # Get file path and operation
+        file_path = input_data.get('path', '')
+        tool = input_data.get('tool', '')
     
-    # Track different types of operations
-    if tool in ['write_file', 'edit_file', 'str_replace']:
-        content = input_data.get('content', '')
+        # Track different types of operations
+        if tool in ['Write', 'Edit', 'str_replace']:
+            content = input_data.get('content', '')
         
-        # Check if this is a PRP file
-        prp_name = extract_prp_name(file_path)
-        if prp_name:
-            # Initialize or load metrics
-            metrics = load_existing_metrics(prp_name) or {
-                'created_at': datetime.now().isoformat(),
-                'updates': 0,
-                'validation_scores': {}
-            }
+            # Check if this is a PRP file
+            prp_name = extract_prp_name(file_path)
+            if prp_name:
+                # Initialize or load metrics
+                metrics = load_existing_metrics(prp_name) or {
+                    'created_at': datetime.now().isoformat(),
+                    'updates': 0,
+                    'validation_scores': {}
+                }
             
-            # Increment update counter
-            metrics['updates'] += 1
+                # Increment update counter
+                metrics['updates'] += 1
             
-            # Check for validation results in content
-            validation_results = extract_validation_results(content)
-            if any(v is not None for v in validation_results.values()):
-                metrics['validation_scores'].update({
-                    k: v for k, v in validation_results.items() if v is not None
-                })
+                # Check for validation results in content
+                validation_results = extract_validation_results(content)
+                if any(v is not None for v in validation_results.values()):
+                    metrics['validation_scores'].update({
+                        k: v for k, v in validation_results.items() if v is not None
+                    })
                 
-                # Check if all validations passed
-                all_passed = all(
-                    v >= 90 for v in validation_results.values() 
-                    if v is not None
-                )
-                metrics['first_pass_success'] = all_passed
+                    # Check if all validations passed
+                    all_passed = all(
+                        v >= 90 for v in validation_results.values() 
+                        if v is not None
+                    )
+                    metrics['first_pass_success'] = all_passed
             
-            # Check if PRP is being completed
-            if analyze_prp_completion(file_path):
-                metrics['completed_at'] = datetime.now().isoformat()
+                # Check if PRP is being completed
+                if analyze_prp_completion(file_path):
+                    metrics['completed_at'] = datetime.now().isoformat()
                 
-                # Calculate duration if we have start time
-                if 'created_at' in metrics:
-                    start = datetime.fromisoformat(metrics['created_at'])
-                    end = datetime.now()
-                    metrics['duration'] = (end - start).total_seconds()
+                    # Calculate duration if we have start time
+                    if 'created_at' in metrics:
+                        start = datetime.fromisoformat(metrics['created_at'])
+                        end = datetime.now()
+                        metrics['duration'] = (end - start).total_seconds()
             
-            # Save metrics
-            save_metrics(prp_name, metrics)
+                # Save metrics
+                save_metrics(prp_name, metrics)
             
-            # If PRP is completed, update the file with metrics
-            if 'completed_at' in metrics:
-                update_prp_with_metrics(file_path, metrics)
+                # If PRP is completed, update the file with metrics
+                if 'completed_at' in metrics:
+                    update_prp_with_metrics(file_path, metrics)
     
-    # Check for test results that might indicate bugs
-    elif tool == 'run_command':
-        command = input_data.get('command', '')
-        if 'test' in command or 'vitest' in command or 'playwright' in command:
-            # Look for test failures in output
-            output = input_data.get('output', '')
-            if 'FAIL' in output or 'failed' in output.lower():
-                # Try to associate with active PRP
-                # This is a simple heuristic - could be improved
-                active_prps = list(Path("PRPs/active").glob("*.md"))
-                if active_prps:
-                    # Update the most recent PRP
-                    most_recent = max(active_prps, key=lambda p: p.stat().st_mtime)
-                    prp_name = most_recent.stem
+        # Check for test results that might indicate bugs
+        elif tool == 'run_command':
+            command = input_data.get('command', '')
+            if 'test' in command or 'vitest' in command or 'playwright' in command:
+                # Look for test failures in output
+                output = input_data.get('output', '')
+                if 'FAIL' in output or 'failed' in output.lower():
+                    # Try to associate with active PRP
+                    # This is a simple heuristic - could be improved
+                    active_prps = list(Path("PRPs/active").glob("*.md"))
+                    if active_prps:
+                        # Update the most recent PRP
+                        most_recent = max(active_prps, key=lambda p: p.stat().st_mtime)
+                        prp_name = most_recent.stem
                     
-                    metrics = load_existing_metrics(prp_name) or {}
-                    metrics['test_failures'] = metrics.get('test_failures', 0) + 1
-                    save_metrics(prp_name, metrics)
+                        metrics = load_existing_metrics(prp_name) or {}
+                        metrics['test_failures'] = metrics.get('test_failures', 0) + 1
+                        save_metrics(prp_name, metrics)
     
-    # Always continue - this is a post-hook for collection only
-    print(json.dumps({"action": "continue"}))
+        # Always continue - this is a post-hook for collection only
+        sys.exit(0)
 
+    except Exception as e:
 if __name__ == "__main__":
     main()

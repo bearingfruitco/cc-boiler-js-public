@@ -2,9 +2,11 @@
 """
 Auto Context Inclusion Hook
 Automatically includes relevant context files based on current work
+NOTE: Works in conjunction with 05b-prp-context-loader.py for PRP-specific context
 """
 
 import json
+import sys
 import re
 from pathlib import Path
 from typing import Dict, Any, List, Set
@@ -12,36 +14,20 @@ from typing import Dict, Any, List, Set
 def hook(action: Dict[str, Any]) -> Dict[str, Any]:
     """Automatically include relevant context before file operations."""
     
-    # Only act on file creation/editing
-    if action['tool_name'] not in ['create_file', 'str_replace', 'write_file', 'edit_file']:
-        return {"action": "allow"}
-    
-    # Get file path and content
+    # Skip if working with PRP files (handled by 05b)
     file_path = action['parameters'].get('path', '')
-    content = get_content_from_action(action)
+    if 'PRPs/' in file_path or any(marker in file_path for marker in ['prp', 'validation', 'blueprint']):
+        sys.exit(0)
     
     # Extract context clues
     clues = extract_context_clues(file_path, content)
     if not clues:
-        return {"action": "allow"}
-    
-    # Find relevant context files
-    relevant_contexts = find_relevant_contexts(clues)
+        sys.exit(0)
     if not relevant_contexts:
-        return {"action": "allow"}
-    
-    # Auto-include context in the action
-    enhanced_action = inject_context_awareness(action, relevant_contexts)
+        sys.exit(0)
     
     return {
-        "action": "allow",
-        "modified_action": enhanced_action,
-        "message": f"Auto-included {len(relevant_contexts)} relevant context files"
-    }
-
-def extract_context_clues(file_path: str, content: str) -> Set[str]:
-    """Extract clues about what context might be needed."""
-    clues = set()
+        sys.exit(0)
     
     # From file path
     path_lower = file_path.lower()
@@ -127,9 +113,7 @@ def find_relevant_contexts(clues: Set[str]) -> List[Dict[str, Any]]:
                         'clues': list(clues)
                     })
                 except:
-                    pass
-    
-    return relevant
+                        return relevant
 
 def inject_context_awareness(action: Dict[str, Any], contexts: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Inject context awareness into the action."""
@@ -138,7 +122,7 @@ def inject_context_awareness(action: Dict[str, Any], contexts: List[Dict[str, An
     context_comment = build_context_comment(contexts)
     
     # Modify the action to include context
-    if action['tool_name'] in ['create_file', 'write_file']:
+    if action['tool_name'] in ['create_file', 'Write']:
         # Prepend context comment to file content
         original_content = action['parameters'].get('content', '')
         action['parameters']['content'] = context_comment + '\n\n' + original_content
@@ -193,11 +177,11 @@ def get_content_from_action(action: Dict[str, Any]) -> str:
     """Extract content from various action types."""
     params = action['parameters']
     
-    if action['tool_name'] in ['create_file', 'write_file']:
+    if action['tool_name'] in ['create_file', 'Write']:
         return params.get('content', '')
     elif action['tool_name'] == 'str_replace':
         return params.get('new_str', '')
-    elif action['tool_name'] == 'edit_file':
+    elif action['tool_name'] == 'Edit':
         edits = params.get('edits', [])
         return ' '.join([edit.get('newText', '') for edit in edits])
     
@@ -221,12 +205,8 @@ def get_active_issue_context() -> Dict[str, Any]:
                     with open(issue_req_file, 'r') as f:
                         return json.load(f)
     except:
-        pass
     
-    return {}
-
-if __name__ == "__main__":
-    # Test the hook
+ Test the hook
     test_action = {
         'tool_name': 'create_file',
         'parameters': {

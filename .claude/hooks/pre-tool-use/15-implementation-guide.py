@@ -84,7 +84,7 @@ class ImplementationGuide:
             'better_approaches': []
         }
         
-        if not path or tool not in ['write_file', 'edit_file', 'str_replace']:
+        if not path or tool not in ['Write', 'Edit', 'str_replace']:
             return analysis
         
         # 1. Check for potential duplicates
@@ -319,45 +319,74 @@ def format_analysis(analysis):
 
 
 def main():
-    # Read input
-    input_data = json.loads(sys.stdin.read())
+    try:
+        # Read input
+        input_data = json.loads(sys.stdin.read())
     
-    # Only analyze write operations
-    if input_data['tool'] not in ['write_file', 'edit_file', 'str_replace']:
-        print(json.dumps({"action": "continue"}))
-        return
+        # Only analyze write operations
+
+        # Extract tool name - handle multiple formats
+
+        tool_name = input_data.get('tool_name', '')
+
+        if not tool_name and 'tool_use' in input_data:
+
+            tool_name = input_data['tool_use'].get('name', '')
+
+        if not tool_name:
+
+            tool_name = input_data.get('tool', '')
+
     
-    guide = ImplementationGuide()
-    analysis = guide.analyze_implementation(input_data)
+
+        # Extract parameters
+
+        tool_input = input_data.get('tool_input', {})
+
+        if not tool_input and 'tool_use' in input_data:
+
+            tool_input = input_data['tool_use'].get('parameters', {})
+
     
-    message = format_analysis(analysis)
+
+        if tool_name not in ['Write', 'Edit', 'str_replace']:
+                    return
     
-    if message:
-        # Check severity
-        has_high_warnings = any(
-            w.get('severity') == 'high' 
-            for w in analysis.get('warnings', [])
-        )
+        guide = ImplementationGuide()
+        analysis = guide.analyze_implementation(input_data)
+    
+        message = format_analysis(analysis)
+    
+        if message:
+            # Check severity
+            has_high_warnings = any(
+                w.get('severity') == 'high' 
+                for w in analysis.get('warnings', [])
+            )
         
-        if has_high_warnings:
-            # Block with recommendations
-            response = {
-                "action": "block",
-                "message": message,
-                "analysis": analysis
-            }
+            if has_high_warnings:
+                # Block with recommendations
+                response = {
+                    "action": "block",
+                    "message": message,
+                    "analysis": analysis
+                }
+            else:
+                # Warn but continue
+                response = {
+                    "action": "warn",
+                    "message": message,
+                    "continue": True
+                }
+        
+            # print(json.dumps(response))
         else:
-            # Warn but continue
-            response = {
-                "action": "warn",
-                "message": message,
-                "continue": True
-            }
-        
-        print(json.dumps(response))
-    else:
-        print(json.dumps({"action": "continue"}))
+        n": "continue"}))
 
 
+        # Ensure we always output valid JSON
+        # sys.exit(0)
+    except Exception as e:
+        print(json.dumps({"action": "continue", "message": f"Hook error: {str(e)}"}))
 if __name__ == "__main__":
     main()

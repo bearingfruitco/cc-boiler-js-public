@@ -211,54 +211,66 @@ def get_current_persona():
     return None
 
 def main():
-    """Main hook logic"""
-    input_data = json.loads(sys.stdin.read())
-    
-    # Only suggest for file operations
-    if input_data['tool'] not in ['write_file', 'edit_file', 'read_file']:
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    file_path = input_data.get('path', '')
-    content = input_data.get('content', '')
-    
-    # Detect persona from file
-    file_persona = detect_persona_from_file(file_path)
-    
-    # Detect persona from content (for write operations)
-    content_persona = None
-    if content and input_data['tool'] in ['write_file', 'edit_file']:
-        content_persona = detect_persona_from_content(content)
-    
-    # Determine suggested persona (file takes precedence)
-    suggested_persona = file_persona or content_persona
-    
-    if suggested_persona:
-        current_persona = get_current_persona()
+    try:
+        # Read input
+        input_data = json.loads(sys.stdin.read())
         
-        # Determine reason for suggestion
-        if file_persona:
-            reason = f"file type ({Path(file_path).name})"
+        # Extract tool name - handle multiple formats
+        tool_name = input_data.get('tool_name', '')
+        if not tool_name and 'tool_use' in input_data:
+            tool_name = input_data['tool_use'].get('name', '')
+        if not tool_name:
+            tool_name = input_data.get('tool', '')
+        
+        # Only suggest for file operations
+        if tool_name not in ['Write', 'Edit', 'Read']:
+            sys.exit(0)
+            return
+        
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
+        
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        content = tool_input.get('content', '')
+        
+        # Detect persona from file
+        file_persona = detect_persona_from_file(file_path)
+        
+        # Detect persona from content (for write operations)
+        content_persona = None
+        if content and tool_name in ['Write', 'Edit']:
+            content_persona = detect_persona_from_content(content)
+        
+        # Determine suggested persona (file takes precedence)
+        suggested_persona = file_persona or content_persona
+        
+        if suggested_persona:
+            current_persona = get_current_persona()
+            
+            # Determine reason for suggestion
+            if file_persona:
+                reason = f"file type ({Path(file_path).name})"
+            else:
+                reason = "content keywords"
+            
+            message = suggest_persona_switch(current_persona, suggested_persona, reason)
+            
+            if message:
+                # Suggest but don't block
+                print(message
+                )  # Show in transcript
+        sys.exit(0)
+            else:
+                sys.exit(0)
         else:
-            reason = "content keywords"
-        
-        message = suggest_persona_switch(current_persona, suggested_persona, reason)
-        
-        if message:
-            # Suggest but don't block
-            print(json.dumps({
-                "action": "suggest",
-                "message": message,
-                "continue": True,
-                "metadata": {
-                    "suggested_persona": suggested_persona,
-                    "reason": reason
-                }
-            }))
-        else:
-            print(json.dumps({"action": "continue"}))
-    else:
-        print(json.dumps({"action": "continue"}))
+            sys.exit(0)
+            
+    except Exception as e:
+        print(json.dumps({
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)

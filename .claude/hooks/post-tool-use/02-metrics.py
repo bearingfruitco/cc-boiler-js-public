@@ -12,16 +12,20 @@ from datetime import datetime
 
 def get_metrics_file():
     """Get path to metrics file"""
-    metrics_dir = Path(__file__).parent.parent.parent / 'team' / 'metrics'
-    metrics_dir.mkdir(exist_ok=True)
+    metrics_dir = Path('.claude/team/metrics')
+    metrics_dir.mkdir(parents=True, exist_ok=True)
     return metrics_dir / 'design-compliance.json'
 
 def load_metrics():
     """Load existing metrics"""
     metrics_file = get_metrics_file()
     if metrics_file.exists():
-        with open(metrics_file) as f:
-            return json.load(f)
+        try:
+            with open(metrics_file) as f:
+                return json.load(f)
+        except:
+            pass
+    
     return {
         'total_files_processed': 0,
         'violations_by_type': {},
@@ -154,48 +158,62 @@ def generate_insights(metrics):
     return insights
 
 def main():
-    """Main hook logic"""
-    # Read input from Claude Code
-    input_data = json.loads(sys.stdin.read())
-    
-    # Only process component files
-    file_path = input_data.get('path', '')
-    if not file_path.endswith(('.tsx', '.jsx')):
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    # Skip if not a write operation
-    if input_data['tool'] not in ['write_file', 'edit_file']:
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    content = input_data.get('content', '')
-    
-    # Analyze the file
-    analysis = analyze_component_file(content)
-    
-    # Load and update metrics
-    metrics = load_metrics()
-    metrics = update_global_metrics(analysis, file_path, metrics)
-    save_metrics(metrics)
-    
-    # Generate insights periodically
-    if metrics['total_files_processed'] % 10 == 0:
-        insights = generate_insights(metrics)
-        if insights:
-            message = "📊 Design System Metrics Update:\n"
-            for insight in insights:
-                message += f"  • {insight}\n"
-            
-            print(json.dumps({
-                "action": "log",
-                "message": message,
-                "continue": True
-            }))
+    try:
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
+        
+        # Extract tool name - handle multiple formats
+        tool_name = input_data.get('tool_name', '')
+        if not tool_name and 'tool_use' in input_data:
+            tool_name = input_data['tool_use'].get('name', '')
+        if not tool_name:
+            tool_name = input_data.get('tool', '')
+        
+        # Skip if not a write operation
+        if tool_name not in ['Write', 'Edit']:
+            sys.exit(0)
             return
-    
-    # Continue silently
-    print(json.dumps({"action": "continue"}))
+        
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
+        
+        # Only process component files
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        if not file_path.endswith(('.tsx', '.jsx')):
+            sys.exit(0)
+            return
+        
+        # Get content
+        content = tool_input.get('content', '')
+        
+        # Analyze the file
+        analysis = analyze_component_file(content)
+        
+        # Load and update metrics
+        metrics = load_metrics()
+        metrics = update_global_metrics(analysis, file_path, metrics)
+        save_metrics(metrics)
+        
+        # Generate insights periodically
+        if metrics['total_files_processed'] % 10 == 0:
+            insights = generate_insights(metrics)
+            if insights:
+                message = "📊 Design System Metrics Update:\n"
+                for insight in insights:
+                    message += f"  • {insight}\n"
+                
+                sys.exit(0)
+                return
+        
+        # Continue silently
+        sys.exit(0)
+        
+    except Exception as e:
+        print(json.dumps({
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)

@@ -9,11 +9,8 @@ import sys
 import re
 from pathlib import Path
 
-def check_for_untested_claims(tool_input):
+def check_for_untested_claims(content):
     """Check if AI is making untested claims about fixes"""
-    
-    # Get the content/message
-    content = str(tool_input.get('content', '')) + str(tool_input.get('message', ''))
     
     # Red flag phrases that indicate untested code
     red_flags = [
@@ -35,9 +32,8 @@ def check_for_untested_claims(tool_input):
     
     return violations
 
-def check_for_test_evidence(tool_input):
+def check_for_test_evidence(content):
     """Check if there's evidence of actual testing"""
-    content = str(tool_input.get('content', '')) + str(tool_input.get('message', ''))
     
     # Positive indicators of testing
     test_indicators = [
@@ -58,8 +54,7 @@ def check_for_test_evidence(tool_input):
 
 def generate_testing_reminder():
     """Generate the Actually Works protocol reminder"""
-    return """
-🛑 ACTUALLY WORKS PROTOCOL VIOLATION DETECTED
+    return """🛑 ACTUALLY WORKS PROTOCOL VIOLATION DETECTED
 
 You appear to be claiming something works without testing it.
 
@@ -69,8 +64,6 @@ You appear to be claiming something works without testing it.
 □ Did you see the expected result with your own observation?
 □ Did you check for error messages?
 □ Would you bet $100 this works?
-
-❌ Red Flag Phrases Detected in Your Response
 
 💡 Required Actions:
 1. Actually run the code
@@ -88,33 +81,48 @@ Remember: "Should work" ≠ "Does work"
 
 def main():
     """Main hook logic"""
-    # Read input
-    input_data = json.loads(sys.stdin.read())
-    
-    # Only check on write operations that might contain claims
-    if input_data.get('tool') not in ['write_file', 'edit_file', 'str_replace']:
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    # Check for untested claims
-    violations = check_for_untested_claims(input_data)
-    
-    if violations:
-        # Check if there's test evidence
-        has_test_evidence = check_for_test_evidence(input_data)
+    try:
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
         
-        if not has_test_evidence:
-            print(json.dumps({
-                "action": "warn",
-                "message": generate_testing_reminder(),
-                "violations": violations,
-                "suggestion": "Test your changes before claiming they work",
-                "continue": True  # Warn but don't block
-            }))
+        # Extract tool name - handle multiple formats
+        tool_name = input_data.get('tool_name', '')
+        if not tool_name and 'tool_use' in input_data:
+            tool_name = input_data['tool_use'].get('name', '')
+        
+        # Only check on write operations that might contain claims
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            sys.exit(0)
             return
-    
-    # All good
-    print(json.dumps({"action": "continue"}))
+        
+        # Extract content
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
+        
+        content = str(tool_input.get('content', '')) + str(tool_input.get('new_str', ''))
+        
+        # Check for untested claims
+        violations = check_for_untested_claims(content)
+        
+        if violations:
+            # Check if there's test evidence
+            has_test_evidence = check_for_test_evidence(content)
+            
+            if not has_test_evidence:
+                print(generate_testing_reminder(),
+                    "continue": True  # Warn but don't block
+                , file=sys.stderr)
+            sys.exit(1)
+                return
+        
+        # All good
+        sys.exit(0)
+        
+    except Exception as e:
+        print(json.dumps({
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)

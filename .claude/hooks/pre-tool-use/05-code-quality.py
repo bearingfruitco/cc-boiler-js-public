@@ -145,52 +145,61 @@ def suggest_fixes(issues):
 
 def main():
     """Main hook logic"""
-    # Read input
-    input_data = json.loads(sys.stdin.read())
-    
-    # Only check on write operations
-    if input_data.get('tool') not in ['write_file', 'edit_file']:
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    file_path = input_data.get('path', '')
-    content = input_data.get('content', '')
-    
-    # Skip non-code files
-    if not any(file_path.endswith(ext) for ext in ['.ts', '.tsx', '.js', '.jsx']):
-        print(json.dumps({"action": "continue"}))
-        return
-    
-    # Check quality
-    issues = check_code_quality(content, file_path)
-    complexity = calculate_complexity(content)
-    
-    # Generate report
-    report = format_quality_report(issues, complexity, file_path)
-    
-    if report:
-        # Get severity level
-        has_errors = any(i['severity'] == 'error' for i in issues)
+    try:
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
         
-        response = {
-            "action": "warn" if not has_errors else "block",
-            "message": report,
-            "issues": issues,
-            "complexity": complexity
-        }
+        # Extract tool name - handle multiple formats
+        tool_name = input_data.get('tool_name', '')
+        if not tool_name and 'tool_use' in input_data:
+            tool_name = input_data['tool_use'].get('name', '')
         
-        # Add fixes if available
-        fixes = suggest_fixes(issues)
-        if fixes:
-            response["suggested_fixes"] = fixes
+        # Only check on write operations
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            sys.exit(0)
+            return
         
-        # Allow continuation for warnings
-        if not has_errors:
-            response["continue"] = True
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
         
-        print(json.dumps(response))
-    else:
-        print(json.dumps({"action": "continue"}))
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        content = tool_input.get('content', tool_input.get('new_str', ''))
+        
+        # Skip non-code files
+        if not any(file_path.endswith(ext) for ext in ['.ts', '.tsx', '.js', '.jsx']):
+            sys.exit(0)
+            return
+        
+        # Check code quality
+        issues = check_code_quality(content, file_path)
+        complexity = calculate_complexity(content)
+        
+        # Generate report
+        report = format_quality_report(issues, complexity, file_path)
+        
+        if report:
+            # Get severity level
+            has_errors = any(i['severity'] == 'error' for i in issues)
+            
+            if has_errors:
+                # Block on errors
+                print(report
+                , file=sys.stderr)
+        sys.exit(2)
+            else:
+                # Warn on warnings/info
+                print(report)  # Warning shown in transcript
+        sys.exit(0)
+        else:
+            # No issues
+            sys.exit(0)
+            
+    except Exception as e:
+        print(json.dumps({
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)
