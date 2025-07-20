@@ -2,6 +2,104 @@
 
 All notable changes to the Claude Code Boilerplate project.
 
+## [2.6.0] - July 2025
+
+### 🚀 Major Release: PRP System, TDD Integration, and Master Workflow Guide
+
+This release introduces the Product Requirement Prompt (PRP) methodology for one-pass implementation success, enforced Test-Driven Development, and comprehensive documentation improvements.
+
+#### New Features
+
+##### PRP (Product Requirement Prompt) System
+- **One-Pass Implementation** - Complete context for production-ready code on first attempt
+  - Combines PRD + codebase intelligence + validation loops
+  - AI-optimized documentation for common patterns
+  - 4-level validation: Syntax → Components → Integration → Production
+  - Automated validation runner with fix mode
+  
+- **New Commands**
+  - `/create-prp` or `/prp` - Generate comprehensive PRP
+  - `/prp-execute` or `/prp-exec` - Run validation loops
+  - `/prp-execute --fix` - Auto-fix common issues
+  - `/prp-execute --level [1-4]` - Run specific validation level
+  - `/prd-to-prp` - Convert existing PRD to PRP
+  - `/prp-status` - Check PRP progress
+  - `/prp-complete` - Mark PRP as done
+
+##### TDD Integration
+- **Enforced Test-First Development** - Hooks literally block component creation without tests
+  - `19-tdd-enforcer.py` - Blocks implementation without tests
+  - `06-test-auto-runner.py` - Runs tests automatically on save
+  - `17-test-generation-enforcer.py` - Ensures tests from requirements
+  
+- **Test Automation**
+  - Automatic test generation from PRDs and PRPs
+  - Tests run on every file save with immediate feedback
+  - TDD workflow commands with comprehensive quick reference
+  - Integration with stage validation gates
+
+- **New Commands**
+  - `/tdd-workflow` - Complete TDD workflow
+  - `/prd-tests` - Generate tests from PRD
+  - Enhanced `/tr` commands for test running
+
+##### Master Workflow Guide
+- **Single Source of Truth** - `MASTER_WORKFLOW_GUIDE.md`
+  - Complete command reference (112+ commands)
+  - Daily workflow patterns with real examples
+  - When to use PRP vs PRD decision tree
+  - Context management strategies
+  - Common scenarios and solutions
+  - Troubleshooting guide
+  
+- **Documentation Updates**
+  - All core docs updated to reference master guide
+  - Added `TDD_QUICK_REFERENCE.md`
+  - Enhanced `PRPs/README.md` with methodology
+  - Updated setup guides with new workflows
+
+#### Technical Improvements
+
+##### Enhanced Hooks
+- New hooks for TDD enforcement
+- Improved PRP validation hooks
+- Better dependency tracking with v2 hooks
+- Enhanced response capture for GitHub issues
+- More robust error handling
+
+##### Command System
+- Added 15+ new commands
+- Better command aliases for discovery
+- Enhanced help system
+- Improved command documentation
+
+##### Project Structure
+- New `PRPs/` directory structure
+  - `templates/` - PRP templates
+  - `ai_docs/` - AI-optimized documentation
+  - `scripts/` - Validation runner
+  - `active/` - Current PRPs
+  - `completed/` - Reference PRPs
+
+#### Breaking Changes
+None - all changes are additive
+
+#### Migration Guide
+1. Run `./setup-prp.sh` to set up PRP system
+2. Read `MASTER_WORKFLOW_GUIDE.md` for new workflows
+3. Try `/create-prp` for your next feature
+4. Enable TDD with existing `/tdd-workflow` command
+
+#### Documentation
+- New guide: `MASTER_WORKFLOW_GUIDE.md`
+- New guide: `TDD_QUICK_REFERENCE.md`
+- New guide: `docs/workflow/TDD_WORKFLOW_GUIDE.md`
+- Updated: All core documentation
+
+See [GitHub Issue #17](https://github.com/bearingfruitco/claude-code-boilerplate/issues/17) for release announcement.
+
+---
+
 ## [2.3.5] - January 2025
 
 ### 📚 Research Management System (RMS)
