@@ -31,8 +31,9 @@ curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerpla
 # And PRP setup: ./setup-prp.sh
 ```
 
-### Complete Setup Guide
-For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_1_COMPLETE_GUIDE.md)**
+### 📖 Essential Guides
+- **[MASTER_WORKFLOW_GUIDE.md](MASTER_WORKFLOW_GUIDE.md)** - Complete workflow reference (START HERE!)
+- **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_1_COMPLETE_GUIDE.md)** - Detailed setup walkthrough
 
 ## 🎯 What You Get
 
@@ -47,6 +48,13 @@ For detailed walkthrough: **[docs/setup/DAY_1_COMPLETE_GUIDE.md](docs/setup/DAY_
 - **Async Event System** ⚡ - Fire-and-forget for analytics, never block users
 - **Smart Issue Creation** 🎯 - Capture Claude responses directly to GitHub with duplicate detection
 - **Dependency Tracking** 📦 - Know what components depend on each other
+
+### PRP System (NEW in v2.6.0)
+- **Product Requirement Prompts** - Everything needed for one-pass success
+- **Automated Validation** - 4-level quality gates (syntax → production)
+- **Deep Research** - Multi-agent research for comprehensive context
+- **Pattern Extraction** - Learn from successful implementations
+- **CI/CD Ready** - Optional automation with prp-runner.ts
 
 ### Enforced Quality
 - **Design System** - Only 4 font sizes, 2 weights, 4px grid (enforced by hooks)
@@ -243,15 +251,19 @@ Teams using this boilerplate report:
 
 ## 📚 Documentation
 
+- **Essential Reading**
+  - 🚀 **[MASTER WORKFLOW GUIDE](MASTER_WORKFLOW_GUIDE.md)** - One document with everything!
+  - [Quick Reference](QUICK_REFERENCE.md) - Command cheat sheet
+  
 - **Setup**
+  - [Day 1 Complete Guide](docs/setup/DAY_1_COMPLETE_GUIDE.md)
   - [Quick Start - New Project](docs/setup/QUICK_START_NEW_PROJECT.md)
   - [Add to Existing Project](docs/setup/ADD_TO_EXISTING_PROJECT.md)
-  - [Day 1 Complete Guide](docs/setup/DAY_1_COMPLETE_GUIDE.md)
   
 - **Daily Use**
-  - [Quick Reference](QUICK_REFERENCE.md)
   - [PRP Workflow Guide](docs/workflow/PRP_WORKFLOW_GUIDE.md) 🆕
   - [Daily Workflow](docs/workflow/DAILY_WORKFLOW.md)
+  - [TDD Workflow](docs/workflow/TDD_WORKFLOW_GUIDE.md)
   
 - **Deep Dives**
   - [System Overview](docs/SYSTEM_OVERVIEW.md)

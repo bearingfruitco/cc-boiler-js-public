@@ -322,6 +322,7 @@ ls PRPs/active/         # Check active PRPs (NEW)
 
 ## 🔗 Important Files
 
+- 🚀 **`MASTER_WORKFLOW_GUIDE.md`** - Complete workflow reference (START HERE!)
 - `CLAUDE.md` - AI behavior rules
 - `SYSTEM_OVERVIEW.md` - Complete system docs
 - `PRPs/README.md` - PRP methodology guide

@@ -1,5 +1,7 @@
 # 🎯 Claude Code Quick Reference Card
 
+> 🚀 **For complete workflow guide, see: [MASTER_WORKFLOW_GUIDE.md](../MASTER_WORKFLOW_GUIDE.md)**
+
 ## 🚀 Daily Flow - What Each Command Does
 ```bash
 # Start day

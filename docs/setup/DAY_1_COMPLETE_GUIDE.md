@@ -488,14 +488,23 @@ const [user, preferences, permissions] = await Promise.all([
 
 ## Next Steps
 
-1. Start with your first feature: `/fw start 1`
-2. Create detailed PRD: `/prd feature-name`
-3. Add async requirements: `/prd-async feature-name`
-4. Generate and process tasks with real-time review
+1. **Read the Master Workflow Guide**: [MASTER_WORKFLOW_GUIDE.md](../../MASTER_WORKFLOW_GUIDE.md)
+2. Start with your first feature: `/fw start 1`
+3. Choose approach: PRP (`/create-prp`) for clear features or PRD (`/prd`) for exploration
+4. Follow the validation loops and automated testing
 5. Create forms with `/create-tracked-form`
 6. Validate async patterns with `/validate-async`
 7. Watch as CodeRabbit catches issues before commit
 8. Ship clean code faster than ever!
+
+### Daily Workflow
+
+Refer to [MASTER_WORKFLOW_GUIDE.md](../../MASTER_WORKFLOW_GUIDE.md) for:
+- Complete command reference
+- When to use PRP vs PRD
+- Testing automation details
+- Context management strategies
+- Common scenarios and solutions
 
 ## The New Workflow (v2.3.6)
 
