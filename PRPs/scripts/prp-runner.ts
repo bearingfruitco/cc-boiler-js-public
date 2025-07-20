@@ -1,488 +1,378 @@
-#!/usr/bin/env node
-
+#!/usr/bin/env bun
 /**
- * PRP Runner - Execute Product Requirement Prompts with validation loops
- * Integrates with existing Claude Code boilerplate system
+ * PRP Runner - Execute PRPs with validation loops
+ * Provides automation capabilities for Product Requirement Prompts
  */
 
-import { readFile, writeFile, access } from 'fs/promises';
-import { join, resolve } from 'path';
-import { spawn } from 'child_process';
-import { createInterface } from 'readline';
+import { parseArgs } from "util";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
+import { join, dirname } from "path";
+import { execSync } from "child_process";
 
-interface PRPConfig {
+interface PRPMetadata {
   name: string;
-  path: string;
-  validationLoops: ValidationLoop[];
-  requirements?: {
-    issueNumber?: number;
-    pinned?: boolean;
+  confidence: number;
+  created: string;
+  validationLevels: {
+    level1: string[];
+    level2: string[];
+    level3: string[];
+    level4: string[];
   };
 }
 
-interface ValidationLoop {
+interface ExecutionResult {
+  success: boolean;
   level: number;
-  name: string;
-  commands: string[];
-  mustPassBefore: string;
-  autoFix?: boolean;
-}
-
-interface RunnerOptions {
-  prp: string;
-  interactive?: boolean;
-  outputFormat?: 'text' | 'json' | 'stream-json';
-  skipValidation?: string[];
-  fix?: boolean;
+  duration: number;
+  output: string;
+  errors?: string[];
 }
 
 class PRPRunner {
-  private config: PRPConfig | null = null;
-  private results: any[] = [];
+  private prpPath: string;
+  private prpContent: string;
+  private metadata: PRPMetadata;
+  private interactive: boolean;
+  private fixMode: boolean;
+  private level?: number;
 
-  constructor(private options: RunnerOptions) {}
-
-  async run() {
-    try {
-      // 1. Load PRP
-      await this.loadPRP();
-      
-      // 2. Check requirements if pinned
-      if (this.config?.requirements?.pinned) {
-        await this.checkRequirements();
-      }
-
-      // 3. Run validation loops
-      await this.runValidationLoops();
-
-      // 4. Output results
-      this.outputResults();
-
-    } catch (error) {
-      this.handleError(error);
-    }
+  constructor(prpName: string, options: any) {
+    this.prpPath = this.findPRP(prpName);
+    this.prpContent = readFileSync(this.prpPath, "utf-8");
+    this.metadata = this.extractMetadata();
+    this.interactive = options.interactive || false;
+    this.fixMode = options.fix || false;
+    this.level = options.level;
   }
 
-  private async loadPRP() {
-    const prpPath = this.resolvePRPPath(this.options.prp);
-    
-    try {
-      await access(prpPath);
-      const content = await readFile(prpPath, 'utf-8');
-      
-      this.config = {
-        name: this.options.prp,
-        path: prpPath,
-        validationLoops: this.parseValidationLoops(content),
-        requirements: this.parseRequirements(content)
-      };
-
-      this.log('info', `Loaded PRP: ${this.config.name}`);
-    } catch (error) {
-      throw new Error(`PRP not found: ${prpPath}`);
-    }
-  }
-
-  private resolvePRPPath(prp: string): string {
-    // Check multiple locations
+  private findPRP(name: string): string {
     const locations = [
-      join(process.cwd(), 'PRPs', `${prp}.md`),
-      join(process.cwd(), 'PRPs', prp),
-      join(process.cwd(), '.claude', 'templates', 'prp', `${prp}.md`),
-      prp // Direct path
+      `PRPs/active/${name}.md`,
+      `PRPs/active/${name}`,
+      `PRPs/${name}.md`,
+      `PRPs/${name}`,
     ];
 
-    // Return first that exists (checked later)
-    return locations[0];
-  }
-
-  private parseValidationLoops(content: string): ValidationLoop[] {
-    const loops: ValidationLoop[] = [];
-    const loopRegex = /### (?:Level |🔴|🟡|🟢|🔵)(\d+)[:\s]+([^\n]+)[\s\S]*?```bash\n([\s\S]*?)```[\s\S]*?Must Pass Before[:\s]+([^\n]+)/gm;
-    
-    let match;
-    while ((match = loopRegex.exec(content)) !== null) {
-      const [, level, name, commands, mustPassBefore] = match;
-      
-      loops.push({
-        level: parseInt(level),
-        name: name.trim(),
-        commands: commands.trim().split('\n').filter(cmd => 
-          cmd.trim() && !cmd.trim().startsWith('#')
-        ),
-        mustPassBefore: mustPassBefore.trim(),
-        autoFix: commands.includes('--fix') || commands.includes(':fix')
-      });
-    }
-
-    return loops.sort((a, b) => a.level - b.level);
-  }
-
-  private parseRequirements(content: string): any {
-    const reqMatch = content.match(/Requirements:\s*`#(\d+)`/);
-    const pinnedMatch = content.match(/\/pin-requirements\s+(\d+)/);
-    
-    return {
-      issueNumber: reqMatch ? parseInt(reqMatch[1]) : undefined,
-      pinned: !!pinnedMatch
-    };
-  }
-
-  private async checkRequirements() {
-    if (!this.config?.requirements?.issueNumber) return;
-
-    this.log('info', 'Checking pinned requirements...');
-    
-    const result = await this.runCommand('/review-requirements', []);
-    
-    if (result.exitCode !== 0) {
-      throw new Error('Requirements check failed. Run /review-requirements for details.');
-    }
-  }
-
-  private async runValidationLoops() {
-    if (!this.config) return;
-
-    for (const loop of this.config.validationLoops) {
-      // Skip if requested
-      if (this.options.skipValidation?.includes(loop.name)) {
-        this.log('warn', `Skipping validation: ${loop.name}`);
-        continue;
+    for (const loc of locations) {
+      if (existsSync(loc)) {
+        return loc;
       }
+    }
 
-      this.log('info', `\nRunning Level ${loop.level}: ${loop.name}`);
-      this.log('info', `Must pass before: ${loop.mustPassBefore}`);
+    throw new Error(`PRP not found: ${name}`);
+  }
 
-      const loopResults: any[] = [];
-      let allPassed = true;
+  private extractMetadata(): PRPMetadata {
+    const metadata: PRPMetadata = {
+      name: this.prpPath.split("/").pop()?.replace(".md", "") || "unknown",
+      confidence: this.extractConfidence(),
+      created: new Date().toISOString(),
+      validationLevels: this.extractValidationCommands(),
+    };
 
-      for (const command of loop.commands) {
-        const result = await this.runValidationCommand(command, loop);
-        loopResults.push(result);
+    return metadata;
+  }
+
+  private extractConfidence(): number {
+    const match = this.prpContent.match(/Confidence.*?(\d+)\/10/i);
+    return match ? parseInt(match[1]) : 0;
+  }
+
+  private extractValidationCommands(): any {
+    const levels: any = {
+      level1: [],
+      level2: [],
+      level3: [],
+      level4: [],
+    };
+
+    // Extract Level 1 commands
+    const level1Match = this.prpContent.match(
+      /Level 1:.*?```(?:bash)?\n([\s\S]*?)```/i
+    );
+    if (level1Match) {
+      levels.level1 = level1Match[1]
+        .split("\n")
+        .filter((cmd) => cmd.trim())
+        .map((cmd) => cmd.trim());
+    }
+
+    // Similar for other levels
+    const level2Match = this.prpContent.match(
+      /Level 2:.*?```(?:bash)?\n([\s\S]*?)```/i
+    );
+    if (level2Match) {
+      levels.level2 = level2Match[1]
+        .split("\n")
+        .filter((cmd) => cmd.trim())
+        .map((cmd) => cmd.trim());
+    }
+
+    const level3Match = this.prpContent.match(
+      /Level 3:.*?```(?:bash)?\n([\s\S]*?)```/i
+    );
+    if (level3Match) {
+      levels.level3 = level3Match[1]
+        .split("\n")
+        .filter((cmd) => cmd.trim())
+        .map((cmd) => cmd.trim());
+    }
+
+    const level4Match = this.prpContent.match(
+      /Level 4:.*?```(?:bash)?\n([\s\S]*?)```/i
+    );
+    if (level4Match) {
+      levels.level4 = level4Match[1]
+        .split("\n")
+        .filter((cmd) => cmd.trim())
+        .map((cmd) => cmd.trim());
+    }
+
+    return levels;
+  }
+
+  async execute(): Promise<void> {
+    console.log(`🚀 Executing PRP: ${this.metadata.name}`);
+    console.log(`📊 Confidence Score: ${this.metadata.confidence}/10`);
+    console.log(`🔧 Mode: ${this.interactive ? "Interactive" : "Automated"}`);
+    console.log("-".repeat(50));
+
+    const results: ExecutionResult[] = [];
+
+    // Run specified level or all levels
+    const levelsToRun = this.level
+      ? [this.level]
+      : [1, 2, 3, 4];
+
+    for (const level of levelsToRun) {
+      const result = await this.runValidationLevel(level);
+      results.push(result);
+
+      if (!result.success && this.interactive) {
+        const shouldContinue = await this.promptContinue(level);
+        if (!shouldContinue) break;
+      } else if (!result.success && !this.interactive) {
+        break; // Stop on first failure in non-interactive mode
+      }
+    }
+
+    this.saveResults(results);
+    this.printSummary(results);
+  }
+
+  private async runValidationLevel(level: number): Promise<ExecutionResult> {
+    const levelKey = `level${level}` as keyof typeof this.metadata.validationLevels;
+    const commands = this.metadata.validationLevels[levelKey];
+
+    if (!commands || commands.length === 0) {
+      return {
+        success: true,
+        level,
+        duration: 0,
+        output: "No commands defined for this level",
+      };
+    }
+
+    console.log(`\n🔍 Running Level ${level} Validation...`);
+    const startTime = Date.now();
+    const errors: string[] = [];
+    let allPassed = true;
+
+    for (const command of commands) {
+      console.log(`  $ ${command}`);
+      
+      try {
+        const output = execSync(command, { encoding: "utf-8" });
+        console.log("  ✅ Passed");
         
-        if (!result.success) {
-          allPassed = false;
-          
-          // Try auto-fix if available and requested
-          if (loop.autoFix && this.options.fix) {
-            this.log('info', 'Attempting auto-fix...');
-            const fixResult = await this.runValidationCommand(
-              command.replace(/\b(lint|format|typecheck)\b/, '$1:fix'),
-              loop
-            );
-            
-            if (fixResult.success) {
-              result.fixed = true;
+        if (this.fixMode && command.includes("--fix")) {
+          console.log("  🔧 Applied fixes");
+        }
+      } catch (error: any) {
+        console.log("  ❌ Failed");
+        errors.push(`${command}: ${error.message}`);
+        allPassed = false;
+        
+        if (this.fixMode && this.canAutoFix(command)) {
+          const fixed = await this.attemptAutoFix(command);
+          if (fixed) {
+            console.log("  🔧 Auto-fixed and retrying...");
+            try {
+              execSync(command, { encoding: "utf-8" });
+              console.log("  ✅ Passed after fix");
               allPassed = true;
+            } catch {
+              allPassed = false;
             }
           }
         }
       }
-
-      this.results.push({
-        level: loop.level,
-        name: loop.name,
-        passed: allPassed,
-        results: loopResults
-      });
-
-      // Stop on failure unless interactive
-      if (!allPassed && !this.options.interactive) {
-        this.log('error', `\n❌ Level ${loop.level} validation failed!`);
-        this.log('error', `Cannot proceed to: ${loop.mustPassBefore}`);
-        
-        if (loop.autoFix) {
-          this.log('info', '\n💡 Tip: Run with --fix to attempt auto-fixes');
-        }
-        
-        break;
-      }
-
-      // Interactive mode - ask to continue
-      if (!allPassed && this.options.interactive) {
-        const shouldContinue = await this.promptUser(
-          `\nLevel ${loop.level} failed. Continue anyway? (y/N): `
-        );
-        
-        if (!shouldContinue) break;
-      }
-    }
-  }
-
-  private async runValidationCommand(command: string, loop: ValidationLoop): Promise<any> {
-    const startTime = Date.now();
-    
-    try {
-      // Parse command
-      const [cmd, ...args] = command.trim().split(/\s+/);
-      
-      // Handle different command types
-      let result;
-      if (cmd.startsWith('/')) {
-        // Claude command
-        result = await this.runCommand(cmd, args);
-      } else if (cmd === 'bun' || cmd === 'npm') {
-        // Package manager command
-        result = await this.runShellCommand(cmd, args);
-      } else {
-        // Shell command
-        result = await this.runShellCommand(cmd, args);
-      }
-
-      const duration = Date.now() - startTime;
-      
-      return {
-        command,
-        success: result.exitCode === 0,
-        duration,
-        output: result.output,
-        error: result.error
-      };
-
-    } catch (error) {
-      return {
-        command,
-        success: false,
-        duration: Date.now() - startTime,
-        error: error.message
-      };
-    }
-  }
-
-  private async runCommand(command: string, args: string[]): Promise<any> {
-    return new Promise((resolve) => {
-      const fullCommand = `${command} ${args.join(' ')}`.trim();
-      
-      // Simulate command execution (in real implementation, would integrate with Claude)
-      this.log('debug', `Executing: ${fullCommand}`);
-      
-      // Mock successful execution for now
-      setTimeout(() => {
-        resolve({
-          exitCode: 0,
-          output: `${command} completed successfully`,
-          error: null
-        });
-      }, 100);
-    });
-  }
-
-  private async runShellCommand(command: string, args: string[]): Promise<any> {
-    return new Promise((resolve) => {
-      const child = spawn(command, args, { 
-        shell: true,
-        cwd: process.cwd()
-      });
-
-      let output = '';
-      let error = '';
-
-      child.stdout.on('data', (data) => {
-        output += data.toString();
-        if (this.options.outputFormat === 'stream-json') {
-          this.streamOutput('stdout', data.toString());
-        }
-      });
-
-      child.stderr.on('data', (data) => {
-        error += data.toString();
-        if (this.options.outputFormat === 'stream-json') {
-          this.streamOutput('stderr', data.toString());
-        }
-      });
-
-      child.on('close', (code) => {
-        resolve({
-          exitCode: code || 0,
-          output,
-          error
-        });
-      });
-    });
-  }
-
-  private async promptUser(question: string): Promise<boolean> {
-    const rl = createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-
-    return new Promise((resolve) => {
-      rl.question(question, (answer) => {
-        rl.close();
-        resolve(answer.toLowerCase() === 'y');
-      });
-    });
-  }
-
-  private outputResults() {
-    switch (this.options.outputFormat) {
-      case 'json':
-        console.log(JSON.stringify({
-          prp: this.config?.name,
-          timestamp: new Date().toISOString(),
-          results: this.results,
-          summary: this.generateSummary()
-        }, null, 2));
-        break;
-
-      case 'stream-json':
-        // Already streamed during execution
-        this.streamOutput('complete', this.generateSummary());
-        break;
-
-      default:
-        this.outputTextResults();
-    }
-  }
-
-  private outputTextResults() {
-    console.log('\n' + '='.repeat(60));
-    console.log(`PRP Validation Results: ${this.config?.name}`);
-    console.log('='.repeat(60) + '\n');
-
-    for (const loop of this.results) {
-      const icon = loop.passed ? '✅' : '❌';
-      console.log(`${icon} Level ${loop.level}: ${loop.name}`);
-      
-      for (const result of loop.results) {
-        const cmdIcon = result.success ? '✓' : '✗';
-        const fixedText = result.fixed ? ' (auto-fixed)' : '';
-        console.log(`  ${cmdIcon} ${result.command}${fixedText} (${result.duration}ms)`);
-        
-        if (!result.success && result.error) {
-          console.log(`     Error: ${result.error.split('\n')[0]}`);
-        }
-      }
-      console.log();
     }
 
-    const summary = this.generateSummary();
-    console.log('\nSummary:');
-    console.log(`- Total Levels: ${summary.totalLevels}`);
-    console.log(`- Passed: ${summary.passed}`);
-    console.log(`- Failed: ${summary.failed}`);
-    
-    if (summary.failed > 0) {
-      console.log(`\n⚠️  Cannot proceed past Level ${summary.lastPassedLevel}`);
-    } else {
-      console.log('\n🎉 All validation loops passed! Ready for implementation.');
-    }
-  }
-
-  private generateSummary() {
-    const totalLevels = this.results.length;
-    const passed = this.results.filter(r => r.passed).length;
-    const failed = totalLevels - passed;
-    const lastPassedLevel = this.results.filter(r => r.passed).length;
+    const duration = Date.now() - startTime;
 
     return {
-      totalLevels,
-      passed,
-      failed,
-      lastPassedLevel,
-      allPassed: failed === 0
+      success: allPassed,
+      level,
+      duration,
+      output: allPassed ? "All validations passed" : "Some validations failed",
+      errors: errors.length > 0 ? errors : undefined,
     };
   }
 
-  private streamOutput(type: string, data: any) {
-    if (this.options.outputFormat === 'stream-json') {
-      console.log(JSON.stringify({
-        type,
-        timestamp: new Date().toISOString(),
-        data
-      }));
-    }
+  private canAutoFix(command: string): boolean {
+    return command.includes("lint") || 
+           command.includes("format") || 
+           command.includes("typecheck");
   }
 
-  private log(level: 'info' | 'warn' | 'error' | 'debug', message: string) {
-    if (this.options.outputFormat === 'json' || this.options.outputFormat === 'stream-json') {
-      return; // No console output in JSON modes
-    }
-
-    const colors = {
-      info: '\x1b[36m',   // Cyan
-      warn: '\x1b[33m',   // Yellow
-      error: '\x1b[31m',  // Red
-      debug: '\x1b[90m'   // Gray
+  private async attemptAutoFix(command: string): Promise<boolean> {
+    const fixCommands: Record<string, string> = {
+      "bun run lint": "bun run lint:fix",
+      "bun run typecheck": "bun run typecheck --fix",
+      "bun run format": "bun run format:fix",
     };
 
-    const reset = '\x1b[0m';
-    console.log(`${colors[level]}${message}${reset}`);
+    const fixCommand = fixCommands[command];
+    if (!fixCommand) return false;
+
+    try {
+      execSync(fixCommand, { encoding: "utf-8" });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
-  private handleError(error: any) {
-    if (this.options.outputFormat === 'json') {
-      console.log(JSON.stringify({
-        error: error.message,
-        stack: error.stack
-      }));
-    } else {
-      console.error('\n❌ Error:', error.message);
-      if (error.stack && process.env.DEBUG) {
-        console.error(error.stack);
+  private async promptContinue(level: number): Promise<boolean> {
+    console.log(`\n⚠️  Level ${level} validation failed.`);
+    console.log("Continue to next level? (y/n): ");
+    
+    // In Bun, we can use prompt
+    const answer = prompt("") || "n";
+    return answer.toLowerCase() === "y";
+  }
+
+  private saveResults(results: ExecutionResult[]): void {
+    const logsDir = "PRPs/execution_logs";
+    if (!existsSync(logsDir)) {
+      mkdirSync(logsDir, { recursive: true });
+    }
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const logFile = join(logsDir, `${this.metadata.name}_${timestamp}.json`);
+
+    const logData = {
+      prp: this.metadata.name,
+      confidence: this.metadata.confidence,
+      executed: new Date().toISOString(),
+      mode: this.interactive ? "interactive" : "automated",
+      results,
+      totalDuration: results.reduce((sum, r) => sum + r.duration, 0),
+      success: results.every((r) => r.success),
+    };
+
+    writeFileSync(logFile, JSON.stringify(logData, null, 2));
+    console.log(`\n📁 Execution log saved: ${logFile}`);
+  }
+
+  private printSummary(results: ExecutionResult[]): void {
+    console.log("\n" + "=".repeat(50));
+    console.log("📊 EXECUTION SUMMARY");
+    console.log("=".repeat(50));
+
+    for (const result of results) {
+      const status = result.success ? "✅" : "❌";
+      console.log(`${status} Level ${result.level}: ${result.output} (${result.duration}ms)`);
+      
+      if (result.errors) {
+        for (const error of result.errors) {
+          console.log(`   └─ ${error}`);
+        }
       }
     }
+
+    const totalDuration = results.reduce((sum, r) => sum + r.duration, 0);
+    const allPassed = results.every((r) => r.success);
+
+    console.log("\n" + "-".repeat(50));
+    console.log(`Total Duration: ${totalDuration}ms`);
+    console.log(`Overall Result: ${allPassed ? "✅ PASSED" : "❌ FAILED"}`);
     
+    if (!allPassed) {
+      console.log("\n💡 Suggestions:");
+      console.log("- Review the failed validations");
+      console.log("- Run with --fix flag to attempt auto-fixes");
+      console.log("- Check /prp-status for detailed progress");
+    }
+  }
+}
+
+// Main execution
+async function main() {
+  const { values, positionals } = parseArgs({
+    args: Bun.argv,
+    options: {
+      prp: {
+        type: "string",
+      },
+      interactive: {
+        type: "boolean",
+        default: false,
+      },
+      fix: {
+        type: "boolean",
+        default: false,
+      },
+      level: {
+        type: "string",
+      },
+      help: {
+        type: "boolean",
+        default: false,
+      },
+    },
+    strict: true,
+    allowPositionals: true,
+  });
+
+  if (values.help || !values.prp) {
+    console.log(`
+PRP Runner - Execute Product Requirement Prompts with validation
+
+Usage: bun run prp-runner.ts --prp <name> [options]
+
+Options:
+  --prp <name>      Name of the PRP to execute (required)
+  --interactive     Run in interactive mode with prompts
+  --fix             Attempt to auto-fix validation failures
+  --level <n>       Run specific validation level (1-4)
+  --help            Show this help message
+
+Examples:
+  bun run prp-runner.ts --prp user-auth
+  bun run prp-runner.ts --prp payment --level 1 --fix
+  bun run prp-runner.ts --prp checkout --interactive
+    `);
+    process.exit(values.help ? 0 : 1);
+  }
+
+  try {
+    const runner = new PRPRunner(values.prp, {
+      interactive: values.interactive,
+      fix: values.fix,
+      level: values.level ? parseInt(values.level) : undefined,
+    });
+
+    await runner.execute();
+  } catch (error: any) {
+    console.error(`\n❌ Error: ${error.message}`);
     process.exit(1);
   }
 }
 
-// CLI Interface
-async function main() {
-  const args = process.argv.slice(2);
-  
-  if (args.length === 0 || args.includes('--help')) {
-    console.log(`
-PRP Runner - Execute Product Requirement Prompts with validation
-
-Usage: bun run prp-runner.ts [options] <prp-name>
-
-Options:
-  --interactive, -i     Interactive mode (prompt on failures)
-  --output-format, -o   Output format: text (default), json, stream-json
-  --skip-validation     Skip specific validation loops (comma-separated)
-  --fix                 Attempt auto-fixes where available
-  --help               Show this help message
-
-Examples:
-  bun run prp-runner.ts user-auth
-  bun run prp-runner.ts user-auth --interactive
-  bun run prp-runner.ts user-auth --fix
-  bun run prp-runner.ts user-auth --output-format json
-  bun run prp-runner.ts user-auth --skip-validation "Component Testing"
-    `);
-    process.exit(0);
-  }
-
-  // Parse options
-  const options: RunnerOptions = {
-    prp: args[args.length - 1], // Last arg is PRP name
-    interactive: args.includes('--interactive') || args.includes('-i'),
-    fix: args.includes('--fix'),
-    outputFormat: 'text' as any
-  };
-
-  // Parse output format
-  const formatIndex = args.findIndex(arg => arg === '--output-format' || arg === '-o');
-  if (formatIndex !== -1 && args[formatIndex + 1]) {
-    options.outputFormat = args[formatIndex + 1] as any;
-  }
-
-  // Parse skip validation
-  const skipIndex = args.findIndex(arg => arg === '--skip-validation');
-  if (skipIndex !== -1 && args[skipIndex + 1]) {
-    options.skipValidation = args[skipIndex + 1].split(',').map(s => s.trim());
-  }
-
-  // Run
-  const runner = new PRPRunner(options);
-  await runner.run();
+// Run if executed directly
+if (import.meta.main) {
+  main();
 }
-
-// Execute if run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(console.error);
-}
-
-export { PRPRunner, type RunnerOptions, type PRPConfig };

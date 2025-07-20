@@ -112,5 +112,17 @@
   "deep-think": "ultra-think",
   "vp": "visual-plan",
   "visual": "visual-plan",
-  "screenshot-plan": "visual-plan"
+  "screenshot-plan": "visual-plan",
+  "convert-to-prp": "prd-to-prp",
+  "prp-convert": "prd-to-prp",
+  "enhance-prd": "prd-to-prp",
+  "validate-prp": "prp-validate",
+  "check-prp": "prp-validate",
+  "prp-check": "prp-validate",
+  "prp-progress": "prp-status",
+  "check-prp-status": "prp-status",
+  "prp-info": "prp-status",
+  "finish-prp": "prp-complete",
+  "archive-prp": "prp-complete",
+  "prp-done": "prp-complete"
 }

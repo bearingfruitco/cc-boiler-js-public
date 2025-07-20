@@ -148,14 +148,33 @@ PRPs integrate seamlessly with your boilerplate:
 /create-prp [feature description]
 /prp [component name]
 
+# Convert existing PRD
+/prd-to-prp [feature-name]
+/convert-to-prp [feature-name]
+
+# Validate PRP
+/prp-validate [prp-name]
+/check-prp [prp-name]
+
 # Execute validation
 /prp-execute [prp-name]
 /prp-run [prp-name] --fix
 /prp-exec [prp-name] --level 1
 
+# Check progress
+/prp-status [prp-name]
+/prp-progress [prp-name]
+
+# Complete PRP
+/prp-complete [prp-name]
+/finish-prp [prp-name]
+
+# Generate tasks from PRP
+/gt [feature] --from-prp
+
 # Related commands
 /prd-tests [feature]      # Generate tests from PRD
-/grade --requirements     # Check implementation quality
+/grade --prp [feature]    # Grade against PRP criteria
 /pin-requirements [#]     # Lock requirements from issue
 ```
 
