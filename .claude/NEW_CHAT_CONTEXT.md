@@ -1,5 +1,26 @@
 # New Chat Context - Claude Code Boilerplate v2.7.0
 
+## 🆕 What's New in v2.7.0
+
+### Agent OS Integration 🎨
+- **Problem Solved**: Scattered standards, no drop-in capability for existing projects
+- **Centralized Standards**: All rules in `.agent-os/standards/` - single source of truth
+- **Drop-in Capability**: `/analyze-existing` command analyzes any codebase
+- **Design Migration**: `/migrate-to-strict-design` converts to our strict system
+- **Cross-Tool Sharing**: Standards work in Claude Code, Cursor, any AI tool
+- **Spec-Driven Development**: Three-layer context (Standards → Product → Specs)
+
+### New Commands
+- `/analyze-existing` (`/ae`, `/drop-in`) - Analyze existing project and set up
+- `/migrate-to-strict-design` (`/mds`) - Migrate to strict design system
+- `/smart-resume-standards` - Enhanced resume that loads standards
+
+### Enhanced Workflows
+- **Existing Project Onboarding**: `/chain analyze-existing-project`
+- **Design Migration**: `/chain migrate-design-system`
+- **Complete Onboarding**: `/chain onboard-existing`
+- **Standards Sync**: `/chain standards-sync`
+
 ## 🆕 What's New in v2.6.0
 
 ### Branch Awareness & Feature Protection System 🌿
@@ -75,81 +96,71 @@ eventQueue.emit(LEAD_EVENTS.FORM_SUBMIT, data);
 // → Automatically bridged to: rudderanalytics.track('Form Submitted', data)
 ```
 
-## 🆕 What's New in v2.3.5
-
-### Design System Flexibility
-- **Instant Toggle**: `/dmoff` to disable, `/dmon` to enable design system
-- **Full Tailwind Freedom**: Use any classes when disabled (text-sm, p-5, etc.)
-- **Smart Switching**: Toggle between strict and creative modes instantly
-
-### Research Management System (RMS)
-- **Smart Document Updates**: No more auth-v1, auth-v2, auth-final versions
-- **Intelligent Merging**: Updates existing research instead of creating duplicates
-- **Context-Aware Loading**: Only includes relevant research, respects limits
-- **Clean Codebase**: Research organized in .claude/research/, not scattered
-- **Compaction Support**: Research automatically preserved and restored
-
-## 🆕 What's New in v2.3.4
-
-### CodeRabbit IDE Integration
-- **Dual-AI Workflow**: Claude generates, CodeRabbit reviews in real-time
-- **95% Bug Catch Rate**: Issues caught before commit, not after PR
-- **Design System Enforcement**: Automatic compliance checking as you type
-- **Educational Feedback**: Learn from mistakes with clear explanations
-
-## 🆕 What's New in v2.3.3
-
-### Hook System Enhancements
-- **PreCompact Support**: Context preserved during conversation compaction
-- **Suggestion Engine**: Design violations now show helpful corrections
-- **Command Logging**: Query your command history and performance
-
-## 🆕 What's New in v2.3.2
-
-### GitHub Apps Integration
-- **CodeRabbit**: AI code reviews on every PR (catches 95%+ bugs)
-- **Claude Code App**: PRD alignment validation (included with Max plan)
-- **Smart Setup**: New `scripts/quick-setup.sh` prevents repo confusion
-- **Enhanced Commands**: `/init-project` and `/gi` now verify correct repository
-
-## 🆕 What's New in v2.7.0
-
-### Task Ledger System 📋
-- **Problem Solved**: Tasks scattered across multiple files, easy to lose progress
-- **Task Ledger**: Single `.task-ledger.md` file tracks ALL tasks across features
-- **Automatic Updates**: Hook system maintains it as you work
-- **Persistent Progress**: Survives session restarts, included in gist saves
-- **GitHub Integration**: Direct links between tasks and issues
-
-### New Command
-- `/task-ledger` (`/tl`) - View and manage task ledger
-  - `/tl summary` - Quick stats overview
-  - `/tl sync` - Sync with all task files
-  - `/tl feature [name]` - Focus on specific feature
-
-### Enhanced Workflows
-- **Smart Resume**: Now shows task ledger summary
-- **Task Commands**: `/ts`, `/tb`, `/pt` all use persistent ledger
-- **Chains**: Updated daily-startup, task-sprint chains
-
 ## 🚀 Quick Start
 
-You're working with an advanced AI-assisted development system that treats specifications (PRDs) as the primary development artifact. This follows Sean Grove's "The New Code" philosophy.
+You're working with an advanced AI-assisted development system that treats specifications (PRDs) as the primary development artifact, following Sean Grove's "The New Code" philosophy, enhanced with Brian Casel's Agent OS for spec-driven development.
 
 ### First Commands
+
+#### For New Projects:
 ```bash
 /sr                    # Smart Resume - restores full context
+/init-project          # Initialize new project
 /help new              # See latest features
-/cp load [profile]     # Load focused context
+```
+
+#### For Existing Projects (NEW!):
+```bash
+/ae                    # Analyze existing codebase
+/mds analyze           # Check design compliance
+/chain onboard-existing # Complete onboarding
 ```
 
 ### One-Time Setup (2 minutes)
 1. Install CodeRabbit extension in Cursor
 2. Sign up at app.coderabbit.ai (free)
 3. Select "Claude Code" as AI agent
-4. Start coding with real-time review!
+4. Customize `.agent-os/standards/` files (NEW!)
+5. Start coding with real-time review!
 
 ## 🌟 Latest Features
+
+### Agent OS Standards (v2.7.0)
+```bash
+# Standards live in:
+.agent-os/standards/
+├── design-system.md    # Your 4-size, 2-weight rules
+├── tech-stack.md       # Your technology choices
+└── best-practices.md   # Your development philosophy
+
+# Commands automatically reference these
+/vd                     # Reads from design-system.md
+/sr                     # Loads all standards
+```
+
+### Drop-in for Existing Projects (v2.7.0)
+```bash
+cd existing-project
+/ae                     # Analyzes and sets up everything
+
+# Creates:
+.agent-os/product/
+├── mission.md          # What you're building
+├── roadmap.md          # Features (Phase 0 = existing)
+├── tech-stack.md       # Detected stack
+└── decisions.md        # Architectural choices
+```
+
+### Design Migration (v2.7.0)
+```bash
+/mds analyze            # Find all violations
+# Output: DESIGN_MIGRATION_REPORT.md
+
+/mds migrate            # Auto-migrate to strict system
+# Creates backup, updates all files
+
+/vd                     # Verify compliance
+```
 
 ### Async Event System (v2.3.6)
 ```typescript
@@ -179,65 +190,16 @@ const [user, prefs, perms] = await Promise.all([
 # Only: text-size-[1-4], font-regular/semibold, 4px grid
 ```
 
-### Research Management (v2.3.5)
-```bash
-/research review        # See pending research docs
-/research update        # Update existing instead of creating new
-/research search auth   # Find past analysis
-/research context       # Add relevant docs to current session
-```
-
-### CodeRabbit Integration (v2.3.4)
-- **Real-Time Review** - Catch issues as you type, not after PR
-- **One-Click Fixes** - Simple issues fixed automatically
-- **Complex Fix Handoff** - Copy suggestions back to Claude
-- **PR Status Command** - `/pr-feedback` for quick checks
-
-### Hook System Enhancements (v2.3.3)
-- **PreCompact Support** - Never lose context during long sessions
-  - Automatically saves critical files before compaction
-  - `/sr` restores everything after compaction
-  - No more "Claude forgot what we were doing"
-- **Suggestion Engine** - Learn from design violations
-  - See: "You used 'text-sm' → Use 'text-size-3' instead"
-  - Tracks your common mistakes
-  - Educational explanations for each rule
-- **Command Analytics** - Understand your workflow
-  ```bash
-  /query-logs --stats     # See command usage statistics
-  /query-logs --errors    # Find what's failing
-  /query-logs --sessions  # Analyze work sessions
-  ```
-
-### GitHub Apps Integration (v2.3.2)
-- **CodeRabbit + Claude Code** for comprehensive AI reviews
-- **Repository safety** - can't accidentally pollute boilerplate repo
-- **Automated setup** - one script configures everything
-- **Design enforcement** - AI learns and enforces your rules
-
-### Workflow Enhancement (v2.3.1)
-- **Smart Auto-Approval** - No more "Can I edit this file?" interruptions!
-  - Read operations proceed automatically
-  - Test file edits auto-approved
-  - Safe commands (lint, test) run without prompts
-  - Production code still protected
-
-### Grove-Inspired Enhancements (v2.3.0)
-1. **PRD Clarity Linter** - Catches ambiguous language automatically
-2. **Specification Patterns** - Extract/reuse successful implementations (`/specs`)
-3. **Test Generation** - PRD acceptance criteria → tests (`/prd-tests`)
-4. **Implementation Grading** - Score alignment with PRD (`/grade`)
-
-### Context Management (v2.2.0)
-- **Context Profiles** - Focused work modes (`/cp`)
-- **Bug Tracking** - Persistent across sessions (`/bt`)
-- **Doc Cache** - Offline documentation (`/dc`)
-- **Stage Gates** - Enforce completion (`/sv`)
-
 ## 🎯 Core Workflow
 
+### New Projects:
 ```
 IDEA → /init-project → /prd → /prd-async → /gt → /pt → /grade → /fw complete
+```
+
+### Existing Projects (NEW!):
+```
+PROJECT → /ae → /mds analyze → /create-prd-from-existing → /gt → /pt → /grade
 ```
 
 1. **Define** specifications clearly (PRD)
@@ -251,8 +213,8 @@ IDEA → /init-project → /prd → /prd-async → /gt → /pt → /grade → /f
 
 ### Daily Development
 ```bash
-/sr                    # Resume where you left off (now with branch awareness)
-/branch-status         # Check branch health (NEW)
+/sr                    # Resume where you left off
+/ae                    # Analyze existing project (NEW)
 /fw start [#]          # Start GitHub issue
 /prd [name]            # Create specification
 /prd-async [name]      # Add async requirements
@@ -261,63 +223,74 @@ IDEA → /init-project → /prd → /prd-async → /gt → /pt → /grade → /f
 /pt [name]             # Process tasks (with real-time review)
 /grade                 # Check alignment
 /specs extract         # Save successful pattern
-/feature-complete      # Mark feature as done (NEW)
-/pr-feedback           # Quick PR status check
-/research review       # Organize research docs
+```
+
+### Design & Migration (NEW)
+```bash
+/mds analyze           # Check design violations
+/mds migrate           # Migrate to strict system
+/vd                    # Validate current file
+/dmoff                 # Disable enforcement
+/dmon                  # Re-enable enforcement
 ```
 
 ### Quality & Safety
 ```bash
-/vd                    # Validate design
-/validate-async        # Check async patterns (NEW)
+/validate-async        # Check async patterns
 /sv check              # Stage validation
 /facts                 # Protected values
 /exists [name]         # Check before creating
 /bt add "bug"          # Track bugs
 ```
 
-### Async Development (NEW)
+### Branch Management
 ```bash
-/create-event-handler  # Create event handler
-/test-async-flow       # Test event chains
+/bs                    # Branch status
+/fs                    # Feature status
+/sync                  # Sync with main
+/fc                    # Complete feature
+/bc                    # Clean branches
 ```
 
 ## 🛡️ Automatic Protections
 
 The system automatically:
+- **Reads** standards from `.agent-os/standards/` (NEW!)
 - **Approves** safe operations (no more waiting!)
 - **Blocks** design violations (wrong CSS classes)
 - **Warns** about ambiguous PRD language
-- **Detects** async anti-patterns (NEW)
+- **Detects** async anti-patterns
 - **Saves** context every 60 seconds
 - **Prevents** PII exposure
 - **Tracks** bugs persistently
 - **Grades** implementation quality
 - **Reviews** code in real-time (CodeRabbit)
 - **Suggests** fixes before commit
+- **Migrates** existing code to strict standards (NEW!)
 
 ## 💡 Key Principles
 
 1. **Specifications are primary** - PRDs drive everything
-2. **Clear communication** - Ambiguity is the enemy
-3. **Automated enforcement** - Hooks handle compliance
-4. **Pattern learning** - Success builds on success
-5. **Objective quality** - Measurable alignment
-6. **User experience first** - Never block on non-critical ops
+2. **Standards are centralized** - One source of truth (NEW!)
+3. **Clear communication** - Ambiguity is the enemy
+4. **Automated enforcement** - Hooks handle compliance
+5. **Pattern learning** - Success builds on success
+6. **Objective quality** - Measurable alignment
+7. **User experience first** - Never block on non-critical ops
 
 ## 🔑 Quick Reference
 
 ```
 SPECIFICATIONS          DEVELOPMENT            QUALITY
 /prd    - create       /cc  - component       /grade  - alignment
-/prd-async - async     /vd  - design check    /sv     - stages
+/prp    - create PRP   /vd  - design check    /sv     - stages
 /specs  - patterns     /bt  - bug track       /btf    - browser
-/prd-tests - tests     /validate-async        
+/prd-tests - tests     /validate-async        /mds    - migrate (NEW)
 
-CONTEXT                COLLABORATION          HELP
-/sr     - resume       /fw  - workflow        /help new
-/cp     - profiles     /orch - agents         /help [cmd]
-/dc     - doc cache    /team - status         /?
+CONTEXT                COLLABORATION          EXISTING PROJECTS (NEW)
+/sr     - resume       /fw  - workflow        /ae     - analyze
+/cp     - profiles     /orch - agents         /mds    - migrate design
+/dc     - doc cache    /team - status         /chain  - onboard-existing
 /research - organize   
 
 BRANCH MANAGEMENT      EVENTS                 REVIEW
@@ -329,16 +302,16 @@ BRANCH MANAGEMENT      EVENTS                 REVIEW
 
 ## 🔑 Key Files
 
+- `.agent-os/standards/` - Centralized standards (NEW!)
 - `CLAUDE.md` - AI agent instructions
 - `QUICK_REFERENCE.md` - All commands
-- `RELEASES.md` - Release notes index
+- `INTEGRATION_GUIDE.md` - Agent OS details (NEW!)
 - `docs/releases/` - Detailed release notes
-- `docs/updates/` - Feature enhancement docs
 - `.claude/config.json` - System configuration
 
 ## 🎨 Design System
 
-**Enforced automatically:**
+**Centralized in `.agent-os/standards/design-system.md`:**
 - Font sizes: `text-size-1` through `text-size-4` only
 - Font weights: `font-regular`, `font-semibold` only
 - Spacing: 4px grid (p-1, p-2, p-3, p-4, p-6, p-8)
@@ -353,6 +326,7 @@ BRANCH MANAGEMENT      EVENTS                 REVIEW
 ```bash
 /help              # Context-aware help
 /help new          # Latest features
+/help existing     # Existing project guide (NEW!)
 /help workflows    # Common patterns
 /help [command]    # Specific command
 ```
@@ -361,12 +335,19 @@ BRANCH MANAGEMENT      EVENTS                 REVIEW
 
 > "The person who communicates most effectively is the most valuable programmer." - Sean Grove
 
+> "Your coding agents are capable of so much more—they just need an operating system." - Brian Casel
+
 This system helps you:
 - Write clear specifications
+- Centralize standards across tools
+- Drop into any existing project
 - Generate code from intent
 - Measure alignment objectively
 - Learn from successes
 - Collaborate seamlessly
 - Build performant UIs
 
-Ready to start? Try `/init-project` or `/sr` to resume existing work!
+Ready to start? 
+- New project: `/init-project`
+- Existing project: `/ae` (NEW!)
+- Resume work: `/sr`

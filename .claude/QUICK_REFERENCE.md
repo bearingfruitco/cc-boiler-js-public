@@ -93,6 +93,9 @@
   - `update` - Update existing research
   - `search` - Find past analysis
   - `context` - Add to current session
+- `/create-prd-from-existing` - Generate PRD from existing code (NEW)
+  - `prd-existing` - Short alias
+  - `doc-existing` - Alternative alias
 
 ### Stage Control
 - `/sv` - Stage validate (check/require/status)

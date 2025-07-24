@@ -1,17 +1,18 @@
 # 🚀 Master Workflow Guide - Claude Code Boilerplate v2.7.0
 
-> **One Document to Rule Them All** - Your complete reference for maximizing the Claude Code Boilerplate system and never losing context.
+> **One Document to Rule Them All** - Your complete reference for maximizing the Claude Code Boilerplate system with Agent OS integration.
 
 ## Table of Contents
 1. [Quick Command Reference](#quick-command-reference)
 2. [First Time Setup](#first-time-setup)
-3. [Daily Workflow](#daily-workflow)
-4. [Feature Development Workflows](#feature-development-workflows)
-5. [Testing & Validation](#testing--validation)
-6. [Context Management](#context-management)
-7. [Common Scenarios](#common-scenarios)
-8. [Pro Tips & Best Practices](#pro-tips--best-practices)
-9. [Troubleshooting](#troubleshooting)
+3. [Existing Project Setup](#existing-project-setup) **(NEW!)**
+4. [Daily Workflow](#daily-workflow)
+5. [Feature Development Workflows](#feature-development-workflows)
+6. [Testing & Validation](#testing--validation)
+7. [Context Management](#context-management)
+8. [Common Scenarios](#common-scenarios)
+9. [Pro Tips & Best Practices](#pro-tips--best-practices)
+10. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -24,6 +25,7 @@
 ### Essential Daily Commands
 ```bash
 /sr                    # Smart Resume - start every session with this
+/ae                    # Analyze Existing - for existing projects (NEW!)
 /cp load frontend      # Load context profile (frontend/backend/debug)
 /bt list              # Check open bugs
 /checkpoint           # Manual save current state
@@ -32,8 +34,17 @@
 
 ### Starting Work
 ```bash
+# New Projects
+/init-project         # Initialize new project
 /fw start 123         # Start from GitHub issue #123
-/create-prp feature   # Generate PRP for clear features (NEW!)
+
+# Existing Projects (NEW!)
+/ae                   # Analyze existing codebase
+/mds analyze          # Check design compliance
+/chain onboard-existing # Complete onboarding
+
+# Feature Development
+/create-prp feature   # Generate PRP for clear features
 /prd feature          # Generate PRD for exploratory work
 /gt feature           # Generate tasks from PRD
 /pt feature           # Process tasks one by one
@@ -44,6 +55,7 @@
 /cc ComponentName     # Create component with design validation
 /ctf FormName         # Create secure tracked form
 /vd                   # Validate design system compliance
+/mds migrate          # Migrate to strict design (NEW!)
 /deps check Button    # Check component dependencies
 /exists Button        # Check if component exists (auto-runs on create)
 ```
@@ -54,7 +66,7 @@
 /prd-tests feature    # Generate tests from PRD
 /tr current           # Run tests for current file
 /btf                  # Browser test flow with Playwright
-/verify               # Verify completion claims (NEW!)
+/verify               # Verify completion claims
 /verify --full        # Full verification with coverage
 ```
 
@@ -81,6 +93,7 @@
 /vp feature           # Visual planning with screenshots
 /research topic       # Create/update research document
 /dmoff               # Disable design mode temporarily
+/chain [name]         # Run command chains
 ```
 
 ---
@@ -109,7 +122,17 @@ chmod +x setup-prp.sh
 ./setup-prp.sh
 ```
 
-### 2. Install GitHub Apps
+### 2. Configure Agent OS Standards (NEW!)
+```bash
+# Customize your global standards
+edit ~/.agent-os/standards/design-system.md    # Your design rules
+edit ~/.agent-os/standards/tech-stack.md       # Your tech preferences
+edit ~/.agent-os/standards/best-practices.md   # Your dev philosophy
+
+# These will be used across ALL projects
+```
+
+### 3. Install GitHub Apps
 1. **CodeRabbit**: [github.com/marketplace/coderabbit](https://github.com/marketplace/coderabbit)
    - Install on YOUR repo (not boilerplate)
    - Configure with `.coderabbit.yaml`
@@ -118,7 +141,7 @@ chmod +x setup-prp.sh
    - Install on YOUR repo
    - Grant code, issues, PRs permissions
 
-### 3. Update Configuration
+### 4. Update Configuration
 ```bash
 # Edit .claude/project-config.json
 {
@@ -130,7 +153,7 @@ chmod +x setup-prp.sh
 }
 ```
 
-### 4. Start Claude Code
+### 5. Start Claude Code
 ```bash
 # Open in Claude Code
 claude .
@@ -145,7 +168,7 @@ claude .
 /gi PROJECT
 ```
 
-### 5. Verify Setup
+### 6. Verify Setup
 ```bash
 # Create test PR with design violation
 git checkout -b test/setup
@@ -154,6 +177,73 @@ git add . && git commit -m "Test setup"
 git push origin test/setup
 
 # Create PR - CodeRabbit should review within 2-3 minutes
+```
+
+---
+
+## 🏢 Existing Project Setup (NEW!)
+
+### 1. Add Claude Code to Existing Project
+```bash
+cd your-existing-project
+
+# Add Claude Code system
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/add-to-existing.sh | bash -s full
+
+# Open in Claude Code
+claude .
+```
+
+### 2. Analyze Your Codebase
+```bash
+# Run the analyze command
+/ae
+
+# This will:
+# - Detect your tech stack
+# - Find existing features
+# - Create mission/roadmap docs
+# - Set up .agent-os structure
+# - Generate migration report
+```
+
+### 3. Check Design Compliance
+```bash
+# Analyze design violations
+/mds analyze
+
+# Review report
+cat .agent-os/DESIGN_MIGRATION_REPORT.md
+
+# If you want to migrate:
+/mds migrate
+```
+
+### 4. Complete Onboarding
+```bash
+# Run full onboarding chain
+/chain onboard-existing
+
+# Or step by step:
+/analyze-existing      # If not done yet
+/mds analyze          # Check design
+/create-prd-from-existing main-features
+/task-ledger sync     # Import tasks
+/sr                   # Load everything
+```
+
+### 5. Verify Integration
+```bash
+# Test standards loading
+/sr
+
+# Should show:
+# ✓ Loaded: design-system.md
+# ✓ Loaded: tech-stack.md
+# ✓ Loaded: best-practices.md
+
+# Test design validation
+/vd
 ```
 
 ---
@@ -174,12 +264,14 @@ claude .
 # - Active TODOs
 # - Open bugs
 # - Active PRPs
+# - Loaded standards (NEW!)
 # - Last checkpoint
 
 # 3. Check active work
 ls PRPs/active/           # Active PRPs
 /bt list --open          # Open bugs
 /todo                    # Current TODOs
+ls .agent-os/product/    # Product docs (NEW!)
 
 # 4. Load appropriate context
 /cp load frontend        # Or backend, debug, etc.
@@ -189,503 +281,384 @@ ls PRPs/active/           # Active PRPs
 
 ```mermaid
 graph TD
-    A[New Work Item] --> B{Have clear specs?}
-    B -->|Yes| C{Have code examples?}
-    B -->|No| D[Use PRD Workflow]
+    A[New Work Item] --> B{Existing Project?}
+    B -->|Yes| C[/ae first]
+    B -->|No| D{Have clear specs?}
     
-    C -->|Yes| E[Use PRP Workflow]
-    C -->|No| F{Is it exploratory?}
+    D -->|Yes| E{Have code examples?}
+    D -->|No| F[Use PRD Workflow]
     
-    F -->|Yes| D
-    F -->|No| G[Create simple PRP]
+    E -->|Yes| G[Use PRP Workflow]
+    E -->|No| H{Is it exploratory?}
     
-    D --> H[Define requirements]
-    E --> I[One-pass implementation]
-    G --> I
+    H -->|Yes| F
+    H -->|No| I[Create simple PRP]
+    
+    C --> J[/mds analyze]
+    J --> D
 ```
 
----
-
-## 🏗️ Feature Development Workflows
-
-### PRP Workflow (Clear Implementation Path)
-
-Use when you know WHAT to build and have examples to follow.
-
-#### 1. Start from Issue
+### PRP Workflow (Recommended for Clear Features)
 ```bash
-/fw start 45  # "Add user avatar upload"
-```
+# 1. Start from issue
+/fw start 123
 
-#### 2. Create PRP
-```bash
-/create-prp user avatar upload with crop
-# or shorter: /prp avatar-upload
-```
+# 2. Create PRP
+/create-prp user-authentication
 
-#### 3. Validate Environment
-```bash
-# Level 1: Check syntax, linting, design system
-/prp-execute avatar-upload --level 1
+# 3. Review and validate
+/prp-validate user-authentication
 
-# Auto-fix issues
-/prp-execute avatar-upload --level 1 --fix
-```
+# 4. Execute with validation
+/prp-execute user-authentication --level 1
 
-#### 4. Implement Following Blueprint
-The PRP provides exact steps. Follow them phase by phase.
+# 5. Process tasks
+/pt user-authentication
 
-#### 5. Validate Each Phase
-```bash
-# After components created
-/prp-execute avatar-upload --level 2
-
-# After integration  
-/prp-execute avatar-upload --level 3
-
-# Before PR (full validation)
-/prp-execute avatar-upload --level 4
-```
-
-#### 6. Complete
-```bash
+# 6. Verify and complete
+/verify --full
 /fw complete
 ```
 
-### PRD Workflow (Exploratory Development)
-
-Use when you need to define WHAT to build.
-
-#### 1. Start from Issue
+### PRD Workflow (For Exploratory Work)
 ```bash
-/fw start 67  # "Customer dashboard"
-```
+# 1. Create PRD
+/prd new-feature
 
-#### 2. Create PRD
-```bash
-/prd customer-dashboard
+# 2. Add async requirements
+/prd-async new-feature
 
-# Add async requirements if needed
-/prd-async customer-dashboard
-```
+# 3. Generate tests from PRD
+/prd-tests new-feature
 
-#### 3. Generate Tasks
-```bash
-/gt customer-dashboard
-```
+# 4. Generate tasks
+/gt new-feature
 
-#### 4. Process Tasks
-```bash
-# Work through tasks one by one
-/pt customer-dashboard
-
-# Check progress
-/ts
-/tb  # Visual task board
-```
-
-#### 5. Validate Stages
-```bash
-# Can't proceed without completing stages
-/sv check 1  # Foundation
-/sv check 2  # Core features
-/sv check 3  # Polish
-```
-
-#### 6. Grade & Complete
-```bash
-/grade
-/fw complete
-```
-
-### TDD Workflow (Test-First Development)
-
-#### 1. Start TDD
-```bash
-/tdd-workflow user-profile
-```
-
-#### 2. Hook Enforcement
-```
-🚨 TDD ENFORCEMENT: Tests Required First!
-No tests found. Follow TDD workflow:
-1. Create test file first
-2. Write failing tests
-3. Run tests (RED phase)
-4. Implement to pass (GREEN phase)
-```
-
-#### 3. Generate Tests from PRD/PRP
-```bash
-/prd-tests user-profile
-```
-
-#### 4. Implement with Auto-Testing
-Tests run automatically after each file save!
-
-#### 5. Verify Completion
-```bash
-# When Claude claims "done", verification runs automatically
-# Or manually verify:
-/verify feature-name
+# 5. Process with TDD
+/tdd-workflow new-feature
 ```
 
 ---
 
 ## 🧪 Testing & Validation
 
-### Automated Test Enforcement
-- **Pre-hook**: Blocks component creation without tests
-- **Post-hook**: Runs tests after each change
-- **Stage gates**: Can't proceed without passing tests
-
-### Testing Commands
+### Multi-Level Validation System
 ```bash
-# Start TDD for feature
-/tdd-workflow feature-name
+# Level 1: Code Quality (instant)
+/vd                    # Design validation
+/lint:fix             # Auto-fix issues
+/typecheck            # TypeScript check
 
-# Generate tests from requirements
-/prd-tests feature-name
+# Level 2: Component Testing
+/tr current           # Test current file
+/tr:components        # All component tests
+/tr:hooks            # Hook tests
 
-# Verify completion claims (NEW!)
-/verify                  # Quick verification
-/verify feature-name     # Verify specific feature
-/verify --full           # Full verification with coverage
+# Level 3: Integration Testing
+/btf                  # Browser test flow
+/test:e2e            # E2E tests
+/test:api            # API tests
 
-# Run current file's tests
-/tr current
-
-# Run all changed files' tests
-/tr changed
-
-# Browser testing
-/btf login-flow
-
-# Visual regression
-/tr visual capture
-/tr visual compare
+# Level 4: Production Readiness
+/lighthouse          # Performance audit
+/sc all              # Security check
+/grade               # Implementation grading
 ```
 
-### PRP Validation Levels
-1. **🔴 Level 1**: Syntax & Standards (continuous)
-   - Linting, TypeScript, design system, imports
+### TDD Workflow
+```bash
+# 1. Start TDD mode
+/tdd-workflow feature-name
 
-2. **🟡 Level 2**: Component Testing
-   - Unit tests, component tests, hooks
+# 2. Write failing test
+# Claude writes test first
 
-3. **🟢 Level 3**: Integration Testing
-   - E2E tests, API integration, real workflows
+# 3. Implement minimum code
+# Claude implements to pass
 
-4. **🔵 Level 4**: Production Readiness
-   - Security, performance, bundle size, compliance
+# 4. Refactor
+# Claude improves code
+
+# 5. Verify
+/verify --tdd
+```
 
 ---
 
-## 💾 Context Management
+## 🧠 Context Management
 
-### Never Lose Work Again
-
-#### Automatic Saves (Every 60 seconds)
-- State saved to GitHub gists
-- Includes all open files, cursor positions, context
-- NOT git commits - no commit spam!
-
-#### Manual Checkpoints
+### Standards Management (NEW!)
 ```bash
-/checkpoint "Finished auth implementation"
+# View standards
+cat .agent-os/standards/design-system.md
+cat .agent-os/standards/tech-stack.md
+cat .agent-os/standards/best-practices.md
+
+# Standards are automatically loaded on:
+/sr                    # Smart resume
+/init-project         # New projects
+/ae                   # Existing projects
 ```
 
-#### Context Profiles
+### Context Profiles
 ```bash
-# Create focused profile
-/cp create "payment-integration"
+# Load focused context
+/cp load frontend      # Frontend work
+/cp load backend       # Backend work
+/cp load debug         # Debugging mode
+/cp load testing       # Test writing
 
-# Save current state to profile
-/cp save
+# Create custom profile
+/cp create mobile-ui   # Custom profile
 
-# Load different profile
-/cp load backend
-
-# List all profiles
+# List profiles
 /cp list
-```
-
-### Bug Tracking Across Sessions
-```bash
-# Add bug (persists forever)
-/bt add "Login button wrong color on mobile"
-
-# List bugs
-/bt list --open
-
-# Close bug
-/bt close 3
 ```
 
 ### Research Documents
 ```bash
-# Create/update research (no more doc-v1, doc-v2!)
-/research payment gateways comparison
+# Create research
+/research auth-strategy
 
-# Updates intelligently merge
-/research payment gateways comparison
-> "Adding Stripe API details to existing research..."
+# Update existing
+/research update auth-strategy
+
+# Search research
+/research search authentication
+
+# Include in context
+/research context auth-strategy
+```
+
+### Checkpoints
+```bash
+# Manual checkpoint
+/checkpoint "Before refactor"
+
+# List checkpoints
+/checkpoint list
+
+# Restore checkpoint
+/checkpoint restore 3
 ```
 
 ---
 
-## 🎬 Common Scenarios
+## 🎯 Common Scenarios
 
-### Scenario: "Claude just gave me a great implementation plan"
+### Scenario: Onboarding Existing React Project
 ```bash
-# DON'T just say "yes do it"
-# DO capture it immediately:
+# 1. Add system
+cd my-react-app
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/add-to-existing.sh | bash -s full
 
-# Option 1: Quick capture
-/cti "Implement Claude's caching strategy"
+# 2. Open and analyze
+claude .
+/ae
 
-# Option 2: Full issue
-gh issue create --title "Caching Strategy" \
-  --body "[paste entire plan]"
+# 3. Check design
+/mds analyze
 
-# Option 3: Create PRP from it
-/fw start 89
-/create-prp caching strategy from claude plan
+# 4. Migrate if needed
+/mds migrate
+
+# 5. Start working
+/fw start 456
 ```
 
-### Scenario: "I need to create a contact form"
+### Scenario: Creating Secure Form
 ```bash
-# Secure form with tracking
-/ctf ContactForm --vertical=debt --compliance=tcpa
+# 1. Create tracked form
+/ctf ContactForm
 
 # This generates:
-# - PII field encryption
-# - Event tracking (non-blocking)
+# - Form component with validation
+# - Event tracking hooks
 # - TCPA compliance
 # - Loading states
-# - Validation
+# - Error handling
+
+# 2. Validate
+/vd
+/sc form
+
+# 3. Test
+/tr ContactForm
 ```
 
-### Scenario: "Tests are blocking my work"
+### Scenario: Debugging Production Issue
 ```bash
-# Option 1: Follow TDD
-/tdd-workflow feature
+# 1. Load debug context
+/cp load debug
 
-# Option 2: Generate from PRD
-/prd-tests feature
+# 2. Analyze with UltraThink
+/ut "Users report form submissions failing intermittently"
 
-# Option 3: Temporarily disable (not recommended)
-# Edit .claude/hooks/config.json
-{
-  "tdd": {
-    "enabled": false
-  }
-}
-```
-
-### Scenario: "I need to explore a complex problem"
-```bash
-# Use UltraThink for deep analysis
-/ut how to implement real-time collaboration
-
-# This runs 32k+ token analysis with:
-# - Multi-perspective thinking
-# - Parallel sub-agents
-# - Implementation strategies
-# - Trade-off analysis
-```
-
-### Scenario: "Working with async operations"
-```bash
-# Create form with proper async handling
-/ctf LeadForm
-
-# Add event handler
-/create-event-handler form-analytics
-
-# Validate async patterns
+# 3. Check async patterns
 /validate-async
 
-# Key principle: User actions NEVER wait for analytics!
+# 4. Review event logs
+/query-logs --errors --last-hour
+
+# 5. Create fix
+/mt "Add retry logic to form submission"
+```
+
+### Scenario: Multi-Agent Feature
+```bash
+# 1. Large feature needing parallel work
+/gt authentication-system
+
+# 2. Check if orchestration helps
+# System suggests: "Save ~45 minutes with parallel execution"
+
+# 3. Orchestrate
+/orch authentication-system --agents=3
+
+# 4. Monitor progress
+/sas
+/ov
 ```
 
 ---
 
 ## 💡 Pro Tips & Best Practices
 
-### 1. Start Every Session with `/sr`
-Never skip smart resume - it's your context lifeline.
-
-### 2. Choose the Right Tool
-- **PRP**: When you know what to build
-- **PRD**: When exploring requirements
-- **Both**: PRD for planning, PRP for implementation
-
-### 3. Let Hooks Work for You
-Don't fight the system - hooks enforce quality automatically:
-- Design violations blocked before they happen
-- Tests required before implementation
-- PII protection automatic
-- Imports fixed automatically
-
-### 4. Use Parallel Agents
+### 1. Always Start with /sr
 ```bash
-# Complex feature? Orchestrate!
-/orch payment-system
+# BAD: Jumping straight into work
+/pt
 
-# Assigns to specialists:
-# - Frontend: UI components
-# - Backend: API design
-# - Security: Compliance
-# - QA: Test planning
+# GOOD: Load context first
+/sr
+/pt
 ```
 
-### 5. Capture Everything
+### 2. Use Standards Effectively
 ```bash
-# Claude gives good info? Capture it!
-/cti "Performance optimization strategy"
+# Customize for your team
+edit ~/.agent-os/standards/best-practices.md
 
-# Found a pattern that works? Extract it!
-/specs extract successful-payment-flow
+# Override for specific project
+mkdir .agent-os/standards
+echo "# Project-specific rules" > .agent-os/standards/overrides.md
 ```
 
-### 6. Stage Gates Prevent Problems
+### 3. Chain Commands for Efficiency
 ```bash
-# Can't skip ahead
-/sv require 1  # Must complete foundation
-/sv require 2  # Must complete features
-/sv require 3  # Must complete polish
+# Morning routine
+/chain daily-startup
+
+# Pre-PR validation
+/chain pre-pr
+
+# Feature completion
+/chain safe-feature-complete
 ```
 
-### 7. Visual Planning for UI
+### 4. Trust the Validation
 ```bash
-# Working on UI? Use visual planning
-/vp dashboard-layout
+# Don't skip levels
+/prp-execute --level 1  # Do this
+/prp-execute --level 2  # Then this
+/prp-execute --level 3  # Then this
+/prp-execute --level 4  # Finally this
+```
 
-# Paste screenshots, get:
-# - Annotated improvements
-# - Component breakdown
-# - Implementation plan
+### 5. Use Visual Planning for UI
+```bash
+# Screenshot current state
+# Paste with Ctrl+V
+/vp dashboard-redesign
+
+# Claude analyzes and suggests improvements
+```
+
+### 6. Let Hooks Work for You
+```bash
+# Safe operations auto-approve
+# No more "Can I read this file?" interruptions
+
+# Design violations block immediately
+# No more fixing later
+
+# Standards load automatically
+# No more copy-pasting rules
 ```
 
 ---
 
 ## 🔧 Troubleshooting
 
-### "Command not found"
+### Issue: Design Violations Keep Appearing
 ```bash
-/init  # Reinitialize system
-```
-
-### "Lost my context"
-```bash
-/sr  # Smart resume
-/checkpoint list  # Find checkpoints
-```
-
-### "Tests won't let me work"
-```bash
-# Check why
-/help tdd
-
-# Generate required tests
-/prd-tests feature
-```
-
-### "Design system too restrictive"
-```bash
-# Temporarily disable
-/dmoff
-
-# Re-enable
+# Solution 1: Check if design mode is on
 /dmon
+
+# Solution 2: Run migration
+/mds analyze
+/mds migrate
+
+# Solution 3: Update standards
+edit .agent-os/standards/design-system.md
 ```
 
-### "PR creation failed"
+### Issue: Context Lost After Compaction
 ```bash
-# Check GitHub app permissions
-# Ensure both apps installed on YOUR repo
-# Check .claude/project-config.json
+# Solution: Smart resume restores everything
+/sr
+
+# Prevention: Regular checkpoints
+/checkpoint "Before big feature"
 ```
 
-### "Hooks not running"
+### Issue: Tests Failing Mysteriously
 ```bash
-# Restart Claude Code
-# Check hooks status
-ls .claude/hooks/pre-tool-use/
+# Solution 1: Check async patterns
+/validate-async
+
+# Solution 2: Review recent changes
+/deps scan
+
+# Solution 3: Full verification
+/verify --full --debug
 ```
 
----
-
-## 📚 Key Files to Bookmark
-
-- `MASTER_WORKFLOW_GUIDE.md` - This file
-- `docs/claude/NEW_CHAT_CONTEXT.md` - Quick reference
-- `docs/SYSTEM_OVERVIEW.md` - Complete system docs
-- `PRPs/README.md` - PRP methodology
-- `field-registry/README.md` - Security/compliance
-- `.claude/commands/` - All command docs
-
----
-
-## 🎯 The Meta Workflow
-
-1. **Every Day**: Start with `/sr`
-2. **Every Feature**: Create issue → Choose approach (PRP/PRD)
-3. **Every Change**: Let hooks validate automatically
-4. **Every Session**: Context auto-saves
-5. **Every PR**: Full context transfers
-
-The system is designed so you **cannot lose work** and **cannot ship broken code**. Trust the automation and focus on building great features!
-
----
-
-## 🆕 Next Command Suggestion System
-
-The system now includes intelligent next-step suggestions after every command:
-
-### How It Works
-```
-You: /cti "Fix import script for 112 fields"
-✅ Created issue #17
-
-💡 Next steps:
-  → `/gt import-script-fix`     # Break down into manageable tasks
-  → `/fw start 17`             # Start implementation immediately
-  → `/prp import-optimization` # If research needed first
-```
-
-### Smart Decision Making
-- **Complexity Detection**: Suggests `/prp` for research when detecting complex problems
-- **Orchestration Hints**: Shows time savings when parallel agents would help
-- **Context Aware**: Different suggestions for morning vs evening
-- **Stuck Detection**: Offers help when you've been idle
-
-### Interactive Decision Guide
-When unsure, use:
+### Issue: Can't Find Command
 ```bash
-/help-decide  # or /hd
+# Solution 1: Use help
+/help [partial-command]
+
+# Solution 2: Check aliases
+/help aliases | grep [what-you-want]
+
+# Solution 3: Browse all commands
+ls .claude/commands/
 ```
 
-This walks you through questions to find the right command:
-```
-Claude: What are you trying to do?
-1. 🚀 Start a new project
-2. ✨ Add a new feature  
-3. 🐛 Fix a bug
-4. 🔍 Research/explore
-5. 📝 Continue work in progress
-6. 🤷 I'm not sure / I'm stuck
-```
+### Issue: Existing Project Won't Analyze
+```bash
+# Solution 1: Check you're in root
+pwd  # Should show project root
 
-### Coverage
-The suggestion system covers ALL workflows:
-- **New Projects**: `/init-project` → `/gi` → `/fw start`
-- **Clear Features**: `/cti` → `/gt` → `/pt` → `/test` → `/fw complete`
-- **Complex Problems**: `/prp` → `/prp-execute` → `/cti` → implementation
-- **Bug Fixes**: `/bt` → `/generate-tests` → fix → `/test`
-- **Daily Work**: `/sr` → continue where left off
+# Solution 2: Try manual setup
+mkdir -p .agent-os/product
+/init-project  # Then manually edit
+
+# Solution 3: Check permissions
+ls -la .claude/
+```
 
 ---
 
-**Remember**: The person who communicates most effectively is the most valuable programmer. This system ensures your communication (PRDs, PRPs, issues) drives perfect implementation.
+## 🎉 You're Ready!
+
+With this guide, you have everything needed to maximize the Claude Code Boilerplate system. Remember:
+
+1. **Start every session with `/sr`**
+2. **Use `/ae` for existing projects**
+3. **Trust the automated validations**
+4. **Let next command suggestions guide you**
+5. **Customize standards for your team**
+
+The system handles the HOW so you can focus on the WHAT. Happy building! 🚀

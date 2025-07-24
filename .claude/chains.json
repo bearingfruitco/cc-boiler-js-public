@@ -174,6 +174,43 @@
         "feature-complete"
       ],
       "stopOnError": true
+    },
+    "analyze-existing-project": {
+      "description": "Drop into existing project and set up full system",
+      "commands": [
+        "analyze-existing full",
+        "smart-resume",
+        "validate-design"
+      ]
+    },
+    "migrate-design-system": {
+      "description": "Migrate existing code to strict design system",
+      "commands": [
+        "migrate-to-strict-design analyze",
+        "checkpoint create pre-migration",
+        "migrate-to-strict-design migrate",
+        "validate-design",
+        "test-runner changed"
+      ],
+      "stopOnError": true
+    },
+    "onboard-existing": {
+      "description": "Complete onboarding for existing project",
+      "commands": [
+        "analyze-existing full",
+        "migrate-to-strict-design analyze",
+        "create-prd-from-existing main-features",
+        "task-ledger sync",
+        "branch-status"
+      ]
+    },
+    "standards-sync": {
+      "description": "Sync with global standards",
+      "commands": [
+        "smart-resume",
+        "validate-design --check-standards",
+        "migrate-to-strict-design analyze"
+      ]
     }
   },
   "shortcuts": {
@@ -195,6 +232,10 @@
     "sfc": "safe-feature-complete",
     "bm": "branch-maintenance",
     "tdd": "tdd-cycle",
-    "vc": "verify-complete"
+    "vc": "verify-complete",
+    "aep": "analyze-existing-project",
+    "mds": "migrate-design-system",
+    "oe": "onboard-existing",
+    "ss": "standards-sync"
   }
 }
