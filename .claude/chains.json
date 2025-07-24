@@ -211,6 +211,45 @@
         "validate-design --check-standards",
         "migrate-to-strict-design analyze"
       ]
+    },
+    "multi-perspective-review": {
+      "description": "Review code from multiple expert angles simultaneously",
+      "commands": [
+        "orchestrate-agents 'Review from security perspective' --persona security",
+        "orchestrate-agents 'Review from performance perspective' --persona performance",
+        "orchestrate-agents 'Review from frontend UX perspective' --persona frontend",
+        "orchestrate-agents 'Review from architecture perspective' --persona architect",
+        "orchestrate-agents 'Synthesize all review findings' --persona architect"
+      ],
+      "parallel": true,
+      "synthesize": true
+    },
+    "worktree-setup": {
+      "description": "Setup parallel worktrees for multi-feature development",
+      "commands": [
+        "checkpoint create pre-worktree",
+        "git-status",
+        "bash .claude/scripts/worktree-manager.sh create",
+        "work-status"
+      ]
+    },
+    "worktree-execute": {
+      "description": "Execute tasks in worktrees with orchestration",
+      "commands": [
+        "worktree-parallel --orchestrate",
+        "bash .claude/scripts/worktree-manager.sh status"
+      ],
+      "parallel": true
+    },
+    "worktree-review-merge": {
+      "description": "Review and merge worktree changes",
+      "commands": [
+        "validate-design --all-worktrees",
+        "test-runner --all-worktrees",
+        "bash .claude/scripts/worktree-manager.sh pr",
+        "branch-status"
+      ],
+      "stopOnError": true
     }
   },
   "shortcuts": {
@@ -236,6 +275,10 @@
     "aep": "analyze-existing-project",
     "mds": "migrate-design-system",
     "oe": "onboard-existing",
-    "ss": "standards-sync"
+    "ss": "standards-sync",
+    "mpr": "multi-perspective-review",
+    "wts": "worktree-setup",
+    "wte": "worktree-execute",
+    "wtrm": "worktree-review-merge"
   }
 }

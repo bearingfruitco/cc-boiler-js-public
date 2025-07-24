@@ -151,5 +151,13 @@
   "strict-design": "migrate-to-strict-design",
   "prd-existing": "create-prd-from-existing",
   "doc-existing": "create-prd-from-existing",
-  "reverse-prd": "create-prd-from-existing"
+  "reverse-prd": "create-prd-from-existing",
+  "wt": "worktree-parallel",
+  "worktree": "worktree-parallel",
+  "wt-status": "bash .claude/scripts/worktree-manager.sh status",
+  "wt-switch": "bash .claude/scripts/worktree-manager.sh switch",
+  "wt-clean": "bash .claude/scripts/worktree-manager.sh clean",
+  "wt-pr": "bash .claude/scripts/worktree-manager.sh pr",
+  "mpr": "chain multi-perspective-review",
+  "multi-review": "chain multi-perspective-review"
 }

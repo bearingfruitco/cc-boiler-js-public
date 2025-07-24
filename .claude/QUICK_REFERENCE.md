@@ -1,4 +1,4 @@
-# 🎯 Claude Code Quick Reference Card v2.7.0
+# 🎯 Claude Code Quick Reference Card v2.7.1
 
 > 🚀 **For complete workflow guide, see: [MASTER_WORKFLOW_GUIDE.md](../MASTER_WORKFLOW_GUIDE.md)**
 
@@ -17,6 +17,17 @@
 /gt [name]              # Generate ~20 implementation tasks from PRD
 /pt [name]              # Process tasks (CodeRabbit reviews as you code)
 /sv check 1             # Validate that stage 1 requirements are met
+
+# Parallel Development 🆕
+/wt auth payment ui     # Create isolated worktrees for parallel features
+/wt-status              # View all active worktrees
+/wt-switch auth         # Switch to auth worktree
+/wt-pr auth             # Create PR from worktree
+
+# Code Review 🆕
+/mpr                    # Multi-perspective review (security, perf, UX, arch)
+/mpr --pr 156           # Review specific PR from all angles
+/chain mpr              # Run as workflow chain
 
 # Create forms with tracking
 /create-tracked-form ContactForm --vertical=standard --compliance=tcpa  # ⚡
@@ -59,6 +70,21 @@
 - `/branch-switch` (`/switch`) - Smart branch switching
 - `/branch-clean` (`/clean`) - Clean merged branches
 - `/feature-complete` (`/fc`) - Mark feature as done
+
+### Parallel Development 🆕 NEW
+- `/wt` - Create isolated worktrees for parallel features
+- `/wt-status` - View all active worktrees
+- `/wt-switch` - Switch between worktrees
+- `/wt-pr` - Create PR from worktree
+- `/wt-clean` - Remove worktrees
+
+### Code Review 🆕 NEW
+- `/mpr` - Multi-perspective review (security, performance, UX, architecture)
+- `/mpr --pr` - Review specific PR from all angles
+- `/mpr --worktree` - Review worktree changes
+- `/chain multi-perspective-review` - Run as workflow
+- `/pr-feedback` - Quick PR status check
+- CodeRabbit IDE - Real-time review in Cursor
 
 ### Development
 - `/cc` - Create component
@@ -159,7 +185,12 @@ const [isSubmitting, setIsSubmitting] = useState(false);
 // Must show loading state during async operations
 ```
 
-## 🆕 New Features (v2.3.6)
+## 🆕 New Features (v2.7.1)
+- **Git Worktrees**: True parallel development with filesystem isolation
+- **Multi-Perspective Review**: Security, performance, UX, architecture reviews in parallel
+- **Enhanced Suggestions**: Commands now suggest worktree and review options intelligently
+
+## 🆕 Previous Features (v2.3.6)
 - **Async Event System**: Fire-and-forget for non-critical operations
 - **Automatic Rudderstack Bridge**: Events auto-convert to track() calls
 - **Form Event Tracking**: Built-in hooks for lead generation

@@ -1,6 +1,6 @@
-# 🚀 Master Workflow Guide - Claude Code Boilerplate v2.7.0
+# 🚀 Master Workflow Guide - Claude Code Boilerplate v2.7.1
 
-> **One Document to Rule Them All** - Your complete reference for maximizing the Claude Code Boilerplate system with Agent OS integration.
+> **One Document to Rule Them All** - Your complete reference for maximizing the Claude Code Boilerplate system with Agent OS integration and parallel development features.
 
 ## Table of Contents
 1. [Quick Command Reference](#quick-command-reference)

@@ -452,6 +452,22 @@ class WorkflowDecisionEngine:
                 {'command': '/tb', 'reason': 'View overall progress'}
             ])
             
+        elif command in ['wt', 'worktree-parallel', 'worktree']:
+            # Worktree suggestions
+            suggestions.extend([
+                {'command': '/wt-status', 'reason': 'View all active worktrees'},
+                {'command': '/wt-switch [name]', 'reason': 'Switch to a worktree to start work'},
+                {'command': '/chain worktree-execute', 'reason': 'Run orchestration in worktrees'}
+            ])
+            
+        elif command == 'multi-perspective-review' or command == 'mpr':
+            # Multi-perspective review suggestions
+            suggestions.extend([
+                {'command': '/fw complete', 'reason': 'Address review feedback and create PR'},
+                {'command': '/checkpoint "post-review"', 'reason': 'Save review findings'},
+                {'command': '/mt "[fix specific issue]"', 'reason': 'Quick fix for review issues'}
+            ])
+            
         elif command in ['orch', 'orchestrate']:
             suggestions.extend([
                 {'command': '/sas', 'reason': 'Monitor agent status'},
@@ -651,7 +667,9 @@ def extract_command_from_tool(tool_name: str, args: Dict) -> Optional[str]:
         'think_through': 'think-through',
         'prp_execute': 'prp-execute',
         'prp_complete': 'prp-complete',
-        'feature_workflow_complete': 'fw complete'
+        'feature_workflow_complete': 'fw complete',
+        'worktree_parallel': 'wt',
+        'multi_perspective_review': 'mpr'
     }
     
     # Check direct mapping

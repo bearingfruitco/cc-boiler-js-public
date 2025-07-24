@@ -1,4 +1,21 @@
-# New Chat Context - Claude Code Boilerplate v2.7.0
+# New Chat Context - Claude Code Boilerplate v2.7.1
+
+## 🆕 What's New in v2.7.1
+
+### Parallel Development Features (Kieran-Inspired)
+- **Git Worktrees** (`/wt`) - True filesystem isolation for parallel development
+- **Multi-Perspective Review** (`/mpr`) - Security, performance, UX, architecture reviews in parallel
+- **Enhanced Suggestions** - Intelligent command suggestions for worktrees and reviews
+- **Automatic Context** - Worktree awareness shows relevant info and commands
+
+### New Commands
+- `/wt` (`/worktree`) - Create isolated worktrees for parallel features
+- `/wt-status` - View all active worktrees
+- `/wt-switch [name]` - Switch between worktrees
+- `/wt-pr [name]` - Create PR from worktree
+- `/wt-clean` - Clean up worktrees
+- `/mpr` (`/multi-review`) - Review from multiple expert perspectives
+- `/chain multi-perspective-review` - Run reviews as workflow
 
 ## 🆕 What's New in v2.7.0
 
@@ -114,6 +131,14 @@ You're working with an advanced AI-assisted development system that treats speci
 /ae                    # Analyze existing codebase
 /mds analyze           # Check design compliance
 /chain onboard-existing # Complete onboarding
+```
+
+#### For Parallel Development (NEW!):
+```bash
+/wt feat1 feat2 feat3  # Create isolated worktrees
+/wt-status             # Monitor all worktrees
+/wt-switch feat1       # Work on specific feature
+/mpr                   # Multi-perspective review before PR
 ```
 
 ### One-Time Setup (2 minutes)
@@ -296,8 +321,13 @@ CONTEXT                COLLABORATION          EXISTING PROJECTS (NEW)
 BRANCH MANAGEMENT      EVENTS                 REVIEW
 /bs     - status       /create-event-handler  /pr-feedback
 /fs     - features     /test-async-flow       CodeRabbit (IDE)
-/sync   - sync main
+/sync   - sync main                           /mpr    - multi-review (NEW)
 /fc     - complete
+
+PARALLEL DEV (NEW)     WORKTREES             MULTI-REVIEW
+/wt     - create       /wt-status             /mpr --pr [#]
+/wt-switch             /wt-pr                 /mpr --worktree
+/wt-clean              /chain wte             /chain mpr
 ```
 
 ## 🔑 Key Files
