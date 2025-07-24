@@ -62,6 +62,16 @@ Follow the prompts to set your username (shawn/nikki).
 
 ### 2. Post-Tool-Use Hooks (After File Operations)
 
+#### 04-next-command-suggester.py (NEW)
+- **Purpose**: Suggest logical next commands based on context
+- **Actions**:
+  - Analyzes command results and current state
+  - Suggests 1-3 most relevant next commands
+  - Provides time-based suggestions (end of day, morning)
+  - Detects when orchestration would save time
+  - Learns from common command sequences
+- **Example**: After `/cti`, suggests `/gt` or `/fw start`
+
 #### 01-state-save.py
 - **Purpose**: Auto-save work state to GitHub
 - **Actions**:

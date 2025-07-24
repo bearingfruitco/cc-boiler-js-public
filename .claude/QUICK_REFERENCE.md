@@ -1,40 +1,47 @@
-# 🎯 Claude Code Quick Reference Card
+# 🎯 Claude Code Quick Reference Card v2.6.0
 
 > 🚀 **For complete workflow guide, see: [MASTER_WORKFLOW_GUIDE.md](../MASTER_WORKFLOW_GUIDE.md)**
 
 ## 🚀 Daily Flow - What Each Command Does
 ```bash
 # Start day
-/sr                     # Smart Resume - Restores all context from last session
+/sr                     # Smart Resume - Restores all context (now shows branch health)
 /cp load [profile]      # Load a saved context profile (e.g., "frontend", "backend")
 /bt list                # Show all unresolved bugs you're tracking
+/branch-status          # Check branch health and active work 🆕
 
 # Feature work (with CodeRabbit real-time review)
 /fw start [#]           # Start working on GitHub issue # (creates branch)
 /prd [name]             # Create detailed Product Requirements Document
-/prd-async [name]       # Add async requirements to PRD ⚡ NEW
+/prd-async [name]       # Add async requirements to PRD ⚡
 /gt [name]              # Generate ~20 implementation tasks from PRD
 /pt [name]              # Process tasks (CodeRabbit reviews as you code)
 /sv check 1             # Validate that stage 1 requirements are met
 
 # Create forms with tracking
-/create-tracked-form ContactForm --vertical=standard --compliance=tcpa  # ⚡ NEW
+/create-tracked-form ContactForm --vertical=standard --compliance=tcpa  # ⚡
 # Options: --vertical=[debt|healthcare|standard] --compliance=[standard|hipaa|gdpr|tcpa]
 
 # During work
 /vd                     # Validate design - checks CSS classes & spacing
-/validate-async         # Check async patterns compliance ⚡ NEW
+/validate-async         # Check async patterns compliance ⚡
 /dmoff                  # Turn OFF design system - use any Tailwind classes
 /dmon                   # Turn ON design system - back to strict mode
 /bt add "bug"           # Track a bug to fix later
 /dc search "topic"      # Search your cached documentation
 /checkpoint             # Manually save current state (auto-saves every 60s)
+/feature-status [name]  # Check if feature already exists 🆕
 # CodeRabbit IDE      # Reviews automatically as you type in Cursor
 
 # Complete stage
 /sv require 1           # Block progress until stage 1 is complete
+/feature-complete       # Mark feature as done and protected 🆕
 /pr-feedback            # Quick PR status check (most issues already fixed)
 /fw complete [#]        # Create PR that closes GitHub issue #
+
+# Branch maintenance
+/sync-main              # Safely sync main branch 🆕
+/branch-clean           # Clean up merged branches 🆕
 ```
 
 ## 📊 Command Categories
@@ -44,6 +51,14 @@
 - `/cp` - Context Profile (save/load/list)
 - `/checkpoint` - Save progress
 - `/compress` - Compress context
+
+### Branch Management 🆕
+- `/branch-status` (`/bs`) - Branch overview & health
+- `/feature-status` (`/fs`) - Feature details & protection  
+- `/sync-main` (`/sync`) - Sync main branch safely
+- `/branch-switch` (`/switch`) - Smart branch switching
+- `/branch-clean` (`/clean`) - Clean merged branches
+- `/feature-complete` (`/fc`) - Mark feature as done
 
 ### Development
 - `/cc` - Create component

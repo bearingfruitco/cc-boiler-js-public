@@ -1,5 +1,29 @@
 # New Chat Context - Claude Code Boilerplate v2.5.0
 
+## 🆕 What's New in v2.6.0
+
+### Branch Awareness & Feature Protection System 🌿
+- **Problem Solved**: AI can no longer recreate completed features or create conflicting branches
+- **Feature Awareness**: Shows helpful context when editing completed features (non-blocking)
+- **Branch Health**: Periodic tips about branch hygiene and maintenance
+- **Smart Integration**: Works seamlessly with existing PRD/PRP workflows
+- **Progressive Enhancement**: Info-only mode by default, can add warnings/protection later
+
+### New Commands
+- `/branch-info` (`/bi`) - Lightweight branch status for automation
+- `/branch-status` (`/bs`) - Comprehensive branch overview
+- `/feature-status` (`/fs`) - Check feature completion and details
+- `/sync-main` (`/sync`) - Safely sync main branch
+- `/feature-complete` (`/fc`) - Mark features as completed
+- `/branch-clean` (`/bc`) - Clean up merged branches
+- `/branch-switch` (`/bsw`) - Smart branch switching with context
+
+### Enhanced Workflows
+- **Smart Resume**: Now shows branch health and feature warnings
+- **PRP Integration**: Feature awareness in validation loops
+- **Event System**: Branch events fire to async queue
+- **Chain Support**: New chains for branch-aware workflows
+
 ## 🆕 What's New in v2.5.0
 
 ### Requirement Fidelity System 🔒
@@ -207,17 +231,19 @@ IDEA → /init-project → /prd → /prd-async → /gt → /pt → /grade → /f
 
 ### Daily Development
 ```bash
-/sr                    # Resume where you left off
+/sr                    # Resume where you left off (now with branch awareness)
+/branch-status         # Check branch health (NEW)
 /fw start [#]          # Start GitHub issue
 /prd [name]            # Create specification
-/prd-async [name]      # Add async requirements (NEW)
+/prd-async [name]      # Add async requirements
 /prd-tests [name]      # Generate test suite
 /gt [name]             # Generate tasks
 /pt [name]             # Process tasks (with real-time review)
 /grade                 # Check alignment
 /specs extract         # Save successful pattern
+/feature-complete      # Mark feature as done (NEW)
 /pr-feedback           # Quick PR status check
-/research review       # Organize research docs (NEW)
+/research review       # Organize research docs
 ```
 
 ### Quality & Safety
@@ -274,9 +300,11 @@ CONTEXT                COLLABORATION          HELP
 /dc     - doc cache    /team - status         /?
 /research - organize   
 
-REVIEW                 EVENTS (NEW)
-/pr-feedback          /create-event-handler
-CodeRabbit (IDE)      /test-async-flow
+BRANCH MANAGEMENT      EVENTS                 REVIEW
+/bs     - status       /create-event-handler  /pr-feedback
+/fs     - features     /test-async-flow       CodeRabbit (IDE)
+/sync   - sync main
+/fc     - complete
 ```
 
 ## 🔑 Key Files

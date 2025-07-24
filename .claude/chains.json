@@ -122,6 +122,34 @@
         "exists",
         "facts components"
       ]
+    },
+    "branch-aware-startup": {
+      "description": "Branch-aware daily startup",
+      "commands": [
+        "smart-resume",
+        "branch-status",
+        "feature-status current",
+        "task-status"
+      ]
+    },
+    "safe-feature-complete": {
+      "description": "Complete feature with state management",
+      "commands": [
+        "validate-design",
+        "test-runner all",
+        "stage-validate check",
+        "feature-complete",
+        "branch-status"
+      ],
+      "stopOnError": true
+    },
+    "branch-maintenance": {
+      "description": "Branch cleanup and maintenance",
+      "commands": [
+        "sync-main",
+        "branch-clean --dry-run",
+        "branch-status"
+      ]
     }
   },
   "shortcuts": {
@@ -138,6 +166,9 @@
     "ds": "daily-startup",
     "sc": "safe-commit",
     "fs": "field-sync",
-    "pc": "pre-component"
+    "pc": "pre-component",
+    "bas": "branch-aware-startup",
+    "sfc": "safe-feature-complete",
+    "bm": "branch-maintenance"
   }
 }

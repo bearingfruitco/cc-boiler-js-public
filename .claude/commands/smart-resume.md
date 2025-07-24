@@ -58,6 +58,21 @@ grep "TODO" $CURRENT_FILE | head -3
 echo -e "\n## ✅ Quick Checks"
 echo "Design: $(grep 'Design:' .claude/context/current.md | tail -1)"
 echo "Tests: $(npm test --silent 2>&1 | grep -E 'passed|failed' | tail -1)"
+
+# 5. Branch Awareness Check (NEW)
+echo -e "\n## 🌿 Branch Status"
+BRANCH_REGISTRY=$(cat .claude/branch-state/branch-registry.json 2>/dev/null || echo '{}')
+FEATURE_STATE=$(cat .claude/branch-state/feature-state.json 2>/dev/null || echo '{}')
+
+# Check if on protected feature branch
+CURRENT_FILES=$(git diff --name-only HEAD~1 2>/dev/null | head -5)
+for file in $CURRENT_FILES; do
+  PROTECTED=$(echo "$FEATURE_STATE" | jq -r ".features | to_entries[] | select(.value.files[] == \"$file\") | .key")
+  if [ ! -z "$PROTECTED" ]; then
+    echo "⚠️  Working on protected feature: $PROTECTED"
+    echo "   Use /feature-status $PROTECTED for details"
+  fi
+done
 ```
 
 ### Speed: FULL
@@ -222,7 +237,42 @@ if [ ! -z "$PROGRESS" ] && [ $PROGRESS -gt 80 ]; then
   echo "  Command: /feature-workflow complete $ISSUE"
 fi
 
-# 6. One-Line Resume
+# 6. Branch & Feature State (NEW)
+echo -e "\n## 🌿 Branch & Feature Awareness"
+
+# Check branch health
+BRANCH_REGISTRY=$(cat .claude/branch-state/branch-registry.json 2>/dev/null || echo '{}')
+if [ ! -z "$BRANCH_REGISTRY" ]; then
+  ACTIVE_BRANCHES=$(echo "$BRANCH_REGISTRY" | jq -r '.active_branches | length')
+  MAX_BRANCHES=$(echo "$BRANCH_REGISTRY" | jq -r '.branch_rules.max_active_branches')
+  MAIN_SYNC=$(echo "$BRANCH_REGISTRY" | jq -r '.main_branch.last_pulled')
+  
+  echo "Active branches: $ACTIVE_BRANCHES / $MAX_BRANCHES"
+  echo "Main last synced: $MAIN_SYNC"
+  
+  # Check for conflicts
+  BLOCKED_FILES=$(echo "$BRANCH_REGISTRY" | jq -r '.blocked_files | length')
+  if [ $BLOCKED_FILES -gt 0 ]; then
+    echo "⚠️  Files blocked by other branches: $BLOCKED_FILES"
+    echo "   Run /branch-status for details"
+  fi
+fi
+
+# Check feature state
+FEATURE_STATE=$(cat .claude/branch-state/feature-state.json 2>/dev/null || echo '{}')
+if [ ! -z "$FEATURE_STATE" ] && [ ! -z "$ISSUE" ]; then
+  # Check if working on enhancement
+  ENHANCEMENT=$(echo "$FEATURE_STATE" | jq -r ".features | to_entries[] | select(.value.in_progress_enhancements.issue == \"#$ISSUE\") | .key")
+  if [ ! -z "$ENHANCEMENT" ]; then
+    echo "🔧 Enhancing feature: $ENHANCEMENT"
+    CORRECT_BRANCH=$(echo "$FEATURE_STATE" | jq -r ".features[\"$ENHANCEMENT\"].in_progress_enhancements.branch")
+    if [ "$CURRENT_BRANCH" != "$CORRECT_BRANCH" ]; then
+      echo "⚠️  Wrong branch! Should be on: $CORRECT_BRANCH"
+    fi
+  fi
+fi
+
+# 7. One-Line Resume
 echo -e "\n## ⚡ Quick Resume"
 echo "Copy and run:"
 if [ ! -z "$LOCATION" ]; then

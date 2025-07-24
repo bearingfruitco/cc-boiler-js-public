@@ -1,10 +1,10 @@
 # Next.js 15 Boilerplate with Claude Code
 
-This is a production-ready boilerplate for Next.js 15 projects with TypeScript, Tailwind CSS, Supabase, advanced Claude Code automation, and PRP methodology for one-pass implementation success.
+This is a production-ready boilerplate for Next.js 15 projects with TypeScript, Tailwind CSS, Supabase, advanced Claude Code automation, PRP methodology for one-pass implementation success, and intelligent branch awareness.
 
 ## 🚀 Quick Start
 
-### New Project (Updated with PRP System)
+### New Project (Updated with Branch Awareness)
 ```bash
 # Clone boilerplate
 git clone https://github.com/bearingfruitco/claude-code-boilerplate.git my-project
@@ -14,9 +14,13 @@ cd my-project
 chmod +x scripts/quick-setup.sh
 ./scripts/quick-setup.sh
 
-# Setup PRP system (NEW in v2.6.0)
+# Setup PRP system
 chmod +x setup-prp.sh
 ./setup-prp.sh
+
+# Setup Branch Awareness (NEW in v2.6.0)
+chmod +x setup-branch-awareness-integrated.sh
+./setup-branch-awareness-integrated.sh
 ```
 
 ### Existing Project

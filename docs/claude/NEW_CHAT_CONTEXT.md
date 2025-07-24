@@ -1,4 +1,4 @@
-# NEW CHAT CONTEXT - Claude Code Boilerplate System v2.6.0
+# NEW CHAT CONTEXT - Claude Code Boilerplate System v2.7.0
 
 ## 🚀 Quick Start for New Session
 
@@ -38,7 +38,14 @@ This is a production-ready boilerplate for AI-assisted development with:
 
 ## 📋 Current Capabilities
 
-### 1. PRP System (NEW v2.6.0)
+### 1. Next Command Suggestions (NEW v2.7.0)
+- **Intelligent Workflow Guidance**: After every command execution
+- **Context-Aware Suggestions**: Based on results, state, and patterns
+- **Time-Based Hints**: End-of-day saves, morning resume tips
+- **Orchestration Detection**: Knows when parallel work saves time
+- No more wondering "what's next?" - just follow the suggestions!
+
+### 2. PRP System (v2.6.0)
 - `/create-prp [feature]` or `/prp` - Generate comprehensive PRP
 - `/prp-execute [name]` - Run validation loops
 - `/prp-exec --fix` - Auto-fix common issues

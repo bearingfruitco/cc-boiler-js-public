@@ -1,4 +1,4 @@
-# Claude Code Boilerplate System Overview v2.6.0
+# Claude Code Boilerplate System Overview v2.7.0
 
 ## 🎯 Executive Summary
 
@@ -87,6 +87,13 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - **Continuous Validation**: Check compliance every 10 commands
 - **Compliance Reviews**: Post-implementation validation with detailed reports
 - **Test Generation**: Auto-generate tests from locked requirements
+
+### Next Command Suggestions (v2.7.0)
+- **Intelligent Workflow Guidance**: Suggests next logical commands after each execution
+- **Context-Aware**: Analyzes results, state, time of day, and work patterns
+- **Orchestration Detection**: Identifies when parallel execution saves time
+- **Progressive Disclosure**: Shows 1-3 primary suggestions with expand option
+- **Time-Based Help**: End-of-day checkpoints, morning resume suggestions
 
 ### Smart Issue Creation (v2.4.0)
 - **Capture-to-Issue Command**: `/capture-to-issue` or `/cti`

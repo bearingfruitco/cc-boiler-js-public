@@ -294,5 +294,13 @@
     "pr_update_frequency": "on_change",
     "issue_duplicate_check": true,
     "auto_link_issues": true
+  },
+  "branch_awareness": {
+    "enabled": true,
+    "mode": "info",
+    "show_in_resume": true,
+    "notification_hours": 2,
+    "feature_tracking": true,
+    "integrate_with_prp": true
   }
 }

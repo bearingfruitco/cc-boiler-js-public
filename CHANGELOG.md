@@ -2,7 +2,55 @@
 
 All notable changes to the Claude Code Boilerplate project.
 
-## [2.6.0] - July 2025
+## [2.6.0] - July 2025 (Branch Awareness Update)
+
+### 🌿 Branch Awareness & Feature Protection System
+
+This release adds intelligent branch awareness and feature protection to prevent AI from recreating completed work or creating conflicting branches.
+
+#### New Features
+
+##### Branch Awareness System
+- **Feature Protection** - AI now knows what features are already completed
+  - Non-blocking awareness when editing completed features
+  - Shows helpful context about existing implementations
+  - Prevents accidental recreation of working code
+  - Progressive enhancement: info → warnings → protection
+
+- **Branch Management** - Intelligent branch hygiene
+  - Branch health monitoring and tips
+  - Automatic conflict detection
+  - Smart branch switching with context preservation
+  - Integration with existing workflows
+
+##### New Commands
+- `/branch-info` (`/bi`) - Lightweight branch status for automation
+- `/branch-status` (`/bs`) - Comprehensive branch overview
+- `/feature-status` (`/fs`) - Check feature completion and details
+- `/sync-main` (`/sync`) - Safely sync main branch
+- `/feature-complete` (`/fc`) - Mark features as completed
+- `/branch-clean` (`/bc`) - Clean up merged branches
+- `/branch-switch` (`/bsw`) - Smart branch switching
+
+##### Enhanced Integration
+- **Smart Resume** - Now shows branch health and feature warnings
+- **PRP Integration** - Feature awareness in validation loops
+- **Event System** - Branch events through async queue
+- **New Chains** - `branch-aware-startup`, `safe-feature-complete`, `branch-maintenance`
+
+##### Hooks Added
+- `20-feature-awareness.py` - Shows context when editing completed features
+- `branch-health.py` - Periodic branch hygiene notifications
+
+#### Configuration
+- New `branch_awareness` section in config.json
+- Info-only mode by default (non-blocking)
+- Configurable notification frequency
+- Optional protection levels
+
+---
+
+## [2.5.0] - June 2025
 
 ### 🚀 Major Release: PRP System, TDD Integration, and Master Workflow Guide
 
