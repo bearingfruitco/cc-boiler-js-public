@@ -1,0 +1,19 @@
+{
+  "last_updated": "2025-01-21T00:00:00Z",
+  "main_branch": {
+    "name": "main",
+    "last_pulled": "2025-01-21T00:00:00Z",
+    "stable_commit": "abc123def",
+    "protected": true
+  },
+  "active_branches": [],
+  "branch_rules": {
+    "max_active_branches": 2,
+    "require_main_sync": true,
+    "require_tests_before_new": false,
+    "auto_cleanup_merged": true,
+    "prevent_conflicting_branches": true,
+    "sync_timeout_hours": 24
+  },
+  "blocked_files": {}
+}
