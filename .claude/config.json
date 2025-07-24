@@ -1,9 +1,9 @@
 {
-  "version": "2.6.0",
+  "version": "2.7.0",
   "project": {
     "name": "Claude Code Boilerplate",
     "type": "boilerplate-system",
-    "description": "AI-powered development boilerplate with strict design system and PRP methodology"
+    "description": "AI-powered development boilerplate with strict design system, PRP methodology, and Agent OS integration"
   },
   "commands": {
     "path": ".claude/commands",
@@ -21,9 +21,23 @@
     "storage": ".claude/analytics",
     "retention": 30
   },
+  "agent_os": {
+    "enabled": true,
+    "standards_path": ".agent-os/standards",
+    "global_standards": "~/.agent-os/standards",
+    "product_docs": ".agent-os/product",
+    "specs_path": ".agent-os/specs",
+    "features": {
+      "centralized_standards": true,
+      "drop_in_capability": true,
+      "design_migration": true,
+      "cross_tool_sharing": true
+    }
+  },
   "designSystem": {
     "enforce": true,
     "auto_fix": false,
+    "standards_file": ".agent-os/standards/design-system.md",
     "rules": {
       "typography": {
         "sizes": ["text-size-1", "text-size-2", "text-size-3", "text-size-4"],
@@ -90,13 +104,21 @@
       "ai_agent": "claude",
       "review_on_save": false,
       "review_on_commit": true
+    },
+    "agent_os": {
+      "enabled": true,
+      "sync_standards": true,
+      "existing_project_support": true
     }
   },
   "features": {
     "precompact_support": true,
     "suggestion_engine": true,
     "command_logging": true,
-    "prp_methodology": true
+    "prp_methodology": true,
+    "agent_os_integration": true,
+    "drop_in_existing": true,
+    "design_migration": true
   },
   "logging": {
     "retention_days": 30,
@@ -215,6 +237,11 @@
       "enabled": true,
       "config_file": "PRPs/config.json",
       "description": "Product Requirement Prompts for one-pass implementation"
+    },
+    "agent_os": {
+      "enabled": true,
+      "config_file": ".agent-os/config.json",
+      "description": "Agent OS integration for spec-driven development"
     }
   },
   "dependencies": {
@@ -255,6 +282,11 @@
       "capture_summaries": true,
       "max_captures": 50
     },
+    "design_standards": {
+      "enabled": true,
+      "use_standards_file": true,
+      "fallback_to_hardcoded": true
+    },
     "post-tool-use": [
       {
         "name": "state-save",
@@ -268,12 +300,18 @@
       {
         "name": "response-capture",
         "enabled": true
+      },
+      {
+        "name": "next-command-suggester",
+        "enabled": true,
+        "enhanced": true
       }
     ],
     "pre-tool-use": [
       {
         "name": "design-check",
-        "enabled": true
+        "enabled": true,
+        "use_standards": true
       },
       {
         "name": "pii-protection",
@@ -302,5 +340,15 @@
     "notification_hours": 2,
     "feature_tracking": true,
     "integrate_with_prp": true
+  },
+  "existing_project_workflows": {
+    "enabled": true,
+    "auto_detect": true,
+    "suggest_on_resume": true,
+    "migration_chains": [
+      "analyze-existing-project",
+      "migrate-design-system",
+      "onboard-existing"
+    ]
   }
 }
