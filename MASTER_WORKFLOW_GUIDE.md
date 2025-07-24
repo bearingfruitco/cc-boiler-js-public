@@ -1,4 +1,4 @@
-# 🚀 Master Workflow Guide - Claude Code Boilerplate v2.6.0
+# 🚀 Master Workflow Guide - Claude Code Boilerplate v2.7.0
 
 > **One Document to Rule Them All** - Your complete reference for maximizing the Claude Code Boilerplate system and never losing context.
 
@@ -16,6 +16,10 @@
 ---
 
 ## 🎯 Quick Command Reference
+
+> **💡 NEW: Intelligent Next Command Suggestions!**  
+> After every command, the system now suggests the most logical next steps.  
+> No more wondering "what should I do next?" - just follow the guided workflow!
 
 ### Essential Daily Commands
 ```bash
@@ -619,6 +623,54 @@ ls .claude/hooks/pre-tool-use/
 5. **Every PR**: Full context transfers
 
 The system is designed so you **cannot lose work** and **cannot ship broken code**. Trust the automation and focus on building great features!
+
+---
+
+## 🆕 Next Command Suggestion System
+
+The system now includes intelligent next-step suggestions after every command:
+
+### How It Works
+```
+You: /cti "Fix import script for 112 fields"
+✅ Created issue #17
+
+💡 Next steps:
+  → `/gt import-script-fix`     # Break down into manageable tasks
+  → `/fw start 17`             # Start implementation immediately
+  → `/prp import-optimization` # If research needed first
+```
+
+### Smart Decision Making
+- **Complexity Detection**: Suggests `/prp` for research when detecting complex problems
+- **Orchestration Hints**: Shows time savings when parallel agents would help
+- **Context Aware**: Different suggestions for morning vs evening
+- **Stuck Detection**: Offers help when you've been idle
+
+### Interactive Decision Guide
+When unsure, use:
+```bash
+/help-decide  # or /hd
+```
+
+This walks you through questions to find the right command:
+```
+Claude: What are you trying to do?
+1. 🚀 Start a new project
+2. ✨ Add a new feature  
+3. 🐛 Fix a bug
+4. 🔍 Research/explore
+5. 📝 Continue work in progress
+6. 🤷 I'm not sure / I'm stuck
+```
+
+### Coverage
+The suggestion system covers ALL workflows:
+- **New Projects**: `/init-project` → `/gi` → `/fw start`
+- **Clear Features**: `/cti` → `/gt` → `/pt` → `/test` → `/fw complete`
+- **Complex Problems**: `/prp` → `/prp-execute` → `/cti` → implementation
+- **Bug Fixes**: `/bt` → `/generate-tests` → fix → `/test`
+- **Daily Work**: `/sr` → continue where left off
 
 ---
 

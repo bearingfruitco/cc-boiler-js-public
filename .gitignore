@@ -26,33 +26,16 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Temporary fix scripts
-fix-*.sh
-push-*.sh
-git-*.sh
-
-# Additional Claude directories for security
-.claude/captures/
-.claude/dependencies/active/
-.claude/context/
-.claude/analytics/
-.claude/requirements/
-reorganize-*.sh
-cleanup-*.sh
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Build artifacts
-tsconfig.tsbuildinfo
-
 # Local env files
 .env
 .env.local
+.env.production.local
 .env.development.local
 .env.test.local
-.env.production.local
+
+# MCP configuration (contains sensitive data)
+.mcp.json
+*.mcp.json
 
 # Vercel
 .vercel
@@ -71,6 +54,15 @@ next-env.d.ts
 .claude/context/
 .claude/captures/
 .claude/dependencies/active/
+.claude/requirements/
+.claude/analytics/
+
+# Temporary scripts
+fix-*.sh
+push-*.sh
+git-*.sh
+reorganize-*.sh
+cleanup-*.sh
 
 # IDE
 .vscode/
@@ -79,16 +71,10 @@ next-env.d.ts
 *.swo
 *~
 
-# OS
-.DS_Store
+# OS files
 Thumbs.db
 
 # Package locks (optional)
 # pnpm-lock.yaml
 # yarn.lock
 # package-lock.json
-
-# Temporary fix scripts
-fix-*.sh
-push-*.sh
-git-*.sh

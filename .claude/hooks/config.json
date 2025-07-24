@@ -120,6 +120,12 @@
         "enabled": true,
         "critical": false,
         "description": "Enforce TDD workflow - tests before implementation"
+      },
+      {
+        "script": "20-feature-awareness.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Show helpful awareness about completed features (non-blocking)"
       }
     ],
     "post-tool-use": [
@@ -138,6 +144,12 @@
         "script": "03-team-notify.py",
         "enabled": false,
         "description": "Notify team of changes (optional)"
+      },
+      {
+        "script": "04-next-command-suggester.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Suggest logical next commands based on context"
       },
       {
         "script": "04-prp-metrics.py",
@@ -170,6 +182,11 @@
         "script": "context-db-awareness.py",
         "enabled": true,
         "description": "Suggest relevant context files based on current work"
+      },
+      {
+        "script": "branch-health.py",
+        "enabled": true,
+        "description": "Show branch health tips periodically (non-intrusive)"
       }
     ],
     "pre-compact": [
@@ -252,5 +269,47 @@
     "test_timeout": 15,
     "suggest_on_implementation": true,
     "block_without_tests": false
+  },
+  "branch_management": {
+    "enabled": true,
+    "max_active_branches": 2,
+    "require_main_sync_hours": 24,
+    "require_tests_before_switch": false,
+    "require_tests_before_new": false,
+    "auto_stash_on_switch": true,
+    "warn_branch_age_days": 7,
+    "block_conflicting_files": true,
+    "strict_mode": false
+  },
+  "feature_protection": {
+    "enabled": true,
+    "track_completed_features": true,
+    "protect_from_recreation": true,
+    "require_enhancement_branches": true,
+    "warn_on_wrong_branch": true
+  },
+  "suggestion_system": {
+    "enabled": true,
+    "max_suggestions": 3,
+    "show_help_when_stuck": true,
+    "stuck_threshold_minutes": 5,
+    "respect_existing_suggestions": true,
+    "decision_guide": {
+      "enabled": true,
+      "interactive": true,
+      "learn_from_choices": true
+    },
+    "contextual_help": {
+      "morning_hours": [6, 10],
+      "evening_hours": [17, 22],
+      "show_time_based": true,
+      "show_bug_alerts": true,
+      "bug_alert_threshold": 3
+    },
+    "workflow_chains": {
+      "prefer_prp_for_complex": true,
+      "suggest_orchestration_threshold": 5,
+      "auto_suggest_tests": true
+    }
   }
 }

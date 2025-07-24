@@ -14,6 +14,10 @@
             "type": "command",
             "command": "python3 .claude/hooks/pre-tool-use/00-auto-approve-safe-ops.py"
           },
+        {
+          "type": "command",
+          "command": "python3 .claude/hooks/post-tool-use/04-next-command-suggester.py"
+        },
           {
             "type": "command",
             "command": "python3 .claude/hooks/pre-tool-use/01-collab-sync.py"
@@ -151,6 +155,10 @@
           {
             "type": "command",
             "command": "python3 .claude/hooks/pre-tool-use/19-tdd-enforcer.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/20-feature-awareness.py"
           }
         ]
       }
@@ -198,6 +206,10 @@
           {
             "type": "command",
             "command": "python3 .claude/hooks/post-tool-use/06-test-auto-runner.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/post-tool-use/04-next-command-suggester.py"
           }
         ]
       }
@@ -242,6 +254,10 @@
           {
             "type": "command",
             "command": "python3 .claude/hooks/notification/team-aware.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/notification/branch-health.py"
           }
         ]
       }
