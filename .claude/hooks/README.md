@@ -72,6 +72,16 @@ Follow the prompts to set your username (shawn/nikki).
   - Learns from common command sequences
 - **Example**: After `/cti`, suggests `/gt` or `/fw start`
 
+#### 14-completion-verifier.py (NEW)
+- **Purpose**: Verify completion claims with TDD focus
+- **Actions**:
+  - Detects when Claude claims "complete" or "done"
+  - Checks if tests exist (TDD requires tests first)
+  - Runs quick verification (tests pass, TypeScript compiles)
+  - Provides TDD workflow guidance
+  - Tracks metrics in verification manifest
+- **Example**: "✅ Done!" → "📋 TDD Check: No tests found!"
+
 #### 01-state-save.py
 - **Purpose**: Auto-save work state to GitHub
 - **Actions**:

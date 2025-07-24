@@ -42,7 +42,15 @@
     "fix:extensions": "./fix-ts-extensions.sh",
     "check:deps": "./check-dependencies.sh",
     "typecheck:fix": "tsc --noEmit --skipLibCheck",
-    "typecheck:dev": "tsc --project tsconfig.development.json"
+    "typecheck:dev": "tsc --project tsconfig.development.json",
+    "design:check:staged": "node scripts/check-design-staged.js",
+    "design:check:all": "node scripts/check-design-all.js",
+    "prp:validate:quick": "bun run PRPs/scripts/prp-runner.ts --level 1 --staged-only",
+    "prp:validate:level1": "bun run PRPs/scripts/prp-runner.ts --level 1",
+    "prp:validate:level2": "bun run PRPs/scripts/prp-runner.ts --level 2",
+    "prp:validate:full": "bun run PRPs/scripts/prp-runner.ts",
+    "test:quick:staged": "node scripts/test-staged-files.js",
+    "test:affected": "vitest related --run"
   },
   "dependencies": {
     "@date-fns/tz": "^1.0.0",

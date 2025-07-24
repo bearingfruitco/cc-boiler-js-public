@@ -96,6 +96,8 @@ Show context-aware help for all commands and workflows.
 ```bash
 /browser-test-flow (btf)  # Browser automation tests
 /test-runner (tr)         # Run unit tests
+/verify                   # NEW: Verify completion claims
+/verify --full            # Full verification with coverage
 /lint-check (lc)          # Biome linting
 /audit-form-security (afs) # Security audit
 ```

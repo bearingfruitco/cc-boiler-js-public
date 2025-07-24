@@ -1,0 +1,52 @@
+#!/bin/sh
+
+# Claude Code Boilerplate Pre-Commit Checks
+# Complements MCP hooks by catching issues at Git level
+
+echo "🔍 Running pre-commit checks..."
+
+# 1. PRP Level 1 Validation (if active PRP exists and runner exists)
+if [ -d "PRPs/active" ] && [ "$(ls -A PRPs/active 2>/dev/null)" ] && [ -f "PRPs/scripts/prp-runner.ts" ]; then
+  echo "📋 Checking PRP compliance..."
+  npm run prp:validate:quick 2>/dev/null || {
+    echo "❌ PRP validation failed"
+    echo "💡 Run: /prp-execute --level 1 --fix"
+    exit 1
+  }
+fi
+
+# 2. Quick Design System Check (faster than full /vd)
+echo "🎨 Quick design check..."
+npm run design:check:staged 2>/dev/null || {
+  echo "❌ Design violations in staged files"
+  echo "💡 Run: /vd --fix"
+  exit 1
+}
+
+# 3. TypeScript on staged files only
+echo "📘 TypeScript check..."
+node scripts/typecheck-staged.js || {
+  echo "❌ TypeScript errors in staged files"
+  echo "💡 Fix type errors before committing"
+  exit 1
+}
+
+# 4. Quick unit tests for changed components
+echo "🧪 Running quick tests..."
+npm run test:quick:staged 2>/dev/null || {
+  echo "❌ Tests failing"
+  echo "💡 Ensure tests pass before committing"
+  exit 1
+}
+
+# 5. Check for console.logs in production code
+echo "🔍 Checking for debug code..."
+CONSOLE_CHECK=$(git diff --cached --name-only | grep -E '\.(ts|tsx|js|jsx)$' | xargs grep -l 'console\.\(log\|error\|warn\)' 2>/dev/null | grep -v -E '(test|spec|\.d\.ts)' || true)
+if [ -n "$CONSOLE_CHECK" ]; then
+  echo "⚠️  console.log found in production code:"
+  echo "$CONSOLE_CHECK"
+  echo "💡 Remove console statements or use proper logging"
+  # Warning only, don't block
+fi
+
+echo "✅ Pre-commit checks passed!"

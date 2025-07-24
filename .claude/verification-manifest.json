@@ -1,0 +1,54 @@
+{
+  "verification_rules": {
+    "require_tests": true,
+    "require_passing_tests": true,
+    "require_typescript_check": true,
+    "require_coverage_threshold": 70,
+    "tdd_mode": true
+  },
+  "feature_verifications": {
+    "the": {
+      "last_verified": "2025-07-24T09:30:31.274016",
+      "verification_result": false,
+      "test_count": 0,
+      "coverage": null,
+      "checks": [
+        {
+          "name": "Test Files",
+          "passed": false,
+          "message": "No test files found",
+          "files": [],
+          "tdd_compliant": false
+        }
+      ]
+    }
+  },
+  "task_verifications": {},
+  "tdd_metrics": {
+    "tests_written_first": 0,
+    "tests_written_after": 0,
+    "completion_claims_verified": 0,
+    "completion_claims_failed": 1,
+    "average_test_count": 0,
+    "average_coverage": 0
+  },
+  "regression_tracking": {
+    "baseline_tests": {
+      "count": 0,
+      "passing": 0,
+      "last_run": null
+    },
+    "protected_features": [
+      "authentication",
+      "database",
+      "api"
+    ]
+  },
+  "last_full_verification": null,
+  "settings": {
+    "auto_verify_on_complete": true,
+    "block_without_tests": false,
+    "require_tdd_workflow": true,
+    "verification_timeout": 30
+  }
+}

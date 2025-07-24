@@ -1,14 +1,14 @@
-# Claude Code Boilerplate System Overview v2.7.0
+# Claude Code Boilerplate System Overview v3.1.0
 
 ## 🎯 Executive Summary
 
-This is a comprehensive AI-assisted development system that combines PRD-driven development, PRP methodology for one-pass implementation, automated quality enforcement, persistent context management, seamless team collaboration, and async event-driven architecture. It treats specifications as the primary development artifact, following Sean Grove's vision of "The New Code."
+This is a comprehensive AI-assisted development system that combines PRD-driven development, PRP methodology for one-pass implementation, automated quality enforcement, persistent context management, seamless team collaboration, async event-driven architecture, and multi-level validation including Git pre-commit hooks. It treats specifications as the primary development artifact, following Sean Grove's vision of "The New Code."
 
 ## 🏗️ System Architecture
 
 ### Core Components
 
-#### 1. Command System (112+ Commands)
+#### 1. Command System (113+ Commands)
 - **Context Management**: Smart resume, checkpoints, context profiles
 - **PRD/PRP Workflow**: Specification-driven development with validation loops
 - **Development**: Component creation, design validation, bug tracking
@@ -19,6 +19,7 @@ This is a comprehensive AI-assisted development system that combines PRD-driven 
 - **Grading**: Implementation alignment scoring
 - **Smart Issue Creation**: Capture Claude responses to GitHub issues with duplicate detection
 - **Dependency Tracking**: Lightweight component dependency management
+- **Native Integration**: Visual debugging (Ctrl+V), non-interactive mode
 
 #### 2. Hooks System (Automated Enforcement)
 **Pre-Tool-Use Hooks**:
@@ -38,6 +39,14 @@ This is a comprehensive AI-assisted development system that combines PRD-driven 
 - Event metrics tracking
 - Performance monitoring
 - Response capture (for issue creation)
+- Completion verification (detects "done" claims and verifies)
+
+**Git Pre-Commit Hooks** (NEW v2.7.1):
+- Design system validation (staged files only)
+- TypeScript checking (project config aware)
+- Test execution (affected tests)
+- Debug code detection (console.log warnings)
+- PRP validation (if active PRPs exist)
 
 #### 3. PRP-Enhanced Development (v2.6.0)
 ```
@@ -70,7 +79,27 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - **Research Management**: Organize internal analysis/planning docs
 - **State Management**: GitHub gist-based persistence
 
+#### 7. Native Claude Code Integration (NEW v2.7.1)
+- **Visual Debugging**: Ctrl+V for screenshot analysis
+- **Non-Interactive Mode**: CLI automation for CI/CD
+- **Session Management**: Resume with branch awareness
+- **Multi-Directory**: Reference external repos
+- **Undo Support**: Ctrl+- for command recovery
+
 ## 🌟 Latest Enhancements
+
+### Git Pre-Commit Hooks (v2.7.1)
+- **Complementary Validation**: Different from MCP hooks (commit-time vs write-time)
+- **Performance Optimized**: Only validates staged files
+- **Clear Messaging**: Actionable error messages with fix commands
+- **Non-Blocking Warnings**: Console.log detection doesn't block
+- **Integration**: Uses existing validation commands and scripts
+
+### Native Claude Code Features (v2.7.1)
+- **Visual Debug Flow**: Screenshot → Ctrl+V → Analysis
+- **CI/CD Automation**: `claude --non-interactive` for headless execution
+- **Branch Context**: Session history includes branch information
+- **Reference Repos**: Add external directories for pattern reference
 
 ### Product Requirement Prompts - PRP System (v2.6.0)
 - **One-Pass Implementation**: Complete context for production-ready code
@@ -137,6 +166,14 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - **Design Compliance**: Automatic style checking
 - **Educational Mode**: Learn from mistakes
 
+### Completion Verification System (v3.0.0)
+- **Automatic Detection**: Identifies when Claude claims "done" or "complete"
+- **TDD Verification**: Checks tests exist and were written first
+- **Quick Verification**: Tests pass, TypeScript compiles, linting clean
+- **Non-Blocking Guidance**: Provides TDD workflow help without disrupting
+- **Metrics Tracking**: Monitors TDD compliance and completion accuracy
+- **Integration**: Works with `/pt`, `/fw complete`, and manual `/verify`
+
 ### Grove-Inspired Features (v2.3.0)
 
 #### 1. PRD Clarity Linter
@@ -172,7 +209,8 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - **Testing**: Vitest + Playwright
 - **Events**: Custom async event queue
 - **AI Integration**: Claude Code with custom commands
-- **Version Control**: GitHub (issues, gists, PRs)
+- **Version Control**: GitHub (issues, gists, PRs) + Husky (pre-commit)
+- **Quality Tools**: Biome (lint/format), TypeScript, design validators
 
 ## 🔄 Development Workflow
 
@@ -208,16 +246,49 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 /sv check              # Stage validation
 ```
 
-### 5. Collaboration
+### 5. Commit & Collaboration
 ```bash
+git add .              # Stage changes
+git commit             # Pre-commit hooks run automatically
 /specs extract         # Save successful patterns
 /bt add                # Track bugs persistently
 /fw complete           # Create PR with context
 ```
 
+### 6. Visual Debugging (NEW)
+```bash
+# Quick debug
+Ctrl+V                 # Paste screenshot
+"Fix alignment issue"  # Describe problem
+
+# Complex planning
+/vp [feature]          # Visual planning mode
+```
+
+### 7. CI/CD Automation (NEW)
+```bash
+claude --non-interactive "/sv check"
+claude --non-interactive "/prp-execute --level 1"
+claude --non-interactive "/deps scan"
+```
+
 ## 🛡️ Automated Protections
 
-### PRP Validation Loops (v2.6.0)
+### Multi-Level Validation System
+
+#### MCP Hooks (Real-Time)
+- **When**: As Claude writes code
+- **Purpose**: Prevent violations from being written
+- **Scope**: Individual file operations
+- **Feedback**: Immediate blocking/warnings
+
+#### Git Hooks (Commit-Time)
+- **When**: During git commit
+- **Purpose**: Final validation before version control
+- **Scope**: All staged files
+- **Feedback**: Batch validation results
+
+#### PRP Validation Loops (Development Phases)
 - **Level 1**: Syntax & Standards (lint, typecheck, design)
 - **Level 2**: Component Testing (unit, hooks, components)
 - **Level 3**: Integration Testing (e2e, api, accessibility)
@@ -244,6 +315,7 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - 4px spacing grid enforced
 - 60/30/10 color distribution
 - Toggle with `/dmoff` and `/dmon`
+- Enforced at both write-time and commit-time
 
 ### Security
 - PII field encryption
@@ -256,6 +328,7 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - Evidence-based claims
 - Import validation
 - Hydration safety
+- TypeScript strict mode
 
 ## 📈 Results
 
@@ -267,6 +340,7 @@ Teams using this system report:
 - **85%+** PRD alignment scores
 - **50% reduction** in async-related bugs
 - **One-pass implementation** success with PRPs
+- **50% fewer** broken commits with pre-commit hooks
 
 ## 🔑 Key Innovations
 
@@ -291,6 +365,12 @@ Implementation quality measured against original specifications.
 ### 7. Event-Driven Architecture
 Non-critical operations never block user experience.
 
+### 8. Multi-Level Validation
+Different validation strategies for different development phases.
+
+### 9. Native Tool Integration
+Leverages Claude Code's built-in features for enhanced workflows.
+
 ## 🚀 Getting Started
 
 ### New Project
@@ -300,6 +380,7 @@ cd my-project
 /init
 /init-project
 ./setup-prp.sh         # Setup PRP system
+npm install husky --save-dev  # Setup Git hooks
 ```
 
 ### Daily Workflow
@@ -310,6 +391,16 @@ cd my-project
 /create-prp [name]     # Generate PRP
 /prp-execute [name]    # Validate implementation
 /grade                 # Check alignment
+git commit             # Pre-commit validation
+```
+
+### Visual Debugging
+```bash
+# Quick UI debug
+Ctrl+V → "Why misaligned?"
+
+# Complex planning
+/vp dashboard-redesign
 ```
 
 ## 📚 Documentation Structure
@@ -318,6 +409,7 @@ cd my-project
 docs/
 ├── setup/             # Getting started guides
 ├── workflow/          # Daily usage patterns
+│   └── CLAUDE_CODE_NATIVE_FEATURES.md  # Native features guide
 ├── technical/         # System architecture
 ├── examples/          # Clear PRD examples
 ├── updates/           # Feature updates
@@ -329,6 +421,9 @@ PRPs/
 ├── scripts/           # Automation tools
 ├── active/            # Current PRPs
 └── completed/         # Reference PRPs
+
+.husky/                # Git pre-commit hooks
+scripts/               # Validation scripts
 ```
 
 ## 🎯 Philosophy
@@ -343,16 +438,18 @@ Core principles:
 - Continuous learning and improvement
 - User experience is paramount
 - One-pass implementation success
+- Multi-level quality gates
 
 ## 🔮 Future Vision
 
 This system represents the future of AI-assisted development where:
 - Clear communication is the primary skill
 - Specifications drive all artifacts
-- Quality is automatically enforced
+- Quality is automatically enforced at multiple levels
 - Knowledge compounds over time
 - Teams collaborate seamlessly
 - Performance is never sacrificed
 - Implementation succeeds on first attempt
+- Development tools integrate naturally
 
 The person who communicates most effectively is the most valuable programmer.

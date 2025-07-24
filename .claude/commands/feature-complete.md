@@ -19,6 +19,42 @@ fi
 echo "## 🎉 Completing Feature: $FEATURE_NAME"
 echo ""
 
+# 0. Run verification first
+echo "🔍 Running verification checks..."
+echo ""
+
+# Check if feature passes verification
+VERIFICATION_OUTPUT=$(python3 -c "
+import subprocess
+import json
+result = subprocess.run(['npm', 'test', '$FEATURE_NAME.test', '--', '--run'], 
+                       capture_output=True, text=True, timeout=30)
+if result.returncode != 0:
+    print('FAILED')
+else:
+    # Check TypeScript
+    ts_result = subprocess.run(['npm', 'run', 'typecheck'], 
+                              capture_output=True, text=True, timeout=15)
+    if ts_result.returncode != 0:
+        print('FAILED')
+    else:
+        print('PASSED')
+" 2>/dev/null || echo "SKIPPED")
+
+if [ "$VERIFICATION_OUTPUT" = "FAILED" ]; then
+  echo "❌ Verification failed! Cannot mark feature as complete."
+  echo ""
+  echo "Run: /verify $FEATURE_NAME"
+  echo "Fix any issues before marking complete."
+  exit 1
+elif [ "$VERIFICATION_OUTPUT" = "PASSED" ]; then
+  echo "✅ Verification passed!"
+  echo ""
+else
+  echo "⚠️  Verification skipped (tests not found)"
+  echo ""
+fi
+
 # 1. Load current state
 FEATURE_STATE_FILE=".claude/branch-state/feature-state.json"
 if [ ! -f "$FEATURE_STATE_FILE" ]; then

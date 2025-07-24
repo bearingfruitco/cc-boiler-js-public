@@ -721,11 +721,12 @@ URL → Whitelist → Sanitize → Form → Server → Encrypt → Database
 1. **Don't skip `/sr`** - Always restore context first
 2. **Don't fight the hooks** - They're there to help
 3. **Don't claim without testing** - "Should work" is flagged
-4. **Don't ignore stage gates** - Quality checkpoints matter
-5. **Don't forget to grade** - PRD alignment is measured
-6. **Don't ignore CodeRabbit** - Fix issues before commit
-7. **Don't commit without review** - Let CodeRabbit check first
-8. **Don't block on tracking** - Use event queue for async
+4. **Don't say "done" without verification** - Completion claims trigger automatic checks
+5. **Don't ignore stage gates** - Quality checkpoints matter
+6. **Don't forget to grade** - PRD alignment is measured
+7. **Don't ignore CodeRabbit** - Fix issues before commit
+8. **Don't commit without review** - Let CodeRabbit check first
+9. **Don't block on tracking** - Use event queue for async
 
 ## 📊 Success Metrics
 
@@ -736,6 +737,8 @@ Your work is automatically tracked:
 - Test coverage
 - Performance benchmarks
 - Event processing metrics
+- TDD compliance (tests written first)
+- Completion verification accuracy
 
 Aim for:
 - 100% design compliance

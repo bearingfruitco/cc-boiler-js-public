@@ -54,6 +54,8 @@
 /prd-tests feature    # Generate tests from PRD
 /tr current           # Run tests for current file
 /btf                  # Browser test flow with Playwright
+/verify               # Verify completion claims (NEW!)
+/verify --full        # Full verification with coverage
 ```
 
 ### Validation & Quality
@@ -321,6 +323,13 @@ No tests found. Follow TDD workflow:
 #### 4. Implement with Auto-Testing
 Tests run automatically after each file save!
 
+#### 5. Verify Completion
+```bash
+# When Claude claims "done", verification runs automatically
+# Or manually verify:
+/verify feature-name
+```
+
 ---
 
 ## 🧪 Testing & Validation
@@ -337,6 +346,11 @@ Tests run automatically after each file save!
 
 # Generate tests from requirements
 /prd-tests feature-name
+
+# Verify completion claims (NEW!)
+/verify                  # Quick verification
+/verify feature-name     # Verify specific feature
+/verify --full           # Full verification with coverage
 
 # Run current file's tests
 /tr current

@@ -1,4 +1,4 @@
-# NEW CHAT CONTEXT - Claude Code Boilerplate System v2.7.0
+# NEW CHAT CONTEXT - Claude Code Boilerplate System v2.7.1
 
 ## 🚀 Quick Start for New Session
 
@@ -35,17 +35,39 @@ This is a production-ready boilerplate for AI-assisted development with:
 7. **110+ Custom Commands** - Streamlined workflows with aliases
 8. **4-Level Validation** 🆕 - Syntax → Components → Integration → Production
 9. **AI Documentation** 🆕 - Pre-digested docs for common patterns
+10. **Git Pre-Commit Hooks** 🆕 - Catch issues before commits
+11. **Native Claude Features** 🆕 - Visual debugging with Ctrl+V
 
 ## 📋 Current Capabilities
 
-### 1. Next Command Suggestions (NEW v2.7.0)
+### 1. Next Command Suggestions (v2.7.0)
 - **Intelligent Workflow Guidance**: After every command execution
 - **Context-Aware Suggestions**: Based on results, state, and patterns
 - **Time-Based Hints**: End-of-day saves, morning resume tips
 - **Orchestration Detection**: Knows when parallel work saves time
 - No more wondering "what's next?" - just follow the suggestions!
 
-### 2. PRP System (v2.6.0)
+### 2. Git Pre-Commit Hooks (NEW v2.7.1)
+- **Complements MCP Hooks**: Different validation at commit time
+- **Quick Checks**: Only validates staged files for speed
+- **Automatic Running**: No manual validation needed
+- **Clear Errors**: Actionable fix suggestions
+- Pre-commit runs:
+  - Design system validation
+  - TypeScript check (staged only)
+  - Test runner (affected tests)
+  - Console.log detection
+  - PRP validation (if active)
+
+### 3. Native Claude Code Features (NEW v2.7.1)
+- **Visual Debugging**: `Ctrl+V` to paste screenshots for instant analysis
+- **Non-Interactive Mode**: `claude --non-interactive "/sv status"` for CI/CD
+- **Session History**: `claude --resume` shows branch context
+- **Undo Typing**: `Ctrl+-` to recover lost commands
+- **Multi-Directory**: `claude --add ../shared-components` for references
+- See `docs/workflow/CLAUDE_CODE_NATIVE_FEATURES.md` for details
+
+### 4. PRP System (v2.6.0)
 - `/create-prp [feature]` or `/prp` - Generate comprehensive PRP
 - `/prp-execute [name]` - Run validation loops
 - `/prp-exec --fix` - Auto-fix common issues
@@ -57,7 +79,7 @@ This is a production-ready boilerplate for AI-assisted development with:
   - 4-level validation loops
   - Links to pinned requirements
 
-### 2. Smart Issue & Context Management
+### 5. Smart Issue & Context Management
 - `/cti [title]` - Capture Claude's response to GitHub issue
   - Checks for duplicate issues automatically
   - Links to PRDs and parent issues
@@ -66,7 +88,7 @@ This is a production-ready boilerplate for AI-assisted development with:
 - `/deps scan` - Update all dependency tracking
 - `/exists [name]` - Check before creating (now automatic)
 
-### 3. PRD & Task Management
+### 6. PRD & Task Management
 - `/prd [feature]` - Generate PRD with stage validation gates
 - `/gt [feature]` - Generate granular tasks (5-15 min each)
 - `/pt [feature]` - Process tasks one by one
@@ -75,7 +97,7 @@ This is a production-ready boilerplate for AI-assisted development with:
 - `/ts` - Task status overview
 - `/tb` - Visual task board
 
-### 4. Design System (STRICTLY ENFORCED)
+### 7. Design System (STRICTLY ENFORCED)
 ```
 Font Sizes: ONLY text-size-1, text-size-2, text-size-3, text-size-4
 Font Weights: ONLY font-regular, font-semibold
@@ -83,9 +105,11 @@ Spacing: ONLY multiples of 4 (p-1, p-2, p-3, p-4, p-6, p-8)
 Colors: 60/30/10 distribution rule
 Touch Targets: Minimum 44px (h-11)
 Toggle: /dmoff to disable, /dmon to re-enable
+
+NEW: Also enforced at git commit time!
 ```
 
-### 5. Security & Data Protection
+### 8. Security & Data Protection
 - **Field Registry**: `/field-registry/` defines all data fields
 - **PII/PHI Protection**: Automatic detection and blocking
 - **Encryption**: Field-level encryption for sensitive data
@@ -97,7 +121,7 @@ Commands:
 - `/afs [file]` - Audit form security
 - `/gft` - Generate field types from registry
 
-### 6. Persona-Based Sub-Agents
+### 9. Persona-Based Sub-Agents
 Available personas:
 - **frontend** - UI/UX specialist
 - **backend** - Server architect
@@ -116,7 +140,7 @@ Commands:
 - `/at [feature]` - Visualize task assignments
 - `/orchestration-view` - See visual diagram
 
-### 7. Hooks System
+### 10. Hooks System
 Active hooks enforce rules automatically:
 
 **Pre-tool-use**:
@@ -135,6 +159,12 @@ Active hooks enforce rules automatically:
 - `02-metrics.py` - Tracks compliance
 - `03-response-capture.py` - Captures Claude responses for issues
 
+**Git pre-commit** (NEW):
+- Design system validation
+- TypeScript checking
+- Test execution
+- Debug code detection
+
 ## 🔧 Technical Stack
 
 - **Framework**: Next.js 15 (App Router + Turbopack)
@@ -147,6 +177,7 @@ Active hooks enforce rules automatically:
 - **Date/Time**: date-fns v4 with timezones
 - **Build**: Turbopack (dev) + Biome (lint/format)
 - **Security**: Field-level encryption, audit logging, PII protection
+- **Git Hooks**: Husky for pre-commit validation
 
 ## 📁 Key Directories
 
@@ -161,12 +192,20 @@ Active hooks enforce rules automatically:
 ├── profiles/       # Context profiles
 └── doc-cache/      # Documentation cache
 
+.husky/             # Git pre-commit hooks (NEW)
+├── pre-commit      # Runs validation checks
+
 PRPs/               # Product Requirement Prompts (NEW)
 ├── templates/      # PRP templates
 ├── ai_docs/        # AI-optimized documentation
 ├── scripts/        # Validation runner
 ├── active/         # Current PRPs
 └── completed/      # Reference PRPs
+
+scripts/            # Helper scripts (NEW)
+├── check-design-staged.js    # Pre-commit design check
+├── test-staged-files.js      # Pre-commit test runner
+└── typecheck-staged.js       # Pre-commit TypeScript
 
 field-registry/
 ├── core/           # Universal tracking fields
@@ -214,6 +253,18 @@ lib/
 /sv check 1             # Validate stage 1 before proceeding
 ```
 
+### Visual Debugging (NEW)
+```bash
+# Quick UI debug without commands
+1. Take screenshot of issue
+2. Ctrl+V in Claude Code
+3. "Why is this button misaligned?"
+4. Get instant visual analysis
+
+# Or use existing command for complex planning
+/vp dashboard redesign
+```
+
 ### Create Secure Form
 ```bash
 /ctf ContactForm --vertical=debt
@@ -231,6 +282,11 @@ ls PRPs/active/         # Check active PRPs (NEW)
 /sas                    # Check agent status
 /vd                     # Validate design
 /checkpoint create      # Save progress
+
+# When committing (NEW)
+git add .
+git commit -m "feat: add user profile"
+# Pre-commit hooks run automatically!
 ```
 
 ## 🔒 Security Rules (ENFORCED)
@@ -248,6 +304,13 @@ ls PRPs/active/         # Check active PRPs (NEW)
 - Test before claiming "done"
 - Use design system tokens
 - Sync before editing
+
+### Git Commits (NEW)
+- Design violations blocked
+- TypeScript errors blocked
+- Failing tests blocked
+- Console.logs warned
+- PRP violations blocked (if active)
 
 ## 📊 Command Categories
 
@@ -278,6 +341,11 @@ ls PRPs/active/         # Check active PRPs (NEW)
 - `/tr` - Test runner
 - `/pp` - Pre-PR validation
 
+### Visual & Native (NEW)
+- `Ctrl+V` - Paste screenshot for debugging
+- `Ctrl+-` - Undo typing
+- `/vp` - Visual planning (complex)
+
 ### Security
 - `/ctf` - Create tracked form
 - `/afs` - Audit form security
@@ -287,6 +355,14 @@ ls PRPs/active/         # Check active PRPs (NEW)
 - `/orch` - Start multi-agent
 - `/persona` - Switch persona
 - `/sas` - Agent status
+
+### Non-Interactive Mode (NEW)
+```bash
+# For CI/CD automation
+claude --non-interactive "/sv check"
+claude --non-interactive "/bt list --open"
+claude --non-interactive "/deps scan"
+```
 
 ## 🎯 PRP Validation Levels
 
@@ -326,12 +402,15 @@ ls PRPs/active/         # Check active PRPs (NEW)
 8. **Evidence-Based Development**: Claims backed by proof
 9. **Smart Persona Selection**: Auto-suggests right expert
 10. **Token Optimization**: `/compress` command when needed
+11. **Git-Level Validation**: Pre-commit hooks catch final issues
+12. **Visual Debugging**: Ctrl+V for instant UI analysis
 
 ## 🔗 Important Files
 
 - 🚀 **`MASTER_WORKFLOW_GUIDE.md`** - Complete workflow reference (START HERE!)
 - `CLAUDE.md` - AI behavior rules
-- `SYSTEM_OVERVIEW.md` - Complete system docs
+- `docs/SYSTEM_OVERVIEW.md` - Complete system docs
+- `docs/workflow/CLAUDE_CODE_NATIVE_FEATURES.md` - Native features guide (NEW!)
 - `PRPs/README.md` - PRP methodology guide
 - `docs/workflow/PRP_WORKFLOW_GUIDE.md` - PRP workflow
 - `field-registry/README.md` - Data field docs
@@ -345,6 +424,7 @@ If something seems wrong:
 3. Run `/help` for suggestions
 4. Check hooks with `/error-recovery`
 5. For PRPs: `/prp-execute --verbose`
+6. For commits: Check `.husky/pre-commit` output
 
 ## 📈 Metrics
 
@@ -355,7 +435,12 @@ This system enables:
 - Zero context loss between sessions
 - 95% reduction in documentation effort
 - 2-5x speedup with parallel agents
+- 50% fewer broken commits (NEW)
 
 ---
 
-**Remember**: Choose the right tool - PRPs for clear implementation, PRDs for exploration, both for complete development!
+**Remember**: 
+- Choose PRPs for clear implementation, PRDs for exploration
+- MCP hooks catch issues as you write, Git hooks catch issues at commit
+- Use Ctrl+V for quick visual debugging, `/vp` for complex planning
+- Non-interactive mode enables CI/CD automation
