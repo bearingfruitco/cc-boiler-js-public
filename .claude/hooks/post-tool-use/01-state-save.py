@@ -16,7 +16,8 @@ def get_work_context():
     context = {
         'timestamp': datetime.now().isoformat(),
         'files_modified': [],
-        'session_id': os.getenv('CLAUDE_SESSION_ID', 'unknown')
+        'session_id': os.getenv('CLAUDE_SESSION_ID', 'unknown'),
+        'task_ledger_exists': Path('.task-ledger.md').exists()
     }
     
     # Track recently modified files

@@ -7,7 +7,7 @@ set -e
 
 echo "🚀 Claude Code Boilerplate - Quick Setup"
 echo "========================================"
-echo "Version: 2.6.0 with PRP System Integration"
+echo "Version: 2.7.0 with Task Ledger & PRP System"
 echo ""
 
 # Check if we have the boilerplate files
@@ -23,6 +23,14 @@ mkdir -p PRPs/{templates,ai_docs,active,completed,execution_logs}
 mkdir -p .claude/metrics/{prp_progress,prp_validation}
 mkdir -p .claude/context
 echo "✓ PRP directories created"
+
+# Initialize Task Ledger
+echo "📋 Initializing Task Ledger..."
+if [ ! -f ".task-ledger.md" ]; then
+    ./init-task-ledger.sh
+else
+    echo "✓ Task ledger already exists"
+fi
 
 # Create PRP base template if it doesn't exist
 if [ ! -f "PRPs/templates/prp_base.md" ]; then

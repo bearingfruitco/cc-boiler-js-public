@@ -2,6 +2,56 @@
 
 All notable changes to the Claude Code Boilerplate project.
 
+## [2.7.0] - July 2025 (Task Ledger Update)
+
+### 📋 Task Ledger System
+
+This release adds a persistent task tracking system that provides project-wide visibility into all generated and processed tasks.
+
+#### New Features
+
+##### Task Ledger (`.task-ledger.md`)
+- **Persistent Task Tracking** - Single source of truth for all tasks
+  - Automatically updated by hooks when tasks are created/modified
+  - Tracks progress across all features in one file
+  - Links tasks directly to GitHub issues
+  - Survives session restarts and context switches
+  - Included in GitHub gist saves
+
+##### New Command
+- `/task-ledger` (`/tl`) - View and manage task ledger
+  - `/tl` - View complete ledger
+  - `/tl summary` - Quick stats overview
+  - `/tl sync` - Sync with all task files
+  - `/tl feature [name]` - Focus on specific feature
+
+##### Integration Enhancements
+- **Smart Resume** - Shows task ledger summary with progress
+- **Task Status** - Now reads from persistent ledger
+- **Task Board** - Uses ledger for accurate state
+- **Process Tasks** - Updates ledger in real-time
+- **Chains** - Updated `daily-startup`, `task-sprint`, and `feature-planning`
+
+##### Hook Added
+- `15b-task-ledger-updater.py` - Maintains ledger automatically
+
+#### Benefits
+- Never lose task progress between sessions
+- See all work in one place
+- Better sprint planning with complete visibility
+- Perfect for team handoffs
+- Complements existing task commands
+
+#### Setup
+```bash
+# For new projects - automatic
+# For existing projects:
+./init-task-ledger.sh
+/tl sync  # Import existing tasks
+```
+
+---
+
 ## [2.6.0] - July 2025 (Branch Awareness Update)
 
 ### 🌿 Branch Awareness & Feature Protection System

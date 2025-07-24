@@ -373,6 +373,7 @@ class WorkflowDecisionEngine:
                 })
             
             suggestions.extend([
+                {'command': '/tl', 'reason': 'View task ledger for all features'},
                 {'command': f'/fw start {self.context["current_issue"] or "[issue]"}', 
                  'reason': 'Begin feature workflow'},
                 {'command': f'/pt {feature}', 'reason': 'Process tasks systematically'}

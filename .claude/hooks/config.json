@@ -130,6 +130,12 @@
     ],
     "post-tool-use": [
       {
+        "script": "15b-task-ledger-updater.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Update task ledger after task-related operations"
+      },
+      {
         "script": "01-state-save.py",
         "throttle": 60,
         "batch": true,
@@ -160,6 +166,12 @@
         "script": "06-test-auto-runner.py",
         "enabled": true,
         "description": "Run tests automatically after code changes"
+      },
+      {
+        "script": "14-completion-verifier.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Verify completion claims with TDD focus"
       }
     ],
     "notification": [
@@ -311,5 +323,40 @@
       "suggest_orchestration_threshold": 5,
       "auto_suggest_tests": true
     }
+  },
+  "verification_system": {
+    "enabled": true,
+    "enforce_on_completion": true,
+    "tdd_mode": true,
+    "quick_check_on_claims": true,
+    "completion_phrases": [
+      "implementation complete",
+      "feature is now complete",
+      "successfully implemented",
+      "done implementing",
+      "finished implementing",
+      "✅ completed",
+      "task completed",
+      "finished the task",
+      "all done",
+      "implementation is complete"
+    ],
+    "verification_levels": {
+      "quick": ["test_exists", "typescript"],
+      "standard": ["test_exists", "test_execution", "typescript"],
+      "full": ["test_exists", "test_execution", "typescript", "coverage", "regression"]
+    },
+    "thresholds": {
+      "coverage_minimum": 70,
+      "typescript_errors_allowed": 0
+    }
+  },
+  "task_ledger": {
+    "enabled": true,
+    "auto_sync": true,
+    "track_time": false,
+    "include_in_gist": true,
+    "show_in_commands": ["sr", "ws", "ts", "tb"],
+    "archive_completed_after_days": 30
   }
 }

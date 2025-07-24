@@ -42,9 +42,10 @@ curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerpla
 ## 🎯 What You Get
 
 ### Instant Productivity
-- **112+ Custom Commands** - Everything from `/sr` (smart resume) to `/ut` (ultra-think)
-- **UltraThink Mode** 🤯 - 32k+ token deep thinking with parallel agents (NEW!)
-- **Visual Planning** 📸 - Ray Fernando-style screenshot-based iteration (NEW!)
+- **113+ Custom Commands** - Everything from `/sr` (smart resume) to `/ut` (ultra-think)
+- **Task Ledger** 📋 - Persistent task tracking across all features (NEW!)
+- **UltraThink Mode** 🤯 - 32k+ token deep thinking with parallel agents
+- **Visual Planning** 📸 - Ray Fernando-style screenshot-based iteration
 - **PRP Methodology** 🚀 - One-pass implementation with validation loops (v2.6.0)
 - **Zero Context Loss** - Auto-saves work state to GitHub gists (not commits!)
 - **PRD-Driven Development** - Start with requirements, get working code

@@ -210,6 +210,14 @@
           {
             "type": "command",
             "command": "python3 .claude/hooks/post-tool-use/04-next-command-suggester.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/post-tool-use/14-completion-verifier.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/post-tool-use/15b-task-ledger-updater.py"
           }
         ]
       }

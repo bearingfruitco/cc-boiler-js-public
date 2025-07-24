@@ -13,6 +13,7 @@
       "commands": [
         "validate-design",
         "test-runner changed",
+        "verify --full",
         "performance-monitor check",
         "security-check all"
       ],
@@ -59,22 +60,24 @@
       "commands": [
         "create-prd",
         "generate-tasks",
+        "task-ledger sync",
         "task-status"
       ]
     },
     "task-sprint": {
       "description": "Work through tasks systematically",
       "commands": [
+        "task-ledger",
         "task-status",
         "process-tasks",
-        "verify-task",
+        "verify",
         "task-checkpoint"
       ]
     },
     "task-review": {
       "description": "Review task implementation",
       "commands": [
-        "verify-task",
+        "verify",
         "validate-design",
         "test-runner current",
         "browser-test-flow"
@@ -92,6 +95,7 @@
       "description": "Enhanced daily startup",
       "commands": [
         "smart-resume",
+        "task-ledger summary",
         "task-status",
         "work-status",
         "todo list"
@@ -137,6 +141,7 @@
       "commands": [
         "validate-design",
         "test-runner all",
+        "verify --full",
         "stage-validate check",
         "feature-complete",
         "branch-status"
@@ -150,6 +155,25 @@
         "branch-clean --dry-run",
         "branch-status"
       ]
+    },
+    "tdd-cycle": {
+      "description": "TDD red-green-refactor cycle",
+      "commands": [
+        "test",
+        "verify --quick",
+        "process-tasks",
+        "verify"
+      ],
+      "stopOnError": false
+    },
+    "verify-complete": {
+      "description": "Comprehensive verification before marking complete",
+      "commands": [
+        "verify --full",
+        "stage-validate check",
+        "feature-complete"
+      ],
+      "stopOnError": true
     }
   },
   "shortcuts": {
@@ -169,6 +193,8 @@
     "pc": "pre-component",
     "bas": "branch-aware-startup",
     "sfc": "safe-feature-complete",
-    "bm": "branch-maintenance"
+    "bm": "branch-maintenance",
+    "tdd": "tdd-cycle",
+    "vc": "verify-complete"
   }
 }

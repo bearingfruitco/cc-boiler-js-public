@@ -1,4 +1,4 @@
-# New Chat Context - Claude Code Boilerplate v2.5.0
+# New Chat Context - Claude Code Boilerplate v2.7.0
 
 ## 🆕 What's New in v2.6.0
 
@@ -111,6 +111,26 @@ eventQueue.emit(LEAD_EVENTS.FORM_SUBMIT, data);
 - **Claude Code App**: PRD alignment validation (included with Max plan)
 - **Smart Setup**: New `scripts/quick-setup.sh` prevents repo confusion
 - **Enhanced Commands**: `/init-project` and `/gi` now verify correct repository
+
+## 🆕 What's New in v2.7.0
+
+### Task Ledger System 📋
+- **Problem Solved**: Tasks scattered across multiple files, easy to lose progress
+- **Task Ledger**: Single `.task-ledger.md` file tracks ALL tasks across features
+- **Automatic Updates**: Hook system maintains it as you work
+- **Persistent Progress**: Survives session restarts, included in gist saves
+- **GitHub Integration**: Direct links between tasks and issues
+
+### New Command
+- `/task-ledger` (`/tl`) - View and manage task ledger
+  - `/tl summary` - Quick stats overview
+  - `/tl sync` - Sync with all task files
+  - `/tl feature [name]` - Focus on specific feature
+
+### Enhanced Workflows
+- **Smart Resume**: Now shows task ledger summary
+- **Task Commands**: `/ts`, `/tb`, `/pt` all use persistent ledger
+- **Chains**: Updated daily-startup, task-sprint chains
 
 ## 🚀 Quick Start
 

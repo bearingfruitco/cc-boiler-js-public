@@ -1,4 +1,4 @@
-# 🎯 Claude Code Quick Reference Card v2.6.0
+# 🎯 Claude Code Quick Reference Card v2.7.0
 
 > 🚀 **For complete workflow guide, see: [MASTER_WORKFLOW_GUIDE.md](../MASTER_WORKFLOW_GUIDE.md)**
 
