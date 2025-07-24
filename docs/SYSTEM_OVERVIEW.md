@@ -1,16 +1,17 @@
-# Claude Code Boilerplate System Overview v3.1.0
+# Claude Code Boilerplate System Overview v3.2.0
 
 ## 🎯 Executive Summary
 
-This is a comprehensive AI-assisted development system that combines PRD-driven development, PRP methodology for one-pass implementation, automated quality enforcement, persistent context management, seamless team collaboration, async event-driven architecture, and multi-level validation including Git pre-commit hooks. It treats specifications as the primary development artifact, following Sean Grove's vision of "The New Code."
+This is a comprehensive AI-assisted development system that combines PRD-driven development, PRP methodology for one-pass implementation, Agent OS integration for spec-driven development, automated quality enforcement, persistent context management, seamless team collaboration, async event-driven architecture, and multi-level validation including Git pre-commit hooks. It treats specifications as the primary development artifact, following Sean Grove's vision of "The New Code" and Brian Casel's Agent OS methodology.
 
 ## 🏗️ System Architecture
 
 ### Core Components
 
-#### 1. Command System (113+ Commands)
+#### 1. Command System (116+ Commands)
 - **Context Management**: Smart resume, checkpoints, context profiles
 - **PRD/PRP Workflow**: Specification-driven development with validation loops
+- **Agent OS Integration**: Analyze existing projects, migrate design systems (NEW!)
 - **Development**: Component creation, design validation, bug tracking
 - **Deep Thinking**: UltraThink with auto-parallel agents, visual planning
 - **Async Operations**: Event handlers, parallel processing, loading states
@@ -21,10 +22,20 @@ This is a comprehensive AI-assisted development system that combines PRD-driven 
 - **Dependency Tracking**: Lightweight component dependency management
 - **Native Integration**: Visual debugging (Ctrl+V), non-interactive mode
 
-#### 2. Hooks System (Automated Enforcement)
+#### 2. Agent OS Integration (NEW v2.7.0)
+```
+Standards (Global) → Product (Mission/Roadmap) → Specs (Features) → Implementation
+```
+- **Centralized Standards**: Single source of truth in `.agent-os/standards/`
+- **Drop-in Capability**: `/analyze-existing` command for any codebase
+- **Design Migration**: `/migrate-to-strict-design` converts to strict system
+- **Cross-Tool Sharing**: Standards work in Claude Code, Cursor, any AI tool
+- **Three-Layer Context**: Standards → Product → Specs architecture
+
+#### 3. Hooks System (Automated Enforcement)
 **Pre-Tool-Use Hooks**:
 - Smart auto-approval (safe operations proceed without interruption)
-- Design system enforcement (blocks violations)
+- Design system enforcement (reads from standards file) (ENHANCED!)
 - Async pattern detection (warns about anti-patterns)
 - PRD clarity linting (catches ambiguous language)
 - GitHub synchronization (prevents conflicts)
@@ -40,15 +51,16 @@ This is a comprehensive AI-assisted development system that combines PRD-driven 
 - Performance monitoring
 - Response capture (for issue creation)
 - Completion verification (detects "done" claims and verifies)
+- Next command suggestions (includes Agent OS commands) (ENHANCED!)
 
-**Git Pre-Commit Hooks** (NEW v2.7.1):
+**Git Pre-Commit Hooks**:
 - Design system validation (staged files only)
 - TypeScript checking (project config aware)
 - Test execution (affected tests)
 - Debug code detection (console.log warnings)
 - PRP validation (if active PRPs exist)
 
-#### 3. PRP-Enhanced Development (v2.6.0)
+#### 4. PRP-Enhanced Development (v2.6.0)
 ```
 IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION → PR → DEPLOY
 ```
@@ -58,7 +70,7 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - **AI Documentation**: Condensed, optimized reference material
 - **Automated Runner**: Execute validation loops programmatically
 
-#### 4. Event-Driven Architecture (v2.3.6)
+#### 5. Event-Driven Architecture (v2.3.6)
 - **Event Queue**: Browser-compatible async event system
 - **Fire-and-Forget**: Non-critical operations don't block UI
 - **Parallel Processing**: Automatic detection and optimization
@@ -66,20 +78,21 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - **Timeout Protection**: All external calls have timeouts
 - **Retry Logic**: Configurable retry with exponential backoff
 
-#### 5. Multi-Agent System
+#### 6. Multi-Agent System
 - 9 specialized personas (frontend, backend, security, etc.)
 - Clear boundaries and handoff protocols
 - Automatic task assignment based on expertise
 - Coordinated through orchestration commands
 
-#### 6. Context Engineering
+#### 7. Context Engineering
 - **Profiles**: Focused work modes (frontend, backend, debug)
 - **Bug Tracking**: Persistent across sessions
 - **Doc Cache**: Offline documentation access
 - **Research Management**: Organize internal analysis/planning docs
 - **State Management**: GitHub gist-based persistence
+- **Standards Loading**: Automatic inclusion of Agent OS standards (NEW!)
 
-#### 7. Native Claude Code Integration (NEW v2.7.1)
+#### 8. Native Claude Code Integration
 - **Visual Debugging**: Ctrl+V for screenshot analysis
 - **Non-Interactive Mode**: CLI automation for CI/CD
 - **Session Management**: Resume with branch awareness
@@ -87,6 +100,13 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - **Undo Support**: Ctrl+- for command recovery
 
 ## 🌟 Latest Enhancements
+
+### Agent OS Integration (v2.7.0)
+- **Centralized Standards**: All design rules, tech stack, and best practices in one place
+- **Drop-in for Existing Projects**: Analyze any codebase and set up full system
+- **Design System Migration**: Automated conversion to strict 4-size, 2-weight system
+- **Enhanced Workflows**: New chains for existing project onboarding
+- **Cross-Tool Compatibility**: Standards shared across all AI coding tools
 
 ### Git Pre-Commit Hooks (v2.7.1)
 - **Complementary Validation**: Different from MCP hooks (commit-time vs write-time)
@@ -123,6 +143,7 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - **Orchestration Detection**: Identifies when parallel execution saves time
 - **Progressive Disclosure**: Shows 1-3 primary suggestions with expand option
 - **Time-Based Help**: End-of-day checkpoints, morning resume suggestions
+- **Agent OS Awareness**: Suggests `/ae` for existing projects, `/mds` for migrations (NEW!)
 
 ### Smart Issue Creation (v2.4.0)
 - **Capture-to-Issue Command**: `/capture-to-issue` or `/cti`
@@ -153,6 +174,7 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - **Toggle Commands**: `/dmoff` to disable, `/dmon` to re-enable
 - **Full Tailwind Access**: Use any classes when disabled
 - **Smart Switching**: Instant mode changes without restarts
+- **Standards-Based**: Rules now read from `.agent-os/standards/` (NEW!)
 
 ### Research Management (v2.3.5)
 - **Smart Updates**: No more doc-v1, doc-v2, doc-final versions
@@ -208,19 +230,27 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 - **Database**: Supabase + Drizzle ORM
 - **Testing**: Vitest + Playwright
 - **Events**: Custom async event queue
-- **AI Integration**: Claude Code with custom commands
+- **AI Integration**: Claude Code with custom commands + Agent OS
 - **Version Control**: GitHub (issues, gists, PRs) + Husky (pre-commit)
 - **Quality Tools**: Biome (lint/format), TypeScript, design validators
+- **Standards**: Centralized in `.agent-os/standards/` (NEW!)
 
 ## 🔄 Development Workflow
 
-### 1. Project Initialization
+### 1. New Project Initialization
 ```bash
 /init-project          # Define project vision
 /gi PROJECT            # Generate GitHub issues
 ```
 
-### 2. Feature Development with PRP
+### 2. Existing Project Onboarding (NEW!)
+```bash
+/analyze-existing      # Analyze codebase and set up
+/migrate-to-strict-design analyze  # Check design compliance
+/chain onboard-existing # Complete onboarding
+```
+
+### 3. Feature Development with PRP
 ```bash
 /fw start [#]          # Start from GitHub issue
 /create-prp [feature]  # Generate comprehensive PRP
@@ -229,7 +259,7 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 /pt [feature]          # Process systematically
 ```
 
-### 3. Traditional PRD Flow
+### 4. Traditional PRD Flow
 ```bash
 /prd [feature]         # Create specification
 /prd-async [feature]   # Add async requirements
@@ -237,16 +267,16 @@ IDEA → PRP (PRD + Code Intelligence + Validation) → VALIDATED IMPLEMENTATION
 /grade                 # Check alignment
 ```
 
-### 4. Quality Assurance
+### 5. Quality Assurance
 ```bash
-/vd                    # Design compliance
+/vd                    # Design compliance (reads from standards)
 /validate-async        # Async pattern check
 /prp-execute --level 4 # Full production validation
 /btf                   # Browser testing
 /sv check              # Stage validation
 ```
 
-### 5. Commit & Collaboration
+### 6. Commit & Collaboration
 ```bash
 git add .              # Stage changes
 git commit             # Pre-commit hooks run automatically
@@ -255,7 +285,7 @@ git commit             # Pre-commit hooks run automatically
 /fw complete           # Create PR with context
 ```
 
-### 6. Visual Debugging (NEW)
+### 7. Visual Debugging
 ```bash
 # Quick debug
 Ctrl+V                 # Paste screenshot
@@ -265,7 +295,7 @@ Ctrl+V                 # Paste screenshot
 /vp [feature]          # Visual planning mode
 ```
 
-### 7. CI/CD Automation (NEW)
+### 8. CI/CD Automation
 ```bash
 claude --non-interactive "/sv check"
 claude --non-interactive "/prp-execute --level 1"
@@ -281,6 +311,7 @@ claude --non-interactive "/deps scan"
 - **Purpose**: Prevent violations from being written
 - **Scope**: Individual file operations
 - **Feedback**: Immediate blocking/warnings
+- **Standards**: Now reads from `.agent-os/standards/` (NEW!)
 
 #### Git Hooks (Commit-Time)
 - **When**: During git commit
@@ -316,6 +347,7 @@ claude --non-interactive "/deps scan"
 - 60/30/10 color distribution
 - Toggle with `/dmoff` and `/dmon`
 - Enforced at both write-time and commit-time
+- **Centralized in `.agent-os/standards/design-system.md`** (NEW!)
 
 ### Security
 - PII field encryption
@@ -341,6 +373,7 @@ Teams using this system report:
 - **50% reduction** in async-related bugs
 - **One-pass implementation** success with PRPs
 - **50% fewer** broken commits with pre-commit hooks
+- **100% drop-in** capability for existing projects (NEW!)
 
 ## 🔑 Key Innovations
 
@@ -371,6 +404,9 @@ Different validation strategies for different development phases.
 ### 9. Native Tool Integration
 Leverages Claude Code's built-in features for enhanced workflows.
 
+### 10. Agent OS Integration (NEW!)
+Centralized standards, drop-in capability, cross-tool compatibility.
+
 ## 🚀 Getting Started
 
 ### New Project
@@ -383,9 +419,17 @@ cd my-project
 npm install husky --save-dev  # Setup Git hooks
 ```
 
+### Existing Project (NEW!)
+```bash
+cd existing-project
+/analyze-existing      # Analyze and set up
+/migrate-to-strict-design analyze  # Check design
+/chain onboard-existing # Complete setup
+```
+
 ### Daily Workflow
 ```bash
-/sr                    # Resume context
+/sr                    # Resume context (loads standards)
 /cp load frontend      # Load profile
 /fw start [#]          # Start feature
 /create-prp [name]     # Generate PRP
@@ -415,6 +459,14 @@ docs/
 ├── updates/           # Feature updates
 └── claude/            # AI-specific docs
 
+.agent-os/             # NEW! Agent OS integration
+├── standards/         # Centralized rules
+│   ├── design-system.md
+│   ├── tech-stack.md
+│   └── best-practices.md
+├── product/           # Mission, roadmap (for existing projects)
+└── specs/             # Feature specifications
+
 PRPs/
 ├── templates/         # PRP templates
 ├── ai_docs/           # AI-optimized documentation
@@ -432,6 +484,7 @@ scripts/               # Validation scripts
 
 Core principles:
 - Specifications are primary artifacts
+- Standards are centralized and shared
 - Communication drives development
 - Automated enforcement over manual review
 - Observable systems over black boxes
@@ -439,17 +492,20 @@ Core principles:
 - User experience is paramount
 - One-pass implementation success
 - Multi-level quality gates
+- Drop-in capability for any project
 
 ## 🔮 Future Vision
 
 This system represents the future of AI-assisted development where:
 - Clear communication is the primary skill
 - Specifications drive all artifacts
+- Standards are universal across tools
 - Quality is automatically enforced at multiple levels
 - Knowledge compounds over time
 - Teams collaborate seamlessly
 - Performance is never sacrificed
 - Implementation succeeds on first attempt
 - Development tools integrate naturally
+- Any project can be onboarded instantly
 
 The person who communicates most effectively is the most valuable programmer.

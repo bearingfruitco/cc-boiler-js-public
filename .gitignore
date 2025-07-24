@@ -78,3 +78,35 @@ Thumbs.db
 # pnpm-lock.yaml
 # yarn.lock
 # package-lock.json
+
+# Agent OS sensitive files
+.claude/logs/**
+.claude/transcripts/**
+.claude/checkpoints/**
+.claude/team/active/**
+.claude/captures/**
+.claude/state/**
+.claude/cache/**
+.claude/*.local.json
+.claude/hooks/config.local.json
+
+# MCP and environment files
+.mcp.json
+.mcp.*.json
+.env
+.env.*
+!.env.example
+
+# Temporary and personal files
+*-backup.*
+*.backup
+*.tmp
+*.log
+push-*.sh
+fix-*.sh
+cleanup-*.sh
+
+# API keys and secrets
+**/api-keys/**
+**/secrets/**
+**/credentials/**

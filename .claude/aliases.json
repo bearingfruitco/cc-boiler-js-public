@@ -142,5 +142,14 @@
   "checkout": "branch-switch",
   "hd": "help-decide",
   "decide": "help-decide",
-  "workflow-guide": "help-decide"
+  "workflow-guide": "help-decide",
+  "ae": "analyze-existing",
+  "analyze": "analyze-existing",
+  "drop-in": "analyze-existing",
+  "mds": "migrate-to-strict-design",
+  "migrate-design": "migrate-to-strict-design",
+  "strict-design": "migrate-to-strict-design",
+  "prd-existing": "create-prd-from-existing",
+  "doc-existing": "create-prd-from-existing",
+  "reverse-prd": "create-prd-from-existing"
 }
