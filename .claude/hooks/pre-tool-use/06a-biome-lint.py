@@ -145,7 +145,6 @@ def main():
         # Only check on write operations
         if tool_name not in ['Write', 'Edit', 'str_replace']:
             sys.exit(0)
-            return
         
         # Extract parameters
         tool_input = input_data.get('tool_input', {})
@@ -158,7 +157,6 @@ def main():
         # Check if file should be linted
         if not should_check_file(file_path):
             sys.exit(0)
-            return
         
         # Create temp file for checking
         with tempfile.NamedTemporaryFile(mode='w', suffix=Path(file_path).suffix, delete=False) as temp:
@@ -180,14 +178,13 @@ def main():
                     message = format_biome_report(check_result, format_result, file_path)
                     message += f"\n✨ Auto-fixed version available with corrections applied."
                     
-                    print(message)  # Warning
-            sys.exit(0)
+                    # Print warning to stderr
+                    print(message, file=sys.stderr)
+                    sys.exit(0)
                 else:
                     # Just warn about issues
-                    print(format_biome_report(check_result, format_result, file_path),
-                        "continue": True
-                    , file=sys.stderr)
-            sys.exit(1)
+                    print(format_biome_report(check_result, format_result, file_path), file=sys.stderr)
+                    sys.exit(0)
             else:
                 # No issues, continue
                 sys.exit(0)
@@ -199,8 +196,8 @@ def main():
         
     except Exception as e:
         # On error, log but don't block
-        print(json.dumps({
-            sys.exit(0)
+        print(f"Biome lint hook error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

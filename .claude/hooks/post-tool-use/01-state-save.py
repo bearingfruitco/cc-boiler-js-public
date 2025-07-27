@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-State Save Hook - Automatically save work state
-Simplified version that saves locally instead of GitHub
-Compliant with official Claude Code hooks documentation
+State Save Hook - Automatically save work state after operations
+Tracks file modifications and saves state locally
 """
 
 import json
@@ -16,8 +15,7 @@ def get_work_context():
     context = {
         'timestamp': datetime.now().isoformat(),
         'files_modified': [],
-        'session_id': os.getenv('CLAUDE_SESSION_ID', 'unknown'),
-        'task_ledger_exists': Path('.task-ledger.md').exists()
+        'session_id': os.getenv('CLAUDE_SESSION_ID', 'unknown')
     }
     
     # Track recently modified files
@@ -25,7 +23,8 @@ def get_work_context():
     if recent_files_file.exists():
         try:
             with open(recent_files_file, 'r') as f:
-                context['files_modified'] = [line.strip() for line in f.readlines()[-10:]]
+                lines = f.readlines()
+                context['files_modified'] = [line.strip() for line in lines[-10:]]
         except:
             pass
     
@@ -53,29 +52,27 @@ def update_recent_files(file_path):
     state_dir = Path(".claude/state")
     state_dir.mkdir(parents=True, exist_ok=True)
     
-    recent_files_file = state_dir / "recent-files.txt"
+    recent_files = state_dir / "recent-files.txt"
     
-    # Read existing files
-    recent_files = []
-    if recent_files_file.exists():
-        try:
-            with open(recent_files_file, 'r') as f:
-                recent_files = [line.strip() for line in f.readlines()]
-        except:
-            pass
-    
-    # Add new file if not already in list
-    if file_path not in recent_files:
-        recent_files.append(file_path)
-    
-    # Keep only last 20 files
-    recent_files = recent_files[-20:]
-    
-    # Write back
     try:
-        with open(recent_files_file, 'w') as f:
-            for file in recent_files:
-                f.write(f"{file}\n")
+        # Read existing files
+        existing = set()
+        if recent_files.exists():
+            with open(recent_files, 'r') as f:
+                existing = set(line.strip() for line in f.readlines())
+        
+        # Add new file
+        existing.add(file_path)
+        
+        # Keep only last 50 files
+        files_list = list(existing)
+        if len(files_list) > 50:
+            files_list = files_list[-50:]
+        
+        # Write back
+        with open(recent_files, 'w') as f:
+            for fp in files_list:
+                f.write(f"{fp}\n")
     except:
         pass
 
@@ -85,22 +82,23 @@ def main():
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool info
+        # Extract tool information
         tool_name = input_data.get('tool_name', '')
+        tool_input = input_data.get('tool_input', {})
         
-        # Only save on write operations
+        # Only track write operations
         if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            # Not a write operation - exit normally
             sys.exit(0)
         
-        # Get file path from tool input
-        tool_input = input_data.get('tool_input', {})
+        # Get file path
         file_path = tool_input.get('file_path', tool_input.get('path', ''))
         
         # Update recent files
         if file_path:
             update_recent_files(file_path)
         
-        # Save state periodically (every 10th write)
+        # Save state periodically (every 10th operation)
         state_dir = Path(".claude/state")
         counter_file = state_dir / "save-counter.txt"
         
@@ -122,17 +120,15 @@ def main():
         # Save state every 10 operations
         if counter % 10 == 0:
             state = get_work_context()
-            if save_state(state):
-                # PostToolUse: stdout shows in transcript mode
-                print("Work state saved locally")
-            
-        # Always exit 0 for success
+            save_state(state)
+        
+        # PostToolUse hooks just exit normally - no specific output required
         sys.exit(0)
         
     except Exception as e:
-        # Non-blocking error - show to user
-        print(f"State save error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+        # On error, log to stderr and exit normally
+        print(f"State save hook error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

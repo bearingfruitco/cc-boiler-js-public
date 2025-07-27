@@ -10,9 +10,6 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 def get_metrics_path():
     """Get path to metrics storage"""
     return Path("PRPs/metrics")
@@ -138,19 +135,23 @@ def analyze_prp_completion(file_path):
     return False
 
 def main():
+    """Main hook logic"""
     try:
-        """Main hook logic"""
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
-    
-        # Get file path and operation
-        file_path = input_data.get('path', '')
-        tool = input_data.get('tool', '')
-    
-        # Track different types of operations
-        if tool in ['Write', 'Edit', 'str_replace']:
-            content = input_data.get('content', '')
         
+        # Extract tool information
+        tool_name = input_data.get('tool_name', '')
+        tool_input = input_data.get('tool_input', {})
+        tool_result = input_data.get('tool_result', {})
+        
+        # Get file path
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        
+        # Track different types of operations
+        if tool_name in ['Write', 'Edit', 'MultiEdit']:
+            content = tool_input.get('content', tool_input.get('new_str', ''))
+            
             # Check if this is a PRP file
             prp_name = extract_prp_name(file_path)
             if prp_name:
@@ -160,47 +161,47 @@ def main():
                     'updates': 0,
                     'validation_scores': {}
                 }
-            
+                
                 # Increment update counter
                 metrics['updates'] += 1
-            
+                
                 # Check for validation results in content
                 validation_results = extract_validation_results(content)
                 if any(v is not None for v in validation_results.values()):
                     metrics['validation_scores'].update({
                         k: v for k, v in validation_results.items() if v is not None
                     })
-                
+                    
                     # Check if all validations passed
                     all_passed = all(
                         v >= 90 for v in validation_results.values() 
                         if v is not None
                     )
                     metrics['first_pass_success'] = all_passed
-            
+                
                 # Check if PRP is being completed
                 if analyze_prp_completion(file_path):
                     metrics['completed_at'] = datetime.now().isoformat()
-                
+                    
                     # Calculate duration if we have start time
                     if 'created_at' in metrics:
                         start = datetime.fromisoformat(metrics['created_at'])
                         end = datetime.now()
                         metrics['duration'] = (end - start).total_seconds()
-            
+                
                 # Save metrics
                 save_metrics(prp_name, metrics)
-            
+                
                 # If PRP is completed, update the file with metrics
                 if 'completed_at' in metrics:
                     update_prp_with_metrics(file_path, metrics)
-    
+        
         # Check for test results that might indicate bugs
-        elif tool == 'run_command':
-            command = input_data.get('command', '')
+        elif tool_name == 'Bash':
+            command = tool_input.get('command', '')
             if 'test' in command or 'vitest' in command or 'playwright' in command:
                 # Look for test failures in output
-                output = input_data.get('output', '')
+                output = str(tool_result.get('output', ''))
                 if 'FAIL' in output or 'failed' in output.lower():
                     # Try to associate with active PRP
                     # This is a simple heuristic - could be improved
@@ -209,14 +210,18 @@ def main():
                         # Update the most recent PRP
                         most_recent = max(active_prps, key=lambda p: p.stat().st_mtime)
                         prp_name = most_recent.stem
-                    
+                        
                         metrics = load_existing_metrics(prp_name) or {}
                         metrics['test_failures'] = metrics.get('test_failures', 0) + 1
                         save_metrics(prp_name, metrics)
-    
-        # Always continue - this is a post-hook for collection only
+        
+        # PostToolUse hooks just exit normally
+        sys.exit(0)
+        
+    except Exception as e:
+        # Log error to stderr and exit
+        print(f"PRP metrics error: {str(e)}", file=sys.stderr)
         sys.exit(0)
 
-    except Exception as e:
 if __name__ == "__main__":
     main()

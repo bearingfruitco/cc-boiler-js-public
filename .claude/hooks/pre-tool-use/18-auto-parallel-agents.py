@@ -280,6 +280,7 @@ def enhance_command_with_thinking(command, complexity):
         return f"{thinking}: {command}"
 
 def main():
+    """Main hook logic"""
     try:
         # Read hook input
         hook_input = json.loads(sys.stdin.read())
@@ -290,27 +291,38 @@ def main():
             tool_name = hook_input['tool_use'].get('name', '')
         
         # This hook only processes custom commands or complex file operations
-        if tool_name not in ['Bash', 'Write', 'Edit'] or not hook_input.get('command'):
+        command = hook_input.get('command', '')
+        if tool_name not in ['Bash', 'Write', 'Edit'] or not command:
             sys.exit(0)
-            return
+        
+        # Extract tool input
+        tool_input = hook_input.get('tool_input', {})
+        if not tool_input and 'tool_use' in hook_input:
+            tool_input = hook_input['tool_use'].get('parameters', {})
+        
+        # Build command info
+        command_info = {
+            'command': command,
+            'selected_files': tool_input.get('selected_files', [])
+        }
         
         # Analyze complexity
-        complexity = get_task_complexity(hook_input)
+        complexity = get_task_complexity(command_info)
         
         # Original command
-        original_command = hook_input.get('command', '')
+        original_command = command
         enhanced_command = original_command
         
         # Should we enhance thinking?
-        if should_enhance_thinking(hook_input, complexity):
+        if should_enhance_thinking(command_info, complexity):
             enhanced_command = enhance_command_with_thinking(original_command, complexity)
         
         # Should we spawn parallel agents?
-        spawn_agents = should_spawn_parallel_agents(hook_input, complexity)
+        spawn_agents = should_spawn_parallel_agents(command_info, complexity)
         
         if spawn_agents:
             # Determine agent types
-            agents = determine_agent_types(hook_input)
+            agents = determine_agent_types(command_info)
             
             # Add parallel agent instructions
             enhanced_command = f"""[ULTRATHINK MODE AUTO-ACTIVATED - Complexity: {complexity}/10]
@@ -329,7 +341,7 @@ Results will be synthesized into a comprehensive solution.
             prompts_file.parent.mkdir(parents=True, exist_ok=True)
             
             agent_prompts = {
-                f"agent_{i}": create_agent_prompt(agent, original_command, hook_input)
+                f"agent_{i}": create_agent_prompt(agent, original_command, command_info)
                 for i, agent in enumerate(agents)
             }
             
@@ -350,16 +362,22 @@ Results will be synthesized into a comprehensive solution.
         
         # Return result
         if enhanced_command != original_command or spawn_agents:
-            print(json.dumps({
-                sys.exit(0)
+            # Show enhancement info
+            message = f"🤖 AUTO-ENHANCEMENT APPLIED\n"
+            message += f"Complexity: {complexity}/10\n"
+            if spawn_agents:
+                message += f"Parallel agents: {len(agents)}\n"
+            
+            print(message, file=sys.stderr)
+            sys.exit(0)
         else:
             # No enhancement needed
             sys.exit(0)
             
     except Exception as e:
-        print(json.dumps({
-            sys.exit(0)
+        # On error, exit with non-zero code and error in stderr
+        print(f"Auto parallel agents hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
-    sys.exit(0)

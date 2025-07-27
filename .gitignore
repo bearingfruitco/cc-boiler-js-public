@@ -32,10 +32,13 @@ pnpm-debug.log*
 .env.production.local
 .env.development.local
 .env.test.local
+!.env.example
 
 # MCP configuration (contains sensitive data)
 .mcp.json
 *.mcp.json
+.mcp/
+mcp-config.json
 
 # Vercel
 .vercel
@@ -44,7 +47,7 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Claude Code logs and transcripts
+# Claude Code sensitive data
 .claude/logs/
 .claude/transcripts/
 .claude/checkpoints/
@@ -56,13 +59,32 @@ next-env.d.ts
 .claude/dependencies/active/
 .claude/requirements/
 .claude/analytics/
+.claude/state/
+.claude/cache/
+.claude/*.local.json
+.claude/hooks/config.local.json
+.claude/personal/
+.claude/private/
+.claude/secrets/
 
-# Temporary scripts
+# Agent OS sensitive files
+.agent-os/
+
+# Temporary scripts and files
 fix-*.sh
 push-*.sh
 git-*.sh
 reorganize-*.sh
 cleanup-*.sh
+restore-*.sh
+restore_*.py
+check-restore.py
+check_restore*.py
+compare-*.py
+complete-*.sh
+complete_*.py
+rsync-*.sh
+final-*.sh
 
 # IDE
 .vscode/
@@ -74,39 +96,53 @@ cleanup-*.sh
 # OS files
 Thumbs.db
 
-# Package locks (optional)
-# pnpm-lock.yaml
-# yarn.lock
-# package-lock.json
-
-# Agent OS sensitive files
-.claude/logs/**
-.claude/transcripts/**
-.claude/checkpoints/**
-.claude/team/active/**
-.claude/captures/**
-.claude/state/**
-.claude/cache/**
-.claude/*.local.json
-.claude/hooks/config.local.json
-
-# MCP and environment files
-.mcp.json
-.mcp.*.json
-.env
-.env.*
-!.env.example
-
 # Temporary and personal files
 *-backup.*
 *.backup
 *.tmp
 *.log
-push-*.sh
-fix-*.sh
-cleanup-*.sh
+.trash-to-delete/
 
 # API keys and secrets
 **/api-keys/**
 **/secrets/**
 **/credentials/**
+**/*secret*
+**/*credential*
+**/*token*
+**/*key*
+!**/lucide-react/**
+
+# Backups (keep for now but don't commit)
+.claude.full_backup_*
+
+# Personal and team-specific data
+**/personal/**
+**/team/**
+**/private/**
+
+# Log files
+*.log
+logs/
+**/logs/**
+
+# State and cache
+**/state/**
+**/cache/**
+**/.cache/**
+
+# Environment and config files with sensitive data
+config.local.json
+settings.local.json
+*.local.json
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary directories
+tmp/
+temp/
+.tmp/
+.temp/

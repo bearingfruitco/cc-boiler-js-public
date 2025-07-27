@@ -74,12 +74,13 @@ def main():
             success_msg += f"   • Coverage: {verification_result.get('coverage', 'N/A')}\n"
             print(success_msg)
             
+        # PostToolUse hooks just exit normally
         sys.exit(0)
         
     except Exception as e:
         # Non-blocking error
         print(f"Completion verifier error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(0)
 
 def detect_completion_claim(text):
     """Check if the text contains a completion claim."""

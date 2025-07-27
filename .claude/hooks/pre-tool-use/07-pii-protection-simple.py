@@ -60,9 +60,8 @@ def main():
             tool_name = input_data['tool_use'].get('name', '')
         
         # Only check write operations
-        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+        if tool_name not in ['Write', 'Edit', 'str_replace']:
             sys.exit(0)
-            return
         
         # Extract parameters
         tool_input = input_data.get('tool_input', {})
@@ -76,7 +75,6 @@ def main():
         # Only check code files
         if not any(file_path.endswith(ext) for ext in ['.ts', '.tsx', '.js', '.jsx']):
             sys.exit(0)
-            return
         
         # Check for violations
         violations = check_pii_violations(content)
@@ -95,17 +93,18 @@ def main():
             message += "• Never put PII in URLs\n"
             message += "• Use server-side storage for sensitive data\n"
             
-            print(message
-            , file=sys.stderr)
-        sys.exit(2)
+            print(json.dumps({
+                "decision": "block",
+                "message": message
+            }))
+            sys.exit(0)
         else:
             sys.exit(0)
         
     except Exception as e:
-        # Always output valid JSON
-        print(json.dumps({
-            sys.exit(0)
+        # On error, exit with non-zero code and error in stderr
+        print(f"PII protection hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
-    sys.exit(0)

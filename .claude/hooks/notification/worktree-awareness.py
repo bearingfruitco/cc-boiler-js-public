@@ -125,18 +125,13 @@ def main():
             context_msg += f"  • `/wt-pr {worktree['name']}` - Create PR when ready\n"
             context_msg += f"  • `cd {Path(worktree['path']).parent.parent}` - Return to main\n"
             
-            # Add to result
-            result = input_data.get('result', {})
-            if isinstance(result, dict):
-                result['worktree_context'] = context_msg
-            else:
-                # Print to stderr for visibility
-                print(context_msg, file=sys.stderr)
+            # Print context to stderr for visibility
+            print(context_msg, file=sys.stderr)
                 
         sys.exit(0)
         
     except Exception as e:
-        # Don't fail the hook
+        # Don't fail the hook - exit silently
         sys.exit(0)
 
 if __name__ == "__main__":

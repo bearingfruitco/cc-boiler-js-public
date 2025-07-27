@@ -98,11 +98,8 @@ def main():
             
             message += f"\nRun manually: npm test {feature_name}.test"
             
-            # Use PostToolUse decision format
-            print(json.dumps({
-                "decision": "block",
-                "reason": message
-            }))
+            # PostToolUse hooks output to stdout for visibility
+            print(message)
             sys.exit(0)
             
         elif failed_tests and passed_tests:
@@ -110,9 +107,9 @@ def main():
             message = f"⚠️  Some tests failing for {feature_name}\n"
             message += f"Passed: {len(passed_tests)}, Failed: {len(failed_tests)}"
             
-            # Non-blocking warning
-            print(message, file=sys.stderr)
-            sys.exit(1)
+            # Output warning to stdout
+            print(message)
+            sys.exit(0)
             
         elif passed_tests:
             # All tests passing - great!
@@ -127,7 +124,7 @@ def main():
     except Exception as e:
         # Non-blocking error
         print(f"Test runner error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

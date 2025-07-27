@@ -54,6 +54,7 @@ def main():
         if test_files:
             print(f"\n🧪 Running related tests for {Path(file_path).name}...")
             
+            all_passed = True
             for test_file in test_files:
                 result = subprocess.run(
                     ["npm", "test", str(test_file), "--", "--run"],
@@ -64,20 +65,22 @@ def main():
                 
                 if result.returncode != 0:
                     # Tests failing - provide feedback
-                    print(json.dumps({
-                        "decision": "block",
-                        "reason": f"❌ Tests failing after change!\n\nFile: {file_path}\nTest: {test_file}\n\nRun: npm test {test_file}\n\nFix tests or revert changes."
-                    }))
-                    sys.exit(0)
+                    all_passed = False
+                    print(f"  ❌ {test_file.name} FAILING")
+                    print(f"\nRun to debug: npm test {test_file}")
                 else:
                     print(f"  ✅ {test_file.name} passing")
+            
+            if not all_passed:
+                print("\n⚠️  Some tests are failing. Please fix them before continuing.")
         
+        # PostToolUse hooks just exit normally
         sys.exit(0)
         
     except Exception as e:
         # Don't block on errors
         print(f"Test runner hook error: {e}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

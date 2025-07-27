@@ -24,6 +24,7 @@ def check_hydration_issues(content):
     return issues
 
 def main():
+    """Main hook logic"""
     try:
         input_data = json.loads(sys.stdin.read())
         
@@ -31,9 +32,8 @@ def main():
         if not tool_name and 'tool_use' in input_data:
             tool_name = input_data['tool_use'].get('name', '')
         
-        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+        if tool_name not in ['Write', 'Edit', 'str_replace']:
             sys.exit(0)
-            return
         
         tool_input = input_data.get('tool_input', {})
         if not tool_input and 'tool_use' in input_data:
@@ -44,7 +44,6 @@ def main():
         
         if not any(file_path.endswith(ext) for ext in ['.tsx', '.jsx']):
             sys.exit(0)
-            return
         
         issues = check_hydration_issues(content)
         
@@ -58,12 +57,16 @@ def main():
             message += "• Use useEffect for client-only code\n"
             message += "• Call Date().toISOString() for timestamps\n"
             
-            print(message)  # Warning shown in transcript
-        sys.exit(0)
+            # Print warning to stderr
+            print(message, file=sys.stderr)
+            sys.exit(0)
         else:
             sys.exit(0)
             
     except Exception as e:
+        # On error, exit with non-zero code and error in stderr
+        print(f"Hydration guard hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
 if __name__ == "__main__":
     main()
-    sys.exit(0)

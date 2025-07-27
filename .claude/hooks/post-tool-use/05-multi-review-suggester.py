@@ -105,16 +105,14 @@ def main():
         if tool_name in ['feature_workflow_complete', 'test_runner', 'grade']:
             suggestion += f"\n✨ This ensures quality before moving forward.\n"
             
-            # Add to result if possible
-            if isinstance(result, dict):
-                result['review_suggestion'] = suggestion
-            else:
-                print(suggestion, file=sys.stderr)
+            # PostToolUse hooks output to stdout for transcript mode
+            print(suggestion)
                 
         sys.exit(0)
         
     except Exception as e:
-        # Don't fail the hook
+        # Don't fail the hook - log error to stderr
+        print(f"Multi-review suggester error: {str(e)}", file=sys.stderr)
         sys.exit(0)
 
 if __name__ == "__main__":

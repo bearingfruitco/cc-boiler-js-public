@@ -1,0 +1,11 @@
+{
+  "session_end": "2025-07-26T21:01:36.807329",
+  "security_events": {
+    "rate_limit_hits": 0,
+    "validation_failures": 0,
+    "auth_attempts": 0
+  },
+  "files_secured": [],
+  "vulnerabilities_found": 0,
+  "security_score": "Not calculated"
+}

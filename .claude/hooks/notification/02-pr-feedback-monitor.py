@@ -16,20 +16,24 @@ def get_current_pr():
         # Get current branch
         branch = subprocess.check_output(
             ["git", "branch", "--show-current"],
-            text=True
+            text=True,
+            stderr=subprocess.DEVNULL
         ).strip()
         
-        # Get PR number
+        # Check if gh CLI is available
         result = subprocess.check_output(
             ["gh", "pr", "list", "--head", branch, "--json", "number"],
-            text=True
+            text=True,
+            stderr=subprocess.DEVNULL
         )
         
         prs = json.loads(result)
         if prs:
             return prs[0]['number']
     except:
-            return None
+        pass
+    
+    return None
 
 def check_coderabbit_review(pr_number):
     """Check if CodeRabbit has reviewed"""
@@ -37,7 +41,8 @@ def check_coderabbit_review(pr_number):
         # Get PR comments
         result = subprocess.check_output(
             ["gh", "api", f"repos/:owner/:repo/pulls/{pr_number}/comments"],
-            text=True
+            text=True,
+            stderr=subprocess.DEVNULL
         )
         
         comments = json.loads(result)
@@ -47,6 +52,7 @@ def check_coderabbit_review(pr_number):
             if comment.get('user', {}).get('login') == 'coderabbitai':
                 return parse_coderabbit_comment(comment['body'])
     except:
+        pass
     
     return None
 
@@ -74,52 +80,70 @@ def parse_coderabbit_comment(body):
     return issues
 
 def main():
+    """Main hook logic"""
     try:
-        # This runs periodically (every 5 minutes via cron or systemd)
-        pr_number = get_current_pr()
-    
-        if not pr_number:
-            return
-    
-        # Check for new feedback
-        feedback = check_coderabbit_review(pr_number)
-    
-        if feedback:
-            # Check if we've already notified
-            notified_file = Path(f".claude/notifications/pr-{pr_number}-notified.json")
+        # Read input from Claude Code
+        input_data = {}
+        if not sys.stdin.isatty():
+            try:
+                input_data = json.loads(sys.stdin.read())
+            except:
+                pass
         
-            if not notified_file.exists():
-                # First time seeing this feedback
-                notified_file.parent.mkdir(exist_ok=True)
+        # This is a notification hook - it runs periodically
+        # Check for PR feedback
+        pr_number = get_current_pr()
+        
+        if pr_number:
+            # Check for new feedback
+            feedback = check_coderabbit_review(pr_number)
             
-                # Create notification
-                total_issues = (
-                    len(feedback.get('errors', [])) +
-                    len(feedback.get('warnings', [])) +
-                    len(feedback.get('design_violations', []))
-                )
-            
-                if total_issues > 0:
-                    print(f"\n🐰 CodeRabbit Review Ready for PR #{pr_number}")
-                    print(f"Found {total_issues} issue(s) to address:")
+            if feedback:
+                # Check if we've already notified
+                notified_file = Path(f".claude/notifications/pr-{pr_number}-notified.json")
                 
-                    if feedback.get('errors'):
-                        print(f"  - {len(feedback['errors'])} errors")
-                    if feedback.get('warnings'):
-                        print(f"  - {len(feedback['warnings'])} warnings")
-                    if feedback.get('design_violations'):
-                        print(f"  - {len(feedback['design_violations'])} design violations")
-                
-                    print(f"\nRun: /pr-feedback {pr_number}")
-                
-                    # Mark as notified
-                    with open(notified_file, 'w') as f:
-                        json.dump({
-                            'notified_at': datetime.now().isoformat(),
-                            'issues': feedback
-                        }, f)
-
+                if not notified_file.exists():
+                    # First time seeing this feedback
+                    notified_file.parent.mkdir(parents=True, exist_ok=True)
+                    
+                    # Count total issues
+                    total_issues = (
+                        len(feedback.get('errors', [])) +
+                        len(feedback.get('warnings', [])) +
+                        len(feedback.get('design_violations', []))
+                    )
+                    
+                    if total_issues > 0:
+                        # Create notification message
+                        message = f"🐰 CodeRabbit Review Ready for PR #{pr_number}\n"
+                        message += f"Found {total_issues} issue(s) to address:\n"
+                        
+                        if feedback.get('errors'):
+                            message += f"  - {len(feedback['errors'])} errors\n"
+                        if feedback.get('warnings'):
+                            message += f"  - {len(feedback['warnings'])} warnings\n"
+                        if feedback.get('design_violations'):
+                            message += f"  - {len(feedback['design_violations'])} design violations\n"
+                        
+                        message += f"\nRun: /pr-feedback {pr_number}"
+                        
+                        # Mark as notified
+                        with open(notified_file, 'w') as f:
+                            json.dump({
+                                'notified_at': datetime.now().isoformat(),
+                                'issues': feedback
+                            }, f, indent=2)
+                        
+                        # Output notification message to stderr
+                        print(message, file=sys.stderr)
+        
+        # Notification hooks just exit normally
+        sys.exit(0)
+        
     except Exception as e:
-    sys.exit(0)
+        # On error, log to stderr and exit with error code
+        print(f"PR feedback monitor error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
 if __name__ == "__main__":
     main()

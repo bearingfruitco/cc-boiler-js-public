@@ -139,20 +139,21 @@ def update_command_stats(command_name, log_entry):
 
 def main():
     """Main hook logic for command logging"""
-    # Read input
-    input_data = json.loads(sys.stdin.read())
-    
-    # Extract tool use information
-    tool_use = input_data.get('tool_use', {})
-    if not tool_use:
-                return
+    try:
+        # Read input
+        input_data = json.loads(sys.stdin.read())
+        
+        # Extract tool use information
+        tool_use = input_data.get('tool_use', {})
+        if not tool_use:
+            sys.exit(0)
     
     # Extract command information
     cmd_info = extract_command_info(tool_use)
     
     # Only log Claude commands and important operations
     if cmd_info['type'] not in ['claude_command', 'file_operation']:
-        # sys.exit(0)
+        sys.exit(0)
 
     result = tool_use.get('result', {})
     status = 'unknown'
@@ -201,8 +202,13 @@ def main():
         # Don't fail the hook chain
         pass
     
-    # Continue execution
+    # PostToolUse hooks just exit normally
     sys.exit(0)
+    
+    except Exception as e:
+        # Log error to stderr and exit
+        print(f"Command logger error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

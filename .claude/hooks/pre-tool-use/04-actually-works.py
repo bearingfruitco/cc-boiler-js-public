@@ -85,22 +85,21 @@ def main():
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool name
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
         
         # Only check on write operations that might contain claims
         if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            # Not a write operation - continue normally
             sys.exit(0)
-            return
         
         # Extract content
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
-        
         content = str(tool_input.get('content', '')) + str(tool_input.get('new_str', ''))
+        
+        # Skip if no content
+        if not content:
+            sys.exit(0)
         
         # Check for untested claims
         violations = check_for_untested_claims(content)
@@ -110,19 +109,16 @@ def main():
             has_test_evidence = check_for_test_evidence(content)
             
             if not has_test_evidence:
-                print(generate_testing_reminder(),
-                    "continue": True  # Warn but don't block
-                , file=sys.stderr)
-            sys.exit(1)
-                return
+                # Log warning to stderr (will show in output)
+                print(generate_testing_reminder(), file=sys.stderr)
         
-        # All good
+        # This is a warning hook - always continue
         sys.exit(0)
         
     except Exception as e:
-        print(json.dumps({
-            sys.exit(0)
+        # On error, log to stderr and continue
+        print(f"Actually works hook error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
-    sys.exit(0)

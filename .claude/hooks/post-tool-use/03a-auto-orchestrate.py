@@ -188,78 +188,78 @@ def format_orchestration_suggestion(domains, structure, strategy, feature_name):
     return message
 
 def main():
+    """Main hook logic"""
     try:
-        """Main hook logic"""
+        # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
-    
-        # Only analyze after task generation
-        if input_data.get('tool') != 'Write':
-                    return
         
-        file_path = input_data.get('path', '')
-    
+        # Extract tool information
+        tool_name = input_data.get('tool_name', '')
+        tool_input = input_data.get('tool_input', {})
+        
+        # Only analyze after task generation
+        if tool_name != 'Write':
+            sys.exit(0)
+        
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        
         # Check if this is a tasks file
         if not re.search(r'-tasks\.md$', file_path):
-            # sys.exit(0)
-    except Exception as e:
-ta.get('content', '')
-    if not content:
-        # sys.exit(0)
-        return
-    
-    # Extract feature em.replace('-tasks', '')
-    
-    # Load personas config
-    personas_config = load_personas()
-    
-    # Analyze the tasks
-    domains = analyze_task_domains(content)
-    structure = analyze_task_structure(content)
-    
-    # Determine orchestration strategy
-    strategy = determine_orchestration_strategy(domains, structure, personas_config)
-    
-    # Decide if orchestration is warranted
-    active_domains = [d for d, count in domains.items() if count > 1]
-    auto_rules = personas_config.get('auto_orchestration_rules', {}) if personas_config else {}
-    
-    min_domains = auto_rules.get('min_domains_for_orchestration', 3)
-    complexity_threshold = auto_rules.get('task_complexity_threshold', 15)
-    
-    should_orchestrate = (
-        len(active_domains) >= min_domains or 
-        structure['total_items'] > complexity_threshold or
-        structure['has_parallel']
-    )
-    
-    if should_orchestrate and active_domains:
-        message = format_orchestration_suggestion(domains, structure, strategy, feature_name)
-        
-        # Prepare auto command
-        auto_command = f"/orch {feature_name}"
-        if len(active_domains) > 0:
-            auto_command += f" --agents={min(len(active_domains), 5)}"
-        
-        # print(json.dumps({
             sys.exit(0)
-    else:
-        # Single agent is fine
-        if active_domains:
-            primary_domain = max(domains.items(), key=lambda x: x[1])[0]
+        
+        content = tool_input.get('content', '')
+        if not content:
+            sys.exit(0)
+        
+        # Extract feature name
+        feature_name = Path(file_path).stem.replace('-tasks', '')
+        
+        # Load personas config
+        personas_config = load_personas()
+        
+        # Analyze the tasks
+        domains = analyze_task_domains(content)
+        structure = analyze_task_structure(content)
+        
+        # Determine orchestration strategy
+        strategy = determine_orchestration_strategy(domains, structure, personas_config)
+        
+        # Decide if orchestration is warranted
+        active_domains = [d for d, count in domains.items() if count > 1]
+        auto_rules = personas_config.get('auto_orchestration_rules', {}) if personas_config else {}
+        
+        min_domains = auto_rules.get('min_domains_for_orchestration', 3)
+        complexity_threshold = auto_rules.get('task_complexity_threshold', 15)
+        
+        should_orchestrate = (
+            len(active_domains) >= min_domains or 
+            structure['total_items'] > complexity_threshold or
+            structure['has_parallel']
+        )
+        
+        if should_orchestrate and active_domains:
+            message = format_orchestration_suggestion(domains, structure, strategy, feature_name)
             
-            # print(json.dumps({
-                "action": "info",
-                "message": f"ℹ️ Task Analysis: Primary domain is '{primary_domain}' ({domains[primary_domain]} references). "
-                          f"Single agent can handle this efficiently.\n"
-                          f"Continue with: `/pt {feature_name}`",
-                "metadata": {
-                    "primary_domain": primary_domain,
-                    "complexity": "low",
-                    "recommendation": "single-agent"
-                }
-            }))
+            # PostToolUse hooks output to stdout for transcript mode
+            print(message)
         else:
-            sys.exit(0)
+            # Single agent is fine
+            if active_domains:
+                primary_domain = max(domains.items(), key=lambda x: x[1])[0]
+                
+                message = f"ℹ️ Task Analysis: Primary domain is '{primary_domain}' ({domains[primary_domain]} references). "
+                message += f"Single agent can handle this efficiently.\n"
+                message += f"Continue with: `/pt {feature_name}`"
+                
+                print(message)
+        
+        # Exit successfully
+        sys.exit(0)
+        
+    except Exception as e:
+        # Log error to stderr and exit
+        print(f"Auto-orchestrate error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

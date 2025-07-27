@@ -21,6 +21,7 @@ def main():
         
         # Only check Write/Edit operations
         if tool_name not in ['Write', 'Edit']:
+            # Exit with code 0 and no output to continue with normal permission flow
             sys.exit(0)
         
         file_path = tool_input.get('file_path', '')
@@ -120,23 +121,23 @@ def main():
             # Output decision as per official docs
             print(json.dumps({
                 "decision": "block",
-                "reason": message
+                "message": message
             }))
             sys.exit(0)
         
-        # Tests exist - allow with info
+        # Tests exist - allow with info  
         test_list = "\n".join(f"   - {t.relative_to('.')}" for t in test_files[:3])
         
+        # Auto-approve since tests exist
         print(json.dumps({
-            "decision": "approve",
-            "reason": f"✅ TDD: Found tests for {feature_name}\n{test_list}"
+            "decision": "approve"
         }))
         sys.exit(0)
         
     except Exception as e:
         # Non-blocking error as per docs
         print(f"TDD enforcer error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

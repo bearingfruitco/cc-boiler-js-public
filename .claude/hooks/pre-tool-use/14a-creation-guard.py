@@ -297,6 +297,7 @@ To update existing:
     return message
 
 def main():
+    """Main hook logic"""
     try:
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
@@ -311,7 +312,6 @@ def main():
         # Only process creation operations
         if tool_name not in ['Write', 'create_file']:
             sys.exit(0)
-            return
         
         # Extract parameters
         tool_input = input_data.get('tool_input', {})
@@ -323,14 +323,12 @@ def main():
         # Check if creation guard is enabled
         if not config.get('hooks', {}).get('creation_guard', {}).get('enabled', True):
             sys.exit(0)
-            return
         
         # Extract creation intent
         creation_intent = extract_creation_intent(tool_name, tool_input)
         
         if not creation_intent:
             sys.exit(0)
-            return
         
         # Check if already exists
         exists_result = check_exists(creation_intent['name'], creation_intent['type'])
@@ -339,18 +337,17 @@ def main():
             message = format_exists_message(creation_intent, exists_result)
             
             if message:
-                print(message)  # Warning shown in transcript
-        sys.exit(0)
-                return
+                # For PreToolUse hooks, we can warn but not block
+                print(message, file=sys.stderr)  # Warning shown in transcript
+                sys.exit(0)
         
-        # If not found, log that it's safe to create
-        print(json.dumps({
-            sys.exit(0)
+        # If not found, just exit normally
+        sys.exit(0)
         
     except Exception as e:
-        print(json.dumps({
-            sys.exit(0)
+        # On error, exit with non-zero code and error in stderr
+        print(f"Creation guard hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
-    sys.exit(0)

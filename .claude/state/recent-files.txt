@@ -1,3 +1,2 @@
-test.py
-/test/file.py
-/test/file.tsx
+test.txt
+/app/page.tsx\ntest.tsx\ntest.py\ntest.py\ntest.py\ntest.py\n/test/file.tsx\n/test/file.py\ntest.py\ntest.tsx\n\n\ntest.py\n\n\ntest.py\n\n\n\ntest.tsx\n\ntest.tsx\n\n\n

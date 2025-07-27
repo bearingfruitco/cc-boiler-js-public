@@ -1,5 +1,5 @@
 {
-  "version": "2.7.0",
+  "version": "2.8.0",
   "project": {
     "name": "Claude Code Boilerplate",
     "type": "boilerplate-system",
@@ -242,6 +242,20 @@
       "enabled": true,
       "config_file": ".agent-os/config.json",
       "description": "Agent OS integration for spec-driven development"
+    },
+    "security": {
+      "enabled": true,
+      "config_file": ".claude/security.config.json",
+      "description": "Production-grade security features for APIs, forms, and databases",
+      "standards_file": ".agent-os/standards/security.md",
+      "features": {
+        "rate_limiting": true,
+        "rls_policies": true,
+        "captcha": true,
+        "dependency_scanning": true,
+        "security_headers": true,
+        "audit_logging": true
+      }
     }
   },
   "dependencies": {

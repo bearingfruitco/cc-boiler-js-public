@@ -10,22 +10,16 @@ import os
 from datetime import datetime
 from pathlib import Path
 import hashlib
+import re
+import subprocess
 
 def get_config():
     """Load hook configuration"""
     config_path = Path(__file__).parent.parent / 'config.json'
-    with open(config_path) as f:
-        return json.load(f)
-
-def get_claude_context():
-    """Get Claude's last response from context"""
-    context_path = Path(__file__).parent.parent / 'context' / 'last_response.json'
-    
-    if context_path.exists():
-        with open(context_path) as f:
+    if config_path.exists():
+        with open(config_path) as f:
             return json.load(f)
-    
-    return None
+    return {}
 
 def extract_sections(content):
     """Extract structured sections from Claude's response"""
@@ -46,7 +40,6 @@ def extract_sections(content):
     ]
     
     for pattern in summary_patterns:
-        import re
         match = re.search(pattern, content, re.DOTALL)
         if match:
             sections['summary'] = match.group(1).strip()
@@ -112,8 +105,8 @@ def should_capture_response(content):
 
 def save_captured_response(content, sections, metadata):
     """Save captured response for later use"""
-    captures_dir = Path(__file__).parent.parent / 'captures'
-    captures_dir.mkdir(exist_ok=True)
+    captures_dir = Path('.claude/captures')
+    captures_dir.mkdir(parents=True, exist_ok=True)
     
     # Generate unique ID
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -141,7 +134,7 @@ def save_captured_response(content, sections, metadata):
 
 def update_capture_index(capture_id, summary):
     """Update capture index for easy retrieval"""
-    index_path = Path(__file__).parent.parent / 'captures' / 'index.json'
+    index_path = Path('.claude/captures/index.json')
     
     if index_path.exists():
         with open(index_path) as f:
@@ -173,10 +166,8 @@ def get_current_context():
 def get_git_branch():
     """Get current git branch"""
     try:
-        import subprocess
         result = subprocess.run(
-            "git branch --show-current",
-            shell=True,
+            ['git', 'branch', '--show-current'],
             capture_output=True,
             text=True
         )
@@ -196,16 +187,14 @@ def extract_issue_number():
 def get_modified_files():
     """Get list of recently modified files"""
     try:
-        import subprocess
         result = subprocess.run(
-            "git status --porcelain | head -10",
-            shell=True,
+            ['git', 'status', '--porcelain'],
             capture_output=True,
             text=True
         )
         
         files = []
-        for line in result.stdout.strip().split('\n'):
+        for line in result.stdout.strip().split('\n')[:10]:  # Max 10 files
             if line.strip():
                 files.append(line[3:])
         return files
@@ -213,39 +202,46 @@ def get_modified_files():
         return []
 
 def main():
+    """Main hook logic"""
     try:
-        """Main hook logic"""
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
-    
-        # This is a post-tool-use hook, so we capture after responses
-        # Get Claude's last response (this would need integration with Claude Code)
-        # For now, we'll check if there's a response to capture
-    
+        
+        # Extract tool information
+        tool_name = input_data.get('tool_name', '')
+        tool_input = input_data.get('tool_input', {})
+        tool_result = input_data.get('tool_result', {})
+        
         config = get_config()
-    
+        
         # Check if response capture is enabled
         if not config.get('capture', {}).get('auto_capture', True):
-                    return
-    
-        # In a real implementation, we'd get Claude's actual response
-        # For this example, we'll check if the tool operation suggests a response was given
-        if input_data.get('tool') == 'assistant_response':
-            content = input_data.get('content', '')
+            sys.exit(0)
         
-            if should_capture_response(content):
-                sections = extract_sections(content)
-                metadata = get_current_context()
+        # Only capture on Write operations that might contain plans
+        if tool_name == 'Write':
+            file_path = tool_input.get('file_path', tool_input.get('path', ''))
+            content = tool_input.get('content', '')
             
-                if sections['summary'] or sections['plan']:
-                    capture_id = save_captured_response(content, sections, metadata)
-                
-                    print(json.dumps({
-                        sys.exit(0)
-                    return
-    
+            # Check if this is a plan/design document
+            if any(x in file_path for x in ['PRD', 'plan', 'design', 'spec']):
+                if should_capture_response(content):
+                    sections = extract_sections(content)
+                    metadata = get_current_context()
+                    
+                    if sections['summary'] or sections['plan']:
+                        capture_id = save_captured_response(content, sections, metadata)
+                        
+                        # Log capture for visibility
+                        print(f"📸 Captured response: {capture_id}")
+        
+        # PostToolUse hooks just exit normally
+        sys.exit(0)
+        
+    except Exception as e:
+        # Log error to stderr and exit
+        print(f"Response capture error: {str(e)}", file=sys.stderr)
         sys.exit(0)
 
-    except Exception as e:
 if __name__ == "__main__":
     main()

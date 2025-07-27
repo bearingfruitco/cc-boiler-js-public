@@ -5,33 +5,31 @@ knowledge-share - Minimal working version
 
 import json
 import sys
+import os
+from pathlib import Path
 
 def main():
     """Main hook logic"""
     try:
-        # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        # Read input if provided
+        input_data = {}
+        if not sys.stdin.isatty():
+            try:
+                input_data = json.loads(sys.stdin.read())
+            except:
+                pass
         
-        # Extract tool name - handle multiple formats
-        tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
+        # Hook-specific logic goes here
+        # TODO: Implement knowledge-share logic
         
-        # Extract parameters
-        tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
-        
-        # TODO: Add hook-specific logic here
-        
-        # Always output valid JSON
+        # For Stop hooks: exit with code 0 to allow stopping
+        # Or output {"action": "block", "reason": "..."} to prevent stopping
         sys.exit(0)
         
     except Exception as e:
-        # Always output valid JSON even on error
-        print(json.dumps({
-            sys.exit(0)
+        # Log error to stderr and still allow stopping
+        print(f"knowledge-share error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()
-    sys.exit(0)

@@ -29,30 +29,38 @@ def check_async_patterns(content):
 
 def main():
     try:
+        # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
         
+        # Extract tool name
         tool_name = input_data.get('tool_name', '')
         if not tool_name and 'tool_use' in input_data:
             tool_name = input_data['tool_use'].get('name', '')
         
+        # Only check write operations
         if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            # Not a write operation - continue normally
             sys.exit(0)
-            return
         
+        # Extract tool input
         tool_input = input_data.get('tool_input', {})
         if not tool_input and 'tool_use' in input_data:
             tool_input = input_data['tool_use'].get('parameters', {})
         
+        # Get file path and content
         file_path = tool_input.get('file_path', tool_input.get('path', ''))
         content = tool_input.get('content', tool_input.get('new_str', ''))
         
+        # Only check TypeScript/JavaScript files
         if not any(file_path.endswith(ext) for ext in ['.ts', '.tsx', '.js', '.jsx']):
+            # Not a JS/TS file - continue normally
             sys.exit(0)
-            return
         
+        # Check for async patterns
         issues = check_async_patterns(content)
         
         if issues:
+            # Build warning message
             message = "⚡ ASYNC PATTERN SUGGESTIONS\n\n"
             for issue in issues:
                 message += f"• {issue}\n"
@@ -62,12 +70,16 @@ def main():
             message += "• Always show loading states\n"
             message += "• Handle errors gracefully\n"
             
-            print(message)  # Warning shown in transcript
+            # Output warning to stderr (shows in transcript)
+            print(message, file=sys.stderr)
+        
+        # PreToolUse hook: Exit normally to continue with permission flow
         sys.exit(0)
-        else:
-            sys.exit(0)
             
     except Exception as e:
+        # On error, log to stderr and exit with error code
+        print(f"Async pattern hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
 if __name__ == "__main__":
     main()
-    sys.exit(0)

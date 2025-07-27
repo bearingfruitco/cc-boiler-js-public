@@ -10,27 +10,6 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-def hook_post_tool_use(params, state):
-    """Track progress on active PRPs"""
-    
-    # Check if working with PRP files
-    if params.get('tool') != 'EditTool':
-        return
-        
-    file_path = params.get('path', '')
-    
-    # Track PRP-related file changes
-    if 'PRPs/active/' in file_path or any(marker in file_path for marker in [
-        '/src/', '/components/', '/tests/', '/api/'
-    ]):
-        update_prp_progress(file_path, params.get('content', ''))
-    
-    # Track validation runs
-    if params.get('tool') == 'BashCommand':
-        command = params.get('command', '')
-        if any(cmd in command for cmd in ['bun test', 'bun run lint', 'pytest', 'mypy']):
-            track_validation_run(command, params.get('output', ''))
-
 def update_prp_progress(file_path, content):
     """Update progress tracking for active PRPs"""
     
@@ -196,5 +175,37 @@ def extract_prp_from_command(command):
     
     return None
 
-# Ensure we always output valid JSON
-sys.exit(0)
+def main():
+    """Main hook logic"""
+    try:
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
+        
+        # Extract tool information
+        tool_name = input_data.get('tool_name', '')
+        tool_input = input_data.get('tool_input', {})
+        tool_result = input_data.get('tool_result', {})
+        
+        # Check if working with PRP files
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            sys.exit(0)
+            
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        content = tool_input.get('content', tool_input.get('new_str', ''))
+        
+        # Track PRP-related file changes
+        if 'PRPs/active/' in file_path or any(marker in file_path for marker in [
+            '/src/', '/components/', '/tests/', '/api/'
+        ]):
+            update_prp_progress(file_path, content)
+        
+        # Exit successfully
+        sys.exit(0)
+        
+    except Exception as e:
+        # Log error to stderr and exit
+        print(f"PRP progress tracker error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()

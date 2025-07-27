@@ -1,44 +1,25 @@
 #!/usr/bin/env python3
 """
-Automatically load relevant PRP context based on current work
+PRP Context Loader Hook
+Automatically loads relevant PRP context based on current work
 """
 
 import json
 import sys
 import os
+import re
 from pathlib import Path
 
-def hook_pre_tool_use(params, state):
-    """Load PRP context when relevant"""
-    
-    # Check if we should load PRP context
-    if not should_load_prp_context(params):
-        return
-    
-    # Find relevant PRPs
-    relevant_prps = find_relevant_prps(params)
-    
-    if not relevant_prps:
-        return
-    
-    # Load PRP context into state
-    for prp_name in relevant_prps:
-        load_prp_context(prp_name, state)
-    
-    print(f"📚 Loaded PRP context: {', '.join(relevant_prps)}")
-
-def should_load_prp_context(params):
+def should_load_prp_context(tool_name, tool_input):
     """Determine if PRP context is needed"""
     
-    tool = params.get('tool', '')
-    
-    # Always load for certain tools
-    if tool in ['EditTool', 'CreateTool', 'BashCommand']:
+    # Always load for file modification tools
+    if tool_name in ['Write', 'Edit', 'MultiEdit']:
         return True
     
-    # Load if command references PRPs
-    if tool == 'ReadTool':
-        path = params.get('path', '')
+    # Load if reading PRP-related files
+    if tool_name == 'Read':
+        path = tool_input.get('path', '')
         if 'PRPs/' in path or any(marker in path for marker in [
             'validation', 'blueprint', 'implementation'
         ]):
@@ -46,95 +27,68 @@ def should_load_prp_context(params):
     
     return False
 
-def find_relevant_prps(params):
+def find_relevant_prps(tool_input):
     """Find PRPs relevant to current action"""
-    
     relevant = []
     
-    # Get current file/command
-    current_context = extract_context(params)
+    # Get current file/command context
+    current_path = tool_input.get('file_path', tool_input.get('path', ''))
+    current_content = tool_input.get('content', tool_input.get('new_str', ''))[:500]
     
     # Check each active PRP
-    active_prps = list(Path('PRPs/active/').glob('*.md'))
+    prp_dir = Path('PRPs')
+    if not prp_dir.exists():
+        return relevant
+    
+    active_prps = list(prp_dir.glob('*-PRP.md'))
     
     for prp_path in active_prps:
         prp_name = prp_path.stem
         
         # Read PRP to check relevance
-        with open(prp_path) as f:
-            prp_content = f.read()
-        
-        # Check if current work relates to this PRP
-        if is_prp_relevant(prp_name, prp_content, current_context):
-            relevant.append(prp_name)
+        try:
+            with open(prp_path) as f:
+                prp_content = f.read()
+            
+            # Check if current work relates to this PRP
+            if is_prp_relevant(prp_name, prp_content, current_path, current_content):
+                relevant.append({
+                    'name': prp_name,
+                    'path': str(prp_path),
+                    'content': prp_content
+                })
+        except:
+            pass
     
     return relevant[:2]  # Limit to 2 most relevant
 
-def extract_context(params):
-    """Extract context from current action"""
-    
-    context = {
-        'tool': params.get('tool', ''),
-        'path': params.get('path', ''),
-        'command': params.get('command', ''),
-        'content': params.get('content', '')[:500]  # First 500 chars
-    }
-    
-    return context
-
-def is_prp_relevant(prp_name, prp_content, context):
+def is_prp_relevant(prp_name, prp_content, current_path, current_content):
     """Check if PRP is relevant to current context"""
     
     # Check direct name match
-    if prp_name in context['path'] or prp_name in context['command']:
+    if prp_name in current_path:
         return True
     
     # Check feature name variants
+    feature_name = prp_name.replace('-PRP', '')
     feature_variants = [
-        prp_name,
-        prp_name.replace('-', '_'),
-        prp_name.replace('-', ''),
+        feature_name,
+        feature_name.replace('-', '_'),
+        feature_name.replace('-', ''),
     ]
     
     for variant in feature_variants:
-        if variant in context['path'] or variant in context['content']:
+        if variant in current_path or variant in current_content:
             return True
     
-    # Check if files mentioned in PRP
-    if context['path']:
-        if context['path'] in prp_content:
-            return True
+    # Check if current file is mentioned in PRP
+    if current_path and current_path in prp_content:
+        return True
     
     return False
 
-def load_prp_context(prp_name, state):
-    """Load PRP context into state"""
-    
-    prp_path = Path(f'PRPs/active/{prp_name}.md')
-    if not prp_path.exists():
-        return
-    
-    # Extract key sections
-    with open(prp_path) as f:
-        content = f.read()
-    
-    # Parse important sections
-    sections = parse_prp_sections(content)
-    
-    # Add to state context
-    if 'prp_context' not in state:
-        state['prp_context'] = {}
-    
-    state['prp_context'][prp_name] = {
-        'gotchas': sections.get('gotchas', []),
-        'patterns': sections.get('patterns', []),
-        'validation': sections.get('validation', {}),
-        'context_files': sections.get('context_files', [])
-    }
-
 def parse_prp_sections(content):
     """Parse PRP content into sections"""
-    
     sections = {
         'gotchas': [],
         'patterns': [],
@@ -143,7 +97,6 @@ def parse_prp_sections(content):
     }
     
     # Extract gotchas
-    import re
     gotcha_pattern = r'(?:GOTCHA|WARNING|CRITICAL):\s*(.+?)(?:\n|$)'
     sections['gotchas'] = re.findall(gotcha_pattern, content)
     
@@ -159,5 +112,62 @@ def parse_prp_sections(content):
     
     return sections
 
-# Ensure we always output valid JSON
-sys.exit(0)
+def main():
+    """Main hook logic"""
+    try:
+        # Read input from Claude Code
+        input_data = json.loads(sys.stdin.read())
+        
+        # Extract tool name and input
+        tool_name = input_data.get('tool_name', '')
+        tool_input = input_data.get('tool_input', {})
+        
+        # Check if we should load PRP context
+        if not should_load_prp_context(tool_name, tool_input):
+            # Not relevant - continue normally
+            sys.exit(0)
+        
+        # Find relevant PRPs
+        relevant_prps = find_relevant_prps(tool_input)
+        
+        if not relevant_prps:
+            # No relevant PRPs - continue normally
+            sys.exit(0)
+        
+        # Build context message
+        message = "📚 PRP CONTEXT LOADED\n\n"
+        
+        for prp in relevant_prps:
+            message += f"Loading context from: {prp['name']}\n"
+            
+            # Parse important sections
+            sections = parse_prp_sections(prp['content'])
+            
+            if sections['gotchas']:
+                message += "\n⚠️ GOTCHAS:\n"
+                for gotcha in sections['gotchas'][:3]:  # Max 3
+                    message += f"  • {gotcha}\n"
+            
+            if sections['validation']:
+                message += "\n✅ Validation available:\n"
+                if 'level1' in sections['validation']:
+                    message += f"  • Level 1: {sections['validation']['level1'][:50]}...\n"
+            
+            if sections['context_files']:
+                message += f"\n📁 Related files: {', '.join(sections['context_files'][:3])}\n"
+        
+        message += f"\nRefer to PRPs for full implementation details."
+        
+        # Output context message to stderr
+        print(message, file=sys.stderr)
+        
+        # Continue normally
+        sys.exit(0)
+        
+    except Exception as e:
+        # On error, log to stderr and exit with error code
+        print(f"PRP context loader error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

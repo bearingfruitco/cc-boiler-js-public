@@ -186,127 +186,113 @@ def get_ai_doc_snippet(doc_name):
     return snippets.get(doc_name, 'Patterns and best practices')
 
 def main():
+    """Main hook logic"""
     try:
-        """Main hook logic"""
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
-    
-        # Only process file write/edit operations
-
+        
         # Extract tool name - handle multiple formats
-
         tool_name = input_data.get('tool_name', '')
-
         if not tool_name and 'tool_use' in input_data:
-
             tool_name = input_data['tool_use'].get('name', '')
-
         if not tool_name:
-
             tool_name = input_data.get('tool', '')
-
-    
-
-        # Extract parameters
-
-        tool_input = input_data.get('tool_input', {})
-
-        if not tool_input and 'tool_use' in input_data:
-
-            tool_input = input_data['tool_use'].get('parameters', {})
-
-    
-
+        
+        # Only process file write/edit operations
         if tool_name not in ['Write', 'Edit', 'str_replace']:
-                    return
-    
-        file_path = tool_input.get('file_path', tool_input.get('path', '')
-        content = input_data.get('content', '')
-    
+            sys.exit(0)
+        
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
+        
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        content = tool_input.get('content', tool_input.get('new_str', ''))
+        
         # Skip if it's an AI doc itself
         if 'ai_docs/' in file_path:
-            # sys.exit(0)
-    except Exception as e:
-s usage
-    recommendations = check_ai_docs_usage(content, file_path)
-    
-    if recommendations:
-        # For PRPs, be more insistent
-        is_prp = 'PRPs/' in file_path and file_path.endswith('.md')
+            sys.exit(0)
         
-        message = "💡 AI DOCS RECOMMENDATIONS\n\n"
+        # Check AI docs usage
+        recommendations = check_ai_docs_usage(content, file_path)
         
-        if is_prp:
-            message += "PRPs should reference relevant AI docs for patterns:\n\n"
-        else:
-            message += "Consider referencing these AI docs:\n\n"
-        
-        # Group by importance
-        high_priority = []
-        normal_priority = []
-        
-        for rec in recommendations:
-            if rec['category'] in ['security_patterns', 'design_system']:
-                high_priority.append(rec)
+        if recommendations:
+            # For PRPs, be more insistent
+            is_prp = 'PRPs/' in file_path and file_path.endswith('.md')
+            
+            message = "💡 AI DOCS RECOMMENDATIONS\n\n"
+            
+            if is_prp:
+                message += "PRPs should reference relevant AI docs for patterns:\n\n"
             else:
-                normal_priority.append(rec)
-        
-        # Show high priority first
-        if high_priority:
-            message += "🔴 High Priority:\n"
-            for rec in high_priority:
-                snippet = get_ai_doc_snippet(rec['doc'])
-                message += f"  • {rec['doc']}\n"
-                message += f"    {rec['reason']}\n"
-                message += f"    Contains: {snippet}\n\n"
-        
-        # Then normal priority
-        if normal_priority:
+                message += "Consider referencing these AI docs:\n\n"
+            
+            # Group by importance
+            high_priority = []
+            normal_priority = []
+            
+            for rec in recommendations:
+                if rec['category'] in ['security_patterns', 'design_system']:
+                    high_priority.append(rec)
+                else:
+                    normal_priority.append(rec)
+            
+            # Show high priority first
             if high_priority:
-                message += "🟡 Suggested:\n"
-            for rec in normal_priority:
-                snippet = get_ai_doc_snippet(rec['doc'])
-                message += f"  • {rec['doc']}\n"
-                message += f"    {rec['reason']}\n"
-                message += f"    Contains: {snippet}\n\n"
-        
-        # Add usage example for PRPs
-        if is_prp:
-            message += "📝 Add to your PRP's Required Context section:\n"
-            message += "```yaml\n"
-            for rec in recommendations[:2]:  # Show max 2 examples
-                message += f"- doc: PRPs/ai_docs/{rec['doc']}\n"
-                message += f"  why: {rec['reason']}\n"
-                message += f"  critical: Key patterns to follow\n\n"
-            message += "```\n"
-        
-        # Add location info
-        message += f"\n📁 AI docs location: PRPs/ai_docs/"
-        
-        # Determine action based on file type and priority
-        action = "warn"
-        if is_prp and high_priority:
-            # For PRPs with security/design concerns, consider blocking
-            # But let's be helpful and just warn strongly
-            message = "⚠️ IMPORTANT: " + message
-        
-        # print(json.dumps({
-            "action": action,
-            "message": message,
-            "recommendations": [r['doc'] for r in recommendations],
-            "file_type": 'prp' if is_prp else 'code'
-        }))
-    else:
-        # Check if this is a good example of AI docs usage
-        if 'ai_docs/' in content:
-            doc_refs = re.findall(r'ai_docs/(\w+\.md)', content)
-            if doc_refs:
-                # Positive reinforcement
-                # print(json.dumps({
-                    sys.exit(0)
-                }))
-            else:
-                # sys.exit(0)
+                message += "🔴 High Priority:\n"
+                for rec in high_priority:
+                    snippet = get_ai_doc_snippet(rec['doc'])
+                    message += f"  • {rec['doc']}\n"
+                    message += f"    {rec['reason']}\n"
+                    message += f"    Contains: {snippet}\n\n"
+            
+            # Then normal priority
+            if normal_priority:
+                if high_priority:
+                    message += "🟡 Suggested:\n"
+                for rec in normal_priority:
+                    snippet = get_ai_doc_snippet(rec['doc'])
+                    message += f"  • {rec['doc']}\n"
+                    message += f"    {rec['reason']}\n"
+                    message += f"    Contains: {snippet}\n\n"
+            
+            # Add usage example for PRPs
+            if is_prp:
+                message += "📝 Add to your PRP's Required Context section:\n"
+                message += "```yaml\n"
+                for rec in recommendations[:2]:  # Show max 2 examples
+                    message += f"- doc: PRPs/ai_docs/{rec['doc']}\n"
+                    message += f"  why: {rec['reason']}\n"
+                    message += f"  critical: Key patterns to follow\n\n"
+                message += "```\n"
+            
+            # Add location info
+            message += f"\n📁 AI docs location: PRPs/ai_docs/"
+            
+            # Determine action based on file type and priority
+            if is_prp and high_priority:
+                # For PRPs with security/design concerns, consider blocking
+                # But let's be helpful and just warn strongly
+                message = "⚠️ IMPORTANT: " + message
+            
+            # PreToolUse hooks should just warn, not block
+            print(message, file=sys.stderr)
+            sys.exit(0)
         else:
-            print(json.dumps"__main__":
+            # Check if this is a good example of AI docs usage
+            if 'ai_docs/' in content:
+                doc_refs = re.findall(r'ai_docs/(\w+\.md)', content)
+                if doc_refs:
+                    # Positive reinforcement - can print to stderr
+                    print(f"✅ Great! References AI docs: {', '.join(doc_refs)}", file=sys.stderr)
+            
+            sys.exit(0)
+            
+    except Exception as e:
+        # On error, exit with non-zero code and error in stderr
+        print(f"AI docs check hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
     main()

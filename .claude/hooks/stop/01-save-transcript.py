@@ -1,37 +1,58 @@
 #!/usr/bin/env python3
 """
-01-save-transcript - Minimal working version
+Save Transcript Hook - Saves conversation transcript when session ends
 """
 
 import json
 import sys
+import os
+from pathlib import Path
+from datetime import datetime
+
+def save_transcript():
+    """Save the current session transcript"""
+    try:
+        # Create transcripts directory
+        transcript_dir = Path(".claude/transcripts")
+        transcript_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"transcript_{timestamp}.txt"
+        filepath = transcript_dir / filename
+        
+        # Note: In a real implementation, we would capture the actual transcript
+        # For now, we just create a marker file
+        with open(filepath, 'w') as f:
+            f.write(f"Session ended at {datetime.now().isoformat()}\n")
+            f.write(f"Session ID: {os.getenv('CLAUDE_SESSION_ID', 'unknown')}\n")
+        
+        return True
+    except Exception as e:
+        print(f"Failed to save transcript: {str(e)}", file=sys.stderr)
+        return False
 
 def main():
     """Main hook logic"""
     try:
-        # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        # Read input if provided
+        input_data = {}
+        if not sys.stdin.isatty():
+            try:
+                input_data = json.loads(sys.stdin.read())
+            except:
+                pass
         
-        # Extract tool name - handle multiple formats
-        tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
+        # Save the transcript
+        save_transcript()
         
-        # Extract parameters
-        tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
-        
-        # TODO: Add hook-specific logic here
-        
-        # Always output valid JSON
+        # Allow Claude to stop normally - exit with code 0
         sys.exit(0)
         
     except Exception as e:
-        # Always output valid JSON even on error
-        print(json.dumps({
-            sys.exit(0)
+        # On error, log to stderr but still allow stop
+        print(f"Save transcript hook error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()
-    sys.exit(0)

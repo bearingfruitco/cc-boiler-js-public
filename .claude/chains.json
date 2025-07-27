@@ -250,6 +250,51 @@
         "branch-status"
       ],
       "stopOnError": true
+    },
+    "security-baseline": {
+      "description": "Establish security baseline for project",
+      "commands": [
+        "spawn-security-auditor security-auditor --scope full",
+        "generate-rls all",
+        "dependency-scan",
+        "security-status"
+      ]
+    },
+    "secure-api-creation": {
+      "description": "Create API with full security",
+      "commands": [
+        "create-secure-api",
+        "generate-rls",
+        "spawn-security-auditor security-auditor --scope api --quick",
+        "security-check api"
+      ],
+      "stopOnError": true
+    },
+    "security-fix": {
+      "description": "Fix security issues automatically",
+      "commands": [
+        "spawn-security-auditor security-auditor --fix",
+        "test-runner security",
+        "verify --security"
+      ]
+    },
+    "pre-deploy-security": {
+      "description": "Security checks before deployment",
+      "commands": [
+        "dependency-scan --production",
+        "spawn-security-auditor security-auditor --scope full",
+        "security-check all",
+        "security-audit --report"
+      ],
+      "stopOnError": true
+    },
+    "secure-form-workflow": {
+      "description": "Create form with complete security",
+      "commands": [
+        "create-secure-form",
+        "audit-form-security",
+        "security-check form"
+      ]
     }
   },
   "shortcuts": {
@@ -279,6 +324,11 @@
     "mpr": "multi-perspective-review",
     "wts": "worktree-setup",
     "wte": "worktree-execute",
-    "wtrm": "worktree-review-merge"
+    "wtrm": "worktree-review-merge",
+    "sb": "security-baseline",
+    "sac": "secure-api-creation",
+    "sf": "security-fix",
+    "pds": "pre-deploy-security",
+    "sfw": "secure-form-workflow"
   }
 }

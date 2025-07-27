@@ -55,6 +55,8 @@ class ContextLoader:
         ContextLoader._load_bug_state(context)
         ContextLoader._load_user_state(context)
         
+        print(json.dumps({"action": "continue"}))
+        
         return context
     
     @staticmethod
@@ -187,6 +189,7 @@ class ComplexityAnalyzer:
     def analyze(text: str) -> str:
         """Return complexity level: simple, medium, complex."""
         if not text:
+            print(json.dumps({"action": "continue"}))
             return 'simple'
         
         text_lower = text.lower()
@@ -222,6 +225,7 @@ class ComplexityAnalyzer:
             scores['simple'] += 1
         
         # Return highest scoring level
+        print(json.dumps({"action": "continue"}))
         return max(scores.keys(), key=lambda k: scores[k])
 
 
@@ -232,15 +236,18 @@ class OrchestrationCalculator:
     def should_suggest_orchestration(tasks: List[Dict]) -> bool:
         """Determine if orchestration would help."""
         if len(tasks) < 5:
+            print(json.dumps({"action": "continue"}))
             return False
         
         domains = set(task.get('domain', 'general') for task in tasks)
+        print(json.dumps({"action": "continue"}))
         return len(domains) >= 2
     
     @staticmethod
     def calculate_optimal_agents(tasks: List[Dict]) -> int:
         """Calculate optimal number of agents."""
         domains = set(task.get('domain', 'general') for task in tasks)
+        print(json.dumps({"action": "continue"}))
         return min(len(domains), 5)
     
     @staticmethod
@@ -248,6 +255,7 @@ class OrchestrationCalculator:
         """Estimate time saved in minutes."""
         total_time = sum(task.get('estimated_time', 30) for task in tasks)
         # Assume 30% savings with parallel execution
+        print(json.dumps({"action": "continue"}))
         return int(total_time * 0.3)
 
 
@@ -258,6 +266,7 @@ class SuggestionConflictChecker:
     def has_existing_suggestions(result: Any) -> bool:
         """Check if suggestions already provided."""
         if not result:
+            print(json.dumps({"action": "continue"}))
             return False
         
         result_str = str(result)
@@ -271,6 +280,8 @@ class SuggestionConflictChecker:
             'Recommended:',
             'Suggestion:'
         ]
+        
+        print(json.dumps({"action": "continue"}))
         
         return any(indicator in result_str for indicator in suggestion_indicators)
 

@@ -1,0 +1,109 @@
+{
+  "id": "security-enhancer",
+  "name": "Security Enhancer",
+  "description": "Adds security features to existing code without breaking functionality",
+  "version": "1.0.0",
+  "instructions": "You are a security enhancement specialist who retrofits security features into existing code. Your role is to:\n\n1. **Preserve Functionality**: Never break existing features\n2. **Add Security Layers**: Implement security without major refactoring\n3. **Minimal Changes**: Make the smallest changes possible\n4. **Test Everything**: Ensure all security additions are tested\n5. **Document Changes**: Clearly mark security enhancements\n\nSecurity features to add:\n- Rate limiting to APIs\n- Input validation to forms and APIs\n- CAPTCHA to public forms\n- Authentication checks\n- Security headers\n- CSRF protection\n- XSS prevention\n- SQL injection prevention\n\nApproach:\n1. Analyze existing code\n2. Identify security gaps\n3. Apply appropriate security patterns\n4. Test the enhanced code\n5. Document what was added and why",
+  "capabilities": [
+    "read_file",
+    "write_file",
+    "edit_file",
+    "run_tests"
+  ],
+  "workflows": {
+    "enhance_api": {
+      "description": "Add security to an API route",
+      "steps": [
+        {
+          "name": "analyze_api",
+          "check": ["methods", "current_security", "data_flow"]
+        },
+        {
+          "name": "add_rate_limiting",
+          "template": "rate-limit-wrapper",
+          "config": "based_on_endpoint_type"
+        },
+        {
+          "name": "add_validation",
+          "template": "zod-validation",
+          "generate": "schema_from_usage"
+        },
+        {
+          "name": "add_auth_check",
+          "if": "not_public",
+          "template": "auth-middleware"
+        },
+        {
+          "name": "test_api",
+          "generate": "security_tests"
+        }
+      ]
+    },
+    "enhance_form": {
+      "description": "Add security to a form component",
+      "steps": [
+        {
+          "name": "analyze_form",
+          "check": ["fields", "submission", "validation"]
+        },
+        {
+          "name": "add_validation",
+          "template": "form-validation",
+          "use": "zod"
+        },
+        {
+          "name": "add_captcha",
+          "if": "public_form",
+          "template": "recaptcha-integration"
+        },
+        {
+          "name": "add_rate_limiting",
+          "template": "client-rate-limit"
+        },
+        {
+          "name": "add_honeypot",
+          "template": "honeypot-field"
+        }
+      ]
+    },
+    "add_security_headers": {
+      "description": "Add security headers to the application",
+      "steps": [
+        {
+          "name": "check_current_headers",
+          "files": ["next.config.js", "middleware.ts"]
+        },
+        {
+          "name": "add_headers",
+          "headers": ["CSP", "HSTS", "X-Frame-Options", "X-Content-Type-Options"]
+        },
+        {
+          "name": "test_headers",
+          "tool": "security-headers-check"
+        }
+      ]
+    }
+  },
+  "templates": {
+    "rate-limit-wrapper": "import { rateLimit } from '@/lib/security/middleware';\n\n// Rate limit: {{limit}} requests per {{window}}\nconst rateLimited = rateLimit({ window: '{{window}}', max: {{limit}} });\n\nexport const {{method}} = rateLimited({{original_handler}});",
+    "zod-validation": "import { z } from 'zod';\n\nconst {{schema_name}} = z.object({\n  {{schema_fields}}\n});\n\n// Validate input\nconst validated = {{schema_name}}.parse(data);",
+    "auth-middleware": "import { withAuth } from '@/lib/security/middleware';\n\nexport const {{method}} = withAuth()({{original_handler}});",
+    "recaptcha-integration": "import { ReCAPTCHA } from '@/components/security/captcha';\n\n// Add CAPTCHA protection\n<ReCAPTCHA\n  siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}\n  onChange={setCaptchaToken}\n/>"
+  },
+  "context_from_parent": [
+    "file_path",
+    "enhancement_type",
+    "security_level",
+    "existing_patterns"
+  ],
+  "return_to_parent": {
+    "format": "structured",
+    "schema": {
+      "enhancements_applied": "array",
+      "files_modified": "array",
+      "tests_generated": "number",
+      "breaking_changes": "boolean",
+      "warnings": "array"
+    }
+  }
+}

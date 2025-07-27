@@ -134,7 +134,6 @@ def main():
         # Only check write operations
         if tool_name not in ['Write', 'Edit', 'str_replace']:
             sys.exit(0)
-            return
         
         # Extract parameters
         tool_input = input_data.get('tool_input', {})
@@ -147,7 +146,6 @@ def main():
         
         if not any(file_path.endswith(ext) for ext in relevant_files):
             sys.exit(0)
-            return
         
         # Get content
         content = tool_input.get('content', tool_input.get('new_str', ''))
@@ -158,19 +156,19 @@ def main():
         if issues:
             # For documentation files, warn but don't block
             if file_path.endswith('.md') or file_path.endswith('.mdx'):
-                print(format_evidence_message(issues))  # Warning shown in transcript
-        sys.exit(0)
+                print(format_evidence_message(issues), file=sys.stderr)  # Warning shown in transcript
+                sys.exit(0)
             else:
                 # For code comments, just warn
-                print(format_evidence_message(issues))  # Warning shown in transcript
-        sys.exit(0)
+                print(format_evidence_message(issues), file=sys.stderr)  # Warning shown in transcript
+                sys.exit(0)
         else:
             sys.exit(0)
             
     except Exception as e:
-        print(json.dumps({
-            sys.exit(0)
+        # Exit with non-zero code and error in stderr
+        print(f"Evidence language hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
-    sys.exit(0)

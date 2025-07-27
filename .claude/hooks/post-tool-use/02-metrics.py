@@ -12,7 +12,7 @@ from datetime import datetime
 
 def get_metrics_file():
     """Get path to metrics file"""
-    metrics_dir = Path('.claude/team/metrics')
+    metrics_dir = Path('.claude/metrics')
     metrics_dir.mkdir(parents=True, exist_ok=True)
     return metrics_dir / 'design-compliance.json'
 
@@ -124,13 +124,9 @@ def update_global_metrics(analysis, file_path, metrics):
         metrics['files_with_violations'] = metrics['files_with_violations'][-100:]
     
     # Update overall compliance rate
-    total_compliant = sum(1 for f in metrics['files_with_violations'] 
-                         if f['compliance_rate'] == 100)
     if metrics['total_files_processed'] > 0:
-        metrics['compliance_rate'] = (
-            (metrics['total_files_processed'] - len(metrics['files_with_violations'])) / 
-            metrics['total_files_processed']
-        ) * 100
+        files_without_violations = metrics['total_files_processed'] - len(set(f['file'] for f in metrics['files_with_violations']))
+        metrics['compliance_rate'] = (files_without_violations / metrics['total_files_processed']) * 100
     
     return metrics
 
@@ -158,35 +154,29 @@ def generate_insights(metrics):
     return insights
 
 def main():
+    """Main hook logic"""
     try:
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool information
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
-        if not tool_name:
-            tool_name = input_data.get('tool', '')
+        tool_input = input_data.get('tool_input', {})
+        tool_result = input_data.get('tool_result', {})
         
         # Skip if not a write operation
-        if tool_name not in ['Write', 'Edit']:
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
-            return
-        
-        # Extract parameters
-        tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
         
         # Only process component files
         file_path = tool_input.get('file_path', tool_input.get('path', ''))
         if not file_path.endswith(('.tsx', '.jsx')):
             sys.exit(0)
-            return
         
         # Get content
-        content = tool_input.get('content', '')
+        content = tool_input.get('content', tool_input.get('new_str', ''))
+        if not content:
+            sys.exit(0)
         
         # Analyze the file
         analysis = analyze_component_file(content)
@@ -204,16 +194,16 @@ def main():
                 for insight in insights:
                     message += f"  • {insight}\n"
                 
-                sys.exit(0)
-                return
+                # PostToolUse hooks output to stdout for transcript mode
+                print(message)
         
-        # Continue silently
+        # Exit successfully
         sys.exit(0)
         
     except Exception as e:
-        print(json.dumps({
-            sys.exit(0)
+        # Log error to stderr and exit
+        print(f"Metrics error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
-    sys.exit(0)

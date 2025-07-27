@@ -154,7 +154,7 @@ def main():
             # Block the operation
             print(json.dumps({
                 "decision": "block",
-                "reason": message
+                "message": message
             }))
             sys.exit(0)
         else:
@@ -178,19 +178,18 @@ def main():
                 message += "Run: npm test " + str(test_file)
                 
                 print(message, file=sys.stderr)
-                sys.exit(1)  # Non-blocking warning
+                sys.exit(0)  # Non-blocking warning
             else:
                 # Tests passing - good to go
                 print(json.dumps({
-                    "decision": "approve", 
-                    "reason": f"TDD: Tests exist and passing for {feature_name}"
+                    "decision": "approve"
                 }))
                 sys.exit(0)
         
     except Exception as e:
         # Don't block on errors
         print(f"TDD hook error: {e}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

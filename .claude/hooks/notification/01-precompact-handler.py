@@ -8,21 +8,30 @@ import json
 import sys
 import os
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
+import subprocess
 
 def main():
     """Handle pre-compaction events to preserve context"""
     try:
-        # Get the input from Claude
-        input_data = json.loads(sys.stdin.read())
+        # Read input from Claude Code
+        input_data = {}
+        if not sys.stdin.isatty():
+            try:
+                input_data = json.loads(sys.stdin.read())
+            except:
+                # If no input or invalid JSON, just exit
+                sys.exit(0)
         
-        # Check if this is a pre-compact event
-        notification = input_data.get("notification", {})
-        if notification.get("type") == "conversation_compaction":
+        # Check if this is a notification we care about
+        notification_type = input_data.get("type", "")
+        
+        # For pre-compact notifications
+        if notification_type == "preCompact" or "compact" in notification_type.lower():
             # Define critical files to preserve
             critical_files = [
                 "CLAUDE.md",
-                "QUICK_REFERENCE.md",
+                "QUICK_REFERENCE.md", 
                 "SYSTEM_OVERVIEW.md",
                 ".claude/state/current-session.json",
                 ".claude/checkpoints/latest.json"
@@ -59,16 +68,15 @@ def main():
                 if Path(task_file).exists():
                     critical_files.append(task_file)
             
-            # ADD RESEARCH DOCUMENTS
-            # Check for relevant research based on current feature
+            # Check for relevant research
             research_base = Path(".claude/research")
             if research_base.exists():
                 # Get current feature from git branch
                 try:
-                    import subprocess
                     branch = subprocess.check_output(
                         ['git', 'branch', '--show-current'],
-                        text=True
+                        text=True,
+                        stderr=subprocess.DEVNULL
                     ).strip()
                     
                     # Extract feature name
@@ -87,10 +95,10 @@ def main():
                             )[:2]
                             for rf in research_files:
                                 critical_files.append(str(rf))
-                                print(f"📚 Including research: {rf.name}")
                 except:
-                                    # Also check for recent general research (last 7 days)
-                from datetime import timedelta
+                    pass
+                
+                # Check for recent general research (last 7 days)
                 week_ago = datetime.now() - timedelta(days=7)
                 
                 for category in ['analysis', 'planning', 'decisions']:
@@ -104,7 +112,6 @@ def main():
                             # Add most recent from each category
                             most_recent = max(recent_research, key=lambda p: p.stat().st_mtime)
                             critical_files.append(str(most_recent))
-                            print(f"📚 Including {category}: {most_recent.name}")
             
             # Create a context preservation file
             context_dir = Path(".claude/context")
@@ -127,15 +134,11 @@ def main():
                 try:
                     context_data["current_task"] = current_task_file.read_text().strip()
                 except:
-                    # sys.exit(0)
+                    pass
             
-    le, 'w') as f:
+            # Save context
+            with open(context_file, 'w') as f:
                 json.dump(context_data, f, indent=2)
-            
-            # Output message to Claude
-            print("🔄 Context preservation triggered before compaction")
-            print(f"📁 Preserving {len(critical_files)} critical files")
-            print("💡 Run /sr after compaction to restore full context")
             
             # Log the event
             log_dir = Path(".claude/logs")
@@ -151,10 +154,20 @@ def main():
             
             with open(log_file, 'a') as f:
                 f.write(json.dumps(log_entry) + '\n')
-    
+            
+            # Log preservation info to stderr (will show in output)
+            message = f"🔄 Context preserved before compaction\n"
+            message += f"📁 Preserved {len(critical_files)} critical files\n"
+            message += "💡 Run /sr after compaction to restore full context"
+            
+            print(message, file=sys.stderr)
+        
+        # Notification hooks should just exit - no JSON output
+        sys.exit(0)
+        
     except Exception as e:
-        # Don't fail the hook chain
-        print(f"⚠️  PreCompact handler error: {str(e)}", file=sys.stderr)
+        # Log error to stderr and exit
+        print(f"PreCompact handler error: {str(e)}", file=sys.stderr)
         sys.exit(0)
 
 if __name__ == "__main__":

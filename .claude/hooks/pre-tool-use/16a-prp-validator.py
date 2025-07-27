@@ -13,18 +13,6 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-def hook(action):
-    """Main hook function - only validate PRP files"""
-    
-    # Only validate when editing PRP files
-    file_path = action.get('path', '')
-    if not any(marker in file_path for marker in ['PRPs/', '.prp', 'prp.md', 'prp_']):
-        return  # Not a PRP file, skip validation
-    
-    # Only validate on write operations
-    if action.get('tool') not in ['EditTool', 'CreateTool', 'WriteFileTool']:
-        return
-
 def get_config():
     """Load hook configuration"""
     config_path = Path(__file__).parent.parent / 'config.json'
@@ -92,7 +80,7 @@ def validate_prp_content(content, file_path):
     
     # Check for metrics in completed PRPs
     if '/completed/' in str(file_path):
-        if 'metrics:' not in content.lower():
+        if 'metrics:' not in content_lower:
             issues.append("Completed PRPs must include success metrics")
     
     # Check for AI docs references
@@ -148,143 +136,127 @@ def extract_prp_info(content):
     return info
 
 def main():
+    """Main hook logic"""
     try:
-        """Main hook logic"""
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
-    
-        # Only process file write/edit operations
-
+        
         # Extract tool name - handle multiple formats
-
         tool_name = input_data.get('tool_name', '')
-
         if not tool_name and 'tool_use' in input_data:
-
             tool_name = input_data['tool_use'].get('name', '')
-
         if not tool_name:
-
             tool_name = input_data.get('tool', '')
-
-    
-
-        # Extract parameters
-
-        tool_input = input_data.get('tool_input', {})
-
-        if not tool_input and 'tool_use' in input_data:
-
-            tool_input = input_data['tool_use'].get('parameters', {})
-
-    
-
+        
+        # Only process file write/edit operations
         if tool_name not in ['Write', 'Edit', 'str_replace']:
-                    return
-    
-        file_path = tool_input.get('file_path', tool_input.get('path', '')
-    
+            sys.exit(0)
+        
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
+        
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        
         # Only validate PRP files
         if not file_path.endswith('.md') or 'PRPs/' not in file_path:
-            # sys.exit(0)
-    except Exception as e:
-other non-PRP markdown files
-    if file_path.endswith('README.md') or '/templates/' in file_path:
-        # sys.exit(0)
-        return
-    
-    content = input_dafig()
-    
-    # Extract PRP info
-    prp_info = extract_prp_info(content)
-    
-    # Validate structure
-    missing_sections = validate_prp_structure(content)
-    if missing_sections:
-        message = "🚨 PRP STRUCTURE INCOMPLETE\n\n"
-        message += "Every PRP must have these sections:\n"
-        for section in missing_sections:
-            message += f"  ❌ {section}\n"
-        message += "\n📚 Use PRP templates in PRPs/templates/ as a guide"
-        
-        # print(message,
-            "missing_sections": missing_sections
-        , file=sys.stderr)
-            sys.exit(2)
-        return
-    
-    # Validate content quality
-    issues = validate_prp_content(content, file_path)
-    
-    # Check dependencies
-    dep_errors = check_prp_dependencies(content)
-    if dep_errors:
-        issues.extend(dep_errors)
-    
-    # Determine severity
-    if issues:
-        # Critical issues that should block
-        critical_keywords = ['Missing validation', 'Missing success criteria', 'not found']
-        has_critical = any(any(keyword in issue for keyword in critical_keywords) for issue in issues)
-        
-        if has_critical:
-            message = "🚨 PRP VALIDATION FAILED\n\n"
-            message += "Critical issues found:\n"
-            for issue in issues:
-                if any(keyword in issue for keyword in critical_keywords):
-                    message += f"  ❌ {issue}\n"
-            
-            message += "\nOther issues:\n"
-            for issue in issues:
-                if not any(keyword in issue for keyword in critical_keywords):
-                    message += f"  ⚠️  {issue}\n"
-            
-            message += "\n💡 Fix critical issues before proceeding"
-            
-            # print(message,
-                "issues": issues
-            , file=sys.stderr)
-            sys.exit(2)
-            return
-        else:
-            # Non-critical issues - warn but allow
-            message = "⚠️ PRP QUALITY SUGGESTIONS\n\n"
-            message += "Consider addressing these points:\n"
-            for issue in issues:
-                message += f"  • {issue}\n"
-            
-            # Add helpful suggestions based on what's missing
-            if not prp_info['has_code_examples']:
-                message += "\n💡 Tip: Include code examples for clarity"
-            if not prp_info['has_time_estimate']:
-                message += "\n💡 Tip: Add time estimates for planning"
-            if not prp_info['references_patterns']:
-                message += "\n💡 Tip: Reference existing patterns to follow"
-            
-            # print(message,
-                "issues": issues,
-                "prp_info": prp_info
-            , file=sys.stderr)
-            sys.exit(1)
-            return
-    
-    # All good - provide positive feedback
-    strengths = []
-    if prp_info['has_code_examples']:
-        strengths.append("includes code examples")
-    if prp_info['has_success_criteria']:
-        strengths.append("has clear success criteria")
-    if prp_info['references_patterns']:
-        strengths.append("references patterns")
-    
-    if strengths:
-        message = f"✅ PRP looks good! Strengths: {', '.join(strengths)}"
-        # print(message,
-            "prp_info": prp_info
-        )  # Info message
             sys.exit(0)
-    else:
+        
+        # Skip other non-PRP markdown files
+        if file_path.endswith('README.md') or '/templates/' in file_path:
+            sys.exit(0)
+        
+        content = tool_input.get('content', tool_input.get('new_str', ''))
+        
+        # Extract PRP info
+        prp_info = extract_prp_info(content)
+        
+        # Validate structure
+        missing_sections = validate_prp_structure(content)
+        if missing_sections:
+            message = "🚨 PRP STRUCTURE INCOMPLETE\n\n"
+            message += "Every PRP must have these sections:\n"
+            for section in missing_sections:
+                message += f"  ❌ {section}\n"
+            message += "\n📚 Use PRP templates in PRPs/templates/ as a guide"
+            
+            print(json.dumps({
+                "decision": "block",
+                "message": message
+            }))
+            sys.exit(0)
+        
+        # Validate content quality
+        issues = validate_prp_content(content, file_path)
+        
+        # Check dependencies
+        dep_errors = check_prp_dependencies(content)
+        if dep_errors:
+            issues.extend(dep_errors)
+        
+        # Determine severity
+        if issues:
+            # Critical issues that should block
+            critical_keywords = ['Missing validation', 'Missing success criteria', 'not found']
+            has_critical = any(any(keyword in issue for keyword in critical_keywords) for issue in issues)
+            
+            if has_critical:
+                message = "🚨 PRP VALIDATION FAILED\n\n"
+                message += "Critical issues found:\n"
+                for issue in issues:
+                    if any(keyword in issue for keyword in critical_keywords):
+                        message += f"  ❌ {issue}\n"
+                
+                message += "\nOther issues:\n"
+                for issue in issues:
+                    if not any(keyword in issue for keyword in critical_keywords):
+                        message += f"  ⚠️  {issue}\n"
+                
+                message += "\n💡 Fix critical issues before proceeding"
+                
+                print(json.dumps({
+                    "decision": "block",
+                    "message": message
+                }))
+                sys.exit(0)
+            else:
+                # Non-critical issues - warn but allow
+                message = "⚠️ PRP QUALITY SUGGESTIONS\n\n"
+                message += "Consider addressing these points:\n"
+                for issue in issues:
+                    message += f"  • {issue}\n"
+                
+                # Add helpful suggestions based on what's missing
+                if not prp_info['has_code_examples']:
+                    message += "\n💡 Tip: Include code examples for clarity"
+                if not prp_info['has_time_estimate']:
+                    message += "\n💡 Tip: Add time estimates for planning"
+                if not prp_info['references_patterns']:
+                    message += "\n💡 Tip: Reference existing patterns to follow"
+                
+                print(message, file=sys.stderr)
+                sys.exit(0)
+        
+        # All good - provide positive feedback
+        strengths = []
+        if prp_info['has_code_examples']:
+            strengths.append("includes code examples")
+        if prp_info['has_success_criteria']:
+            strengths.append("has clear success criteria")
+        if prp_info['references_patterns']:
+            strengths.append("references patterns")
+        
+        if strengths:
+            message = f"✅ PRP looks good! Strengths: {', '.join(strengths)}"
+            print(message, file=sys.stderr)
+        
         sys.exit(0)
+        
+    except Exception as e:
+        # On error, exit with non-zero code and error in stderr
+        print(f"PRP validator hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

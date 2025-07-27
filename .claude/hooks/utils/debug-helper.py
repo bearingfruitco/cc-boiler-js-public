@@ -144,7 +144,8 @@ def main():
                 return
         
         # If no error, just continue
-        sys.exit(0)
+        print(json.dumps({"action": "continue"}))
+        return
         
     except Exception as e:
         # Self-diagnostic if this hook fails
@@ -154,7 +155,8 @@ def main():
             "message": f"Debug hook itself failed: {str(e)}\nThis suggests a fundamental setup issue.",
             "report": report
         }))
-    sys.exit(0)
+    print(json.dumps({"action": "continue"}))
+        return
 
 if __name__ == "__main__":
     main()

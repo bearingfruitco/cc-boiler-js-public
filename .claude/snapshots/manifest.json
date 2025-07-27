@@ -1,0 +1,17 @@
+{
+  "snapshots": [],
+  "version": "1.0.0",
+  "created": "2025-01-15T00:00:00Z",
+  "settings": {
+    "max_snapshots": 20,
+    "auto_snapshot": true,
+    "min_files_for_auto": 5,
+    "exclude_patterns": [
+      "node_modules",
+      ".next",
+      "dist",
+      "build",
+      "*.log"
+    ]
+  }
+}

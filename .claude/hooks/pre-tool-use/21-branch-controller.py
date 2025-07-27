@@ -10,27 +10,6 @@ import subprocess
 from pathlib import Path
 from datetime import datetime, timedelta
 
-def main():
-    """Main hook entry point following Anthropic hook specification."""
-    # Read the tool use request from stdin
-    request = json.loads(sys.stdin.read())
-    
-    # Extract tool and arguments
-    tool_name = request.get('tool', '')
-    args = request.get('arguments', {})
-    
-    # Check for branch operations
-    if tool_name == 'execute_command':
-        command = args.get('command', '')
-        if is_branch_creation_command(command):
-            return validate_branch_creation()
-    
-    # Check for file modifications
-    if tool_name in ['str_replace_editor', 'create', 'write']:
-        return validate_file_modification(args)
-    
-    return 0
-
 def is_branch_creation_command(command):
     """Check if command creates a new branch."""
     branch_commands = ['git checkout -b', 'git branch']
@@ -41,7 +20,7 @@ def validate_branch_creation():
     registry = load_branch_registry()
     if not registry:
         # No registry yet, allow
-        return 0
+        return None
     
     rules = registry.get('branch_rules', {})
     
@@ -51,8 +30,7 @@ def validate_branch_creation():
     
     max_allowed = rules.get('max_active_branches', 3)
     if len(active_branches) >= max_allowed:
-        print(format_branch_limit_error(active_branches, max_allowed), file=sys.stderr)
-        return 1
+        return format_branch_limit_error(active_branches, max_allowed)
     
     # Check main sync requirement
     if rules.get('require_main_sync', True):
@@ -61,26 +39,23 @@ def validate_branch_creation():
         if last_pulled:
             last_pull_time = datetime.fromisoformat(last_pulled)
             if datetime.now() - last_pull_time > timedelta(hours=24):
-                print(format_sync_required_error(), file=sys.stderr)
-                return 1
+                return format_sync_required_error()
     
     # Check for unfinished work
     if rules.get('require_tests_before_new', False):
         if has_failing_tests():
-            print(format_tests_required_error(), file=sys.stderr)
-            return 1
+            return format_tests_required_error()
     
-    return 0
+    return None
 
-def validate_file_modification(args):
+def validate_file_modification(file_path):
     """Check if file can be modified on current branch."""
     registry = load_branch_registry()
     if not registry:
-        return 0
+        return None
     
-    file_path = args.get('path', '')
     if not file_path:
-        return 0
+        return None
     
     # Check if file is blocked
     blocked_files = registry.get('blocked_files', {})
@@ -89,10 +64,9 @@ def validate_file_modification(args):
         current_branch = get_current_branch()
         
         if current_branch != block_info.get('blocked_by'):
-            print(format_file_blocked_error(file_path, block_info), file=sys.stderr)
-            return 1
+            return format_file_blocked_error(file_path, block_info)
     
-    return 0
+    return None
 
 def load_branch_registry():
     """Load branch registry."""
@@ -205,5 +179,48 @@ This file is currently being modified on another branch:
 This prevents merge conflicts before they happen!
 """
 
+def main():
+    """Main hook entry point following Claude Code hook specification."""
+    try:
+        # Read input from Claude Code
+        request = json.loads(sys.stdin.read())
+        
+        # Extract tool name and arguments
+        tool_name = request.get('tool_name', '')
+        tool_input = request.get('tool_input', {})
+        
+        # Check for branch operations via Bash tool
+        if tool_name == 'Bash':
+            command = tool_input.get('command', '')
+            if is_branch_creation_command(command):
+                error = validate_branch_creation()
+                if error:
+                    # Block the operation
+                    print(json.dumps({
+                        "decision": "block",
+                        "message": error
+                    }))
+                    sys.exit(0)
+        
+        # Check for file modifications
+        if tool_name in ['Write', 'Edit', 'MultiEdit']:
+            file_path = tool_input.get('file_path', tool_input.get('path', ''))
+            error = validate_file_modification(file_path)
+            if error:
+                # Block the operation
+                print(json.dumps({
+                    "decision": "block",
+                    "message": error
+                }))
+                sys.exit(0)
+        
+        # No issues - continue normally
+        sys.exit(0)
+        
+    except Exception as e:
+        # On error, log to stderr and exit with error code
+        print(f"Branch controller hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -10,39 +10,6 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 
-def main():
-    """Main hook entry point following Anthropic hook specification."""
-    # Read the tool use request from stdin
-    request = json.loads(sys.stdin.read())
-    
-    # Extract tool and arguments
-    tool_name = request.get('tool', '')
-    args = request.get('arguments', {})
-    
-    # Check if this is a file modification operation
-    if tool_name not in ['str_replace_editor', 'create', 'write']:
-        # Not a file operation, allow it
-        return 0
-    
-    # Get the file path
-    file_path = args.get('path', '')
-    if not file_path:
-        return 0
-    
-    # Load feature state
-    state = load_feature_state()
-    if not state:
-        # No state file yet, allow operation
-        return 0
-    
-    # Check if file belongs to a completed feature
-    warning = check_feature_protection(file_path, state)
-    if warning:
-        print(warning, file=sys.stderr)
-        return 1  # Block the operation
-    
-    return 0
-
 def load_feature_state():
     """Load feature state registry."""
     state_file = Path('.claude/branch-state/feature-state.json')
@@ -146,5 +113,49 @@ You're trying to modify {feature_name} from the wrong branch!
 This prevents duplicate work and merge conflicts!
 """
 
+def main():
+    """Main hook entry point following Claude Code hook specification."""
+    try:
+        # Read input from Claude Code
+        request = json.loads(sys.stdin.read())
+        
+        # Extract tool name and arguments
+        tool_name = request.get('tool_name', '')
+        tool_input = request.get('tool_input', {})
+        
+        # Check if this is a file modification operation
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            # Not a file operation - continue normally
+            sys.exit(0)
+        
+        # Get the file path
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        if not file_path:
+            sys.exit(0)
+        
+        # Load feature state
+        state = load_feature_state()
+        if not state:
+            # No state file yet - continue normally
+            sys.exit(0)
+        
+        # Check if file belongs to a completed feature
+        warning = check_feature_protection(file_path, state)
+        if warning:
+            # Block the operation with proper decision format
+            print(json.dumps({
+                "decision": "block",
+                "message": warning
+            }))
+            sys.exit(0)
+        
+        # No protection needed - continue normally
+        sys.exit(0)
+        
+    except Exception as e:
+        # On error, log to stderr and exit with error code
+        print(f"Feature state guardian hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

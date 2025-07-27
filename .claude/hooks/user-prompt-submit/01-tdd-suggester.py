@@ -33,7 +33,7 @@ def main():
         is_implementation = any(re.search(pattern, prompt) for pattern in implementation_patterns)
         
         if not is_implementation:
-            # Not about implementation, let it proceed
+            # Not about implementation, continue normally
             sys.exit(0)
         
         # Check if tests are mentioned
@@ -47,8 +47,8 @@ def main():
         feature_match = re.search(r'(?:create|implement|build|add)\s+(?:a\s+)?(\w+)', prompt)
         feature_name = feature_match.group(1) if feature_match else "the feature"
         
-        # Add TDD context to the prompt
-        tdd_context = f"\n\n💡 TDD Suggestion: Consider writing tests first for {feature_name}.\n"
+        # Output TDD suggestion to stderr (will show in conversation)
+        tdd_context = f"\n💡 TDD Suggestion: Consider writing tests first for {feature_name}.\n"
         tdd_context += "Use: /tdd-workflow " + feature_name + "\n"
         tdd_context += "This will:\n"
         tdd_context += "1. Generate test templates from requirements\n"
@@ -56,14 +56,15 @@ def main():
         tdd_context += "3. Guide implementation (GREEN phase)\n"
         tdd_context += "4. Enable safe refactoring\n"
         
-        # Output the context (not blocking)
-        print(tdd_context)
+        print(tdd_context, file=sys.stderr)
+        
+        # UserPromptSubmit hooks just exit
         sys.exit(0)
         
     except Exception as e:
-        # Don't block on errors
+        # Don't block on errors - log to stderr
         print(f"TDD suggester error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

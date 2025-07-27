@@ -211,6 +211,7 @@ def get_current_persona():
     return None
 
 def main():
+    """Main hook logic"""
     try:
         # Read input
         input_data = json.loads(sys.stdin.read())
@@ -225,7 +226,6 @@ def main():
         # Only suggest for file operations
         if tool_name not in ['Write', 'Edit', 'Read']:
             sys.exit(0)
-            return
         
         # Extract parameters
         tool_input = input_data.get('tool_input', {})
@@ -258,19 +258,18 @@ def main():
             message = suggest_persona_switch(current_persona, suggested_persona, reason)
             
             if message:
-                # Suggest but don't block
-                print(message
-                )  # Show in transcript
-        sys.exit(0)
+                # Suggest but don't block - print to stderr
+                print(message, file=sys.stderr)
+                sys.exit(0)
             else:
                 sys.exit(0)
         else:
             sys.exit(0)
             
     except Exception as e:
-        print(json.dumps({
-            sys.exit(0)
+        # On error, exit with non-zero code and error in stderr
+        print(f"Auto persona hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
-    sys.exit(0)

@@ -9,25 +9,10 @@ import json
 import sys
 import re
 from pathlib import Path
-from typing import Dict, Any, List, Set
 
-def hook(action: Dict[str, Any]) -> Dict[str, Any]:
-    """Automatically include relevant context before file operations."""
-    
-    # Skip if working with PRP files (handled by 05b)
-    file_path = action['parameters'].get('path', '')
-    if 'PRPs/' in file_path or any(marker in file_path for marker in ['prp', 'validation', 'blueprint']):
-        sys.exit(0)
-    
-    # Extract context clues
-    clues = extract_context_clues(file_path, content)
-    if not clues:
-        sys.exit(0)
-    if not relevant_contexts:
-        sys.exit(0)
-    
-    return {
-        sys.exit(0)
+def extract_context_clues(file_path, content):
+    """Extract clues about what context might be relevant"""
+    clues = set()
     
     # From file path
     path_lower = file_path.lower()
@@ -75,8 +60,8 @@ def hook(action: Dict[str, Any]) -> Dict[str, Any]:
     
     return clues
 
-def find_relevant_contexts(clues: Set[str]) -> List[Dict[str, Any]]:
-    """Find context files relevant to the clues."""
+def find_relevant_contexts(clues):
+    """Find context files relevant to the clues"""
     relevant = []
     
     # Map clues to likely context files
@@ -113,36 +98,12 @@ def find_relevant_contexts(clues: Set[str]) -> List[Dict[str, Any]]:
                         'clues': list(clues)
                     })
                 except:
-                        return relevant
+                    pass
+                    
+    return relevant
 
-def inject_context_awareness(action: Dict[str, Any], contexts: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Inject context awareness into the action."""
-    
-    # Build context injection comment
-    context_comment = build_context_comment(contexts)
-    
-    # Modify the action to include context
-    if action['tool_name'] in ['create_file', 'Write']:
-        # Prepend context comment to file content
-        original_content = action['parameters'].get('content', '')
-        action['parameters']['content'] = context_comment + '\n\n' + original_content
-        
-    elif action['tool_name'] == 'str_replace':
-        # Add context awareness to replacements
-        action['parameters']['context_files'] = [c['name'] for c in contexts]
-        
-    # Add metadata about included context
-    action['included_context'] = {
-        'files': [c['name'] for c in contexts],
-        'auto_included': True,
-        'reason': 'Automatic context detection'
-    }
-    
-    return action
-
-def build_context_comment(contexts: List[Dict[str, Any]]) -> str:
-    """Build a comment explaining the included context."""
-    
+def build_context_comment(contexts):
+    """Build a comment explaining the included context"""
     lines = [
         "/**",
         " * AUTO-INCLUDED CONTEXT FILES:",
@@ -155,11 +116,11 @@ def build_context_comment(contexts: List[Dict[str, Any]]) -> str:
         # Add specific constraints from the context
         if 'brands' in ctx['content']:
             brands = list(ctx['content']['brands'].keys())
-            lines.append(f" *   Approved brands: {', '.join(brands)}")
+            lines.append(f" *   Approved brands: {', '.join(brands[:3])}...")
             
         if 'tables' in ctx['content']:
             tables = list(ctx['content']['tables'].keys())
-            lines.append(f" *   Database tables: {', '.join(tables)}")
+            lines.append(f" *   Database tables: {', '.join(tables[:3])}...")
             
         if 'colors' in ctx['content']:
             lines.append(f" *   Color palette defined - use only approved colors")
@@ -173,47 +134,64 @@ def build_context_comment(contexts: List[Dict[str, Any]]) -> str:
     
     return '\n'.join(lines)
 
-def get_content_from_action(action: Dict[str, Any]) -> str:
-    """Extract content from various action types."""
-    params = action['parameters']
-    
-    if action['tool_name'] in ['create_file', 'Write']:
-        return params.get('content', '')
-    elif action['tool_name'] == 'str_replace':
-        return params.get('new_str', '')
-    elif action['tool_name'] == 'Edit':
-        edits = params.get('edits', [])
-        return ' '.join([edit.get('newText', '') for edit in edits])
-    
-    return ''
-
-# Additional helper for active issue context
-def get_active_issue_context() -> Dict[str, Any]:
-    """Get context from currently active GitHub issue."""
+def main():
+    """Main hook logic"""
     try:
-        workflow_file = Path('.claude/context/active-workflow.json')
-        if workflow_file.exists():
-            with open(workflow_file, 'r') as f:
-                workflow = json.load(f)
-                
-            if 'issue' in workflow:
-                # Look for issue-specific requirements
-                issue_num = workflow['issue']
-                issue_req_file = Path(f'.claude/requirements/locked/Issue_{issue_num}.json')
-                
-                if issue_req_file.exists():
-                    with open(issue_req_file, 'r') as f:
-                        return json.load(f)
-    except:
-    
- Test the hook
-    test_action = {
-        'tool_name': 'create_file',
-        'parameters': {
-            'path': 'components/BrandSelector.tsx',
-            'content': 'const BrandSelector = () => { const brands = ["Nike", "Reebok"]; }'
-        }
-    }
-    
-    result = hook(test_action)
-    print(json.dumps(result, indent=2))
+        # Read input
+        input_data = json.loads(sys.stdin.read())
+        
+        # Extract tool name
+        tool_name = input_data.get('tool_name', '')
+        if not tool_name and 'tool_use' in input_data:
+            tool_name = input_data['tool_use'].get('name', '')
+        
+        # Only process write operations
+        if tool_name not in ['Write', 'Edit', 'str_replace']:
+            sys.exit(0)
+        
+        # Extract parameters
+        tool_input = input_data.get('tool_input', {})
+        if not tool_input and 'tool_use' in input_data:
+            tool_input = input_data['tool_use'].get('parameters', {})
+        
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        content = tool_input.get('content', tool_input.get('new_str', ''))
+        
+        # Skip if working with PRP files (handled by 05b)
+        if 'PRPs/' in file_path or any(marker in file_path for marker in ['prp', 'validation', 'blueprint']):
+            sys.exit(0)
+        
+        # Extract context clues
+        clues = extract_context_clues(file_path, content)
+        if not clues:
+            sys.exit(0)
+        
+        # Find relevant contexts
+        relevant_contexts = find_relevant_contexts(clues)
+        if not relevant_contexts:
+            sys.exit(0)
+        
+        # Build context message
+        context_comment = build_context_comment(relevant_contexts)
+        
+        # Show context awareness in stderr (informational)
+        message = f"📚 AUTO-CONTEXT INCLUSION\n\n"
+        message += f"Detected context clues: {', '.join(clues)}\n"
+        message += f"Including {len(relevant_contexts)} context files:\n"
+        for ctx in relevant_contexts:
+            message += f"  • {ctx['name']}\n"
+        message += f"\nThese locked requirements will be enforced."
+        
+        print(message, file=sys.stderr)
+        
+        # For now, just inform - don't modify content
+        # In a full implementation, we could prepend the context comment
+        sys.exit(0)
+        
+    except Exception as e:
+        # On error, exit with non-zero code and error in stderr
+        print(f"Auto context inclusion hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

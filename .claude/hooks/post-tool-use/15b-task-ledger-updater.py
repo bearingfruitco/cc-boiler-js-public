@@ -29,7 +29,7 @@ def main():
         tool_output = payload.get('tool_output', {})
         
         # Only process specific tools that generate or modify tasks
-        task_tools = ['str_replace', 'str_replace_editor', 'create_file']
+        task_tools = ['Write', 'Edit', 'MultiEdit']
         if tool_name not in task_tools:
             sys.exit(0)
         
@@ -41,6 +41,7 @@ def main():
         # Update task ledger based on the operation
         update_task_ledger(file_path, tool_name, tool_input, tool_output)
         
+        # PostToolUse hooks just exit normally
         sys.exit(0)
         
     except Exception as e:
@@ -75,14 +76,14 @@ def update_task_ledger(file_path, tool_name, tool_input, tool_output):
         # Task file was created or modified
         feature = extract_feature_name(file_path)
         if feature:
-            if tool_name == 'create_file':
+            if tool_name == 'Write' and not Path(file_path).exists():
                 # New task file created
                 add_feature_to_ledger(ledger_path, feature, file_path)
             else:
                 # Task file updated
                 update_task_progress(ledger_path, feature, file_path)
     
-    elif '-PRD.md' in file_path and tool_name == 'create_file':
+    elif '-PRD.md' in file_path and tool_name == 'Write':
         # PRD created - prepare ledger entry
         feature = extract_feature_name(file_path)
         if feature:

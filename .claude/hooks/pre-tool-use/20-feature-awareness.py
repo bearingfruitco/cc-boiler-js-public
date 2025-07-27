@@ -11,58 +11,6 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 
-def main():
-    """Main hook entry point following Anthropic hook specification."""
-    try:
-        # Read the tool use request from stdin
-        request = json.loads(sys.stdin.read())
-        
-        # Extract tool and arguments - using CORRECT tool names from Anthropic docs
-        tool_name = request.get('tool', '')
-        args = request.get('arguments', {})
-        
-        # Only check file modification operations
-        if tool_name not in ['str_replace_based_edit_tool', 'create_file', 'write_file']:
-            return 0
-        
-        # Get the file path
-        file_path = args.get('path', '')
-        if not file_path:
-            return 0
-            
-        # Check if this is a test file (always allow in TDD workflow)
-        if is_test_file(file_path):
-            return 0
-            
-        # Check if design mode is off (more freedom)
-        if is_design_mode_off():
-            return 0
-            
-        # Check if part of active PRP/PRD workflow
-        if is_active_workflow_file(file_path):
-            return 0
-        
-        # Load feature state if it exists
-        state = load_feature_state()
-        if not state:
-            return 0
-        
-        # Check for feature awareness (non-blocking)
-        awareness_info = check_feature_awareness(file_path, state)
-        if awareness_info:
-            # Just inform, don't block
-            print(f"\n{awareness_info}\n", file=sys.stderr)
-            
-            # Log to metrics for tracking
-            log_feature_awareness_event(file_path, awareness_info)
-        
-        # Always allow the operation
-        return 0
-        
-    except Exception as e:
-        # Fail open - never break workflow
-        return 0
-
 def is_test_file(file_path):
     """Check if this is a test file."""
     test_patterns = ['.test.', '.spec.', '__tests__/', 'tests/', 'test-']
@@ -192,5 +140,59 @@ def log_feature_awareness_event(file_path, info):
         # Don't fail on metrics
         pass
 
+def main():
+    """Main hook entry point following Claude Code hook specification."""
+    try:
+        # Read input from Claude Code
+        request = json.loads(sys.stdin.read())
+        
+        # Extract tool name and arguments
+        tool_name = request.get('tool_name', '')
+        tool_input = request.get('tool_input', {})
+        
+        # Only check file modification operations
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            # Not a write operation - continue normally
+            sys.exit(0)
+        
+        # Get the file path
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        if not file_path:
+            sys.exit(0)
+            
+        # Check if this is a test file (always allow in TDD workflow)
+        if is_test_file(file_path):
+            sys.exit(0)
+            
+        # Check if design mode is off (more freedom)
+        if is_design_mode_off():
+            sys.exit(0)
+            
+        # Check if part of active PRP/PRD workflow
+        if is_active_workflow_file(file_path):
+            sys.exit(0)
+        
+        # Load feature state if it exists
+        state = load_feature_state()
+        if not state:
+            sys.exit(0)
+        
+        # Check for feature awareness (non-blocking)
+        awareness_info = check_feature_awareness(file_path, state)
+        if awareness_info:
+            # Just inform via stderr, don't block
+            print(f"\n{awareness_info}\n", file=sys.stderr)
+            
+            # Log to metrics for tracking
+            log_feature_awareness_event(file_path, awareness_info)
+        
+        # Always continue normally
+        sys.exit(0)
+        
+    except Exception as e:
+        # On error, log to stderr and exit with error code
+        print(f"Feature awareness hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

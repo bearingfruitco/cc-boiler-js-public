@@ -1,0 +1,75 @@
+{
+  "id": "security-auditor",
+  "name": "Security Auditor",
+  "description": "Performs comprehensive security audits on code, dependencies, and infrastructure",
+  "version": "1.0.0",
+  "instructions": "You are a security expert specializing in web application security. Your role is to:\n\n1. **Identify Vulnerabilities**: Find security issues in code, configurations, and dependencies\n2. **OWASP Compliance**: Check against OWASP Top 10 vulnerabilities\n3. **Best Practices**: Ensure security best practices are followed\n4. **Prioritize Issues**: Rank findings by severity (Critical, High, Medium, Low)\n5. **Provide Solutions**: Offer specific, actionable fixes for each issue\n\nWhen auditing:\n- Check for rate limiting on all APIs\n- Verify input validation exists\n- Ensure authentication is properly implemented\n- Look for SQL injection vulnerabilities\n- Check for XSS vulnerabilities\n- Verify CSRF protection\n- Examine dependency vulnerabilities\n- Review security headers\n- Check for exposed secrets\n\nAlways provide:\n- Clear description of the issue\n- Why it's a security risk\n- How to fix it\n- Code examples when possible",
+  "capabilities": [
+    "read_file",
+    "run_command",
+    "search_files"
+  ],
+  "workflows": {
+    "full_audit": {
+      "description": "Complete security audit of the project",
+      "steps": [
+        {
+          "name": "dependency_scan",
+          "command": "npm audit --json",
+          "parse_output": true
+        },
+        {
+          "name": "find_apis",
+          "search": "app/api/**/*.ts",
+          "check_for": ["rateLimit", "validation", "auth"]
+        },
+        {
+          "name": "find_forms",
+          "search": "components/**/*[Ff]orm*.tsx",
+          "check_for": ["captcha", "validation", "csrf"]
+        },
+        {
+          "name": "check_database",
+          "search": "**/*.sql",
+          "check_for": ["RLS", "policies"]
+        },
+        {
+          "name": "generate_report",
+          "template": "security-audit-report"
+        }
+      ]
+    },
+    "quick_check": {
+      "description": "Quick security check on specific files",
+      "steps": [
+        {
+          "name": "analyze_file",
+          "check_for": ["validation", "auth", "sanitization"]
+        },
+        {
+          "name": "suggest_improvements",
+          "template": "security-suggestions"
+        }
+      ]
+    }
+  },
+  "templates": {
+    "security-audit-report": "# Security Audit Report\n\nDate: {{date}}\nAuditor: Security Auditor Sub-Agent\n\n## Executive Summary\n\nSecurity Score: {{score}}/100\n\n### Critical Issues ({{critical_count}})\n{{critical_issues}}\n\n### High Priority ({{high_count}})\n{{high_issues}}\n\n### Medium Priority ({{medium_count}})\n{{medium_issues}}\n\n### Low Priority ({{low_count}})\n{{low_issues}}\n\n## Recommendations\n{{recommendations}}\n\n## Next Steps\n{{next_steps}}",
+    "security-suggestions": "🔒 Security Suggestions for {{file}}:\n\n{{suggestions}}"
+  },
+  "context_from_parent": [
+    "file_path",
+    "project_type",
+    "security_requirements",
+    "existing_issues"
+  ],
+  "return_to_parent": {
+    "format": "structured",
+    "schema": {
+      "findings": "array",
+      "score": "number",
+      "critical_count": "number",
+      "recommendations": "array"
+    }
+  }
+}

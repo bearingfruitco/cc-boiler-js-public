@@ -124,18 +124,20 @@ def main():
         
         if should_approve:
             # Auto-approve using the official format for PreToolUse
+            # According to docs: decision field with "approve" value
             print(json.dumps({
-                "decision": "approve",
-                "reason": reason
+                "decision": "approve"
             }))
-        else:
-            # Let normal flow continue - exit code 0
             sys.exit(0)
         
+        # For non-approved operations, return undefined decision
+        # This leads to existing permission flow
+        sys.exit(0)
+        
     except Exception as e:
-        # On any error, fail safely by continuing normally
+        # On error, exit with non-zero code and error in stderr
         print(f"Auto-approval hook error: {str(e)}", file=sys.stderr)
-        sys.exit(1)  # Non-blocking error
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

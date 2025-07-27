@@ -129,48 +129,28 @@ def format_quality_report(issues, complexity, file_path):
     
     return report
 
-def suggest_fixes(issues):
-    """Suggest fixes for common issues"""
-    fixes = {}
-    
-    for issue in issues:
-        if issue['type'] == 'console-log':
-            fixes['console-log'] = "Replace with proper logging service or remove"
-        elif issue['type'] == 'any-type':
-            fixes['any-type'] = "Define proper TypeScript types"
-        elif issue['type'] == 'missing-error-handling':
-            fixes['missing-error-handling'] = "Add catch block or finally"
-    
-    return fixes
-
 def main():
     """Main hook logic"""
     try:
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool name
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
         
         # Only check on write operations
         if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            # Not a write operation - continue normally
             sys.exit(0)
-            return
         
         # Extract parameters
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
-        
         file_path = tool_input.get('file_path', tool_input.get('path', ''))
         content = tool_input.get('content', tool_input.get('new_str', ''))
         
         # Skip non-code files
         if not any(file_path.endswith(ext) for ext in ['.ts', '.tsx', '.js', '.jsx']):
             sys.exit(0)
-            return
         
         # Check code quality
         issues = check_code_quality(content, file_path)
@@ -185,21 +165,22 @@ def main():
             
             if has_errors:
                 # Block on errors
-                print(report
-                , file=sys.stderr)
-        sys.exit(2)
+                print(json.dumps({
+                    "decision": "block",
+                    "message": report
+                }))
+                sys.exit(0)
             else:
-                # Warn on warnings/info
-                print(report)  # Warning shown in transcript
+                # Warn on warnings/info - output to stderr
+                print(report, file=sys.stderr)
+        
+        # Continue normally
         sys.exit(0)
-        else:
-            # No issues
-            sys.exit(0)
             
     except Exception as e:
-        print(json.dumps({
-            sys.exit(0)
+        # On error, log to stderr and continue
+        print(f"Code quality hook error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
-    sys.exit(0)

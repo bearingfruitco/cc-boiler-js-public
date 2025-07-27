@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Action Logger Hook - Logs all tool uses for audit trail
+Tracks what tools are used and provides analytics
 """
 
 import json
@@ -9,13 +10,13 @@ import os
 from pathlib import Path
 from datetime import datetime
 
-def get_safe_summary(tool_name, tool_input, tool_response=None):
+def get_safe_summary(tool_name, tool_input, tool_result=None):
     """Get a safe summary of the action without exposing sensitive data"""
     summaries = {
-        'Write': lambda: f"Wrote to {tool_input.get('file_path', 'unknown')}",
-        'Edit': lambda: f"Edited {tool_input.get('file_path', 'unknown')}",
-        'MultiEdit': lambda: f"Multi-edited {tool_input.get('file_path', 'unknown')}",
-        'Read': lambda: f"Read {tool_input.get('file_path', 'unknown')}",
+        'Write': lambda: f"Wrote to {tool_input.get('file_path', tool_input.get('path', 'unknown'))}",
+        'Edit': lambda: f"Edited {tool_input.get('file_path', tool_input.get('path', 'unknown'))}",
+        'MultiEdit': lambda: f"Multi-edited {tool_input.get('file_path', tool_input.get('path', 'unknown'))}",
+        'Read': lambda: f"Read {tool_input.get('file_path', tool_input.get('path', 'unknown'))}",
         'Bash': lambda: f"Ran command: {tool_input.get('command', 'unknown')[:50]}...",
         'ListDirectory': lambda: f"Listed {tool_input.get('path', 'unknown')}",
         'SearchFiles': lambda: f"Searched for '{tool_input.get('pattern', 'unknown')}'",
@@ -33,24 +34,17 @@ def main():
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool information
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
-        
-        # Extract parameters and response
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
-        
-        tool_response = input_data.get('tool_response', {})
+        tool_result = input_data.get('tool_result', {})
         
         # Create log entry
         log_entry = {
             "timestamp": datetime.now().isoformat(),
             "tool_name": tool_name,
-            "summary": get_safe_summary(tool_name, tool_input, tool_response),
-            "success": tool_response.get('success', True) if tool_response else True
+            "summary": get_safe_summary(tool_name, tool_input, tool_result),
+            "success": tool_result.get('success', True) if tool_result else True
         }
         
         # Don't log full details for sensitive operations
@@ -65,7 +59,7 @@ def main():
             if tool_name == 'Bash':
                 log_entry['command'] = tool_input.get('command', '')
             elif tool_name in ['Write', 'Edit', 'Read']:
-                log_entry['file_path'] = tool_input.get('file_path', '')
+                log_entry['file_path'] = tool_input.get('file_path', tool_input.get('path', ''))
         
         # Ensure log directory exists
         log_dir = Path(".claude/logs")
@@ -96,17 +90,24 @@ def main():
         session_data['tool_usage'][tool_name] = session_data['tool_usage'].get(tool_name, 0) + 1
         session_data['last_activity'] = datetime.now().isoformat()
         
+        # Track most used files
+        if tool_name in ['Write', 'Edit', 'Read']:
+            file_path = tool_input.get('file_path', tool_input.get('path', ''))
+            if file_path and not is_sensitive:
+                if 'frequent_files' not in session_data:
+                    session_data['frequent_files'] = {}
+                session_data['frequent_files'][file_path] = session_data['frequent_files'].get(file_path, 0) + 1
+        
         with open(session_file, "w") as f:
             json.dump(session_data, f, indent=2)
         
-        # Always continue
+        # PostToolUse hooks should just exit with code 0
         sys.exit(0)
         
     except Exception as e:
-        # Always output valid JSON even on error
-        print(json.dumps({
-            sys.exit(0)
+        # Log error to stderr and exit
+        print(f"Action logger error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()
-    sys.exit(0)

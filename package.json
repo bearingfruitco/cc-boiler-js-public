@@ -1,6 +1,6 @@
 {
   "name": "claude-code-boilerplate",
-  "version": "2.5.0",
+  "version": "2.8.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -50,7 +50,16 @@
     "prp:validate:level2": "bun run PRPs/scripts/prp-runner.ts --level 2",
     "prp:validate:full": "bun run PRPs/scripts/prp-runner.ts",
     "test:quick:staged": "node scripts/test-staged-files.js",
-    "test:affected": "vitest related --run"
+    "test:affected": "vitest related --run",
+    "security:check": "npm audit --audit-level=moderate",
+    "security:fix": "npm audit fix",
+    "security:scan": "bun run security:check && bun run test:security",
+    "test:security": "vitest --run --testNamePattern=security",
+    "test:rls": "vitest --run --testNamePattern=RLS",
+    "rls:test": "bun run test:rls",
+    "deps:check": "npm audit && bun run check:deps",
+    "deps:update": "npx npm-check-updates -u",
+    "pre-deploy": "bun run security:scan && bun run test:e2e"
   },
   "dependencies": {
     "@date-fns/tz": "^1.0.0",

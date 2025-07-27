@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "components/security/captcha.tsx",
+    "lib/events/index.ts",
+    "lib/events/security-events.ts",
+    "lib/security/middleware.ts",
+    "templates/security/secure-api-route.ts",
+    "templates/security/secure-form.tsx"
+  ],
+  "exclude": []
+}

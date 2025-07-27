@@ -143,6 +143,9 @@ def get_performance_report():
 # from utils.performance import monitor_performance
 # 
 # @monitor_performance('design-check')
+
+    # Ensure we always output valid JSON
+    print(json.dumps({"action": "continue"}))
 # def main():
 #     # Hook logic here
 #     pass

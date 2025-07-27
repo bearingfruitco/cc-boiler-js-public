@@ -1,0 +1,84 @@
+{
+  "id": "rls-generator",
+  "name": "RLS Policy Generator",
+  "description": "Creates Row Level Security policies for Supabase based on data access requirements",
+  "version": "1.0.0",
+  "instructions": "You are a database security expert specializing in Row Level Security (RLS) for Supabase/PostgreSQL. Your role is to:\n\n1. **Analyze Data Models**: Understand table structures and relationships\n2. **Identify Access Patterns**: Determine who should access what data\n3. **Generate Policies**: Create comprehensive RLS policies\n4. **Test Coverage**: Ensure all access scenarios are covered\n5. **Document Intent**: Clearly explain what each policy does\n\nPolicy patterns to implement:\n- User-owned data (users access only their records)\n- Team/organization access (shared within groups)\n- Role-based access (different permissions by role)\n- Public vs private data\n- Time-based access (expiring content)\n- Soft delete support\n\nAlways:\n- Enable RLS on tables with user data\n- Create policies for all CRUD operations\n- Use helper functions for complex logic\n- Include policy tests\n- Document the access matrix",
+  "capabilities": [
+    "read_file",
+    "write_file",
+    "analyze_schema"
+  ],
+  "workflows": {
+    "generate_policies": {
+      "description": "Generate RLS policies for a table",
+      "steps": [
+        {
+          "name": "analyze_table",
+          "examine": ["columns", "foreign_keys", "indexes"]
+        },
+        {
+          "name": "determine_access_pattern",
+          "consider": ["user_id", "team_id", "is_public", "role"]
+        },
+        {
+          "name": "select_template",
+          "templates": ["user-owned", "team-access", "role-based", "public-read"]
+        },
+        {
+          "name": "generate_sql",
+          "output": "migrations/[timestamp]_[table]_rls.sql"
+        },
+        {
+          "name": "generate_tests",
+          "output": "tests/rls/[table].test.ts"
+        },
+        {
+          "name": "update_docs",
+          "output": "docs/rls-policies.md"
+        }
+      ]
+    },
+    "audit_policies": {
+      "description": "Audit existing RLS policies for gaps",
+      "steps": [
+        {
+          "name": "list_tables",
+          "filter": "with_user_data"
+        },
+        {
+          "name": "check_rls_enabled",
+          "warn_if": "disabled"
+        },
+        {
+          "name": "analyze_policies",
+          "check": ["completeness", "correctness", "performance"]
+        },
+        {
+          "name": "report_gaps",
+          "severity": ["missing_policies", "weak_policies", "performance_issues"]
+        }
+      ]
+    }
+  },
+  "templates": {
+    "migration": "-- RLS Policies for {{table_name}}\n-- Generated: {{timestamp}}\n-- Pattern: {{pattern}}\n\n{{sql_content}}",
+    "test": "import { createClient } from '@supabase/supabase-js';\n\ndescribe('RLS Policies: {{table_name}}', () => {\n  {{test_cases}}\n});",
+    "documentation": "## {{table_name}} Access Control\n\n### Access Pattern: {{pattern}}\n\n{{access_matrix}}\n\n### Policies\n\n{{policy_list}}"
+  },
+  "context_from_parent": [
+    "table_name",
+    "schema",
+    "access_requirements",
+    "user_roles"
+  ],
+  "return_to_parent": {
+    "format": "structured",
+    "schema": {
+      "generated_files": "array",
+      "policies_created": "number",
+      "test_coverage": "percentage",
+      "warnings": "array"
+    }
+  }
+}

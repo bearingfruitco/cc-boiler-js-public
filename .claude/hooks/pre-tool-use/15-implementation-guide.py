@@ -73,9 +73,10 @@ class ImplementationGuide:
     
     def analyze_implementation(self, tool_data):
         """Main analysis - the "check your work before you work" approach"""
-        tool = tool_data.get('tool', '')
-        path = tool_data.get('path', '')
-        content = tool_data.get('content', '')
+        tool = tool_data.get('tool_name', '')
+        tool_input = tool_data.get('tool_input', {})
+        path = tool_input.get('file_path', tool_input.get('path', ''))
+        content = tool_input.get('content', tool_input.get('new_str', ''))
         
         analysis = {
             'recommendations': [],
@@ -319,74 +320,52 @@ def format_analysis(analysis):
 
 
 def main():
+    """Main hook logic"""
     try:
         # Read input
         input_data = json.loads(sys.stdin.read())
-    
-        # Only analyze write operations
-
+        
         # Extract tool name - handle multiple formats
-
         tool_name = input_data.get('tool_name', '')
-
         if not tool_name and 'tool_use' in input_data:
-
             tool_name = input_data['tool_use'].get('name', '')
-
         if not tool_name:
-
             tool_name = input_data.get('tool', '')
-
-    
-
-        # Extract parameters
-
-        tool_input = input_data.get('tool_input', {})
-
-        if not tool_input and 'tool_use' in input_data:
-
-            tool_input = input_data['tool_use'].get('parameters', {})
-
-    
-
+        
+        # Only analyze write operations
         if tool_name not in ['Write', 'Edit', 'str_replace']:
-                    return
-    
+            sys.exit(0)
+        
         guide = ImplementationGuide()
         analysis = guide.analyze_implementation(input_data)
-    
+        
         message = format_analysis(analysis)
-    
+        
         if message:
             # Check severity
             has_high_warnings = any(
                 w.get('severity') == 'high' 
                 for w in analysis.get('warnings', [])
             )
-        
+            
             if has_high_warnings:
                 # Block with recommendations
-                response = {
-                    "action": "block",
-                    "message": message,
-                    "analysis": analysis
-                }
+                print(json.dumps({
+                    "decision": "block",
+                    "message": message
+                }))
+                sys.exit(0)
             else:
-                # Warn but continue
-                response = {
-                    "action": "warn",
-                    "message": message,
-                    "continue": True
-                }
-        
-            # print(json.dumps(response))
+                # Warn but continue - print to stderr
+                print(message, file=sys.stderr)
+                sys.exit(0)
         else:
-        n": "continue"}))
-
-
-        # Ensure we always output valid JSON
-        # sys.exit(0)
+            sys.exit(0)
+            
     except Exception as e:
-        print(json.dumps({"action": "continue", "message": f"Hook error: {str(e)}"}))
+        # On error, exit with non-zero code and error in stderr
+        print(f"Implementation guide hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
 if __name__ == "__main__":
     main()

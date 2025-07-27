@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Import Validator Hook - Fixes common import path mistakes
-Ensures consistent import patterns across the codebase
+Compliant with official Claude Code hooks documentation
 """
 
 import json
@@ -27,7 +27,6 @@ def validate_imports(content, file_path):
     issues = []
     project_root = get_project_root()
     
-    # Find all import statements
     import_pattern = r'^(import\s+(?:{[^}]+}|[\w\s,]+)\s+from\s+[\'"])([^\'"]+)([\'"];?)$'
     lines = content.split('\n')
     
@@ -38,7 +37,6 @@ def validate_imports(content, file_path):
             import_path = match.group(2)
             import_suffix = match.group(3)
             
-            # Check for common issues
             issue = check_import_issue(import_path, file_path, project_root)
             if issue:
                 issues.append({
@@ -57,52 +55,30 @@ def check_import_issue(import_path, file_path, project_root):
     
     # Issue 1: Using relative paths instead of @ alias
     if import_path.startswith('../'):
-        # Count how many levels up
         levels_up = import_path.count('../')
         current_depth = get_relative_depth(file_path)
         
-        # If going up to or past root, should use @ alias
         if levels_up >= current_depth - 1:
-            # Extract the final path after all ../
             final_path = re.sub(r'^(\.\./)+', '', import_path)
             
-            # Common mappings
-            if final_path.startswith('components/'):
+            if final_path.startswith(('components/', 'lib/', 'hooks/', 'types/')):
                 return {
                     'message': 'Use @ alias instead of relative imports for root-level directories',
-                    'fixed': f"@/{final_path}"
-                }
-            elif final_path.startswith('lib/'):
-                return {
-                    'message': 'Use @ alias for lib imports',
-                    'fixed': f"@/{final_path}"
-                }
-            elif final_path.startswith('hooks/'):
-                return {
-                    'message': 'Use @ alias for hooks imports',
-                    'fixed': f"@/{final_path}"
-                }
-            elif final_path.startswith('types/'):
-                return {
-                    'message': 'Use @ alias for types imports',
                     'fixed': f"@/{final_path}"
                 }
     
     # Issue 2: Missing file extensions for relative imports
     if import_path.startswith('./') and not any(import_path.endswith(ext) for ext in ['.css', '.json', '.svg']):
-        # Check if it's likely a TS/JS file without extension
         if not '.' in import_path.split('/')[-1]:
             return {
                 'message': 'Relative imports should include file extension',
-                'fixed': import_path  # Keep as is, just warn
+                'fixed': import_path
             }
     
     # Issue 3: Incorrect @ alias usage
     if import_path.startswith('@/'):
-        # Check if path exists
         resolved_path = project_root / import_path[2:]
         
-        # Check with common extensions
         exists = False
         for ext in ['', '.ts', '.tsx', '.js', '.jsx', '/index.ts', '/index.tsx']:
             if (resolved_path.parent / f"{resolved_path.name}{ext}").exists():
@@ -110,7 +86,6 @@ def check_import_issue(import_path, file_path, project_root):
                 break
         
         if not exists:
-            # Check if it's a mistyped path
             path_parts = import_path[2:].split('/')
             if path_parts[0] == 'component':  # Common typo
                 fixed_path = '@/components/' + '/'.join(path_parts[1:])
@@ -118,18 +93,9 @@ def check_import_issue(import_path, file_path, project_root):
                     'message': 'Typo in import path: "component" should be "components"',
                     'fixed': fixed_path
                 }
-            elif path_parts[0] == 'lib' and len(path_parts) > 1:
-                # Check if it should be libs or lib
-                if (project_root / 'libs' / path_parts[1]).exists():
-                    fixed_path = '@/libs/' + '/'.join(path_parts[1:])
-                    return {
-                        'message': 'Use "libs" not "lib" for this import',
-                        'fixed': fixed_path
-                    }
     
     # Issue 4: Importing from node_modules with relative path
     if 'node_modules' in import_path:
-        # Extract package name
         package_match = re.search(r'node_modules/([^/]+)', import_path)
         if package_match:
             package_name = package_match.group(1)
@@ -142,9 +108,7 @@ def check_import_issue(import_path, file_path, project_root):
     if import_path.startswith('@/'):
         path_parts = import_path[2:].split('/')
         
-        # Check component casing
         if path_parts[0] == 'components' and len(path_parts) > 2:
-            # Components should be PascalCase
             component_name = path_parts[-1].replace('.tsx', '').replace('.jsx', '')
             if component_name and component_name[0].islower():
                 path_parts[-1] = component_name[0].upper() + component_name[1:]
@@ -163,42 +127,38 @@ def check_import_issue(import_path, file_path, project_root):
 
 def main():
     try:
-        # Read input
+        # Read input from stdin (per official docs)
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool name
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
         
         # Only check file writes
         if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            # Not a write operation - continue normally
             sys.exit(0)
-            return
         
-        # Extract parameters
+        # Extract tool input
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
         
         file_path = tool_input.get('file_path', tool_input.get('path', ''))
         content = tool_input.get('content', tool_input.get('new_str', ''))
         
         # Only check TS/JS files
         if not any(file_path.endswith(ext) for ext in ['.ts', '.tsx', '.js', '.jsx']):
+            # Not a JS/TS file - continue normally
             sys.exit(0)
-            return
         
         # Skip if no imports
         if 'import ' not in content:
+            # No imports - continue normally
             sys.exit(0)
-            return
         
         # Validate imports
         issues = validate_imports(content, file_path)
         
         if issues:
-            # Format message
+            # Format message for stderr (will be shown to user)
             error_msg = "🔧 Import Path Issues Detected\n\n"
             error_msg += f"Found {len(issues)} import issue(s) in {file_path}:\n\n"
             
@@ -213,16 +173,17 @@ def main():
             error_msg += "- Component names should be PascalCase\n"
             error_msg += "- Don't import through node_modules path"
             
-            # For now, warn instead of block
-            print(error_msg)  # Warning shown in transcript
-        sys.exit(0)
-        else:
+            # Output warning to stderr and continue
+            print(error_msg, file=sys.stderr)
             sys.exit(0)
+        
+        # No issues - continue normally
+        sys.exit(0)
             
     except Exception as e:
-        print(json.dumps({
-            sys.exit(0)
+        # On error, log to stderr and exit with error code
+        print(f"Import validator error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
-    sys.exit(0)
