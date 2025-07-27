@@ -295,6 +295,181 @@
         "audit-form-security",
         "security-check form"
       ]
+    },
+    "security-audit-chain": {
+      "description": "Comprehensive security audit with specialized agents",
+      "steps": [
+        {
+          "agent": "security-threat-analyst",
+          "task": "Perform comprehensive security vulnerability analysis including OWASP top 10, authentication, authorization, data validation, and API security",
+          "output": "security-vulnerabilities.md"
+        },
+        {
+          "agent": "code-analyzer-debugger", 
+          "task": "Trace security-critical code paths and identify potential attack vectors",
+          "output": "security-code-paths.md"
+        },
+        {
+          "agent": "backend-reliability-engineer",
+          "task": "Review API endpoints for security best practices and implement fixes",
+          "output": "api-security-fixes.md"
+        },
+        {
+          "agent": "documentation-writer",
+          "task": "Document all security findings, remediation steps, and security best practices",
+          "output": "security-report.md"
+        }
+      ],
+      "stopOnError": true
+    },
+    "feature-development-chain": {
+      "description": "Full feature development with TDD and multi-agent collaboration",
+      "parallel": true,
+      "steps": [
+        {
+          "phase": "planning",
+          "agents": [
+            {
+              "agent": "pm-orchestrator",
+              "task": "Coordinate feature development and create implementation plan"
+            },
+            {
+              "agent": "systems-architect",
+              "task": "Design technical architecture and create ADRs"
+            },
+            {
+              "agent": "qa-test-engineer",
+              "task": "Create comprehensive test plan from requirements"
+            }
+          ]
+        },
+        {
+          "phase": "implementation",
+          "agents": [
+            {
+              "agent": "tdd-engineer",
+              "task": "Implement feature using test-first approach"
+            },
+            {
+              "agent": "frontend-ux-specialist",
+              "task": "Build UI components following design system"
+            },
+            {
+              "agent": "backend-reliability-engineer",
+              "task": "Implement reliable API endpoints"
+            }
+          ]
+        },
+        {
+          "phase": "review",
+          "agents": [
+            {
+              "agent": "code-reviewer",
+              "task": "Review all implementation for best practices"
+            },
+            {
+              "agent": "security-threat-analyst",
+              "task": "Security audit of new feature"
+            },
+            {
+              "agent": "performance-optimizer",
+              "task": "Optimize performance bottlenecks"
+            }
+          ]
+        }
+      ]
+    },
+    "database-migration-chain": {
+      "description": "Safe database migration with multi-agent validation",
+      "steps": [
+        {
+          "agent": "database-architect",
+          "task": "Design optimal schema changes and indexes",
+          "output": "schema-design.md"
+        },
+        {
+          "agent": "migration-specialist",
+          "task": "Create migration scripts with rollback procedures",
+          "output": "migration-scripts/"
+        },
+        {
+          "agent": "backend-reliability-engineer",
+          "task": "Update API endpoints and ensure backward compatibility",
+          "output": "api-updates.md"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Create comprehensive tests for data integrity",
+          "output": "migration-tests/"
+        },
+        {
+          "agent": "documentation-writer",
+          "task": "Document migration process and rollback procedures",
+          "output": "migration-guide.md"
+        }
+      ],
+      "stopOnError": true
+    },
+    "performance-optimization-chain": {
+      "description": "Comprehensive performance optimization workflow",
+      "steps": [
+        {
+          "agent": "performance-optimizer",
+          "task": "Analyze performance bottlenecks and create optimization plan",
+          "output": "performance-analysis.md"
+        },
+        {
+          "agent": "frontend-ux-specialist",
+          "task": "Optimize UI rendering and implement lazy loading",
+          "output": "ui-optimizations.md"
+        },
+        {
+          "agent": "backend-reliability-engineer",
+          "task": "Optimize API queries and implement caching",
+          "output": "api-optimizations.md"
+        },
+        {
+          "agent": "database-architect",
+          "task": "Optimize database queries and indexes",
+          "output": "db-optimizations.md"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Create performance test suite and benchmarks",
+          "output": "performance-tests/"
+        }
+      ]
+    },
+    "refactoring-chain": {
+      "description": "Safe refactoring with comprehensive validation",
+      "steps": [
+        {
+          "agent": "refactoring-expert",
+          "task": "Analyze code and create refactoring plan",
+          "output": "refactoring-plan.md"
+        },
+        {
+          "agent": "tdd-engineer",
+          "task": "Ensure comprehensive test coverage before refactoring",
+          "output": "test-coverage-report.md"
+        },
+        {
+          "agent": "refactoring-expert",
+          "task": "Execute refactoring following the plan",
+          "output": "refactored-code/"
+        },
+        {
+          "agent": "code-reviewer",
+          "task": "Review refactored code for quality and correctness",
+          "output": "refactoring-review.md"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Run regression tests and verify functionality",
+          "output": "regression-test-results.md"
+        }
+      ],
+      "stopOnError": true
     }
   },
   "shortcuts": {
@@ -329,6 +504,11 @@
     "sac": "secure-api-creation",
     "sf": "security-fix",
     "pds": "pre-deploy-security",
-    "sfw": "secure-form-workflow"
+    "sfw": "secure-form-workflow",
+    "sac2": "security-audit-chain",
+    "fdc": "feature-development-chain",
+    "dmc": "database-migration-chain",
+    "poc": "performance-optimization-chain",
+    "rc": "refactoring-chain"
   }
 }
