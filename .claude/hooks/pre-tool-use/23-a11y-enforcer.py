@@ -375,13 +375,19 @@ useEffect(() => {{
 - [ ] No accessibility violations in browser extensions
 """
 
-def check_for_ui_component(tool_use):
+def check_for_ui_component(tool_data):
     """Check if creating a UI component"""
-    if tool_use.tool != 'str_replace_editor':
+    tool_name = tool_data.get('tool_name', '')
+    if tool_name not in ['Write', 'Edit', 'MultiEdit']:
         return False
     
-    path = tool_use.path or ''
-    content = getattr(tool_use, 'new_str', '') or getattr(tool_use, 'content', '')
+    tool_input = tool_data.get('tool_input', {})
+    path = tool_input.get('path', '')
+    
+    if tool_name == 'Write':
+        content = tool_input.get('content', '')
+    else:
+        content = tool_input.get('new_str', '')
     
     # Check for React component patterns
     if not (path.endswith('.tsx') or path.endswith('.jsx')):
@@ -391,13 +397,26 @@ def check_for_ui_component(tool_use):
     ui_patterns = ['<button', '<input', '<select', '<form', '<a ', 'onClick', 'className=']
     return any(pattern in content for pattern in ui_patterns)
 
-def main(tool_use):
-    if not check_for_ui_component(tool_use):
-        return
-    
-    path = tool_use.path
-    content = getattr(tool_use, 'new_str', '') or getattr(tool_use, 'content', '')
-    component_name = Path(path).stem
+def main():
+    """Main hook logic"""
+    try:
+        # Read input from Claude Code via stdin
+        input_data = json.loads(sys.stdin.read())
+        
+        if not check_for_ui_component(input_data):
+            return
+        
+        tool_input = input_data.get('tool_input', {})
+        path = tool_input.get('path', '')
+        
+        # Get content based on tool type
+        tool_name = input_data.get('tool_name', '')
+        if tool_name == 'Write':
+            content = tool_input.get('content', '')
+        else:
+            content = tool_input.get('new_str', '')
+        
+        component_name = Path(path).stem
     
     # Skip if opted out
     if '--no-a11y' in content:
@@ -446,22 +465,31 @@ def main(tool_use):
     
     # Block if score too low
     if not analysis['passing']:
-        print(f"\n🚫 Component blocked: Accessibility score {analysis['score']} < {analyzer.config['minimum_scores']['overall']}")
-        print("   Fix the issues above and try again.")
-        print("\n📚 Resources:")
-        print("   - WCAG Guidelines: https://www.w3.org/WAI/WCAG21/quickref/")
-        print("   - ARIA Patterns: https://www.w3.org/WAI/ARIA/apg/patterns/")
-        sys.exit(1)
+        # Block the component creation with feedback
+        print(json.dumps({
+            "decision": "block",
+            "message": f"""♿ Accessibility Requirements Not Met
+
+Component '{component_name}' needs accessibility improvements:
+
+Score: {analysis['score']}/100 (minimum required: {analyzer.config['minimum_scores']['overall']})
+
+Issues found:
+{chr(10).join(f'• {issue}' for issue in analysis['issues'])}
+
+Suggestions:
+{chr(10).join(f'• {rec}' for rec in analysis['recommendations'])}
+
+Would you like me to add the necessary accessibility features?"""
+        }))
+        sys.exit(0)
     
     print("\n✅ Accessibility check passed! Component can be created.")
+    
+    except Exception as e:
+        # Log error to stderr and continue
+        print(f"A11y enforcer hook error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
-    tool_use_data = json.loads(os.environ.get('TOOL_USE', '{}'))
-    
-    class ToolUse:
-        def __init__(self, data):
-            for key, value in data.items():
-                setattr(self, key, value)
-    
-    tool_use = ToolUse(tool_use_data)
-    main(tool_use)
+    main()

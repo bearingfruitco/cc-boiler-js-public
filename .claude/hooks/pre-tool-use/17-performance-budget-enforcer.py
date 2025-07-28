@@ -155,7 +155,7 @@ export function PerformanceOverlay() {{
         </tbody>
       </table>
       <div className="mt-2 pt-2 border-t border-gray-700">
-        <div>Bundle Size: {metrics.bundleSize || '---'}KB</div>
+        <div>Bundle Size: {{metrics.bundleSize || '---'}}KB</div>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ Automatically generates Supabase RLS policies from API requirements
 import os
 import json
 import re
+import sys
 from pathlib import Path
 
 def extract_data_requirements(content):
@@ -214,85 +215,98 @@ describe('Security: {api_name} API', () => {{
     tests += "\n});\n"
     return tests
 
-def main(tool_use):
-    # Only process if creating API files
-    if tool_use.tool != 'str_replace_editor' or not tool_use.path:
-        return
-    
-    if 'api/' not in tool_use.path or not tool_use.path.endswith('.ts'):
-        return
-    
-    content = getattr(tool_use, 'new_str', '') or getattr(tool_use, 'content', '')
-    api_name = Path(tool_use.path).stem
-    
-    # Extract data requirements
-    data_patterns = extract_data_requirements(content)
-    if not any(data_patterns.values()):
-        return  # No database operations
-    
-    # Get unique tables
-    all_tables = set()
-    for ops in data_patterns.values():
-        all_tables.update(ops)
-    
-    if not all_tables:
-        return
-    
-    print(f"\n🔒 Auto-generating RLS policies for {api_name} API...")
-    
-    # Create security directory
-    security_dir = Path('.claude/security/policies')
-    security_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Generate RLS policies
-    all_policies = []
-    for table in all_tables:
-        operations = [op for op, tables in data_patterns.items() if table in tables]
-        policies = generate_rls_policies(table, operations, api_name)
-        all_policies.extend(policies)
-    
-    # Write RLS policies
-    policy_file = security_dir / f"{api_name}.sql"
-    with open(policy_file, 'w') as f:
-        f.write(f"-- Auto-generated RLS policies for {api_name} API\n")
-        f.write("-- Review and modify as needed\n\n")
-        f.write("\n\n".join(all_policies))
-    
-    print(f"✅ Created RLS policies: {policy_file}")
-    
-    # Generate permission matrix
-    matrix = generate_permission_matrix(all_tables, data_patterns)
-    matrix_file = security_dir.parent / 'rules' / f"{api_name}.json"
-    matrix_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(matrix_file, 'w') as f:
-        json.dump(matrix, f, indent=2)
-    
-    print(f"✅ Created permission matrix: {matrix_file}")
-    
-    # Generate security tests
-    tests = generate_security_tests(api_name, all_tables, data_patterns)
-    test_dir = Path('tests/security')
-    test_dir.mkdir(parents=True, exist_ok=True)
-    
-    test_file = test_dir / f"{api_name}.security.test.ts"
-    with open(test_file, 'w') as f:
-        f.write(tests)
-    
-    print(f"✅ Created security tests: {test_file}")
-    print("\n📝 Next steps:")
-    print("1. Review generated RLS policies")
-    print("2. Run security tests: pnpm test:security")
-    print("3. Deploy policies: pnpm db:push")
+def main():
+    """Main hook logic"""
+    try:
+        # Read input from Claude Code via stdin
+        input_data = json.loads(sys.stdin.read())
+        
+        # Get tool information
+        tool_name = input_data.get('tool_name', '')
+        
+        # Only process if creating/editing API files
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            return
+        
+        # Get tool input data
+        tool_input = input_data.get('tool_input', {})
+        path = tool_input.get('path', '')
+        
+        if 'api/' not in path or not path.endswith('.ts'):
+            return
+        
+        # Get content based on tool type
+        if tool_name == 'Write':
+            content = tool_input.get('content', '')
+        else:
+            content = tool_input.get('new_str', '')
+        
+        api_name = Path(path).stem
+        
+        # Extract data requirements
+        data_patterns = extract_data_requirements(content)
+        if not any(data_patterns.values()):
+            return  # No database operations
+        
+        # Get unique tables
+        all_tables = set()
+        for ops in data_patterns.values():
+            all_tables.update(ops)
+        
+        if not all_tables:
+            return
+        
+        print(f"\n🔒 Auto-generating RLS policies for {api_name} API...")
+        
+        # Create security directory
+        security_dir = Path('.claude/security/policies')
+        security_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate RLS policies
+        all_policies = []
+        for table in all_tables:
+            operations = [op for op, tables in data_patterns.items() if table in tables]
+            policies = generate_rls_policies(table, operations, api_name)
+            all_policies.extend(policies)
+        
+        # Write RLS policies
+        policy_file = security_dir / f"{api_name}.sql"
+        with open(policy_file, 'w') as f:
+            f.write(f"-- Auto-generated RLS policies for {api_name} API\n")
+            f.write("-- Review and modify as needed\n\n")
+            f.write("\n\n".join(all_policies))
+        
+        print(f"✅ Created RLS policies: {policy_file}")
+        
+        # Generate permission matrix
+        matrix = generate_permission_matrix(all_tables, data_patterns)
+        matrix_file = security_dir.parent / 'rules' / f"{api_name}.json"
+        matrix_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(matrix_file, 'w') as f:
+            json.dump(matrix, f, indent=2)
+        
+        print(f"✅ Created permission matrix: {matrix_file}")
+        
+        # Generate security tests
+        tests = generate_security_tests(api_name, all_tables, data_patterns)
+        test_dir = Path('tests/security')
+        test_dir.mkdir(parents=True, exist_ok=True)
+        
+        test_file = test_dir / f"{api_name}.security.test.ts"
+        with open(test_file, 'w') as f:
+            f.write(tests)
+        
+        print(f"✅ Created security tests: {test_file}")
+        print("\n📝 Next steps:")
+        print("1. Review generated RLS policies")
+        print("2. Run security tests: pnpm test:security")
+        print("3. Deploy policies: pnpm db:push")
+        
+    except Exception as e:
+        # Log error to stderr and continue
+        print(f"RLS generator hook error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
-    import json
-    tool_use_data = json.loads(os.environ.get('TOOL_USE', '{}'))
-    
-    class ToolUse:
-        def __init__(self, data):
-            for key, value in data.items():
-                setattr(self, key, value)
-    
-    tool_use = ToolUse(tool_use_data)
-    main(tool_use)
+    main()

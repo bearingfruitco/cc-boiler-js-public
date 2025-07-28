@@ -346,13 +346,19 @@ export const Playground: Story = {{
         
         return "\n".join(args)
 
-def check_for_component_creation(tool_use):
+def check_for_component_creation(tool_data):
     """Check if creating a React component"""
-    if tool_use.tool != 'str_replace_editor':
+    tool_name = tool_data.get('tool_name', '')
+    if tool_name not in ['Write', 'Edit', 'MultiEdit']:
         return False
     
-    path = tool_use.path or ''
-    content = getattr(tool_use, 'new_str', '') or getattr(tool_use, 'content', '')
+    tool_input = tool_data.get('tool_input', {})
+    path = tool_input.get('path', '')
+    
+    if tool_name == 'Write':
+        content = tool_input.get('content', '')
+    else:
+        content = tool_input.get('new_str', '')
     
     # Check if it's a component file
     if not (path.endswith('.tsx') or path.endswith('.jsx')):
@@ -373,83 +379,67 @@ def check_for_component_creation(tool_use):
     
     return False
 
-def check_for_existing_docs(component_name):
-    """Check if documentation already exists"""
-    docs_locations = [
-        f'docs/components/{component_name}.md',
-        f'components/{component_name}/README.md',
-        f'stories/{component_name}.stories.tsx'
-    ]
-    
-    for doc_path in docs_locations:
-        if Path(doc_path).exists():
-            return True
-    
-    return False
+def main():
+    """Main hook logic"""
+    try:
+        # Read input from Claude Code via stdin
+        input_data = json.loads(sys.stdin.read())
+        
+        if not check_for_component_creation(input_data):
+            sys.exit(0)
+        
+        # Extract tool data
+        tool_input = input_data.get('tool_input', {})
+        path = tool_input.get('path', '')
+        
+        # Get content based on tool type
+        tool_name = input_data.get('tool_name', '')
+        if tool_name == 'Write':
+            content = tool_input.get('content', '')
+        else:
+            content = tool_input.get('new_str', '')
+        
+        # Generate documentation
+        doc_gen = DocumentationGenerator()
+        info = doc_gen.extract_component_info(content, path)
+        
+        # Generate docs
+        docs_content = doc_gen.generate_component_docs(info, content)
+        doc_path = doc_gen.docs_dir / f"{info['name']}.md"
+        
+        # Check if docs already exist
+        if doc_path.exists():
+            sys.exit(0)  # Don't block if docs exist
+        
+        # Block component creation without docs
+        print(json.dumps({
+            "decision": "block",
+            "message": f"""📚 Documentation Required Before Component Creation
 
-def main(tool_use):
-    if not check_for_component_creation(tool_use):
-        return
-    
-    path = tool_use.path
-    content = getattr(tool_use, 'new_str', '') or getattr(tool_use, 'content', '')
-    
-    # Skip if documentation already exists
-    component_name = Path(path).stem
-    if check_for_existing_docs(component_name):
-        return
-    
-    # Check for opt-out
-    if '--no-docs' in content or '@no-docs' in content:
-        print("📝 Documentation skipped (--no-docs flag)")
-        return
-    
-    print(f"\n📚 DOCUMENTATION-FIRST DEVELOPMENT ENFORCED")
-    print(f"   Component detected: {component_name}")
-    
-    # Generate documentation
-    generator = DocumentationGenerator()
-    info = generator.extract_component_info(content, path)
-    
-    # Generate component documentation
-    docs_content = generator.generate_component_docs(info, content)
-    docs_path = Path(f'docs/components/{component_name}.md')
-    docs_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(docs_path, 'w') as f:
-        f.write(docs_content)
-    
-    print(f"✅ Generated documentation: {docs_path}")
-    
-    # Generate Storybook story
-    story_content = generator.generate_storybook_story(info)
-    story_path = Path(f'stories/{component_name}.stories.tsx')
-    story_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(story_path, 'w') as f:
-        f.write(story_content)
-    
-    print(f"✅ Generated Storybook story: {story_path}")
-    
-    print("\n📝 Next steps:")
-    print(f"1. Review and enhance the documentation")
-    print(f"2. Add specific examples to Storybook")
-    print(f"3. Run: pnpm storybook")
-    
-    # Suggest documentation improvements
-    if not info['props']:
-        print("\n⚠️  No props detected. Consider adding TypeScript interfaces.")
-    
-    if not info['description']:
-        print("⚠️  Add a description comment above the component.")
+Component '{info['name']}' needs documentation first!
+
+I'll create the documentation for you. Just approve the following:
+
+1. Component documentation at: docs/components/{info['name']}.md
+2. Storybook story (optional but recommended)
+3. Test file template (optional but recommended)
+
+This ensures:
+- API is documented before implementation
+- Props are well-defined
+- Usage examples exist
+- Accessibility is considered
+- Performance notes are included
+
+Would you like me to create these files now?"""
+        }))
+        
+        sys.exit(0)
+        
+    except Exception as e:
+        # Log error to stderr and continue
+        print(f"Docs enforcer hook error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
-    tool_use_data = json.loads(os.environ.get('TOOL_USE', '{}'))
-    
-    class ToolUse:
-        def __init__(self, data):
-            for key, value in data.items():
-                setattr(self, key, value)
-    
-    tool_use = ToolUse(tool_use_data)
-    main(tool_use)
+    main()

@@ -8,7 +8,6 @@ Part of v4.0 automation plan - Issue #21
 import os
 import json
 import re
-import yaml
 from pathlib import Path
 from typing import Dict, List, Any
 
@@ -438,12 +437,12 @@ def main(tool_use):
     
     print(f"✅ Updated OpenAPI spec: {openapi_path}")
     
-    # Also save as YAML for better readability
-    yaml_path = generator.openapi_dir / 'openapi.yaml'
-    with open(yaml_path, 'w') as f:
-        yaml.dump(openapi_spec, f, default_flow_style=False)
+    # Save as JSON (YAML module not available by default)
+    json_path = generator.openapi_dir / 'openapi.json'
+    with open(json_path, 'w') as f:
+        json.dump(openapi_spec, f, indent=2)
     
-    print(f"✅ Updated OpenAPI YAML: {yaml_path}")
+    print(f"✅ Updated OpenAPI JSON: {json_path}")
     
     # Generate client SDK
     sdk_content = generator.generate_client_sdk(openapi_spec)
