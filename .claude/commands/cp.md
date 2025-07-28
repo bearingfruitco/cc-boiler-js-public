@@ -1,0 +1,3 @@
+# Checkpoint Alias
+
+/checkpoint $ARGUMENTS

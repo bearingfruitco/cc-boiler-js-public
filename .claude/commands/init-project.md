@@ -1,6 +1,6 @@
-# Initialize Project
+# Initialize Project (Enhanced)
 
-Initializes a new project with Claude Code, creating the foundational PRD and project context.
+Initializes a new project with Claude Code, ensuring correct repository setup and creating foundational PRD.
 
 ## Usage
 
@@ -11,64 +11,140 @@ Initializes a new project with Claude Code, creating the foundational PRD and pr
 
 ## What It Does
 
-1. **Interviews you about the project**:
+1. **Verifies Repository Setup**:
+   - Checks current git remote configuration
+   - Confirms this is YOUR project repo (not boilerplate)
+   - Offers to create GitHub repo if needed
+   - Updates `.claude/project-config.json`
+
+2. **Checks GitHub App Installation**:
+   - Verifies CodeRabbit is installed
+   - Verifies Claude Code App is installed
+   - Provides installation links if missing
+
+3. **Interviews you about the project**:
    - What problem are you solving?
    - Who is your target user?
    - What's your MVP scope?
    - What's your tech stack preference?
 
-2. **Creates Project-Level Documentation**:
-   - `docs/project/PROJECT_PRD.md` - Overall project vision
-   - `docs/project/BUSINESS_RULES.md` - Core business logic
-   - `docs/project/TECH_DECISIONS.md` - Architecture choices
-   - Updates `CLAUDE.md` with project-specific context
+4. **Creates Project Documentation**:
+   - `docs/project/PROJECT_PRD.md` - Overall vision
+   - `docs/project/BUSINESS_RULES.md` - Core logic
+   - `docs/project/TECH_DECISIONS.md` - Architecture
+   - Updates `CLAUDE.md` with project context
 
-3. **Sets up project structure**:
+5. **Sets up project structure**:
    - Creates necessary directories
    - Configures for your tech choices
    - Sets up field registry for your domain
 
-4. **Generates initial feature list**:
-   - Breaks down MVP into features
-   - Prioritizes features
-   - Creates roadmap
-
-## Interview Flow
+## New Repository Check Flow
 
 ```
-Claude: Let's set up your project! First, what are you building?
+Claude: Let me check your repository setup...
+
+Current git remote: https://github.com/bearingfruitco/claude-code-boilerplate.git
+⚠️  WARNING: You're still pointing to the boilerplate repo!
+
+Let's fix this:
+1. What's your GitHub username? 
+2. What's your repository name?
+3. Does this repo exist on GitHub yet? (y/n)
+
+[If no, offers to create it]
+[If yes, updates git remote]
+
+✓ Updated git remote to: https://github.com/YOUR_USERNAME/YOUR_REPO.git
+✓ Updated .claude/project-config.json
+```
+
+## GitHub Apps Check
+
+```
+Claude: Checking GitHub App installations...
+
+❌ CodeRabbit: Not found
+   Install at: https://github.com/marketplace/coderabbit
+   
+❌ Claude Code: Not found  
+   Install at: https://github.com/apps/claude
+
+Please install both apps on your repository, then continue.
+Continue anyway? (y/n)
+```
+
+## Updated Interview Flow
+
+```
+Claude: Great! Your repository is properly configured. 
+        Now let's set up your project! 
+        
+        First, what are you building?
 You: A quiz app for learning about tofu
 
-Claude: Great! Who will use this quiz app?
+Claude: Excellent! Who will use this quiz app?
 You: People interested in plant-based cooking
 
-Claude: What problem does it solve for them?
-You: Helps them learn about tofu varieties and cooking methods
+[... rest of interview continues ...]
 
-Claude: What's your MVP - the minimum to test this idea?
-You: 10 quizzes about tofu, score tracking, basic progress
+Claude: Creating project documentation in YOUR repo...
+✓ Created docs/project/PROJECT_PRD.md
+✓ Created docs/project/BUSINESS_RULES.md
+✓ Created docs/project/TECH_DECISIONS.md
+✓ Updated .claude/project-config.json
+✓ Ready to generate GitHub issues!
 
-Claude: Technical preferences? (Next.js, database, etc.)
-You: Next.js, Supabase, Tailwind
-
-[Claude generates PROJECT_PRD.md with all this context]
+Next step: Run `/gi PROJECT` to create issues in YOUR repo
 ```
+
+## Project Config Format
+
+```json
+{
+  "repository": {
+    "owner": "YOUR_USERNAME",
+    "name": "YOUR_REPO_NAME", 
+    "branch": "main",
+    "original_boilerplate": "bearingfruitco/claude-code-boilerplate"
+  },
+  "project": {
+    "name": "Tofu Learning Quiz",
+    "type": "Next.js Application",
+    "initialized_at": "2024-12-30T10:00:00Z"
+  },
+  "github_apps": {
+    "coderabbit": true,
+    "claude_code": true,
+    "checked_at": "2024-12-30T10:00:00Z"
+  }
+}
+```
+
+## Safety Checks
+
+The command now:
+1. NEVER creates issues in the boilerplate repo
+2. ALWAYS verifies correct repository before proceeding
+3. Warns if GitHub Apps aren't installed
+4. Updates all configuration to point to YOUR repo
+5. Creates a clear audit trail
 
 ## After Project Init
 
-Once the project PRD exists, THEN you can:
-- `/prd user-authentication` - Feature-level PRDs
-- `/gt user-authentication` - Generate tasks
-- `/pt user-authentication` - Process tasks
+Once properly initialized:
+- `/gi PROJECT` - Creates issues in YOUR repo
+- `/fw start 1` - Works with YOUR repo's issues  
+- All PRs go to YOUR repo
+- Both AI tools review YOUR code
 
-## Implementation
+## Error Prevention
 
-The command should:
-1. Check if `PROJECT_PRD.md` exists
-2. If not, start the interview
-3. Generate comprehensive project documentation
-4. Update CLAUDE.md with project context
-5. Create initial feature list
-6. Set up project-specific configurations
+If someone tries to run commands before proper init:
+```
+❌ ERROR: Repository not properly configured!
+   You're still using the boilerplate repository.
+   Run /init-project to set up YOUR repository.
+```
 
-This gives Claude the full context about what you're building before diving into features!
+This ensures no one accidentally pollutes the boilerplate repo with their project-specific issues!
