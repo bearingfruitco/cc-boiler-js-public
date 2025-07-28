@@ -1,52 +1,45 @@
 #!/usr/bin/env python3
 """
-Security-First API Development Enforcer
-Part of v4.0 automation - Makes security checks mandatory before API creation
+Security-First Enforcer Hook
+Ensures security rules and tests are defined before API implementation
+Similar to TDD but for security
 """
 
-import os
-import json
-import re
 import sys
+import json
+import os
 from pathlib import Path
 
-def check_for_api_creation(tool_use):
-    """Detect if the tool use is creating an API endpoint"""
-    if tool_use.tool != 'str_replace_editor':
+def check_for_api_creation(input_data):
+    """Check if this is creating an API endpoint"""
+    tool_name = input_data.get('tool_name', '')
+    if tool_name not in ['Write', 'Edit', 'MultiEdit']:
         return False
     
-    # Check for common API patterns
+    tool_input = input_data.get('tool_input', {})
+    path = tool_input.get('path', '') or tool_input.get('file_path', '')
+    
+    # Check for API route patterns
     api_patterns = [
-        r'app/api/.+\.ts',
-        r'pages/api/.+\.ts',
-        r'export\s+async\s+function\s+(GET|POST|PUT|DELETE|PATCH)',
-        r'export\s+default\s+async\s+function\s+handler',
-        r'NextRequest',
-        r'NextResponse'
+        'app/api/',
+        'pages/api/',
+        'src/api/',
+        '/routes/api/'
     ]
     
-    path = tool_use.path or ''
-    content = getattr(tool_use, 'new_str', '') or getattr(tool_use, 'content', '')
-    
-    # Check if it's an API file
-    if 'api/' in path and path.endswith('.ts'):
-        return True
-    
-    # Check content for API patterns
-    for pattern in api_patterns:
-        if re.search(pattern, content, re.IGNORECASE):
-            return True
-    
-    return False
+    return any(pattern in path for pattern in api_patterns) and path.endswith(('.ts', '.js', '.tsx', '.jsx'))
 
-def check_for_security_rules(path):
+def check_for_security_rules(api_path):
     """Check if security rules exist for this API"""
-    api_name = Path(path).stem
+    api_name = Path(api_path).stem
+    
+    # Security file patterns to check
     security_files = [
         f'.claude/security/rules/{api_name}.json',
-        f'.claude/security/policies/{api_name}.sql',
-        f'app/api/{api_name}/security.ts',
-        f'lib/security/{api_name}.ts'
+        f'.claude/security/policies/{api_name}.md',
+        f'security/rules/{api_name}.json',
+        f'docs/security/{api_name}.md',
+        f'.security/{api_name}.json'
     ]
     
     project_root = Path.cwd()
@@ -60,8 +53,7 @@ def generate_security_warning(path):
     """Generate a helpful warning message"""
     api_name = Path(path).stem
     
-    return f"""
-🔒 SECURITY-FIRST DEVELOPMENT ENFORCED
+    return f"""🔒 SECURITY-FIRST DEVELOPMENT ENFORCED
 
 You're creating an API endpoint without security rules. This violates our security-first policy.
 
@@ -87,8 +79,7 @@ Option 2 - Create security manually:
 Option 3 - Skip security (NOT RECOMMENDED):
 Add --no-security flag and provide justification
 
-This is similar to TDD - no implementation without security tests!
-"""
+This is similar to TDD - no implementation without security tests!"""
 
 def should_allow_without_security(content):
     """Check if the operation explicitly opts out of security"""
@@ -105,46 +96,48 @@ def should_allow_without_security(content):
     
     return False
 
-def main(tool_use):
-    # Check if this is API creation
-    if not check_for_api_creation(tool_use):
-        return  # Not an API, continue normally
-    
-    path = tool_use.path or 'unknown'
-    content = getattr(tool_use, 'new_str', '') or getattr(tool_use, 'content', '')
-    
-    # Check if explicitly skipping security
-    if should_allow_without_security(content):
-        print("⚠️  Security check skipped (--no-security flag detected)")
-        print("📝 Please document why security is not needed for this endpoint")
-        return
-    
-    # Check if security rules exist
-    if not check_for_security_rules(path):
-        # Block the operation
-        print(generate_security_warning(path))
+def main():
+    """Main hook logic"""
+    try:
+        # Read input from stdin
+        input_data = json.loads(sys.stdin.read())
         
-        # Suggest spawning security agent
-        print("\n🤖 Auto-spawning security-auditor agent...")
-        print("Run: /spawn-agent security-auditor")
+        # Check if this is API creation
+        if not check_for_api_creation(input_data):
+            sys.exit(0)  # Not an API, continue normally
         
-        # Exit to prevent the tool use
-        sys.exit(1)
-    
-    # Security rules exist, allow operation
-    print("✅ Security rules detected - API creation allowed")
+        tool_input = input_data.get('tool_input', {})
+        tool_name = input_data.get('tool_name', '')
+        path = tool_input.get('path', '') or tool_input.get('file_path', 'unknown')
+        
+        # Get content based on tool
+        if tool_name == 'Write':
+            content = tool_input.get('content', '')
+        else:
+            content = tool_input.get('new_str', '')
+        
+        # Check if explicitly skipping security
+        if should_allow_without_security(content):
+            print("⚠️  Security check skipped (--no-security flag detected)", file=sys.stderr)
+            print("📝 Please document why security is not needed for this endpoint", file=sys.stderr)
+            sys.exit(0)
+        
+        # Check if security rules exist
+        if not check_for_security_rules(path):
+            # Block the operation
+            print(json.dumps({
+                "decision": "block",
+                "message": generate_security_warning(path)
+            }))
+            sys.exit(0)
+        
+        # Security rules exist, allow operation
+        print("✅ Security rules detected - API creation allowed", file=sys.stderr)
+        
+    except Exception as e:
+        # Log error to stderr and continue
+        print(f"Security enforcer hook error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
-    import json
-    tool_use_data = json.loads(os.environ.get('TOOL_USE', '{}'))
-    
-    # Create a simple object to hold the data
-    class ToolUse:
-        def __init__(self, data):
-            self.tool = data.get('tool', '')
-            self.path = data.get('path', '')
-            for key, value in data.items():
-                setattr(self, key, value)
-    
-    tool_use = ToolUse(tool_use_data)
-    main(tool_use)
+    main()
