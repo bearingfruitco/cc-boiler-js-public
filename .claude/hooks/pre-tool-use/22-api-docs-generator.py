@@ -5,7 +5,7 @@ Automatically generates OpenAPI specifications and interactive documentation
 Part of v4.0 automation plan - Issue #21
 """
 
-import os
+import sys
 import json
 import re
 from pathlib import Path
@@ -175,22 +175,6 @@ class APIDocumentationGenerator:
             }
         }
         
-        # Look for NextResponse patterns
-        response_pattern = r'NextResponse\.json\(([^)]+)\)'
-        matches = list(re.finditer(response_pattern, content))
-        
-        if matches:
-            # Try to extract response structure
-            for match in matches:
-                response_content = match.group(1)
-                if '{' in response_content:
-                    # Attempt to parse response structure
-                    responses['200']['content']['application/json']['examples'] = {
-                        'default': {
-                            'value': '// Response data'
-                        }
-                    }
-        
         # Look for error responses
         if '400' in content or 'BadRequest' in content:
             responses['400'] = {
@@ -285,216 +269,70 @@ class APIDocumentationGenerator:
                 existing_spec['paths'][path][method.lower()]['security'] = api_info['security']
         
         return existing_spec
-    
-    def generate_client_sdk(self, openapi_spec: Dict) -> str:
-        """Generate TypeScript client SDK from OpenAPI spec"""
-        sdk_content = """// Auto-generated API Client
-import { z } from 'zod';
 
-export class APIClient {
-  private baseURL: string;
-  private headers: Record<string, string>;
-  
-  constructor(baseURL = '/api', token?: string) {
-    this.baseURL = baseURL;
-    this.headers = {
-      'Content-Type': 'application/json',
-    };
-    
-    if (token) {
-      this.headers['Authorization'] = `Bearer ${token}`;
-    }
-  }
-  
-  private async request<T>(
-    method: string,
-    path: string,
-    options?: {
-      params?: Record<string, string>;
-      body?: any;
-    }
-  ): Promise<T> {
-    const url = new URL(`${this.baseURL}${path}`, window.location.origin);
-    
-    if (options?.params) {
-      Object.entries(options.params).forEach(([key, value]) => {
-        url.searchParams.append(key, value);
-      });
-    }
-    
-    const response = await fetch(url.toString(), {
-      method,
-      headers: this.headers,
-      body: options?.body ? JSON.stringify(options.body) : undefined,
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
-    }
-    
-    return response.json();
-  }
-"""
-        
-        # Generate methods for each endpoint
-        for path, methods in openapi_spec['paths'].items():
-            for method, operation in methods.items():
-                sdk_content += self._generate_sdk_method(path, method, operation)
-        
-        sdk_content += "}\n"
-        return sdk_content
-    
-    def _generate_sdk_method(self, path: str, method: str, operation: Dict) -> str:
-        """Generate SDK method for an endpoint"""
-        # Convert path to method name
-        method_name = self._path_to_method_name(path, method)
-        
-        # Extract parameters
-        path_params = [p for p in operation.get('parameters', []) if p['in'] == 'path']
-        query_params = [p for p in operation.get('parameters', []) if p['in'] == 'query']
-        
-        # Build method signature
-        params = []
-        if path_params:
-            for param in path_params:
-                params.append(f"{param['name']}: string")
-        
-        if query_params:
-            params.append("query?: { " + ", ".join([f"{p['name']}?: string" for p in query_params]) + " }")
-        
-        if operation.get('requestBody'):
-            params.append("body: any")
-        
-        param_str = ", ".join(params)
-        
-        # Build path with replacements
-        api_path = path
-        for param in path_params:
-            api_path = api_path.replace(f"{{{param['name']}}}", f"${{{param['name']}}}")
-        
-        return f"""
-  async {method_name}({param_str}): Promise<any> {{
-    return this.request('{method.upper()}', `{api_path}`{', { params: query, body }' if query_params or operation.get('requestBody') else ''});
-  }}
-"""
-    
-    def _path_to_method_name(self, path: str, method: str) -> str:
-        """Convert API path to method name"""
-        # /api/users/{id} -> getUsers or getUserById
-        parts = path.split('/')[2:]  # Skip /api/
-        name_parts = []
-        
-        for part in parts:
-            if part and not part.startswith('{'):
-                name_parts.append(part.capitalize())
-            elif part.startswith('{'):
-                name_parts.append('By' + part[1:-1].capitalize())
-        
-        return method.lower() + ''.join(name_parts)
-
-def check_for_api_creation(tool_use):
+def check_for_api_creation(input_data):
     """Check if creating an API route"""
-    if tool_use.tool != 'str_replace_editor':
+    tool_name = input_data.get('tool_name', '')
+    if tool_name not in ['Write', 'Edit', 'MultiEdit']:
         return False
     
-    path = tool_use.path or ''
+    tool_input = input_data.get('tool_input', {})
+    path = tool_input.get('path', '') or tool_input.get('file_path', '')
     
     # Check for API route patterns
     return ('app/api/' in path or 'pages/api/' in path) and path.endswith(('.ts', '.js'))
 
-def main(tool_use):
-    if not check_for_api_creation(tool_use):
-        return
-    
-    path = tool_use.path
-    content = getattr(tool_use, 'new_str', '') or getattr(tool_use, 'content', '')
-    
-    # Skip if opted out
-    if '--no-api-docs' in content:
-        return
-    
-    print(f"\n📚 AUTO-GENERATING API DOCUMENTATION")
-    print(f"   API Route: {path}")
-    
-    generator = APIDocumentationGenerator()
-    
-    # Extract API information
-    api_info = generator.extract_api_info(content, path)
-    
-    # Load existing OpenAPI spec
-    openapi_path = generator.openapi_dir / 'openapi.json'
-    existing_spec = {}
-    if openapi_path.exists():
-        with open(openapi_path) as f:
-            existing_spec = json.load(f)
-    
-    # Generate or update OpenAPI spec
-    openapi_spec = generator.generate_openapi_spec(api_info, existing_spec)
-    
-    # Save OpenAPI spec
-    with open(openapi_path, 'w') as f:
-        json.dump(openapi_spec, f, indent=2)
-    
-    print(f"✅ Updated OpenAPI spec: {openapi_path}")
-    
-    # Save as JSON (YAML module not available by default)
-    json_path = generator.openapi_dir / 'openapi.json'
-    with open(json_path, 'w') as f:
-        json.dump(openapi_spec, f, indent=2)
-    
-    print(f"✅ Updated OpenAPI JSON: {json_path}")
-    
-    # Generate client SDK
-    sdk_content = generator.generate_client_sdk(openapi_spec)
-    sdk_path = Path('lib/api/client.generated.ts')
-    sdk_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(sdk_path, 'w') as f:
-        f.write(sdk_content)
-    
-    print(f"✅ Generated TypeScript SDK: {sdk_path}")
-    
-    # Generate Swagger UI setup
-    swagger_html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>API Documentation</title>
-  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css">
-</head>
-<body>
-  <div id="swagger-ui"></div>
-  <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
-  <script>
-    window.onload = function() {{
-      SwaggerUIBundle({{
-        url: '/api/openapi.json',
-        dom_id: '#swagger-ui',
-        presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIBundle.SwaggerUIStandalonePreset
-        ],
-        layout: "BaseLayout"
-      }});
-    }}
-  </script>
-</body>
-</html>"""
-    
-    swagger_path = Path('public/api-docs.html')
-    with open(swagger_path, 'w') as f:
-        f.write(swagger_html)
-    
-    print(f"✅ Generated Swagger UI: {swagger_path}")
-    print("\n📝 Access interactive API docs at: http://localhost:3000/api-docs.html")
+def main():
+    """Main hook logic"""
+    try:
+        # Read input from stdin
+        input_data = json.loads(sys.stdin.read())
+        
+        if not check_for_api_creation(input_data):
+            sys.exit(0)
+        
+        tool_input = input_data.get('tool_input', {})
+        tool_name = input_data.get('tool_name', '')
+        path = tool_input.get('path', '') or tool_input.get('file_path', '')
+        
+        # Get content based on tool
+        if tool_name == 'Write':
+            content = tool_input.get('content', '')
+        else:
+            content = tool_input.get('new_str', '')
+        
+        # Skip if opted out
+        if '--no-api-docs' in content:
+            sys.exit(0)
+        
+        print(f"\n📚 AUTO-GENERATING API DOCUMENTATION", file=sys.stderr)
+        print(f"   API Route: {path}", file=sys.stderr)
+        
+        generator = APIDocumentationGenerator()
+        
+        # Extract API information
+        api_info = generator.extract_api_info(content, path)
+        
+        # Load existing OpenAPI spec
+        openapi_path = generator.openapi_dir / 'openapi.json'
+        existing_spec = {}
+        if openapi_path.exists():
+            with open(openapi_path) as f:
+                existing_spec = json.load(f)
+        
+        # Generate or update OpenAPI spec
+        openapi_spec = generator.generate_openapi_spec(api_info, existing_spec)
+        
+        # Save OpenAPI spec
+        with open(openapi_path, 'w') as f:
+            json.dump(openapi_spec, f, indent=2)
+        
+        print(f"✅ Updated OpenAPI spec: {openapi_path}", file=sys.stderr)
+        
+    except Exception as e:
+        # Log error to stderr and continue
+        print(f"API docs generator hook error: {str(e)}", file=sys.stderr)
+        sys.exit(0)
 
 if __name__ == "__main__":
-    tool_use_data = json.loads(os.environ.get('TOOL_USE', '{}'))
-    
-    class ToolUse:
-        def __init__(self, data):
-            for key, value in data.items():
-                setattr(self, key, value)
-    
-    tool_use = ToolUse(tool_use_data)
-    main(tool_use)
+    main()

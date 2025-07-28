@@ -5,10 +5,9 @@ Makes accessibility testing mandatory for all UI components
 Part of v4.0 automation plan - Issue #23
 """
 
-import os
+import sys
 import json
 import re
-import sys
 from pathlib import Path
 
 class AccessibilityAnalyzer:
@@ -291,107 +290,25 @@ describe('{component_name} Accessibility', () => {{
   }});
 }});
 """
-    
-    def generate_aria_requirements(self, component_name, content):
-        """Generate ARIA requirements document"""
-        return f"""# Accessibility Requirements: {component_name}
 
-## WCAG 2.1 Level {self.config['wcag_level']} Compliance
-
-### Keyboard Navigation
-- All interactive elements must be keyboard accessible
-- Tab order must be logical and predictable
-- Focus indicators must be visible
-- No keyboard traps
-
-### Screen Reader Support
-- All images must have alt text
-- Form inputs must have labels
-- Dynamic content updates must be announced
-- Proper heading hierarchy
-
-### ARIA Implementation
-```typescript
-// Required ARIA attributes for {component_name}
-
-// For buttons
-<button
-  aria-label="Clear description of action"
-  aria-pressed={{isPressed}}
-  aria-disabled={{isDisabled}}
->
-
-// For form inputs
-<input
-  aria-label="Field purpose"
-  aria-required="true"
-  aria-invalid={{hasError}}
-  aria-describedby="error-message"
-/>
-
-// For dynamic content
-<div
-  aria-live="polite"
-  aria-atomic="true"
->
-  {{/* Content that updates */}}
-</div>
-
-// For modals/dialogs
-<div
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="dialog-title"
->
-```
-
-### Focus Management
-```typescript
-// Implement focus trap for modals
-useEffect(() => {{
-  if (isOpen) {{
-    previousFocus.current = document.activeElement;
-    firstFocusableElement.current?.focus();
-  }}
-  
-  return () => {{
-    previousFocus.current?.focus();
-  }};
-}}, [isOpen]);
-```
-
-### Color Contrast Requirements
-- Normal text: 4.5:1 contrast ratio
-- Large text (18pt+): 3:1 contrast ratio
-- UI components: 3:1 contrast ratio
-- Focus indicators: 3:1 contrast ratio
-
-### Testing Checklist
-- [ ] Passes automated accessibility tests (jest-axe)
-- [ ] Keyboard navigation works without mouse
-- [ ] Screen reader announces all content properly
-- [ ] Focus is managed correctly
-- [ ] Color contrast meets WCAG standards
-- [ ] No accessibility violations in browser extensions
-"""
-
-def check_for_ui_component(tool_data):
+def check_for_ui_component(input_data):
     """Check if creating a UI component"""
-    tool_name = tool_data.get('tool_name', '')
+    tool_name = input_data.get('tool_name', '')
     if tool_name not in ['Write', 'Edit', 'MultiEdit']:
         return False
     
-    tool_input = tool_data.get('tool_input', {})
-    path = tool_input.get('path', '')
-    
-    if tool_name == 'Write':
-        content = tool_input.get('content', '')
-    else:
-        content = tool_input.get('new_str', '')
+    tool_input = input_data.get('tool_input', {})
+    path = tool_input.get('path', '') or tool_input.get('file_path', '')
     
     # Check for React component patterns
     if not (path.endswith('.tsx') or path.endswith('.jsx')):
         return False
+    
+    # Get content based on tool
+    if tool_name == 'Write':
+        content = tool_input.get('content', '')
+    else:
+        content = tool_input.get('new_str', '')
     
     # Check for UI elements
     ui_patterns = ['<button', '<input', '<select', '<form', '<a ', 'onClick', 'className=']
@@ -404,71 +321,83 @@ def main():
         input_data = json.loads(sys.stdin.read())
         
         if not check_for_ui_component(input_data):
-            return
+            sys.exit(0)
         
         tool_input = input_data.get('tool_input', {})
-        path = tool_input.get('path', '')
+        tool_name = input_data.get('tool_name', '')
+        path = tool_input.get('path', '') or tool_input.get('file_path', '')
         
         # Get content based on tool type
-        tool_name = input_data.get('tool_name', '')
         if tool_name == 'Write':
             content = tool_input.get('content', '')
         else:
             content = tool_input.get('new_str', '')
         
         component_name = Path(path).stem
-    
-    # Skip if opted out
-    if '--no-a11y' in content:
-        print("♿ Accessibility checks skipped (--no-a11y flag)")
-        return
-    
-    print(f"\n♿ ACCESSIBILITY-FIRST DEVELOPMENT ENFORCED")
-    print(f"   Component: {component_name}")
-    
-    analyzer = AccessibilityAnalyzer()
-    
-    # Analyze component
-    analysis = analyzer.analyze_component(content, component_name)
-    
-    print(f"\n📊 Accessibility Score: {analysis['score']}/100")
-    
-    if analysis['issues']:
-        print("\n❌ Accessibility Issues Found:")
-        for issue in analysis['issues']:
-            print(f"   - {issue}")
-    
-    if analysis['suggestions']:
-        print("\n💡 Suggestions:")
-        for suggestion in analysis['suggestions']:
-            print(f"   - {suggestion}")
-    
-    # Generate requirements
-    requirements = analyzer.generate_aria_requirements(component_name, content)
-    req_path = Path(f'.claude/a11y-requirements/{component_name}.md')
-    req_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(req_path, 'w') as f:
-        f.write(requirements)
-    
-    print(f"\n✅ Generated requirements: {req_path}")
-    
-    # Generate tests
-    tests = analyzer.generate_a11y_tests(component_name)
-    test_path = Path(f'tests/a11y/{component_name}.a11y.test.tsx')
-    test_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(test_path, 'w') as f:
-        f.write(tests)
-    
-    print(f"✅ Generated tests: {test_path}")
-    
-    # Block if score too low
-    if not analysis['passing']:
-        # Block the component creation with feedback
-        print(json.dumps({
-            "decision": "block",
-            "message": f"""♿ Accessibility Requirements Not Met
+        
+        # Skip if opted out
+        if '--no-a11y' in content:
+            print("♿ Accessibility checks skipped (--no-a11y flag)", file=sys.stderr)
+            sys.exit(0)
+        
+        print(f"\n♿ ACCESSIBILITY-FIRST DEVELOPMENT ENFORCED", file=sys.stderr)
+        print(f"   Component: {component_name}", file=sys.stderr)
+        
+        analyzer = AccessibilityAnalyzer()
+        
+        # Analyze component
+        analysis = analyzer.analyze_component(content, component_name)
+        
+        print(f"\n📊 Accessibility Score: {analysis['score']}/100", file=sys.stderr)
+        
+        if analysis['issues']:
+            print("\n❌ Accessibility Issues Found:", file=sys.stderr)
+            for issue in analysis['issues']:
+                print(f"   - {issue}", file=sys.stderr)
+        
+        if analysis['suggestions']:
+            print("\n💡 Suggestions:", file=sys.stderr)
+            for suggestion in analysis['suggestions']:
+                print(f"   - {suggestion}", file=sys.stderr)
+        
+        # Generate requirements
+        requirements_content = f"""# Accessibility Requirements: {component_name}
+
+## WCAG 2.1 Level {analyzer.config['wcag_level']} Compliance
+
+### Issues Found
+{chr(10).join(f'- {issue}' for issue in analysis['issues']) if analysis['issues'] else 'None'}
+
+### Suggestions
+{chr(10).join(f'- {suggestion}' for suggestion in analysis['suggestions']) if analysis['suggestions'] else 'None'}
+
+### Score: {analysis['score']}/100
+"""
+        
+        req_path = Path(f'.claude/a11y-requirements/{component_name}.md')
+        req_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(req_path, 'w') as f:
+            f.write(requirements_content)
+        
+        print(f"\n✅ Generated requirements: {req_path}", file=sys.stderr)
+        
+        # Generate tests
+        tests = analyzer.generate_a11y_tests(component_name)
+        test_path = Path(f'tests/a11y/{component_name}.a11y.test.tsx')
+        test_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(test_path, 'w') as f:
+            f.write(tests)
+        
+        print(f"✅ Generated tests: {test_path}", file=sys.stderr)
+        
+        # Block if score too low
+        if not analysis['passing']:
+            # Block the component creation with feedback
+            print(json.dumps({
+                "decision": "block",
+                "message": f"""♿ Accessibility Requirements Not Met
 
 Component '{component_name}' needs accessibility improvements:
 
@@ -478,14 +407,14 @@ Issues found:
 {chr(10).join(f'• {issue}' for issue in analysis['issues'])}
 
 Suggestions:
-{chr(10).join(f'• {rec}' for rec in analysis['recommendations'])}
+{chr(10).join(f'• {suggestion}' for suggestion in analysis['suggestions'])}
 
 Would you like me to add the necessary accessibility features?"""
-        }))
-        sys.exit(0)
-    
-    print("\n✅ Accessibility check passed! Component can be created.")
-    
+            }))
+            sys.exit(0)
+        
+        print("\n✅ Accessibility check passed! Component can be created.", file=sys.stderr)
+        
     except Exception as e:
         # Log error to stderr and continue
         print(f"A11y enforcer hook error: {str(e)}", file=sys.stderr)
