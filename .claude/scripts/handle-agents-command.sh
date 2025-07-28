@@ -1,0 +1,35 @@
+#!/bin/bash
+# Handle /agents command to show v3.0 agents
+
+# Check if the command matches /agents
+if [[ "$CLAUDE_USER_PROMPT" =~ ^/?agents ]]; then
+    echo "📊 Claude Code Boilerplate v3.0 - Agent System"
+    echo "============================================="
+    echo ""
+    echo "31 Total Agents Available:"
+    echo ""
+    echo "🔧 Technology Agents (7) - NEW in v3.0:"
+    echo "  • supabase-specialist - Supabase, RLS, auth, real-time"
+    echo "  • orm-specialist - Drizzle/Prisma schemas and migrations"
+    echo "  • analytics-engineer - DBT, BigQuery, RudderStack"
+    echo "  • ui-systems - Shadcn UI, Tailwind, Framer Motion"
+    echo "  • privacy-compliance - GDPR, CCPA, consent management"
+    echo "  • event-schema - Event architecture and schemas"
+    echo "  • platform-deployment - Vercel, GCP, edge functions"
+    echo ""
+    echo "👥 Role-Based Agents (24) - Core v2.8:"
+    echo "  Development: frontend, backend, senior-engineer, tdd-engineer"
+    echo "  Architecture: systems-architect, database-architect"
+    echo "  Quality: qa, code-reviewer, security, performance"
+    echo "  Specialized: form-builder, migration-specialist, refactoring-expert"
+    echo "  Support: documentation-writer, analyzer, mentor, researcher"
+    echo "  Management: pm-orchestrator, prd-writer, financial-analyst"
+    echo ""
+    echo "💡 Quick Commands:"
+    echo "  /at <task> - Analyze task and suggest agents"
+    echo "  /orch <task> - Orchestrate multiple agents"
+    echo "  /agent-health - Check all agents status"
+    echo "  /show-metrics - View performance metrics"
+    echo ""
+    echo "Use any agent directly or let task analysis recommend the best approach!"
+fi

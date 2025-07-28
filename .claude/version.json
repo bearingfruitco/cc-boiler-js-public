@@ -1,0 +1,28 @@
+{
+  "version": "4.0.0",
+  "codename": "Automation & Intelligence",
+  "release_date": "2025-07-28T15:59:55.688354Z",
+  "git_hash": "b3dbb6881713c99b24c4215b677487f469e69d39",
+  "highlights": [
+    "7 technology-specific agents",
+    "Intelligent orchestration",
+    "Performance monitoring",
+    "Safe rollback capability",
+    "v4 automation chains with phases",
+    "Conditional logic and auto-triggers",
+    "Performance budget enforcement",
+    "Accessibility-first development"
+  ],
+  "stats": {
+    "total_agents": 31,
+    "new_agents": 7,
+    "new_commands": 8,
+    "enhanced_chains": 10,
+    "performance_improvement": "15-22%",
+    "v4_features": {
+      "new_commands": 14,
+      "new_chains": 6,
+      "auto_triggers": 3
+    }
+  }
+}

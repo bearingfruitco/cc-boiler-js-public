@@ -1,23 +1,31 @@
-# Micro Task - Quick Task Creation
+# Micro Task - Quick Task Creation (TDD Enhanced)
+
+🧪 **MICRO-TESTS**: Even 5-minute tasks get test coverage!
 
 ## Command: micro-task
 **Aliases:** `mt`, `quick-task`, `tiny`
 
 ## Description
-Creates micro-tasks (< 5 minutes) for immediate execution. Complements the PRD task system by handling small, atomic changes that don't need full task tracking.
+Creates micro-tasks (< 5 minutes) with AUTOMATIC micro-test generation. Even the smallest changes get test coverage to prevent regressions.
 
 ## Usage
 ```bash
 /micro-task "Add loading spinner to submit button"
-/mt "Fix typo in header" --no-test
+# Automatically generates: test('shows loading spinner on submit')
+
+/mt "Fix typo in header" --no-tdd
+# ⚠️ Requires confirmation to skip tests
+
 /quick-task "Update color to blue-600" --component Button
+# Generates: test('button uses blue-600 color')
 ```
 
 ## Options
 - `--component [name]` - Specify component for focused work
-- `--no-test` - Skip testing for trivial changes
+- `--no-tdd` - Skip testing (requires confirmation)
 - `--chain` - Chain multiple micro-tasks
 - `--convert` - Convert to full task if grows beyond 5 min
+- `--quick-test` - Generate minimal test (1-2 assertions)
 
 ## Task Hierarchy
 
@@ -29,14 +37,14 @@ PRD Level (Strategic)
 
 ## When to Use Micro Tasks
 
-### Perfect For:
-- Typo fixes
-- Color/style adjustments
-- Adding simple props
-- Updating text content
-- Adding console.logs for debugging
-- Simple validation rules
-- Minor refactors
+### Perfect For (with micro-tests):
+- Typo fixes → `test('displays correct text')`
+- Color/style adjustments → `test('applies correct styles')`
+- Adding simple props → `test('handles new prop correctly')`
+- Updating text content → `test('shows updated content')`
+- Simple validation rules → `test('validates input correctly')`
+- Minor refactors → `test('maintains behavior after refactor')`
+- Console.logs for debugging → No test needed (use --no-tdd)
 
 ### Use Regular Tasks For:
 - New components
@@ -48,30 +56,59 @@ PRD Level (Strategic)
 
 ## Examples
 
-### Simple UI Fix
+### Simple UI Fix (with micro-test)
 ```bash
 /mt "Change button text from 'Submit' to 'Save Changes'"
-# Direct 1-line change, auto-verified
+
+# Auto-generates:
+test('button displays "Save Changes" text', () => {
+  render(<Button />);
+  expect(screen.getByRole('button')).toHaveTextContent('Save Changes');
+});
+
+# Then makes the 1-line change
 ```
 
-### Quick Style Update
+### Quick Style Update (with test)
 ```bash
 /micro-task "Add hover state to card component" --component Card
-# Adds transition, updates className
+
+# Auto-generates:
+test('card shows hover state', () => {
+  const { container } = render(<Card />);
+  const card = container.firstChild;
+  
+  fireEvent.mouseEnter(card);
+  expect(card).toHaveClass('hover:shadow-lg');
+});
+
+# Then adds the hover styles
 ```
 
-### Debugging Addition
+### Debugging Addition (no test needed)
 ```bash
-/mt "Add console.log to track form submission values"
-# Temporary addition for debugging
+/mt "Add console.log to track form submission values" --no-tdd
+
+# ⚠️  Skipping TDD for debug code
+# Confirm: Debug code doesn't need tests (y/N): y
+# ✓ Added console.log (remember to remove later!)
 ```
 
-### Chained Micro Tasks
+### Chained Micro Tasks (with test suite)
 ```bash
 /micro-task "Fix button alignment" --chain
 /mt "Update padding to p-4" --chain
 /mt "Center text with text-center" --chain
-# Executes all three in sequence
+
+# Generates combined test:
+test('button has correct alignment and spacing', () => {
+  render(<Button />);
+  const button = screen.getByRole('button');
+  
+  expect(button).toHaveClass('p-4');
+  expect(button).toHaveClass('text-center');
+  expect(button).toHaveClass('mx-auto'); // centered
+});
 ```
 
 ## Auto-Conversion
@@ -107,18 +144,50 @@ If a micro-task exceeds 5 minutes:
 ## Micro Task Rules
 
 - Max 5 minutes execution time
+- **TESTS GENERATED AUTOMATICALLY**
 - Single file changes preferred
 - No architectural decisions
 - No database migrations
 - No breaking changes
-- Auto-tested unless --no-test
+- Coverage maintained above 80%
 
 ## Tracking
 
 Micro-tasks are:
-- Logged in session history
-- Included in checkpoint saves
+- Logged with test coverage metrics
+- Included in TDD dashboard
 - Summarized in handoff docs
 - Not tracked as formal tasks
+- **Test coverage reported**
 
-This keeps your main task flow clean while handling the inevitable small fixes that arise during development.
+## Micro-Test Templates
+
+Common patterns auto-generated:
+
+```typescript
+// Text change
+test('displays correct text', () => {
+  expect(screen.getByText('new text')).toBeInTheDocument();
+});
+
+// Style change
+test('applies correct styles', () => {
+  expect(element).toHaveClass('expected-class');
+});
+
+// Prop addition
+test('handles new prop', () => {
+  render(<Component newProp={value} />);
+  // assertion based on prop effect
+});
+```
+
+## Why Micro-Tests Matter
+
+1. **Prevent Regressions** - Even small changes can break things
+2. **Document Intent** - Tests explain why the change was made
+3. **Fast Feedback** - Know immediately if something breaks
+4. **Compound Safety** - Many micro-changes = potential for bugs
+5. **Zero Overhead** - Tests generated automatically
+
+This ensures even the smallest changes are protected by tests!

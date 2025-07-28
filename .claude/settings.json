@@ -56,6 +56,10 @@
           },
           {
             "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/05c-tdd-context-loader.py"
+          },
+          {
+            "type": "command",
             "command": "python3 .claude/hooks/pre-tool-use/06-requirement-drift-detector.py"
           },
           {
@@ -97,6 +101,18 @@
           {
             "type": "command",
             "command": "python3 .claude/hooks/pre-tool-use/14-prd-clarity.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/19-auto-rls-generator.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/18-security-first-enforcer.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/17-performance-budget-enforcer.py"
           },
           {
             "type": "command",
@@ -153,6 +169,18 @@
           {
             "type": "command",
             "command": "python3 .claude/hooks/pre-tool-use/22-security-validator.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/21-docs-first-enforcer.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/22-api-docs-generator.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/23-a11y-enforcer.py"
           }
         ]
       }
@@ -161,6 +189,10 @@
       {
         "matcher": "",
         "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/post-tool-use/01-auto-error-recovery.py"
+          },
           {
             "type": "command",
             "command": "python3 .claude/hooks/post-tool-use/01-state-save.py"
@@ -344,6 +376,10 @@
       {
         "matcher": "",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/scripts/handle-agents-command-v3.sh"
+          },
           {
             "type": "command",
             "command": "python3 .claude/hooks/user-prompt-submit/01-tdd-suggester.py"

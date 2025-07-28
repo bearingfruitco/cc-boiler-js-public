@@ -91,37 +91,46 @@ def main():
                     if feature_name.lower() in prp_content:
                         prp_files.append(prp_file)
         
-        # If no tests exist, provide guidance
+        # If no tests exist, trigger auto-test-spawner
         if not test_files:
-            message = "🧪 TDD Workflow: Tests Required First\n\n"
-            message += f"Implementing: {feature_name}\n"
+            # Check if test generation is already in progress
+            task_file = Path(f".claude/tasks/tdd-generation.json")
+            if task_file.exists():
+                with open(task_file) as f:
+                    task = json.load(f)
+                    if task.get('context', {}).get('feature_name') == feature_name:
+                        # Already generating tests
+                        print(json.dumps({
+                            "decision": "block",
+                            "message": f"⏳ Test generation in progress for {feature_name}. Please wait..."
+                        }))
+                        sys.exit(0)
+            
+            # Delegate to auto-test-spawner hook
+            # The auto-test-spawner will handle agent invocation
+            message = "🧪 TDD Enforcer: Tests Required First\n\n"
+            message += f"Feature: {feature_name}\n"
             message += f"File: {file_path}\n\n"
             
             if prp_files:
                 message += f"Found PRP: {prp_files[0].name}\n\n"
             
-            message += "No tests found. Follow TDD workflow:\n\n"
-            message += "1. Create test file first:\n"
-            message += f"   Path: {Path(file_path).parent}/__tests__/{feature_name}.test.tsx\n\n"
+            message += "The auto-test-spawner will now:\n"
+            message += "1. Invoke the tdd-engineer agent\n"
+            message += "2. Generate comprehensive tests\n"
+            message += "3. Ensure TDD compliance\n\n"
             
-            message += "2. Write tests for:\n"
-            message += "   - Component renders without errors\n"
-            message += "   - Props are handled correctly\n"
-            message += "   - User interactions work\n"
-            message += "   - Edge cases are covered\n"
-            message += "   - Error states display properly\n\n"
+            message += "This is now handled automatically by the TDD automation system."
             
-            message += "3. Run tests (they should fail):\n"
-            message += f"   npm test {feature_name}.test\n\n"
-            
-            message += "4. Then implement to make tests pass\n\n"
-            
-            message += "Or use: /tdd-workflow " + feature_name
-            
-            # Output decision as per official docs
+            # Output decision - the auto-test-spawner will take over
             print(json.dumps({
                 "decision": "block",
-                "message": message
+                "message": message,
+                "metadata": {
+                    "trigger_auto_spawner": True,
+                    "feature_name": feature_name,
+                    "prp_found": bool(prp_files)
+                }
             }))
             sys.exit(0)
         

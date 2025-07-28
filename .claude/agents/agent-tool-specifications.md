@@ -171,6 +171,13 @@ color: amber
 | pii-guardian | Read-only | Scanning only |
 | report-generator | Implementation | Report creation |
 | financial-analyst | Read-only | Analysis |
+| supabase-specialist | Full (omit) | Supabase ecosystem management |
+| orm-specialist | Implementation | Database schema and migrations |
+| analytics-engineer | Implementation + Web | Analytics pipeline setup |
+| ui-systems | Implementation | Advanced UI components |
+| privacy-compliance | Implementation + Web | Compliance implementation |
+| event-schema | Implementation | Event architecture design |
+| platform-deployment | Full (omit) | Deployment and infrastructure |
 
 ## General Rules
 

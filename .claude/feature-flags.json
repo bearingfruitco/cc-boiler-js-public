@@ -1,0 +1,69 @@
+{
+  "v3_features": {
+    "technology_agents": {
+      "enabled": true,
+      "description": "7 new technology-specific agents",
+      "agents": [
+        "supabase-specialist",
+        "orm-specialist",
+        "analytics-engineer",
+        "ui-systems",
+        "privacy-compliance",
+        "event-schema",
+        "platform-deployment"
+      ]
+    },
+    "orchestration": {
+      "enabled": true,
+      "description": "Multi-agent orchestration system",
+      "commands": ["analyze-task", "orchestrate", "share-context"]
+    },
+    "monitoring": {
+      "enabled": true,
+      "description": "Performance monitoring and health checks",
+      "commands": ["agent-health", "show-metrics"]
+    },
+    "mcp_integration": {
+      "enabled": false,
+      "description": "Model Context Protocol integration",
+      "reason": "POC phase - enable after testing"
+    },
+    "enhanced_chains": {
+      "enabled": true,
+      "description": "Updated workflow chains with v3.0 agents",
+      "affected_chains": [
+        "feature-complete",
+        "daily-startup",
+        "performance-optimization-chain",
+        "feature-development-chain"
+      ]
+    },
+    "rollback_safety": {
+      "enabled": true,
+      "description": "Safe rollback capability",
+      "scripts": ["rollback-v3-enhanced.sh", "create-v2-backup.sh"]
+    }
+  },
+  "rollout_strategy": {
+    "phase_1": {
+      "name": "Dev Environment",
+      "features": ["all"],
+      "start_date": "2024-01-15"
+    },
+    "phase_2": {
+      "name": "Staging",
+      "features": ["all"],
+      "start_date": "2024-01-22"
+    },
+    "phase_3": {
+      "name": "Production",
+      "features": ["all_except_mcp"],
+      "start_date": "2024-01-29"
+    }
+  },
+  "feature_control": {
+    "disable_v3_agents": "export CLAUDE_DISABLE_V3_AGENTS=1",
+    "force_v2_mode": "export CLAUDE_FORCE_V2_MODE=1",
+    "debug_orchestration": "export CLAUDE_DEBUG_ORCHESTRATION=1"
+  }
+}

@@ -126,5 +126,10 @@
   "worktree-parallel": "worktree/worktree-parallel.md",
   "prp-chain": "PRPs/prp-chain.md",
   "prp-metrics": "PRPs/prp-metrics.md",
-  "create-worktree": "git-operations/create-worktree.md"
+  "create-worktree": "git-operations/create-worktree.md",
+  "tdd-dashboard": "tdd-dashboard.md",
+  "tdd-status": "tdd-status.md",
+  "tdd-coverage": "tdd-coverage.md",
+  "tdd-agents": "tdd-agents.md",
+  "v4-status": "v4-status.md"
 }

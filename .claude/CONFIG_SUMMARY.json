@@ -1,0 +1,13 @@
+{
+  "generated_at": "2025-07-28T16:03:34.918952",
+  "version": "4.0.0",
+  "total_commands": 133,
+  "total_aliases": 283,
+  "total_chains": 48,
+  "total_hooks": 83,
+  "enabled_features": [
+    "v3_features",
+    "rollout_strategy",
+    "feature_control"
+  ]
+}

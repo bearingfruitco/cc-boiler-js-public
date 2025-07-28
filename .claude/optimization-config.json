@@ -1,0 +1,35 @@
+{
+  "applied_at": "2025-07-28T09:11:25.216879",
+  "optimizations": {
+    "cache_common_queries": {
+      "description": "Add caching for frequently used patterns",
+      "config": {
+        "cache_ttl": 300,
+        "cache_patterns": [
+          "vercel deployment status",
+          "edge function configuration",
+          "domain settings"
+        ]
+      }
+    },
+    "reduce_context_size": {
+      "description": "Optimize context window usage",
+      "config": {
+        "max_context_tokens": 2000,
+        "summarize_after": 1500
+      }
+    },
+    "concise_prompts": {
+      "description": "Use more concise prompt engineering",
+      "config": {
+        "response_format": "concise",
+        "max_response_tokens": 1000
+      }
+    }
+  },
+  "affected_agents": [
+    "platform-deployment",
+    "performance",
+    "analytics-engineer"
+  ]
+}

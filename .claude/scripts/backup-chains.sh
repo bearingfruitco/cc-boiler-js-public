@@ -1,0 +1,1 @@
+cp .claude/chains.json .claude/backups/chains.v3-pre-enhance.json

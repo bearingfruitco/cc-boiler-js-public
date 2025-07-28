@@ -59,6 +59,27 @@ echo -e "\n## ✅ Quick Checks"
 echo "Design: $(grep 'Design:' .claude/context/current.md | tail -1)"
 echo "Tests: $(npm test --silent 2>&1 | grep -E 'passed|failed' | tail -1)"
 
+# 4a. TDD Status Check (NEW)
+echo -e "\n## 🧪 TDD Status"
+# Check for features without tests
+UNTESTED=$(find components -name "*.tsx" -o -name "*.ts" | while read file; do
+  test_file="${file%.*}.test.${file##*.}"
+  [ ! -f "$test_file" ] && echo "  ❌ $(basename $file)"
+done)
+
+if [ -z "$UNTESTED" ]; then
+  echo "✅ All components have tests!"
+else
+  echo "⚠️  Components missing tests:"
+  echo "$UNTESTED"
+  echo ""
+  echo "Run: /chain atdd [component] to generate tests"
+fi
+
+# Show coverage
+COVERAGE=$(cat .claude/logs/dashboards/current.json 2>/dev/null | jq -r '.coverage' || echo "Unknown")
+echo "📊 Coverage: $COVERAGE"
+
 # 5. Branch Awareness Check (NEW)
 echo -e "\n## 🌿 Branch Status"
 BRANCH_REGISTRY=$(cat .claude/branch-state/branch-registry.json 2>/dev/null || echo '{}')
@@ -376,17 +397,21 @@ Location: components/auth/LoginForm.tsx:145
 Copy and run:
 cursor components/auth/LoginForm.tsx:145 && /validate-design
 
-## 🆕 New Safety Features Active
+## 🆕 Active Features
+- 🔴 **TDD MANDATORY** - All features require tests first
 - ✅ Truth Enforcement - Protecting established values
 - ✅ Deletion Guard - Warning before removals
 - ✅ Hydration Safety - Catching SSR errors
 - ✅ Import Validation - Fixing path issues
+- 🧪 Auto Test Generation - Tests created automatically
 
 ## 📋 Quick Commands
+- `/tdd-dashboard` - View TDD progress & metrics
+- `/chain atdd` - Auto TDD implementation
 - `/facts` - See protected values
 - `/exists [name]` - Check before creating
 - `/chain safe-commit` - Validate before commit
-- `/help new` - See all new features
+- `/help tdd` - See TDD features
 ```
 
 This makes resuming work effortless - just run `/smart-resume` and you're back in context!

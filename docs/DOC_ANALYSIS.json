@@ -1,0 +1,106 @@
+{
+  "total_files": 164,
+  "directories": 27,
+  "overlaps": {
+    "workflow_overlap": [
+      "workflow",
+      "workflows"
+    ],
+    "setup_overlap": [
+      "setup",
+      "guides",
+      "claude"
+    ],
+    "updates_overlap": [
+      "updates",
+      "releases",
+      "roadmap"
+    ],
+    "troubleshooting_overlap": [
+      "troubleshooting",
+      "claude-fixes",
+      "operations"
+    ]
+  },
+  "duplicates": {
+    "system-overview": [
+      "root/SYSTEM_OVERVIEW.md",
+      "technical/SYSTEM_OVERVIEW.md"
+    ],
+    "branch-management-integration": [
+      "root/branch-management-integration.md",
+      "root/branch-management-integration-v2.md"
+    ],
+    "readme": [
+      "root/README.md",
+      "releases/README.md"
+    ]
+  },
+  "consolidation_plan": {
+    "proposed_structure": {
+      "setup": {
+        "description": "Getting started guides",
+        "merge_from": [
+          "setup",
+          "guides/quick-start",
+          "claude/getting-started"
+        ],
+        "key_docs": [
+          "NEW_PROJECT_GUIDE.md",
+          "EXISTING_PROJECT_GUIDE.md",
+          "CONFIGURATION_GUIDE.md"
+        ]
+      },
+      "workflow": {
+        "description": "Daily workflows and command flows",
+        "merge_from": [
+          "workflow",
+          "workflows"
+        ],
+        "key_docs": [
+          "MASTER_WORKFLOW_GUIDE.md",
+          "COMMAND_REFERENCE.md",
+          "PRP_WORKFLOW.md"
+        ]
+      },
+      "reference": {
+        "description": "Technical reference and API docs",
+        "merge_from": [
+          "technical",
+          "architecture",
+          "modules"
+        ],
+        "key_docs": [
+          "SYSTEM_ARCHITECTURE.md",
+          "HOOK_REFERENCE.md",
+          "COMMAND_REFERENCE.md"
+        ]
+      },
+      "guides": {
+        "description": "Feature-specific guides",
+        "merge_from": [
+          "guides",
+          "features",
+          "integrations"
+        ],
+        "key_docs": [
+          "SECURITY_GUIDE.md",
+          "ASYNC_GUIDE.md",
+          "TESTING_GUIDE.md"
+        ]
+      },
+      "troubleshooting": {
+        "description": "Fixes and solutions",
+        "merge_from": [
+          "troubleshooting",
+          "claude-fixes",
+          "operations"
+        ],
+        "key_docs": [
+          "COMMON_ISSUES.md",
+          "ERROR_REFERENCE.md"
+        ]
+      }
+    }
+  }
+}

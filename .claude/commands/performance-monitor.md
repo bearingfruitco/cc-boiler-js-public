@@ -1,207 +1,204 @@
-# Performance Monitor
+# /performance-monitor
 
-Track and optimize performance metrics during development.
+Real-time performance monitoring and budget enforcement for your application.
 
-## Arguments:
-- $ACTION: check|baseline|compare|report
-- $TARGET: build|runtime|lighthouse|all
-
-## Why This Command:
-- Catch performance regressions early
-- Track metrics per feature
-- Ensure mobile performance
-- Maintain performance budget
-
-## Steps:
-
-### Action: CHECK
-Quick performance check:
-
-```bash
-# Build metrics
-echo "## ⚡ Performance Check"
-echo ""
-
-# Bundle size
-echo "### 📦 Bundle Size"
-BUNDLE_SIZE=$(npm run build 2>&1 | grep -E "First Load JS" | \
-  awk '{print $NF}')
-echo "First Load JS: $BUNDLE_SIZE"
-
-LIMIT="75kB"
-if [[ "$BUNDLE_SIZE" > "$LIMIT" ]]; then
-  echo "❌ Exceeds limit ($LIMIT)"
-  echo "Run: npm run analyze"
-else
-  echo "✅ Under limit"
-fi
-
-# Component count
-echo -e "\n### 🧩 Component Metrics"
-COMPONENTS=$(find components -name "*.tsx" | wc -l)
-echo "Total components: $COMPONENTS"
-
-# Image optimization
-echo -e "\n### 🖼️ Images"
-UNOPTIMIZED=$(find public -name "*.jpg" -o -name "*.png" | \
-  xargs -I {} identify {} | grep -c "sRGB")
-echo "Unoptimized images: $UNOPTIMIZED"
-
-# Runtime checks
-echo -e "\n### 🏃 Runtime Performance"
-cat > perf-check.js << 'EOF'
-// Check for common issues
-const issues = [];
-
-// Large lists without virtualization
-if (document.querySelectorAll('li').length > 100) {
-  issues.push('Large list detected - consider virtualization');
-}
-
-// Unoptimized images
-const images = Array.from(document.querySelectorAll('img'));
-images.forEach(img => {
-  if (!img.loading || img.loading !== 'lazy') {
-    issues.push(`Image not lazy loaded: ${img.src}`);
-  }
-});
-
-console.log(issues);
-EOF
+## Usage
+```
+/performance-monitor <action> [options]
 ```
 
-### Action: BASELINE
-Create performance baseline:
+## Actions
 
-```bash
-# Run Lighthouse
-npx lighthouse http://localhost:3000 \
-  --output=json \
-  --output-path=.claude/perf/baseline.json \
-  --only-categories=performance,accessibility,best-practices
-
-# Extract key metrics
-METRICS=$(cat .claude/perf/baseline.json | jq '{
-  performance: .categories.performance.score,
-  fcp: .audits["first-contentful-paint"].numericValue,
-  lcp: .audits["largest-contentful-paint"].numericValue,
-  cls: .audits["cumulative-layout-shift"].numericValue,
-  fid: .audits["max-potential-fid"].numericValue
-}')
-
-# Save with issue context
-echo "$METRICS" > .claude/perf/baseline-issue-${ISSUE}.json
-
-echo "✅ Baseline saved for Issue #$ISSUE"
+### `check` - Check current performance
 ```
-
-### Action: COMPARE
-Compare against baseline:
-
-```bash
-# Run current check
-npx lighthouse http://localhost:3000 \
-  --output=json \
-  --output-path=.claude/perf/current.json \
-  --only-categories=performance
-
-# Compare
-BASELINE=$(cat .claude/perf/baseline-issue-${ISSUE}.json)
-CURRENT=$(cat .claude/perf/current.json | jq '.categories.performance.score')
-
-echo "## 📊 Performance Comparison"
-echo ""
-echo "Baseline: $(echo $BASELINE | jq '.performance')"
-echo "Current: $CURRENT"
-echo ""
-
-# Detailed comparison
-node -e "
-const baseline = $BASELINE;
-const current = require('.claude/perf/current.json');
-
-const metrics = ['fcp', 'lcp', 'cls', 'fid'];
-metrics.forEach(metric => {
-  const baseValue = baseline[metric];
-  const currValue = current.audits[metric]?.numericValue || 0;
-  const diff = ((currValue - baseValue) / baseValue * 100).toFixed(1);
-  const emoji = diff > 10 ? '❌' : diff > 0 ? '⚠️' : '✅';
-  console.log(`${emoji} ${metric}: ${diff}%`);
-});
-"
+/performance-monitor check
 ```
+Shows current performance metrics against budgets.
 
-### Action: REPORT
-Generate performance report:
-
-```markdown
-## 🚀 Performance Report - Issue #23
-
-### Summary
-- Performance Score: 92/100 (↓ 3 from baseline)
-- Build Size: 72kB (↑ 5kB)
-- Status: ⚠️ Minor regression
-
-### Core Web Vitals
-| Metric | Baseline | Current | Change | Status |
-|--------|----------|---------|---------|--------|
-| FCP | 1.2s | 1.3s | +8.3% | ⚠️ |
-| LCP | 2.1s | 2.0s | -4.8% | ✅ |
-| CLS | 0.05 | 0.05 | 0% | ✅ |
-| FID | 45ms | 48ms | +6.7% | ✅ |
-
-### Recommendations
-1. **FCP Regression**: Check new fonts/CSS
-2. **Bundle Size**: Run bundle analyzer
-3. **Images**: 2 images need optimization
-
-### Component Performance
-- LoginForm: 45ms render (acceptable)
-- RegisterForm: 52ms render (investigate)
-
-### Next Steps
-```bash
-# Analyze bundle
-npm run analyze
-
-# Optimize images
-npm run optimize:images
+### `baseline` - Create performance baseline
 ```
+/performance-monitor baseline
 ```
+Captures current metrics as baseline for comparison.
 
-## Performance Budget Config:
+### `compare` - Compare against baseline
+```
+/performance-monitor compare [baseline-name]
+```
+Shows performance changes since baseline.
 
+### `report` - Generate performance report
+```
+/performance-monitor report
+```
+Creates detailed performance analysis.
+
+### `overlay` - Add performance overlay
+```
+/performance-monitor overlay
+```
+Adds real-time performance overlay to your app.
+
+## What Gets Monitored
+
+### 1. Bundle Size
+- JavaScript bundle size
+- CSS bundle size
+- Code splitting effectiveness
+- Tree shaking efficiency
+
+### 2. Component Performance
+- Render time per component
+- Re-render frequency
+- Memory usage
+- Props drilling depth
+
+### 3. API Performance
+- Response times
+- Payload sizes
+- Cache hit rates
+- Error rates
+
+### 4. Core Web Vitals
+- Largest Contentful Paint (LCP)
+- First Input Delay (FID)
+- Cumulative Layout Shift (CLS)
+- Time to First Byte (TTFB)
+
+## Performance Budgets
+
+Default budgets (configurable in `.claude/performance-budgets.json`):
 ```json
 {
-  "performance": {
-    "budgets": {
-      "firstLoad": "75kB",
-      "performance": 90,
-      "fcp": 1500,
-      "lcp": 2500,
-      "cls": 0.1,
-      "fid": 100
+  "budgets": {
+    "bundle": {
+      "max_size_kb": 500,
+      "warning_size_kb": 400
     },
-    "monitoring": {
-      "enabled": true,
-      "failBuild": true,
-      "warnOnly": false
+    "component_render": {
+      "max_ms": 50,
+      "warning_ms": 30
+    },
+    "api_response": {
+      "max_ms": 200,
+      "warning_ms": 100
+    },
+    "page_load": {
+      "max_ms": 3000,
+      "warning_ms": 2000
     }
   }
 }
 ```
 
-## Integration:
+## Real-Time Overlay
 
-```bash
-# During development
-/performance-monitor check
-> "Bundle: 72kB ✅"
-> "Performance: 92/100 ✅"
-
-# Before PR
-/feature-workflow complete 23
-> "Running performance check..."
-> "❌ FCP regression detected"
-> "Fix before creating PR"
+The performance overlay shows:
 ```
+┌─── Performance Monitor ─────────────┐
+│ Component      Render   Memory  Alert│
+│ Header         12ms     2.1MB    ✅  │
+│ UserList       234ms    15.2MB   ⚠️  │
+│ Dashboard      45ms     8.7MB    ✅  │
+│                                      │
+│ Bundle Size: 342KB / 500KB          │
+│ API Avg: 89ms                       │
+│ FPS: 60                             │
+└──────────────────────────────────────┘
+```
+
+## Automated Optimizations
+
+When performance issues are detected:
+
+1. **Bundle Size Issues**
+   - Suggests code splitting points
+   - Identifies large dependencies
+   - Recommends lazy loading
+   - Shows tree-shaking opportunities
+
+2. **Render Performance Issues**
+   - Identifies expensive renders
+   - Suggests memo opportunities
+   - Detects unnecessary re-renders
+   - Recommends virtualization
+
+3. **API Performance Issues**
+   - Suggests caching strategies
+   - Identifies N+1 queries
+   - Recommends pagination
+   - Shows parallel fetch opportunities
+
+## Integration with CI/CD
+
+Add to your CI pipeline:
+```yaml
+- name: Performance Check
+  run: |
+    /performance-monitor baseline
+    # Run tests
+    /performance-monitor compare
+```
+
+## Example Workflow
+
+1. **Set Baseline**
+   ```
+   /performance-monitor baseline
+   ```
+
+2. **Make Changes**
+   Implement new features or optimizations
+
+3. **Check Impact**
+   ```
+   /performance-monitor compare
+   ```
+
+4. **Get Optimization Suggestions**
+   ```
+   /performance-monitor report
+   ```
+
+## Performance Tracking Code
+
+The command automatically adds performance tracking:
+
+```typescript
+// Automatic performance measurement
+export function UserList() {
+  // Added by performance monitor
+  usePerformanceMeasure('UserList');
+  
+  return (
+    // Your component code
+  );
+}
+```
+
+## Alerts and Notifications
+
+Configure alerts in `.claude/performance-budgets.json`:
+```json
+{
+  "alerts": {
+    "enabled": true,
+    "channels": {
+      "console": true,
+      "overlay": true,
+      "slack": "webhook-url",
+      "email": "team@example.com"
+    },
+    "thresholds": {
+      "critical": 150,  // % of budget
+      "warning": 80     // % of budget
+    }
+  }
+}
+```
+
+## Related Commands
+- `/optimize` - Run performance optimizations
+- `/bundle-analyze` - Analyze bundle composition
+- `/lighthouse` - Run Lighthouse audit
+- `/profile` - Profile specific components

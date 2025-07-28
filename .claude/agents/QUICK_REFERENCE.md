@@ -1,6 +1,6 @@
 # Sub-Agent Quick Reference Guide
 
-## 🚀 Available Sub-Agents (24 total)
+## 🚀 Available Sub-Agents (31 total)
 
 Your Claude Code system includes 24 specialized sub-agents that can be invoked to handle specific tasks with expertise.
 
@@ -66,6 +66,15 @@ use [agent-name] subagent to [task description]
 - **form-builder-specialist** (`forms`) - Advanced forms
 - **refactoring-expert** (`refactor`) - Code refactoring
 - **financial-analyst** (`fin`) - Financial analysis
+
+### Technology Stack Specialists (7) - NEW in v3.0!
+- **supabase-specialist** (`sup`/`supabase`) - Supabase ecosystem expert
+- **orm-specialist** (`orm`/`drizzle`/`prisma`) - Database ORM master
+- **analytics-engineer** (`analytics`/`dbt`) - DBT + BigQuery + RudderStack
+- **ui-systems** (`ui`/`shadcn`) - Shadcn UI + Tailwind + Framer Motion
+- **privacy-compliance** (`privacy`/`gdpr`) - GDPR/CCPA/TCPA compliance
+- **event-schema** (`schema`/`events`) - Event architecture & schemas
+- **platform-deployment** (`deploy`/`vercel`/`gcp`) - Vercel & GCP deployment
 
 ## 💡 Common Workflows
 
