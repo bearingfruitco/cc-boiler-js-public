@@ -48,6 +48,7 @@ Show context-aware help for all commands and workflows.
 - `/chain safe-commit` - Validate before committing (facts → design → lint → test)
 - `/chain field-sync` - Regenerate all field-based code
 - `/chain pre-component` - Check before creating components
+- `/chain architecture-design` (ad) - Design complete system architecture from PRD
 
 ## 📚 Command Categories
 
@@ -64,6 +65,8 @@ Show context-aware help for all commands and workflows.
 ### 2. PRD & Task Workflow
 ```bash
 /create-prd (prd)         # Generate Product Requirements (with clarity linting)
+/create-architecture (arch) # NEW: Design system architecture from PRD
+/validate-architecture    # NEW: Validate architecture completeness
 /prd-tests                # NEW: Generate tests from acceptance criteria
 /generate-tasks (gt)      # Break PRD into tasks
 /process-tasks (pt)       # Work through tasks
@@ -135,37 +138,47 @@ Show context-aware help for all commands and workflows.
 gh issue create --title "User Dashboard"
 /context-profile create "dashboard-work"
 
-# 2. Start feature
+# 2. Create PRD
+/prd user-dashboard
+
+# 3. Design architecture (NEW!)
+/create-architecture      # Interactive design
+# OR
+/chain architecture-design # Automated with agents
+
+# 4. Generate issues from PRD + Architecture
+/gi PROJECT
+
+# 5. Start feature
 /fw start 23
 
-# 3. Check what exists
+# 6. Check what exists
 /facts                    # See constraints
 /exists Dashboard         # Check if exists
 
-# 4. Create PRD & cache docs
-/prd user-dashboard
+# 7. Cache relevant docs
 /doc-cache cache "React Dashboard patterns"
 
-# 5. Generate and process tasks
+# 8. Generate and process tasks
 /gt user-dashboard
 /pt user-dashboard
 
-# 6. Stage validation
+# 9. Stage validation
 /stage-validate check 1   # Validate foundation
 
-# 7. Safe development
+# 10. Safe development
 /chain pre-component      # Before creating
 /cc feature Dashboard     # Create component
 /bug-track add "Issue with props" # Track any bugs
 
-# 8. Complete stage
+# 11. Complete stage
 /stage-validate require 1 # Ensure stage complete
 /chain safe-commit       # Before committing
 
-# 9. Check PR status
+# 12. Check PR status
 /pr-feedback             # Quick status check
 
-# 10. Complete feature
+# 13. Complete feature
 /btf dashboard
 /fw complete 23
 ```
@@ -251,11 +264,11 @@ CONTEXT MANAGEMENT      DAILY ESSENTIALS        STAGE CONTROL
 /bt list               /facts - constraints    /sv require 2
 /dc search "hooks"     /ts    - tasks         /sv status
 
-PRD WORKFLOW           TESTING                 FIELD REGISTRY
-/prd   - create PRD    /btf - browser test    /fg schemas
-/gt    - gen tasks     /tr  - unit test       /fg factories  
-/pt    - process       /afs - security        /fg masking
-/sv    - validate      /bt  - track bugs      
+PRD WORKFLOW           ARCHITECTURE           FIELD REGISTRY
+/prd   - create PRD    /arch - design system  /fg schemas
+/gt    - gen tasks     /va   - validate arch  /fg factories  
+/pt    - process       /ad   - arch chain     /fg masking
+/gi    - gen issues    
 ```
 
 ## 🚀 Getting More Help

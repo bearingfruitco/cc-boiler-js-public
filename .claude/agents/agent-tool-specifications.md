@@ -195,3 +195,44 @@ As you add more MCPs, update agents that would benefit:
 - Testing MCPs → qa-test-engineer  
 - Documentation MCPs → technical-mentor-guide
 - Cloud provider MCPs → backend-reliability-engineer
+
+## Agent Integration with Architecture Enhancement System
+
+### PRP Writer Agent
+```yaml
+---
+name: prp-writer
+description: |
+  Generates and regenerates PRPs from architecture specifications.
+  Used by: /generate-component-prps, /prp-sync
+  Integrates with: Architecture change tracking system
+tools: read_file, write_file, create_file, search_files
+color: blue
+---
+```
+
+### Documentation Writer Agent  
+```yaml
+---
+name: documentation-writer
+description: |
+  Creates and updates documentation automatically.
+  Used by: Auto documentation updater hooks
+  Preserves: Manual documentation sections
+tools: read_file, write_file, create_file, search_files
+color: purple
+---
+```
+
+### System Architect Agent
+```yaml
+---
+name: system-architect
+description: |
+  Analyzes architecture changes and impacts.
+  Used by: Architecture change detection
+  Creates: ADRs for major changes
+tools: read_file, write_file, create_file, search_files, list_directory
+color: gold
+---
+```

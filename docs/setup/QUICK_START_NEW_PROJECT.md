@@ -74,6 +74,7 @@ Run these commands in Claude Code:
 ```bash
 /init                  # Initialize the system
 /init-project          # Setup YOUR project (answer questions)
+/create-architecture   # Design system architecture (NEW!)
 /gi PROJECT            # Generate GitHub issues
 ```
 

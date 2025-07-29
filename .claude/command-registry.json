@@ -1,4 +1,6 @@
 {
+  "create-architecture": "create-architecture.md",
+  "validate-architecture": "validate-architecture.md",
   "create-prd": "create-prd.md",
   "task-board": "task-board.md",
   "context-analysis": "context-analysis.md",
@@ -131,5 +133,7 @@
   "tdd-status": "tdd-status.md",
   "tdd-coverage": "tdd-coverage.md",
   "tdd-agents": "tdd-agents.md",
-  "v4-status": "v4-status.md"
+  "v4-status": "v4-status.md",
+  "architecture-viz": "architecture-viz.md",
+  "generate-component-prps": "generate-component-prps.md"
 }

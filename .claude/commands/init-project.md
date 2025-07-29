@@ -93,9 +93,15 @@ Claude: Creating project documentation in YOUR repo...
 ✓ Created docs/project/BUSINESS_RULES.md
 ✓ Created docs/project/TECH_DECISIONS.md
 ✓ Updated .claude/project-config.json
-✓ Ready to generate GitHub issues!
 
-Next step: Run `/gi PROJECT` to create issues in YOUR repo
+🏗️  Next step: Design your system architecture!
+
+Before generating issues, you should design the technical architecture:
+1. Run `/create-architecture` (or `/arch`) to design the system
+2. Or use `/chain architecture-design` for automated design
+3. Then run `/gi PROJECT` to create implementation issues
+
+This ensures proper technical planning before coding begins!
 ```
 
 ## Project Config Format

@@ -208,6 +208,55 @@
         "task-status"
       ]
     },
+    "architecture-design": {
+      "description": "Design complete system architecture from PRD",
+      "steps": [
+        {
+          "command": "sequential-thinking",
+          "args": "analyze PRD and extract technical requirements",
+          "output": "technical-requirements.md"
+        },
+        {
+          "agent": "system-architect",
+          "task": "Design system components, data models, and API structure based on requirements",
+          "output": "system-design.md"
+        },
+        {
+          "command": "create-architecture",
+          "interactive": true,
+          "description": "Interview for technical preferences and generate architecture docs"
+        },
+        {
+          "agent": "database-architect",
+          "task": "Design optimal database schema with relationships and indexes",
+          "output": "database-schema.md"
+        },
+        {
+          "agent": "security",
+          "task": "Create security architecture and threat model",
+          "output": "security-design.md"
+        },
+        {
+          "command": "create-prp",
+          "args": "database setup and migrations",
+          "output": "database-prp.md"
+        },
+        {
+          "command": "create-prp",
+          "args": "api implementation",
+          "output": "api-prp.md"
+        },
+        {
+          "command": "create-prp",
+          "args": "frontend architecture",
+          "output": "frontend-prp.md"
+        },
+        {
+          "command": "validate-architecture",
+          "description": "Validate architecture completeness and consistency"
+        }
+      ]
+    },
     "task-sprint": {
       "description": "Work through tasks systematically",
       "commands": [
@@ -1025,6 +1074,7 @@
     "dr": "daily-report",
     "ef": "error-fix",
     "fp": "feature-planning",
+    "ad": "architecture-design",
     "ts": "task-sprint",
     "tr": "task-review",
     "cm": "context-maintenance",

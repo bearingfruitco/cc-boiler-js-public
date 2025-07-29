@@ -1,0 +1,93 @@
+{
+  "comment": "Cleaned up aliases - maximum 2 per command, preferring short memorable ones",
+  
+  "core_workflow": {
+    "sr": "smart-resume",
+    "cc": "create-component", 
+    "vd": "validate-design",
+    "prd": "create-prd",
+    "fw": "feature-workflow",
+    "cp": "checkpoint",
+    "gt": "generate-tasks",
+    "orch": "orchestrate",
+    "grade": "stage-validate-grade"
+  },
+  
+  "task_management": {
+    "tb": "task-board",
+    "ts": "task-status",
+    "tc": "task-checkpoint",
+    "pt": "process-tasks",
+    "at": "analyze-task",
+    "mt": "micro-task"
+  },
+  
+  "git_and_issues": {
+    "gi": "generate-issues",
+    "cti": "capture-to-issue",
+    "gs": "git-status",
+    "sync": "sync-main",
+    "wt": "worktree"
+  },
+  
+  "testing_and_quality": {
+    "tr": "test-runner",
+    "tdd": "tdd-workflow",
+    "qa": "use qa-test-engineer subagent to",
+    "lint": "lint-check",
+    "specs": "spec-patterns"
+  },
+  
+  "security": {
+    "sc": "security-check",
+    "rls": "generate-rls",
+    "ctf": "create-tracked-form",
+    "sca": "create-secure-api",
+    "scf": "create-secure-form",
+    "audit": "security-audit"
+  },
+  
+  "agents": {
+    "spawn": "spawn-agent",
+    "pm": "use product-manager-orchestrator subagent to",
+    "fe": "use frontend-ux-specialist subagent to",
+    "be": "use backend-reliability-engineer subagent to",
+    "sec": "use security-threat-analyst subagent to",
+    "db": "use database-architect subagent to",
+    "ui": "use ui-systems subagent to"
+  },
+  
+  "prp_workflow": {
+    "prp": "create-prp",
+    "prp-exec": "prp-execute",
+    "prp-status": "prp-status",
+    "prp-validate": "prp-validate"
+  },
+  
+  "thinking_modes": {
+    "ut": "ultra-think",
+    "vp": "visual-plan",
+    "tt": "think-through",
+    "compress": "compress-context"
+  },
+  
+  "utilities": {
+    "h": "help",
+    "ws": "work-status",
+    "td": "todo",
+    "ctx": "share-context",
+    "deps": "dependency-check",
+    "pin": "pin-requirements",
+    "metrics": "show-metrics"
+  },
+  
+  "commonly_used_full_names": {
+    "checkpoint": "checkpoint",
+    "help": "help",
+    "init": "init-project",
+    "bug-track": "bug-track",
+    "research": "research",
+    "onboard": "onboard",
+    "persona": "persona"
+  }
+}

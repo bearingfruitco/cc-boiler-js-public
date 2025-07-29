@@ -1,4 +1,5 @@
-# ARCH Alias
+# Architecture
 
-Use the use systems-architect subagent to
-$ARGUMENTS
+Alias for `/create-architecture` - Designs system architecture from PRD.
+
+See: `/create-architecture`

@@ -1,8 +1,8 @@
 # Sub-Agent Quick Reference Guide
 
-## 🚀 Available Sub-Agents (31 total)
+## 🚀 Available Sub-Agents (32 total)
 
-Your Claude Code system includes 24 specialized sub-agents that can be invoked to handle specific tasks with expertise.
+Your Claude Code system includes 32 specialized sub-agents that can be invoked to handle specific tasks with expertise.
 
 ## 📍 Quick Start
 
@@ -27,6 +27,7 @@ use [agent-name] subagent to [task description]
 | `tdd` | tdd-engineer | Test-driven development workflow |
 | `cr` | code-reviewer | Code reviews, PR analysis |
 | `doc` | documentation-writer | Technical docs, API references |
+| `prp` | prp-writer | Product requirement prompts (PRPs) |
 | `pm` | product-manager-orchestrator | Multi-agent coordination |
 
 ## 🤖 All Sub-Agents by Category
@@ -56,9 +57,10 @@ use [agent-name] subagent to [task description]
 - **migration-specialist** (`migrate`) - Data migrations
 - **automation-workflow-engineer** (`auto`) - Workflow automation
 
-### Documentation & Planning (4)
+### Documentation & Planning (5)
 - **documentation-writer** (`doc`) - Technical documentation
 - **prd-writer** (`prd-writer`) - Product requirements
+- **prp-writer** (`prp`) - Product requirement prompts (PRPs)
 - **report-generator** (`report`) - Comprehensive reports
 - **pm-orchestrator** (`pm`) - Project coordination
 
@@ -231,6 +233,7 @@ Need to write tests? → qa or tdd
 Need security review? → sec
 Need code review? → cr
 Need documentation? → doc
+Need to write PRPs? → prp
 Need system design? → arch
 Need to coordinate? → pm
 Not sure? → pm orchestrate and describe your need

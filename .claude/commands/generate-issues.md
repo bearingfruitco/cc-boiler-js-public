@@ -12,6 +12,15 @@ Converts your PROJECT_PRD.md or feature PRDs into GitHub issues in the CORRECT r
 /gi user-dashboard          # Example
 ```
 
+## Prerequisites
+
+⚠️ **Architecture Required**: Before generating issues, you must design your system architecture:
+- Run `/create-architecture` or `/arch` to design the system
+- Or use `/chain architecture-design` for automated design
+- This ensures proper technical planning before implementation
+
+The command will check for architecture docs and block if missing.
+
 ## Repository Safety Check
 
 Before creating any issues, the command now:

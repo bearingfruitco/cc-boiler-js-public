@@ -147,64 +147,64 @@ def main():
         tool_use = input_data.get('tool_use', {})
         if not tool_use:
             sys.exit(0)
-    
-    # Extract command information
-    cmd_info = extract_command_info(tool_use)
-    
-    # Only log Claude commands and important operations
-    if cmd_info['type'] not in ['claude_command', 'file_operation']:
-        sys.exit(0)
+        
+        # Extract command information
+        cmd_info = extract_command_info(tool_use)
+        
+        # Only log Claude commands and important operations
+        if cmd_info['type'] not in ['claude_command', 'file_operation']:
+            sys.exit(0)
 
-    result = tool_use.get('result', {})
-    status = 'unknown'
-    error = None
-    
-    if 'error' in result:
-        status = 'error'
-        error = result['error']
-    elif result.get('success', False) or result.get('output'):
-        status = 'success'
-    
-    # Create log entry
-    log_entry = {
-        'timestamp': datetime.now().isoformat(),
-        'session_id': input_data.get('session_id', os.environ.get('CLAUDE_SESSION_ID', 'unknown')),
-        'command_type': cmd_info['type'],
-        'command': cmd_info['command'],
-        'args': cmd_info['args'],
-        'full_command': cmd_info['full_command'],
-        'status': status,
-        'duration': calculate_duration(tool_use),
-        'files_changed': extract_changed_files(tool_use),
-        'error': error,
-        'user': os.environ.get('USER', 'unknown')
-    }
-    
-    # Ensure log directory exists
-    log_dir = Path(".claude/logs/commands")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Save to daily log file (JSON Lines format)
-    today = datetime.now().strftime("%Y-%m-%d")
-    log_file = log_dir / f"{today}.jsonl"
-    
-    try:
-        with open(log_file, 'a') as f:
-            f.write(json.dumps(log_entry) + '\n')
-    except Exception as e:
-        # Don't fail the hook chain
-        pass
-    
-    # Update statistics
-    try:
-        update_command_stats(cmd_info['command'], log_entry)
-    except Exception as e:
-        # Don't fail the hook chain
-        pass
-    
-    # PostToolUse hooks just exit normally
-    sys.exit(0)
-    
+        result = tool_use.get('result', {})
+        status = 'unknown'
+        error = None
+        
+        if 'error' in result:
+            status = 'error'
+            error = result['error']
+        elif result.get('success', False) or result.get('output'):
+            status = 'success'
+        
+        # Create log entry
+        log_entry = {
+            'timestamp': datetime.now().isoformat(),
+            'session_id': input_data.get('session_id', os.environ.get('CLAUDE_SESSION_ID', 'unknown')),
+            'command_type': cmd_info['type'],
+            'command': cmd_info['command'],
+            'args': cmd_info['args'],
+            'full_command': cmd_info['full_command'],
+            'status': status,
+            'duration': calculate_duration(tool_use),
+            'files_changed': extract_changed_files(tool_use),
+            'error': error,
+            'user': os.environ.get('USER', 'unknown')
+        }
+        
+        # Ensure log directory exists
+        log_dir = Path(".claude/logs/commands")
+        log_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Save to daily log file (JSON Lines format)
+        today = datetime.now().strftime("%Y-%m-%d")
+        log_file = log_dir / f"{today}.jsonl"
+        
+        try:
+            with open(log_file, 'a') as f:
+                f.write(json.dumps(log_entry) + '\n')
+        except Exception as e:
+            # Don't fail the hook chain
+            pass
+        
+        # Update statistics
+        try:
+            update_command_stats(cmd_info['command'], log_entry)
+        except Exception as e:
+            # Don't fail the hook chain
+            pass
+        
+        # PostToolUse hooks just exit normally
+        sys.exit(0)
+        
     except Exception as e:
         # Log error to stderr and exit
         print(f"Command logger error: {str(e)}", file=sys.stderr)
