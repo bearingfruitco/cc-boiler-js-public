@@ -1064,6 +1064,63 @@
           "command": "generate-a11y-docs"
         }
       ]
+    },
+    "safe-staging-deploy": {
+      "description": "Safe deployment to staging with all checks",
+      "commands": [
+        "env-validate",
+        "test-runner all",
+        "validate-design --strict",
+        "security-check all",
+        "performance-monitor baseline",
+        "deploy-staging",
+        "smoke-test staging",
+        "performance-monitor compare"
+      ],
+      "stopOnError": true
+    },
+    "safe-production-deploy": {
+      "description": "Production deployment with comprehensive validation",
+      "commands": [
+        "env-switch production",
+        "checkpoint create pre-deploy",
+        "test-runner all --production",
+        "security-check all --production",
+        "performance-monitor baseline",
+        "production-preview",
+        "deploy-production --confirm",
+        "smoke-test production",
+        "performance-monitor verify"
+      ],
+      "stopOnError": true,
+      "requiresConfirmation": true
+    },
+    "environment-setup": {
+      "description": "Set up all environment files and validate",
+      "commands": [
+        "bash scripts/setup-environments.sh",
+        "env-validate",
+        "test-runner connectivity"
+      ]
+    },
+    "staging-smoke-test": {
+      "description": "Run smoke tests on staging environment",
+      "commands": [
+        "test-runner smoke --env=staging",
+        "browser-test critical-paths --env=staging",
+        "api-test health --env=staging",
+        "performance-test basic --env=staging"
+      ]
+    },
+    "rollback-deployment": {
+      "description": "Emergency rollback procedure",
+      "commands": [
+        "checkpoint list",
+        "deploy-rollback --select",
+        "smoke-test production",
+        "notify-team rollback"
+      ],
+      "requiresConfirmation": true
     }
   },
   "shortcuts": {
@@ -1115,7 +1172,12 @@
     "po4": "performance-optimization-v4",
     "aer": "automated-error-recovery-v4",
     "pd4": "predictive-development-v4",
-    "a11y": "accessibility-first-v4"
+    "a11y": "accessibility-first-v4",
+    "ssd": "safe-staging-deploy",
+    "spd": "safe-production-deploy",
+    "es": "environment-setup",
+    "sst": "staging-smoke-test",
+    "rb": "rollback-deployment"
   },
   "v4_config": {
     "auto_triggers": {

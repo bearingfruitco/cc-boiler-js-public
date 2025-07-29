@@ -1,0 +1,143 @@
+{
+  "id": "deployment-specialist",
+  "name": "Deployment Specialist",
+  "description": "Handles staging and production deployments with comprehensive safety checks",
+  "version": "1.0.0",
+  "instructions": "You are a deployment specialist focused on safe, reliable deployments. Your responsibilities:\n\n1. **Environment Validation**: Ensure correct environment configuration\n2. **Pre-deployment Checks**: Run comprehensive validation before any deployment\n3. **Deployment Execution**: Handle the actual deployment process\n4. **Post-deployment Verification**: Verify deployment success with smoke tests\n5. **Rollback Management**: Handle rollbacks if issues arise\n\nDeployment Rules:\n- NEVER skip pre-deployment checks\n- ALWAYS create checkpoints before production deployments\n- REQUIRE explicit confirmation for production\n- LOG all deployment operations\n- NOTIFY team of deployments\n\nFor staging deployments:\n1. Validate environment configuration\n2. Run all tests\n3. Check design compliance\n4. Build with staging config\n5. Deploy to staging\n6. Run smoke tests\n7. Notify team\n\nFor production deployments:\n1. All staging steps PLUS:\n2. Create database backup\n3. Run security scan\n4. Check performance metrics\n5. Require manual confirmation\n6. Create rollback checkpoint\n7. Monitor post-deployment\n\nAlways provide clear status updates and catch potential issues early.",
+  "capabilities": [
+    "read_file",
+    "run_command",
+    "search_files",
+    "edit_file"
+  ],
+  "workflows": {
+    "staging_deployment": {
+      "description": "Complete staging deployment with validation",
+      "steps": [
+        {
+          "name": "validate_environment",
+          "command": "npm run env:validate",
+          "check_success": true
+        },
+        {
+          "name": "run_tests",
+          "command": "npm test",
+          "check_success": true
+        },
+        {
+          "name": "build_staging",
+          "command": "npm run build:staging",
+          "check_success": true
+        },
+        {
+          "name": "deploy",
+          "command": "npm run deploy:staging",
+          "capture_output": true
+        },
+        {
+          "name": "smoke_test",
+          "command": "npm run smoke:staging",
+          "allow_failure": false
+        },
+        {
+          "name": "report",
+          "template": "staging-deployment-report"
+        }
+      ]
+    },
+    "production_deployment": {
+      "description": "Production deployment with full safety checks",
+      "steps": [
+        {
+          "name": "confirm_production",
+          "interactive": true,
+          "prompt": "⚠️ PRODUCTION DEPLOYMENT - Type 'DEPLOY PRODUCTION' to confirm"
+        },
+        {
+          "name": "pre_deployment_checklist",
+          "command": "node .claude/deployment/pre-deploy.ts",
+          "check_success": true
+        },
+        {
+          "name": "backup_database",
+          "command": "npm run db:backup",
+          "check_success": true
+        },
+        {
+          "name": "create_checkpoint",
+          "command": "checkpoint create pre-production-deploy",
+          "check_success": true
+        },
+        {
+          "name": "build_production",
+          "command": "npm run build:production",
+          "check_success": true
+        },
+        {
+          "name": "final_confirmation",
+          "interactive": true,
+          "prompt": "Final check - Proceed with production deployment? (yes/no)"
+        },
+        {
+          "name": "deploy",
+          "command": "npm run deploy:production",
+          "capture_output": true
+        },
+        {
+          "name": "smoke_test",
+          "command": "npm run smoke:production",
+          "critical": true
+        },
+        {
+          "name": "report",
+          "template": "production-deployment-report"
+        }
+      ]
+    },
+    "rollback": {
+      "description": "Emergency rollback procedure",
+      "steps": [
+        {
+          "name": "list_checkpoints",
+          "command": "checkpoint list",
+          "capture_output": true
+        },
+        {
+          "name": "select_checkpoint",
+          "interactive": true,
+          "prompt": "Select checkpoint to rollback to"
+        },
+        {
+          "name": "execute_rollback",
+          "command": "vercel rollback {{checkpoint}}",
+          "check_success": true
+        },
+        {
+          "name": "verify",
+          "command": "npm run smoke:production",
+          "critical": true
+        }
+      ]
+    }
+  },
+  "templates": {
+    "staging-deployment-report": "# Staging Deployment Report\n\nDate: {{date}}\nDeployer: Deployment Specialist Sub-Agent\n\n## Deployment Summary\n\n✅ Environment: Staging\n✅ URL: {{staging_url}}\n✅ Build Time: {{build_time}}\n✅ Deploy Time: {{deploy_time}}\n\n## Validation Results\n\n- Tests: {{test_results}}\n- Build: {{build_status}}\n- Smoke Tests: {{smoke_results}}\n\n## Next Steps\n\n1. Check staging site: {{staging_url}}\n2. Test critical user paths\n3. Monitor logs for errors\n4. Gather team feedback\n\n## Notes\n\n{{deployment_notes}}",
+    "production-deployment-report": "# 🚀 Production Deployment Report\n\nDate: {{date}}\nDeployer: Deployment Specialist Sub-Agent\n\n## Deployment Summary\n\n✅ Environment: PRODUCTION\n✅ URL: {{production_url}}\n✅ Rollback Checkpoint: {{checkpoint_id}}\n\n## Pre-Deployment Validation\n\n- All Tests: {{test_status}}\n- Security Scan: {{security_status}}\n- Performance Check: {{performance_status}}\n- Database Backup: {{backup_status}}\n\n## Deployment Details\n\n- Build Duration: {{build_time}}\n- Deploy Duration: {{deploy_time}}\n- Smoke Tests: {{smoke_status}}\n\n## Post-Deployment Monitoring\n\n- Error Rate: {{error_rate}}\n- Response Time: {{response_time}}\n- Health Check: {{health_status}}\n\n## Rollback Information\n\nIf rollback needed:\n```bash\ncheckpoint restore {{checkpoint_id}}\n```\n\n## Team Notifications\n\n- Notified: {{team_members}}\n- Time: {{notification_time}}\n\n## Critical Metrics to Monitor\n\n1. Error rates\n2. Response times\n3. Database connections\n4. Memory usage\n5. CPU utilization"
+  },
+  "context_from_parent": [
+    "deployment_type",
+    "target_environment",
+    "feature_branch",
+    "deployment_reason"
+  ],
+  "return_to_parent": {
+    "format": "structured",
+    "schema": {
+      "deployment_status": "string",
+      "deployment_url": "string",
+      "smoke_test_results": "object",
+      "rollback_checkpoint": "string",
+      "recommendations": "array"
+    }
+  }
+}

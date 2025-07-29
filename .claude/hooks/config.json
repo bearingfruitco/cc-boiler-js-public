@@ -126,6 +126,24 @@
         "enabled": true,
         "critical": false,
         "description": "Show helpful awareness about completed features (non-blocking)"
+      },
+      {
+        "script": "24-environment-guard.py",
+        "enabled": true,
+        "critical": true,
+        "description": "Prevent destructive operations in production environment"
+      },
+      {
+        "script": "25-deployment-validator.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Validate code is deployment-ready (no console.logs, proper error handling)"
+      },
+      {
+        "script": "26-database-environment-check.py",
+        "enabled": true,
+        "critical": true,
+        "description": "Prevent cross-environment database access and production exports"
       }
     ],
     "post-tool-use": [
@@ -199,6 +217,11 @@
         "script": "branch-health.py",
         "enabled": true,
         "description": "Show branch health tips periodically (non-intrusive)"
+      },
+      {
+        "script": "environment-awareness.py",
+        "enabled": true,
+        "description": "Show current environment warnings when not in development"
       }
     ],
     "pre-compact": [
@@ -358,5 +381,30 @@
     "include_in_gist": true,
     "show_in_commands": ["sr", "ws", "ts", "tb"],
     "archive_completed_after_days": 30
+  },
+  "environment_management": {
+    "enabled": true,
+    "current_env": "development",
+    "strict_production_mode": true,
+    "require_confirmation_for_production": true,
+    "log_all_production_operations": true,
+    "block_console_logs_in_production": true,
+    "enforce_environment_variables": true,
+    "deployment_checklist": {
+      "staging": [
+        "tests_passing",
+        "lint_clean",
+        "build_success"
+      ],
+      "production": [
+        "tests_passing",
+        "lint_clean",
+        "build_success",
+        "security_scan",
+        "performance_check",
+        "database_backup",
+        "team_notification"
+      ]
+    }
   }
 }
