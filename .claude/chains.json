@@ -150,10 +150,12 @@
       ]
     },
     "pre-pr": {
-      "description": "Pre-PR validation suite",
+      "description": "Pre-PR validation suite (with browser checks)",
       "commands": [
         "validate-design",
         "test-runner changed",
+        "pw-verify",
+        "pw-a11y",
         "verify --full",
         "performance-monitor check",
         "security-check all"
@@ -161,13 +163,15 @@
       "stopOnError": true
     },
     "feature-complete": {
-      "description": "Complete feature workflow (enhanced with v3.0 agents)",
+      "description": "Complete feature workflow (enhanced with Playwright verification)",
       "commands": [
         "checkpoint create pre-complete",
         "analyze-task",
         "orchestrate if needed",
         "validate-design",
         "test-runner all",
+        "pw-verify",
+        "pw-console",
         "agent-health technology",
         "performance-monitor compare",
         "security-check all",
@@ -1121,80 +1125,377 @@
         "notify-team rollback"
       ],
       "requiresConfirmation": true
-    }
-  },
-  "shortcuts": {
-    "ms": "morning-setup",
-    "pp": "pre-pr",
-    "fc": "feature-complete",
-    "qc": "quick-check",
-    "dr": "daily-report",
-    "ef": "error-fix",
-    "fp": "feature-planning",
-    "ad": "architecture-design",
-    "ts": "task-sprint",
-    "tr": "task-review",
-    "cm": "context-maintenance",
-    "ds": "daily-startup",
-    "sc": "safe-commit",
-    "fs": "field-sync",
-    "pc": "pre-component",
-    "bas": "branch-aware-startup",
-    "sfc": "safe-feature-complete",
-    "bm": "branch-maintenance",
-    "tdd": "tdd-cycle",
-    "vc": "verify-complete",
-    "aep": "analyze-existing-project",
-    "mds": "migrate-design-system",
-    "oe": "onboard-existing",
-    "ss": "standards-sync",
-    "mpr": "multi-perspective-review",
-    "wts": "worktree-setup",
-    "wte": "worktree-execute",
-    "wtrm": "worktree-review-merge",
-    "sb": "security-baseline",
-    "sac": "secure-api-creation",
-    "sf": "security-fix",
-    "pds": "pre-deploy-security",
-    "sfw": "secure-form-workflow",
-    "sac2": "security-audit-chain",
-    "fdc": "feature-development-chain",
-    "dmc": "database-migration-chain",
-    "poc": "performance-optimization-chain",
-    "rc": "refactoring-chain",
-    "saf": "supabase-auth-flow",
-    "ap": "analytics-pipeline",
-    "prf": "production-ready-feature",
-    "tso": "tech-stack-optimization",
-    "dbo": "database-optimization",
-    "fsf": "full-stack-feature-v4",
-    "sfa": "security-first-api-v4",
-    "po4": "performance-optimization-v4",
-    "aer": "automated-error-recovery-v4",
-    "pd4": "predictive-development-v4",
-    "a11y": "accessibility-first-v4",
-    "ssd": "safe-staging-deploy",
-    "spd": "safe-production-deploy",
-    "es": "environment-setup",
-    "sst": "staging-smoke-test",
-    "rb": "rollback-deployment"
-  },
-  "v4_config": {
-    "auto_triggers": {
-      "error_recovery": true,
-      "predictive_assistance": true,
-      "accessibility_enforcement": true
     },
-    "performance_budgets": {
-      "component_render_ms": 50,
-      "api_response_ms": 200,
-      "bundle_size_kb": 500,
-      "page_load_ms": 3000
+    "browser-verified-component": {
+      "description": "Create component with automatic browser verification",
+      "steps": [
+        {
+          "agent": "ui-systems",
+          "task": "Create the component following design system"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Verify component renders correctly in browser"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Create interaction tests"
+        },
+        {
+          "agent": "performance-optimizer",
+          "task": "Check component performance metrics"
+        }
+      ]
     },
-    "security_requirements": {
-      "mandatory_rls": true,
-      "mandatory_tests": true,
-      "owasp_compliance": true
+    "visual-regression-check": {
+      "description": "Automated visual regression testing workflow",
+      "steps": [
+        {
+          "agent": "playwright-specialist",
+          "task": "Capture baseline screenshots"
+        },
+        {
+          "agent": "git-workflow-automation",
+          "task": "Store baselines with commit reference"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Compare current state with baselines"
+        },
+        {
+          "agent": "ui-systems",
+          "task": "Review and approve visual changes if needed"
+        }
+      ]
+    },
+    "full-accessibility-audit": {
+      "description": "Comprehensive accessibility testing and fixes",
+      "steps": [
+        {
+          "agent": "playwright-specialist",
+          "task": "Run automated a11y tests (axe-core)"
+        },
+        {
+          "agent": "accessibility-specialist",
+          "task": "Manual keyboard navigation testing"
+        },
+        {
+          "agent": "frontend-specialist",
+          "task": "Fix identified issues"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Verify fixes and generate WCAG report"
+        }
+      ]
+    },
+    "cross-component-interaction": {
+      "description": "Test component integration in browser",
+      "steps": [
+        {
+          "command": "analyze-dependencies",
+          "output": "component-map.json"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Test component interactions and state management"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Verify event propagation between components"
+        },
+        {
+          "agent": "backend-reliability-engineer",
+          "task": "Validate data flow and API integration"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Create integration test suite"
+        }
+      ]
+    },
+    "browser-tdd-flow": {
+      "description": "TDD workflow with browser testing integration",
+      "steps": [
+        {
+          "agent": "tdd-engineer",
+          "task": "Write failing unit tests"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Write failing browser tests"
+        },
+        {
+          "agent": "frontend-specialist",
+          "task": "Implement to pass all tests"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Verify implementation in browser"
+        }
+      ]
+    },
+    "pr-browser-check": {
+      "description": "Automated PR browser testing",
+      "commands": [
+        "get-preview-url",
+        "pw-smoke-test",
+        "pw-console",
+        "pw-perf",
+        "pw-screenshot full-page",
+        "post-pr-comment"
+      ],
+      "stopOnError": true
+    },
+    "debug-browser-issue": {
+      "description": "Debug reported browser issues",
+      "steps": [
+        {
+          "agent": "playwright-specialist",
+          "task": "Reproduce issue in browser"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Capture browser state and console logs"
+        },
+        {
+          "agent": "code-analyzer-debugger",
+          "task": "Analyze JavaScript execution"
+        },
+        {
+          "agent": "senior-engineer",
+          "task": "Implement fix"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Verify fix in browser"
+        }
+      ]
+    },
+    "browser-performance-audit": {
+      "description": "Browser performance testing",
+      "steps": [
+        {
+          "agent": "playwright-specialist",
+          "task": "Capture Core Web Vitals"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Measure JavaScript execution time"
+        },
+        {
+          "agent": "performance-optimizer",
+          "task": "Analyze performance data"
+        },
+        {
+          "agent": "ui-systems",
+          "task": "Implement performance optimizations"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Verify improvements"
+        }
+      ]
+    },
+    "form-validation-flow": {
+      "description": "Complete form testing workflow",
+      "steps": [
+        {
+          "agent": "form-builder-specialist",
+          "task": "Create form with validation"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Test all validation scenarios"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Test keyboard navigation"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Test error handling and recovery"
+        },
+        {
+          "agent": "privacy-compliance",
+          "task": "Verify data handling compliance"
+        }
+      ]
+    },
+    "mobile-responsive-test": {
+      "description": "Mobile responsiveness testing",
+      "steps": [
+        {
+          "agent": "playwright-specialist",
+          "task": "Test in mobile viewport sizes"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Test touch interactions"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Verify responsive design breakpoints"
+        },
+        {
+          "agent": "ui-systems",
+          "task": "Fix responsive issues"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Final mobile verification"
+        }
+      ]
+    },
+    "component-testing": {
+      "description": "Comprehensive component testing",
+      "commands": [
+        "test-runner component",
+        "pw-verify",
+        "pw-screenshot",
+        "pw-a11y",
+        "validate-design current"
+      ]
+    },
+    "browser-test-flow": {
+      "description": "Complete browser testing workflow",
+      "commands": [
+        "pw-verify",
+        "pw-console",
+        "pw-vitals",
+        "pw-a11y",
+        "pw-baseline compare"
+      ]
+    },
+    "browser-error-recovery": {
+      "description": "Debug and fix browser-specific errors",
+      "steps": [
+        {
+          "agent": "playwright-specialist",
+          "task": "Reproduce error in browser environment"
+        },
+        {
+          "agent": "debug-specialist",
+          "task": "Analyze browser state and console"
+        },
+        {
+          "agent": "frontend-specialist",
+          "task": "Implement fix"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Verify fix in multiple browsers"
+        }
+      ]
+    },
+    "pr-browser-validation": {
+      "description": "Automated PR browser testing before merge",
+      "steps": [
+        {
+          "agent": "git-workflow-automation",
+          "task": "Detect PR preview URL"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Run smoke tests on preview"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Test critical user flows"
+        },
+        {
+          "agent": "performance-optimizer",
+          "task": "Check performance metrics"
+        },
+        {
+          "agent": "documentation-specialist",
+          "task": "Update PR with test results"
+        }
+      ]
+    },
+    "cross-browser-compatibility": {
+      "description": "Test across different browsers and devices",
+      "steps": [
+        {
+          "agent": "playwright-specialist",
+          "task": "Test in Chrome, Firefox, Safari"
+        },
+        {
+          "agent": "mobile-specialist",
+          "task": "Test responsive design on mobile viewports"
+        },
+        {
+          "agent": "frontend-specialist",
+          "task": "Fix browser-specific issues"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Verify fixes across all browsers"
+        }
+      ]
+    },
+    "form-interaction-testing": {
+      "description": "Comprehensive form testing workflow",
+      "steps": [
+        {
+          "agent": "playwright-specialist",
+          "task": "Test form field interactions"
+        },
+        {
+          "agent": "security-engineer",
+          "task": "Verify validation and security"
+        },
+        {
+          "agent": "accessibility-specialist",
+          "task": "Check keyboard navigation and ARIA"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Test error states and edge cases"
+        }
+      ]
+    },
+    "performance-monitoring-setup": {
+      "description": "Set up continuous performance monitoring",
+      "steps": [
+        {
+          "agent": "playwright-specialist",
+          "task": "Establish performance baselines"
+        },
+        {
+          "agent": "performance-optimizer",
+          "task": "Define performance budgets"
+        },
+        {
+          "agent": "devops-engineer",
+          "task": "Set up monitoring alerts"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Create performance regression tests"
+        }
+      ]
+    },
+    "component-interaction-flow": {
+      "description": "Test complex component interactions",
+      "steps": [
+        {
+          "agent": "system-architect",
+          "task": "Map component dependencies"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Test component integration scenarios"
+        },
+        {
+          "agent": "frontend-specialist",
+          "task": "Fix interaction issues"
+        },
+        {
+          "agent": "playwright-specialist",
+          "task": "Verify state management and data flow"
+        }
+      ]
     }
   }
 }

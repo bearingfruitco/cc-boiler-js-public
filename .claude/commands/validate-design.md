@@ -1,16 +1,17 @@
-# Validate Design System Compliance
+# Validate Design System Compliance (Enhanced with Browser Verification)
 
-Comprehensive validation including design system rules, Biome linting, and Bun tests.
+Comprehensive validation including design system rules, Biome linting, Bun tests, and browser verification.
 
 ## Arguments:
-- $SCOPE: current|all|fix
-- $TYPE: design|lint|test|all (default: all)
+- $SCOPE: current|all|fix|browser
+- $TYPE: design|lint|test|browser|all (default: all)
 
 ## Usage:
 ```bash
 /validate-design              # Full validation of current file
 /validate-design all          # Validate entire project
 /validate-design fix          # Auto-fix what's possible
+/validate-design browser      # Include browser verification
 /vd                          # Short alias
 ```
 
@@ -72,7 +73,29 @@ if [[ "$TYPE" == "test" || "$TYPE" == "all" ]]; then
 fi
 ```
 
-### 4. Full Validation Report
+### 4. Browser Verification (NEW!)
+
+```bash
+# Verify in real browser using Playwright
+if [[ "$TYPE" == "browser" || "$TYPE" == "all" || "$SCOPE" == "browser" ]]; then
+  echo "🌐 Running browser verification..."
+  
+  # Use playwright-specialist agent
+  /pw "verify design compliance for $CURRENT_FILE"
+  
+  # The agent will:
+  # 1. Launch browser
+  # 2. Navigate to component
+  # 3. Check computed styles
+  # 4. Verify rendering
+  # 5. Check console errors
+  # 6. Test interactions
+  
+  BROWSER_EXIT=$?
+fi
+```
+
+### 5. Full Validation Report
 
 ```markdown
 # 📊 Validation Report: ComponentName.tsx
@@ -96,14 +119,25 @@ fi
 ✅ **Tests Passing:** 5/5
 📊 **Coverage:** 87% (target: 80%)
 
+## 🌐 Browser Verification (NEW!)
+✅ **Rendering:** Component renders correctly
+✅ **Console:** No errors detected
+✅ **Computed Styles:** 
+  - Font sizes: 16px, 24px ✓
+  - Font weights: 400, 600 ✓
+  - Spacing: All divisible by 4 ✓
+⚠️ **Interactions:** Click handler on line 45 not firing
+📸 **Screenshot:** Saved to .claude/screenshots/ComponentName.png
+
 ## 📋 Summary
 - Design: 3 critical, 2 warnings
 - Linting: 0 errors, 2 warnings  
 - Tests: All passing
+- Browser: 1 issue found
 - **Status:** ❌ Fix required
 ```
 
-### 5. Auto-Fix Mode
+### 6. Auto-Fix Mode
 
 ```bash
 if [[ "$SCOPE" == "fix" ]]; then
@@ -122,17 +156,24 @@ if [[ "$SCOPE" == "fix" ]]; then
   echo "Updating tests..."
   # Generate missing tests
   
+  # 4. Verify fixes in browser
+  echo "Verifying fixes in browser..."
+  /pw-verify "$CURRENT_FILE"
+  
   echo "✅ Auto-fix complete! Review changes with: git diff"
 fi
 ```
 
 ## Integration with Hooks
 
-This command is called by pre-commit hooks:
+This command is called by pre-commit hooks and enhanced with browser checks:
 
 ```python
 # .claude/hooks/pre-tool-use/02-design-check.py
 # Runs validate-design before file changes
+
+# .claude/hooks/post-tool-use/05-browser-verify.py
+# Suggests browser verification after UI changes
 ```
 
 ## Quick Checks
@@ -143,6 +184,7 @@ For specific validation only:
 /vd design     # Only design system
 /vd lint       # Only Biome linting  
 /vd test       # Only run tests
+/vd browser    # Only browser verification (NEW!)
 ```
 
 ## CI Integration
@@ -150,6 +192,9 @@ For specific validation only:
 ```bash
 # In CI pipeline
 /validate-design all --ci
+
+# With browser tests on PR
+/validate-design browser --pr
 
 # Fails with exit code 1 if any issues
 ```
@@ -163,7 +208,14 @@ Track validation performance:
     "design": "50ms",
     "biome": "200ms",
     "tests": "800ms",
-    "total": "1050ms"
+    "browser": "2500ms",
+    "total": "3550ms"
+  },
+  "browser-metrics": {
+    "console-errors": 0,
+    "render-time": "45ms",
+    "interaction-tests": 12,
+    "accessibility-score": 98
   }
 }
 ```
@@ -185,4 +237,13 @@ const fixes = {
 };
 ```
 
-This ensures comprehensive validation with design system, Biome, and tests! 🚀
+## Browser-Specific Validations
+
+The playwright-specialist agent performs:
+1. **Computed Style Verification** - Actual rendered values
+2. **Console Error Detection** - Runtime JavaScript issues
+3. **Interaction Testing** - Click handlers, hover states
+4. **Visual Regression** - Screenshot comparison
+5. **Performance Metrics** - Render time, reflows
+
+This ensures comprehensive validation with design system, Biome, tests, AND real browser verification! 🚀

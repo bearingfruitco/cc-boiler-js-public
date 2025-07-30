@@ -1,0 +1,106 @@
+{
+  "id": "playwright-specialist",
+  "name": "Playwright Browser Testing Specialist",
+  "description": "Browser reality check agent that verifies UI rendering, tests interactions, debugs JavaScript errors, and ensures components actually work in real browsers",
+  "version": "1.0.0",
+  "instructions": "You are a Playwright browser testing specialist providing empirical verification through actual browser execution. Your role is to:\n\n1. **Verify Browser Behavior**: Test how code actually renders and executes\n2. **Debug Runtime Issues**: Catch JavaScript errors and console warnings\n3. **Test User Interactions**: Verify clicks, forms, and navigation work\n4. **Validate Visual Rendering**: Ensure design system compliance in browser\n5. **Provide Ground Truth**: Give factual browser-based evidence\n\nKey Principles:\n- Always use actual browser execution, not assumptions\n- Check console logs for errors after every action\n- Verify visual rendering matches design system\n- Test keyboard navigation and accessibility\n- Provide clear reproduction steps for issues\n\nDesign System Validation:\n- Font sizes must be 32px, 24px, 16px, or 12px\n- Only font-regular (400) and font-semibold (600) allowed\n- All spacing must be divisible by 4\n- Minimum touch targets 44px\n\nAlways close browser when done to free resources.",
+  "capabilities": [
+    "read_file",
+    "write_file",
+    "run_command"
+  ],
+  "tools": "playwright_navigate, playwright_click, playwright_fill, playwright_screenshot, playwright_get_console_logs, playwright_evaluate, playwright_wait_for, playwright_get_visible_html, playwright_press_key, playwright_hover, playwright_close",
+  "workflows": {
+    "component_verification": {
+      "description": "Verify a component renders and works correctly",
+      "steps": [
+        {
+          "name": "launch_component",
+          "navigate_to": "component_url_or_storybook"
+        },
+        {
+          "name": "check_rendering",
+          "verify": ["visual_appearance", "console_errors", "computed_styles"]
+        },
+        {
+          "name": "test_interactions",
+          "actions": ["click", "hover", "keyboard_nav"]
+        },
+        {
+          "name": "validate_design",
+          "check": ["font_sizes", "spacing", "colors"]
+        },
+        {
+          "name": "capture_evidence",
+          "outputs": ["screenshot", "console_logs", "test_report"]
+        }
+      ]
+    },
+    "form_testing": {
+      "description": "Test form submission and validation",
+      "steps": [
+        {
+          "name": "navigate_to_form",
+          "url": "form_page"
+        },
+        {
+          "name": "test_validation",
+          "submit_empty": true,
+          "check_errors": true
+        },
+        {
+          "name": "test_valid_submission",
+          "fill_valid_data": true,
+          "verify_success": true
+        },
+        {
+          "name": "test_accessibility",
+          "keyboard_only": true,
+          "check_labels": true
+        }
+      ]
+    },
+    "debug_error": {
+      "description": "Debug reported browser errors",
+      "steps": [
+        {
+          "name": "reproduce_scenario",
+          "follow_steps": "user_provided"
+        },
+        {
+          "name": "capture_state",
+          "collect": ["console", "network", "dom", "storage"]
+        },
+        {
+          "name": "identify_issue",
+          "analyze": ["error_stack", "event_listeners", "async_timing"]
+        },
+        {
+          "name": "verify_fix",
+          "test_solution": true
+        }
+      ]
+    }
+  },
+  "templates": {
+    "test_report": "## Browser Test Report\n\n**Component**: {{component_name}}\n**Date**: {{timestamp}}\n**Status**: {{pass_fail}}\n\n### Visual Rendering\n{{screenshot}}\n\n### Console Output\n```\n{{console_logs}}\n```\n\n### Design Compliance\n{{design_validation}}\n\n### Issues Found\n{{issues_list}}\n\n### Recommendations\n{{recommendations}}",
+    "error_report": "## Browser Error Report\n\n**Error**: {{error_message}}\n**Location**: {{file_line}}\n**Browser**: {{browser_info}}\n\n### Reproduction Steps\n{{steps}}\n\n### Console Trace\n```\n{{stack_trace}}\n```\n\n### Context\n{{dom_state}}\n\n### Solution\n{{fix_suggestion}}"
+  },
+  "context_from_parent": [
+    "component_name",
+    "test_scenario",
+    "design_requirements",
+    "user_flow"
+  ],
+  "return_to_parent": {
+    "format": "structured",
+    "schema": {
+      "status": "pass|fail|partial",
+      "console_errors": "array",
+      "visual_issues": "array",
+      "performance_metrics": "object",
+      "screenshots": "array",
+      "recommendations": "array"
+    }
+  }
+}

@@ -1,8 +1,8 @@
-# Create Component with TDD - Enhanced
+# Create Component with TDD & Browser Verification - Enhanced
 
-Create a new component with MANDATORY test-first development, design system validation, and optional ASCII wireframe step.
+Create a new component with MANDATORY test-first development, design system validation, browser verification, and optional ASCII wireframe step.
 
-⚠️ **TDD IS NOW MANDATORY**: Tests will be generated BEFORE the component is created. Use `--no-tdd` flag to skip (not recommended).
+⚠️ **TDD + BROWSER TESTING IS NOW STANDARD**: Tests will be generated BEFORE the component is created, and browser verification happens automatically.
 
 ## Usage
 ```bash
@@ -14,9 +14,11 @@ Create a new component with MANDATORY test-first development, design system vali
 --style=ref    # Use reference image for style
 --animate      # Include animation planning
 --no-tdd       # Skip test generation (NOT RECOMMENDED - requires confirmation)
+--no-browser   # Skip browser verification (NOT RECOMMENDED)
+--browser-only # Only run browser tests
 ```
 
-## Enhanced TDD Flow
+## Enhanced TDD + Browser Flow
 
 ### Step 0: Test Generation (MANDATORY)
 
@@ -47,11 +49,34 @@ describe('UserProfile', () => {
 });
 ```
 
-**This happens automatically!** The tdd-engineer agent will:
+### Step 0.5: Browser Test Generation (NEW!)
+
+```typescript
+// UserProfile.browser.test.ts - Auto-generated
+test('UserProfile browser behavior', async ({ page }) => {
+  await page.goto('/components/user-profile');
+  
+  // Visual verification
+  await expect(page).toHaveScreenshot();
+  
+  // Console errors
+  const errors = await page.evaluate(() => window.console.errors);
+  expect(errors).toHaveLength(0);
+  
+  // Interaction testing
+  await page.click('[data-testid="edit-button"]');
+  await expect(page).toHaveURL('/profile/edit');
+  
+  // Accessibility
+  await expect(page.getByRole('button')).toBeFocusable();
+});
+```
+
+**This happens automatically!** The tdd-engineer and playwright-specialist agents will:
 1. Analyze your component requirements
-2. Check for existing PRPs/PRDs
-3. Generate comprehensive test suite
-4. Ensure all edge cases covered
+2. Generate unit AND browser tests
+3. Ensure real-world behavior is tested
+4. Verify in actual browser context
 
 ### Step 1: ASCII Wireframe (Optional with --wireframe)
 
@@ -71,11 +96,6 @@ When using `--wireframe`, first generate a quick ASCII layout:
 │ [Edit Profile] [Settings]       │
 └─────────────────────────────────┘
 ```
-
-Benefits:
-- Validate layout in 1 second
-- Agree on structure before coding
-- Show interactions (click → sidebar)
 
 ### Step 2: Apply Design System
 
@@ -103,26 +123,52 @@ const animations = {
 };
 ```
 
-### Step 4: Component Generation
+### Step 4: Component Generation & Browser Verification (NEW!)
 
 Generate the actual component with all constraints applied.
 
-**TDD Enforcement**: The component will ONLY be created after:
-- ✅ Tests are written
-- ✅ Tests are failing (RED phase)
-- ✅ Ready for implementation (GREEN phase)
+**TDD + Browser Enforcement**: The component will ONLY be created after:
+- ✅ Unit tests are written and failing
+- ✅ Browser tests are written and failing
+- ✅ Component implemented to pass unit tests
+- ✅ Browser verification passes:
+  - No console errors
+  - Renders correctly
+  - Interactions work
+  - Design system compliant
+  - Performance acceptable
+
+### Step 5: Automatic Browser Verification (NEW!)
+
+After component creation:
+```bash
+# Automatically runs:
+/pw-verify UserProfile
+/pw-console
+/pw-screenshot UserProfile
+
+# Reports:
+✅ Component renders correctly
+✅ No console errors
+✅ Click handlers work
+✅ Design tokens verified
+📸 Screenshot saved
+```
 
 ## Examples
 
-### Basic Component (Now with TDD)
+### Basic Component (Now with TDD + Browser)
 ```bash
 /cc ui Button
 
 # Automatically:
 # 1. Generates Button.test.tsx
-# 2. Runs tests (fail)
-# 3. Creates Button.tsx
-# 4. Helps implement to pass tests
+# 2. Generates Button.browser.test.ts
+# 3. Runs tests (fail)
+# 4. Creates Button.tsx
+# 5. Helps implement to pass tests
+# 6. Verifies in real browser
+# 7. Captures screenshot
 ```
 
 ### With Wireframe First
@@ -138,72 +184,103 @@ Generate the actual component with all constraints applied.
 │ [Action]         │
 └──────────────────┘
 
-# Then generates component
+# Then generates component with browser tests
 ```
 
-### With Animation Planning
+### Browser-Only Testing (Quick Iteration)
 ```bash
-/cc feature ProductCard --animate
+/cc ui QuickFix --browser-only
 
-# Plans animations:
-- Hover: lift with shadow
-- Image: lazy load fade-in
-- Button: press effect
+# Skips unit tests (not recommended)
+# Only runs browser verification
+# Useful for rapid prototyping
 ```
 
-### Complete Flow (With Mandatory TDD)
+### Complete Flow (With All Features)
 ```bash
 /cc feature Dashboard --wireframe --animate
 
 # 0. Generate Dashboard.test.tsx (AUTOMATIC)
-# 1. ASCII wireframe
-# 2. Confirm layout
-# 3. Apply design system
-# 4. Plan animations
-# 5. Generate component
-# 6. Verify all tests pass
+# 1. Generate Dashboard.browser.test.ts (AUTOMATIC)
+# 2. ASCII wireframe
+# 3. Confirm layout
+# 4. Apply design system
+# 5. Plan animations
+# 6. Generate component
+# 7. Verify unit tests pass
+# 8. Verify browser tests pass
+# 9. Check console errors
+# 10. Capture screenshot
 ```
 
-### Skipping TDD (Not Recommended)
+### Skipping Browser Tests (Not Recommended)
 ```bash
-/cc ui QuickPrototype --no-tdd
+/cc ui ServerComponent --no-browser
 
-# ⚠️  WARNING: Skipping TDD is not recommended!
-# Confirm: Are you sure you want to create without tests? (y/N)
-# Only proceed if absolutely necessary for prototypes
+# ⚠️  WARNING: Skipping browser tests!
+# Only for server-only components
 ```
 
 ## Integration with Existing Commands
 
 Works with:
-- `/vd` - Validates generated component
-- `/orch` - Can use frontend agent
-- Design hooks - Still enforce rules
+- `/vd` - Validates generated component (now includes browser)
+- `/pw-verify` - Automatically called after creation
+- `/orch` - Can use frontend + playwright agents
+- Design hooks - Enforce rules in browser too
 
-## Why TDD-First Works
+## Why Browser Verification Matters
 
-1. **Quality Guarantee** - Every component has tests from day one
-2. **Faster Development** - Tests guide implementation
-3. **No Regressions** - Changes caught immediately
-4. **Better Design** - TDD forces you to think about API first
-5. **Automated** - No manual test writing needed
+1. **Catches Runtime Errors** - Console errors found immediately
+2. **Visual Verification** - Actually looks correct
+3. **Interaction Testing** - Clicks/forms actually work
+4. **Performance** - Render time measured
+5. **Cross-browser** - Works everywhere
 
-## TDD Workflow
+## Enhanced Workflow
 
 ```
 /cc Button
    ↓
 [Auto] Generate Button.test.tsx
    ↓
+[Auto] Generate Button.browser.test.ts
+   ↓
 [Auto] Run tests (RED - failing)
    ↓
 [User] Create Button.tsx
    ↓
-[User] Implement until tests pass (GREEN)
+[User] Implement until unit tests pass (GREEN)
    ↓
-[Auto] Check coverage (must be >80%)
+[Auto] Launch browser and verify
    ↓
-[Optional] Refactor (tests still GREEN)
+[Auto] Check console errors
+   ↓
+[Auto] Test interactions
+   ↓
+[Auto] Capture screenshot
+   ↓
+[Auto] Report results
 ```
 
-This ensures EVERY component follows TDD principles automatically!
+## Browser Test Results
+
+After component creation:
+```
+📊 Browser Verification Report
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Rendering: Component displays correctly
+✅ Console: No errors detected
+✅ Interactions: All handlers work
+✅ Design System: 
+   - Font sizes: 16px, 24px ✓
+   - Spacing: All 4px grid ✓
+   - Touch targets: 48px ✓
+✅ Performance: 45ms render time
+📸 Screenshot: .claude/screenshots/Button.png
+
+Component ready for use!
+```
+
+This ensures EVERY component works in real browsers! 🌐

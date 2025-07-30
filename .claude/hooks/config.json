@@ -190,6 +190,12 @@
         "enabled": true,
         "critical": false,
         "description": "Verify completion claims with TDD focus"
+      },
+      {
+        "script": "10-smart-browser-verify.py",
+        "enabled": true,
+        "critical": false,
+        "description": "Auto-verify critical UI changes (forms, click handlers)"
       }
     ],
     "notification": [

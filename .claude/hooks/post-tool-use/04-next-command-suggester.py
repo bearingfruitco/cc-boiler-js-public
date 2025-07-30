@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Next Command Suggester - Enhanced with Agent OS Integration
+Next Command Suggester - Enhanced with Agent OS and Playwright Integration
 Provides intelligent workflow guidance based on current context
 """
 
@@ -18,8 +18,12 @@ def get_project_context():
         'has_prd': Path('PRD.md').exists() or Path('.claude/PRD.md').exists(),
         'has_tasks': Path('.task-ledger.md').exists(),
         'has_tests': Path('tests').exists() or Path('__tests__').exists(),
+        'has_playwright': Path('playwright.config.ts').exists() or Path('tests/e2e').exists(),
         'recent_command': None,
-        'recent_files': []
+        'recent_files': [],
+        'has_components': False,
+        'has_forms': False,
+        'has_api_routes': False
     }
     
     # Check for recent command
@@ -39,6 +43,14 @@ def get_project_context():
         try:
             with open(recent_files, 'r') as f:
                 context['recent_files'] = [line.strip() for line in f.readlines()[-5:]]
+                # Analyze file types
+                for file in context['recent_files']:
+                    if 'components/' in file and '.tsx' in file:
+                        context['has_components'] = True
+                    if 'form' in file.lower() or 'Form' in file:
+                        context['has_forms'] = True
+                    if 'app/api/' in file or 'pages/api/' in file:
+                        context['has_api_routes'] = True
         except:
             pass
     
@@ -86,20 +98,100 @@ def suggest_next_commands(context, tool_name, tool_result):
             'priority': 'high'
         })
     
-    # After file modifications
-    if tool_name in ['Write', 'Edit', 'MultiEdit']:
+    # PLAYWRIGHT SUGGESTIONS - NEW!
+    # After component modifications
+    if tool_name in ['Write', 'Edit', 'MultiEdit'] and context['has_components']:
         suggestions.append({
-            'command': 'validate-design',
-            'reason': 'Ensure design system compliance',
-            'priority': 'medium'
+            'command': 'pw-verify',
+            'reason': 'Verify component renders correctly in browser',
+            'priority': 'high'
         })
         
+        suggestions.append({
+            'command': 'pw-console',
+            'reason': 'Check for JavaScript console errors',
+            'priority': 'medium'
+        })
+    
+    # After form modifications
+    if context['has_forms'] and tool_name in ['Write', 'Edit', 'MultiEdit']:
+        suggestions.append({
+            'command': 'pw-form',
+            'reason': 'Test form submission and validation',
+            'priority': 'high'
+        })
+        
+        suggestions.append({
+            'command': 'pw-a11y',
+            'reason': 'Check form accessibility',
+            'priority': 'medium'
+        })
+    
+    # After API route changes
+    if context['has_api_routes'] and tool_name in ['Write', 'Edit']:
+        suggestions.append({
+            'command': 'pw-api-test',
+            'reason': 'Test API integration in browser',
+            'priority': 'high'
+        })
+    
+    # After any UI file modifications
+    if tool_name in ['Write', 'Edit', 'MultiEdit']:
+        # Check if it's a UI file
+        ui_modified = any(
+            file.endswith(('.tsx', '.jsx', '.css')) 
+            for file in context['recent_files']
+        )
+        
+        if ui_modified:
+            suggestions.append({
+                'command': 'validate-design',
+                'reason': 'Ensure design system compliance',
+                'priority': 'medium'
+            })
+            
+            suggestions.append({
+                'command': 'pw-screenshot',
+                'reason': 'Capture component screenshot for review',
+                'priority': 'low'
+            })
+        
+        # Test suggestions
         if any('.test.' in f or '.spec.' in f for f in context['recent_files']):
             suggestions.append({
                 'command': 'test',
                 'reason': 'Run tests for recent changes',
                 'priority': 'high'
             })
+            
+            suggestions.append({
+                'command': 'pw-test',
+                'reason': 'Run browser-based tests',
+                'priority': 'medium'
+            })
+    
+    # Error recovery suggestions
+    if tool_result and 'error' in str(tool_result).lower():
+        suggestions.append({
+            'command': 'pw-debug',
+            'reason': 'Debug error in browser context',
+            'priority': 'high'
+        })
+        
+        suggestions.append({
+            'command': 'er',
+            'reason': 'Run error recovery workflow',
+            'priority': 'high'
+        })
+    
+    # Time-based suggestions
+    current_hour = datetime.now().hour
+    if current_hour >= 17:  # After 5 PM
+        suggestions.append({
+            'command': 'pw-visual-test',
+            'reason': 'Run visual regression tests before EOD',
+            'priority': 'medium'
+        })
     
     # General suggestions
     suggestions.append({
@@ -108,6 +200,14 @@ def suggest_next_commands(context, tool_name, tool_result):
         'priority': 'low'
     })
     
+    # If many UI changes detected, suggest orchestration
+    if len([f for f in context['recent_files'] if f.endswith(('.tsx', '.jsx'))]) > 3:
+        suggestions.append({
+            'command': 'orchestrate browser-test-suite',
+            'reason': 'Multiple UI changes - orchestrate comprehensive testing',
+            'priority': 'high'
+        })
+    
     return suggestions
 
 def format_suggestions(suggestions):
@@ -115,17 +215,29 @@ def format_suggestions(suggestions):
     if not suggestions:
         return None
     
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_suggestions = []
+    for sugg in suggestions:
+        if sugg['command'] not in seen:
+            seen.add(sugg['command'])
+            unique_suggestions.append(sugg)
+    
     # Sort by priority
     priority_order = {'high': 0, 'medium': 1, 'low': 2}
-    suggestions.sort(key=lambda x: priority_order.get(x['priority'], 3))
+    unique_suggestions.sort(key=lambda x: priority_order.get(x['priority'], 3))
     
     # Format message
     msg = "\n💡 Suggested next commands:\n"
     
-    # Show top 3 suggestions
-    for i, sugg in enumerate(suggestions[:3], 1):
+    # Show top 4 suggestions (increased from 3 to include Playwright)
+    for i, sugg in enumerate(unique_suggestions[:4], 1):
         emoji = "🔴" if sugg['priority'] == 'high' else "🟡" if sugg['priority'] == 'medium' else "⚪"
         msg += f"{emoji} {i}. /{sugg['command']} - {sugg['reason']}\n"
+    
+    # Add contextual hint
+    if any('pw-' in s['command'] for s in unique_suggestions[:4]):
+        msg += "\n🔍 Browser testing available - catch issues before users do!"
     
     msg += "\nUse /help for more commands"
     

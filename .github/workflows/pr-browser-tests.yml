@@ -1,0 +1,237 @@
+name: PR Browser Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  deployment_status:
+
+jobs:
+  wait-for-deployment:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      preview-url: ${{ steps.wait-for-vercel.outputs.preview-url }}
+    steps:
+      - name: Wait for Vercel Preview
+        id: wait-for-vercel
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Wait for deployment to be ready
+            let deployment;
+            for (let i = 0; i < 30; i++) {
+              const deployments = await github.rest.repos.listDeployments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: context.payload.pull_request.head.ref
+              });
+              
+              deployment = deployments.data[0];
+              if (deployment) {
+                const statuses = await github.rest.repos.listDeploymentStatuses({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  deployment_id: deployment.id
+                });
+                
+                const status = statuses.data[0];
+                if (status && status.state === 'success') {
+                  core.setOutput('preview-url', status.target_url);
+                  return;
+                }
+              }
+              
+              // Wait 10 seconds before checking again
+              await new Promise(resolve => setTimeout(resolve, 10000));
+            }
+            
+            throw new Error('Deployment did not complete in time');
+
+  browser-tests:
+    needs: wait-for-deployment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          npm install -g @mcp-get/playwright
+          npx playwright install chromium
+          npx playwright install-deps
+          
+      - name: Configure Claude Code
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # Configure Claude Code with API key
+          claude config set api_key "$ANTHROPIC_API_KEY"
+          
+          # Add Playwright MCP
+          claude mcp add playwright npx -y @mcp-get/playwright
+          
+      - name: Run Browser Tests
+        env:
+          PREVIEW_URL: ${{ needs.wait-for-deployment.outputs.preview-url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # Run smoke tests
+          claude --non-interactive --output-format json \
+            "Run browser tests on $PREVIEW_URL including: \
+             1. Check for console errors \
+             2. Test core navigation \
+             3. Verify forms work \
+             4. Check accessibility basics \
+             5. Capture screenshots"
+          
+          # Save results
+          claude --non-interactive \
+            "Save test results to .claude/pr-tests/results.json"
+            
+      - name: Run Visual Regression
+        continue-on-error: true
+        run: |
+          # Compare against baselines
+          claude --non-interactive \
+            "Compare visual regression against baselines for PR $PR_NUMBER"
+            
+      - name: Generate Test Report
+        id: test-report
+        run: |
+          # Generate markdown report
+          claude --non-interactive --output-format json \
+            "Generate a markdown test report from the results" \
+            > test-report.json
+            
+          # Extract report content
+          REPORT=$(jq -r '.result' test-report.json)
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          echo "$REPORT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+      - name: Comment on PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const report = `${{ steps.test-report.outputs.report }}`;
+            
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            
+            const botComment = comments.data.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('🔍 Browser Test Results')
+            );
+            
+            const body = `## 🔍 Browser Test Results
+            
+            ${report}
+            
+            ---
+            *Browser tests run automatically on PR preview deployments*`;
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body
+              });
+            }
+            
+      - name: Upload Screenshots
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: browser-test-screenshots
+          path: .claude/screenshots/
+          
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: browser-test-results
+          path: .claude/pr-tests/
+          
+      - name: Set Status Check
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            let status = 'success';
+            let description = 'All browser tests passed';
+            
+            // Check test results
+            try {
+              const results = JSON.parse(
+                fs.readFileSync('.claude/pr-tests/results.json', 'utf8')
+              );
+              
+              if (results.failed > 0) {
+                status = 'failure';
+                description = `${results.failed} browser tests failed`;
+              } else if (results.warnings > 0) {
+                status = 'neutral';
+                description = `Tests passed with ${results.warnings} warnings`;
+              }
+            } catch (e) {
+              status = 'error';
+              description = 'Failed to run browser tests';
+            }
+            
+            // Create status check
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: status,
+              description: description,
+              context: 'Browser Tests'
+            });
+
+  performance-check:
+    needs: wait-for-deployment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Run Lighthouse
+        env:
+          PREVIEW_URL: ${{ needs.wait-for-deployment.outputs.preview-url }}
+        run: |
+          # Install Lighthouse CI
+          npm install -g @lhci/cli
+          
+          # Run Lighthouse
+          lhci autorun \
+            --collect.url="$PREVIEW_URL" \
+            --collect.url="$PREVIEW_URL/features" \
+            --assert.preset="lighthouse:recommended" \
+            --assert.assertions.categories:performance=["error", {"minScore": 0.8}] \
+            --assert.assertions.categories:accessibility=["error", {"minScore": 0.9}]
+            
+      - name: Upload Lighthouse Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
