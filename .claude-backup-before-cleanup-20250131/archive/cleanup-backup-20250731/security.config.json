@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "description": "Security configuration for Claude Code Boilerplate",
+  "enabled": true,
+  "standards": {
+    "file": ".agent-os/standards/security.md",
+    "enforce": true
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "default_limits": {
+      "public": { "window": "1m", "max": 100 },
+      "authenticated": { "window": "1m", "max": 200 },
+      "sensitive": { "window": "1m", "max": 10 },
+      "admin": { "window": "1m", "max": 500 }
+    },
+    "storage": "memory",
+    "redis_config": {
+      "url": "REDIS_URL environment variable"
+    }
+  },
+  "rls": {
+    "enabled": true,
+    "auto_generate": true,
+    "templates_path": "templates/security/rls-policies.sql",
+    "require_on_user_tables": true,
+    "audit_frequency": "weekly"
+  },
+  "captcha": {
+    "provider": "recaptcha-v3",
+    "enabled": true,
+    "threshold": 0.5,
+    "public_forms_required": true,
+    "test_mode": false
+  },
+  "dependencies": {
+    "scan_on_install": true,
+    "scan_on_commit": true,
+    "audit_level": "moderate",
+    "auto_update": false,
+    "block_on_critical": true
+  },
+  "security_headers": {
+    "enabled": true,
+    "headers": {
+      "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+      "X-Frame-Options": "DENY",
+      "X-Content-Type-Options": "nosniff",
+      "X-XSS-Protection": "1; mode=block",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+    },
+    "csp": {
+      "enabled": true,
+      "directives": {
+        "default-src": ["'self'"],
+        "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.google.com/recaptcha/", "https://www.gstatic.com/recaptcha/"],
+        "style-src": ["'self'", "'unsafe-inline'"],
+        "img-src": ["'self'", "data:", "https:"],
+        "font-src": ["'self'"],
+        "connect-src": ["'self'", "https://www.google.com/recaptcha/"],
+        "frame-src": ["https://www.google.com/recaptcha/"]
+      }
+    }
+  },
+  "audit": {
+    "enabled": true,
+    "frequency": "daily",
+    "auto_fix": true,
+    "report_path": "SECURITY_AUDIT_REPORT.md",
+    "include_in_ci": true,
+    "fail_on_high": true
+  },
+  "monitoring": {
+    "enabled": true,
+    "events": {
+      "rate_limit_exceeded": true,
+      "auth_failures": true,
+      "validation_failures": true,
+      "sql_injection_attempts": true,
+      "xss_attempts": true
+    },
+    "alert_thresholds": {
+      "rate_limit_violations": 10,
+      "auth_failures": 5,
+      "suspicious_activity": 3
+    }
+  },
+  "sub_agents": {
+    "security_auditor": {
+      "enabled": true,
+      "auto_spawn_on_deploy": true,
+      "config_path": ".claude/sub-agents/security-auditor.json"
+    },
+    "rls_generator": {
+      "enabled": true,
+      "config_path": ".claude/sub-agents/rls-generator.json"
+    },
+    "security_enhancer": {
+      "enabled": true,
+      "config_path": ".claude/sub-agents/security-enhancer.json"
+    }
+  },
+  "enforcement": {
+    "block_insecure_apis": false,
+    "warn_missing_validation": true,
+    "require_auth_by_default": false,
+    "auto_add_security": true
+  }
+}

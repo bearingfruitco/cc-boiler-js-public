@@ -1,0 +1,368 @@
+{
+  "version": "2.8.0",
+  "project": {
+    "name": "Claude Code Boilerplate",
+    "type": "boilerplate-system",
+    "description": "AI-powered development boilerplate with strict design system, PRP methodology, and Agent OS integration"
+  },
+  "commands": {
+    "path": ".claude/commands",
+    "aliases": ".claude/aliases.json",
+    "chains": ".claude/chains.json"
+  },
+  "context": {
+    "autoCapture": true,
+    "captureInterval": 300000,
+    "storage": ".claude/context",
+    "maxAge": 86400000
+  },
+  "analytics": {
+    "enabled": true,
+    "storage": ".claude/analytics",
+    "retention": 30
+  },
+  "agent_os": {
+    "enabled": true,
+    "standards_path": ".agent-os/standards",
+    "global_standards": "~/.agent-os/standards",
+    "product_docs": ".agent-os/product",
+    "specs_path": ".agent-os/specs",
+    "features": {
+      "centralized_standards": true,
+      "drop_in_capability": true,
+      "design_migration": true,
+      "cross_tool_sharing": true
+    }
+  },
+  "designSystem": {
+    "enforce": true,
+    "auto_fix": false,
+    "standards_file": ".agent-os/standards/design-system.md",
+    "rules": {
+      "typography": {
+        "sizes": ["text-size-1", "text-size-2", "text-size-3", "text-size-4"],
+        "weights": ["font-regular", "font-semibold"]
+      },
+      "spacing": {
+        "grid": 4,
+        "allowed": [1, 2, 3, 4, 6, 8, 12, 16]
+      },
+      "colors": {
+        "distribution": {
+          "neutral": 60,
+          "primary": 30,
+          "accent": 10
+        }
+      },
+      "mobile": {
+        "minTouchTarget": 44,
+        "minTextSize": 16
+      }
+    }
+  },
+  "templates": {
+    "path": ".claude/templates",
+    "available": [
+      "saas-dashboard",
+      "marketing-site",
+      "e-commerce",
+      "internal-tool"
+    ]
+  },
+  "git": {
+    "hooks": {
+      "preCommit": [
+        "validate-design",
+        "security-check secrets"
+      ],
+      "prePush": [
+        "test-runner changed",
+        "performance-monitor check"
+      ]
+    }
+  },
+  "integrations": {
+    "github": {
+      "enabled": true,
+      "features": ["issues", "gists", "actions"],
+      "coderabbit": {
+        "enabled": true,
+        "ide_extension": true,
+        "pr_reviews": true,
+        "auto_fix_simple": true,
+        "respect_design_system": true
+      }
+    },
+    "supabase": {
+      "enabled": true
+    },
+    "vercel": {
+      "enabled": false
+    },
+    "coderabbit": {
+      "mode": "ide_first",
+      "ai_agent": "claude",
+      "review_on_save": false,
+      "review_on_commit": true
+    },
+    "agent_os": {
+      "enabled": true,
+      "sync_standards": true,
+      "existing_project_support": true
+    }
+  },
+  "features": {
+    "precompact_support": true,
+    "suggestion_engine": true,
+    "command_logging": true,
+    "prp_methodology": true,
+    "agent_os_integration": true,
+    "drop_in_existing": true,
+    "design_migration": true
+  },
+  "logging": {
+    "retention_days": 30,
+    "max_log_size_mb": 100
+  },
+  "research": {
+    "auto_capture": true,
+    "auto_include": false,
+    "archive_after_days": 30,
+    "max_context_docs": 2,
+    "max_doc_size_kb": 5,
+    "summary_only": true,
+    "include_recent_only": 7,
+    "search_preview_length": 200,
+    "auto_link_features": true,
+    "templates": [
+      "analysis",
+      "planning",
+      "decision",
+      "findings"
+    ]
+  },
+  "grove_enhancements": {
+    "prd_linter": {
+      "enabled": true,
+      "blocking": false,
+      "custom_terms": ["blazing", "world-class", "game-changing", "revolutionary"],
+      "severity_levels": {
+        "requirements": "warning",
+        "other_sections": "info"
+      }
+    },
+    "pattern_library": {
+      "enabled": true,
+      "auto_suggest": true,
+      "min_success_rate": 0.8,
+      "auto_extract": true,
+      "extraction_triggers": ["test_complete", "feature_complete"]
+    },
+    "test_generation": {
+      "enabled": true,
+      "frameworks": {
+        "unit": "vitest",
+        "integration": "vitest",
+        "e2e": "playwright"
+      },
+      "coverage_target": 0.85,
+      "include_edge_cases": true,
+      "include_error_cases": true,
+      "auto_generate_on_prd": false
+    },
+    "implementation_grading": {
+      "enabled": true,
+      "min_grade": 0.85,
+      "block_pr": false,
+      "weights": {
+        "functional": 0.4,
+        "testing": 0.25,
+        "design": 0.15,
+        "performance": 0.1,
+        "security": 0.1
+      },
+      "grade_on": ["complete", "checkpoint"],
+      "export_reports": true,
+      "track_history": true,
+      "require_compliance_first": true
+    }
+  },
+  "prp_system": {
+    "enabled": true,
+    "templates_path": "PRPs/templates",
+    "ai_docs_path": "PRPs/ai_docs",
+    "scripts_path": "PRPs/scripts",
+    "active_prps": "PRPs/active",
+    "completed_prps": "PRPs/completed",
+    "validation_loops": {
+      "level_1": {
+        "name": "Code Quality",
+        "auto_fix": true,
+        "commands": ["lint:fix", "typecheck", "/vd", "/validate-async"]
+      },
+      "level_2": {
+        "name": "Component Testing",
+        "commands": ["test:components", "test:hooks"]
+      },
+      "level_3": {
+        "name": "Integration Testing",
+        "commands": ["test:e2e", "test:api", "test:a11y"]
+      },
+      "level_4": {
+        "name": "Production Readiness",
+        "commands": ["lighthouse", "analyze", "security:check", "/grade --requirements"]
+      }
+    },
+    "auto_include_ai_docs": true,
+    "link_to_requirements": true,
+    "track_validation_history": true
+  },
+  "requirement_enforcement": {
+    "enabled": true,
+    "strict_mode": true,
+    "continuous_validation": true,
+    "validation_frequency": 10,
+    "auto_test_generation": true,
+    "block_on_violation": true,
+    "pre_implementation_check": true,
+    "min_confidence": 8
+  },
+  "modules": {
+    "tcpa": {
+      "enabled": false,
+      "config_file": ".claude/tcpa.config.json",
+      "description": "TCPA compliance for lead generation forms"
+    },
+    "prp": {
+      "enabled": true,
+      "config_file": "PRPs/config.json",
+      "description": "Product Requirement Prompts for one-pass implementation"
+    },
+    "agent_os": {
+      "enabled": true,
+      "config_file": ".agent-os/config.json",
+      "description": "Agent OS integration for spec-driven development"
+    },
+    "security": {
+      "enabled": true,
+      "config_file": ".claude/security.config.json",
+      "description": "Production-grade security features for APIs, forms, and databases",
+      "standards_file": ".agent-os/standards/security.md",
+      "features": {
+        "rate_limiting": true,
+        "rls_policies": true,
+        "captcha": true,
+        "dependency_scanning": true,
+        "security_headers": true,
+        "audit_logging": true
+      }
+    }
+  },
+  "dependencies": {
+    "auto_track": true,
+    "scan_on_commit": true,
+    "track_hooks": true,
+    "track_utils": true,
+    "alert_threshold": 3,
+    "check_circular": true,
+    "update_imports": true
+  },
+  "capture_to_issue": {
+    "similarity_threshold": 0.8,
+    "check_by_default": true,
+    "include_components": true,
+    "include_dependencies": true,
+    "max_content_length": 5000,
+    "auto_link_prd": true,
+    "search_scope": "open"
+  },
+  "hooks": {
+    "creation_guard": {
+      "enabled": true,
+      "check_components": true,
+      "check_functions": true,
+      "check_api_routes": true,
+      "suggest_alternatives": true
+    },
+    "dependency_tracker": {
+      "enabled": true,
+      "alert_on_change": true,
+      "min_dependents_for_alert": 3
+    },
+    "response_capture": {
+      "enabled": true,
+      "auto_capture": true,
+      "capture_plans": true,
+      "capture_summaries": true,
+      "max_captures": 50
+    },
+    "design_standards": {
+      "enabled": true,
+      "use_standards_file": true,
+      "fallback_to_hardcoded": true
+    },
+    "post-tool-use": [
+      {
+        "name": "state-save",
+        "enabled": true,
+        "throttle": 60
+      },
+      {
+        "name": "metrics",
+        "enabled": true
+      },
+      {
+        "name": "response-capture",
+        "enabled": true
+      },
+      {
+        "name": "next-command-suggester",
+        "enabled": true,
+        "enhanced": true
+      }
+    ],
+    "pre-tool-use": [
+      {
+        "name": "design-check",
+        "enabled": true,
+        "use_standards": true
+      },
+      {
+        "name": "pii-protection",
+        "enabled": true
+      },
+      {
+        "name": "creation-guard",
+        "enabled": true
+      },
+      {
+        "name": "dependency-tracker",
+        "enabled": true
+      }
+    ]
+  },
+  "github": {
+    "gist_visibility": "secret",
+    "pr_update_frequency": "on_change",
+    "issue_duplicate_check": true,
+    "auto_link_issues": true
+  },
+  "branch_awareness": {
+    "enabled": true,
+    "mode": "info",
+    "show_in_resume": true,
+    "notification_hours": 2,
+    "feature_tracking": true,
+    "integrate_with_prp": true
+  },
+  "existing_project_workflows": {
+    "enabled": true,
+    "auto_detect": true,
+    "suggest_on_resume": true,
+    "migration_chains": [
+      "analyze-existing-project",
+      "migrate-design-system",
+      "onboard-existing"
+    ]
+  }
+}

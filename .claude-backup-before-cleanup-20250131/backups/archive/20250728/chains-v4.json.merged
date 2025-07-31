@@ -1,0 +1,389 @@
+{
+  "v4_chains": {
+    "full-stack-feature-v4": {
+      "description": "Complete feature automation from requirements to deployment (v4.0)",
+      "parameters": {
+        "feature_name": "string",
+        "requirements": "string"
+      },
+      "phases": [
+        {
+          "name": "requirements-analysis",
+          "parallel": false,
+          "steps": [
+            {
+              "command": "analyze-requirements",
+              "args": "${feature_name}",
+              "output": "requirements.md"
+            },
+            {
+              "agent": "pm-orchestrator",
+              "task": "Break down ${requirements} into implementation tasks",
+              "output": "tasks.json"
+            },
+            {
+              "agent": "threat-modeler",
+              "task": "Generate threat model using STRIDE methodology",
+              "output": "threat-model.md"
+            }
+          ]
+        },
+        {
+          "name": "design-generation",
+          "parallel": true,
+          "steps": [
+            {
+              "agent": "systems-architect",
+              "task": "Design technical architecture and create ADRs",
+              "output": "architecture/"
+            },
+            {
+              "agent": "event-schema",
+              "task": "Design event taxonomy and data model",
+              "output": "schemas/"
+            },
+            {
+              "agent": "database-architect",
+              "task": "Design optimal database schema with migrations",
+              "output": "migrations/"
+            },
+            {
+              "agent": "ui-systems",
+              "task": "Create UI mockups and component hierarchy",
+              "output": "designs/"
+            }
+          ]
+        },
+        {
+          "name": "security-setup",
+          "parallel": false,
+          "steps": [
+            {
+              "command": "generate-rls all",
+              "validate": true
+            },
+            {
+              "agent": "security-auditor",
+              "task": "Generate security policies and permission matrix",
+              "output": "security/"
+            },
+            {
+              "command": "create-security-tests",
+              "args": "${feature_name}"
+            }
+          ]
+        },
+        {
+          "name": "tdd-implementation",
+          "parallel": false,
+          "steps": [
+            {
+              "agent": "tdd-engineer",
+              "task": "Generate comprehensive test suite from requirements",
+              "output": "tests/",
+              "expectFailure": true
+            },
+            {
+              "command": "test",
+              "expectFailure": true,
+              "reason": "RED phase - tests should fail initially"
+            },
+            {
+              "parallel": true,
+              "agents": [
+                {
+                  "agent": "backend-reliability-engineer",
+                  "task": "Implement API endpoints to pass tests",
+                  "output": "app/api/"
+                },
+                {
+                  "agent": "supabase-specialist",
+                  "task": "Implement database layer with RLS to pass tests",
+                  "output": "lib/db/"
+                },
+                {
+                  "agent": "ui-systems",
+                  "task": "Build UI components to pass tests",
+                  "output": "components/"
+                }
+              ]
+            },
+            {
+              "command": "test",
+              "expectSuccess": true,
+              "reason": "GREEN phase - all tests should pass"
+            }
+          ]
+        },
+        {
+          "name": "quality-assurance",
+          "parallel": true,
+          "steps": [
+            {
+              "agent": "refactoring-expert",
+              "task": "Refactor code while maintaining test coverage",
+              "output": "refactored/"
+            },
+            {
+              "agent": "performance-optimizer",
+              "task": "Optimize performance and add monitoring",
+              "output": "optimizations/"
+            },
+            {
+              "agent": "privacy-compliance",
+              "task": "Ensure GDPR/CCPA compliance",
+              "output": "compliance/"
+            },
+            {
+              "agent": "documentation-writer",
+              "task": "Generate comprehensive documentation",
+              "output": "docs/"
+            }
+          ]
+        },
+        {
+          "name": "deployment-prep",
+          "parallel": false,
+          "steps": [
+            {
+              "command": "validate-design --strict"
+            },
+            {
+              "command": "test:all"
+            },
+            {
+              "command": "security-check all"
+            },
+            {
+              "command": "performance-check"
+            },
+            {
+              "agent": "platform-deployment",
+              "task": "Optimize deployment configuration",
+              "output": "deployment/"
+            }
+          ]
+        }
+      ],
+      "rollback": {
+        "enabled": true,
+        "checkpoints": ["pre-implementation", "post-implementation", "pre-deployment"]
+      }
+    },
+    
+    "security-first-api-v4": {
+      "description": "Create API with mandatory security (v4.0)",
+      "parameters": {
+        "api_name": "string",
+        "requirements": "string"
+      },
+      "steps": [
+        {
+          "agent": "threat-modeler",
+          "task": "Analyze API requirements and identify threats",
+          "output": "threats.md"
+        },
+        {
+          "agent": "security-auditor",
+          "task": "Generate comprehensive security rules",
+          "output": "security-rules.json"
+        },
+        {
+          "command": "generate-rls ${api_name}"
+        },
+        {
+          "agent": "tdd-engineer",
+          "task": "Create security test suite",
+          "output": "tests/security/"
+        },
+        {
+          "agent": "backend-reliability-engineer",
+          "task": "Implement secure API with all controls",
+          "output": "app/api/${api_name}/"
+        },
+        {
+          "command": "test:security ${api_name}"
+        },
+        {
+          "command": "security-audit ${api_name}"
+        }
+      ]
+    },
+    
+    "performance-optimization-v4": {
+      "description": "Comprehensive performance optimization with real-time monitoring (v4.0)",
+      "steps": [
+        {
+          "command": "performance-baseline",
+          "output": "baseline-metrics.json"
+        },
+        {
+          "agent": "performance-optimizer",
+          "task": "Analyze all performance bottlenecks",
+          "output": "bottlenecks.md"
+        },
+        {
+          "parallel": true,
+          "agents": [
+            {
+              "agent": "supabase-specialist",
+              "task": "Optimize database queries and add indexes"
+            },
+            {
+              "agent": "ui-systems",
+              "task": "Optimize bundle size and implement code splitting"
+            },
+            {
+              "agent": "backend-reliability-engineer",
+              "task": "Add caching layers and optimize API responses"
+            }
+          ]
+        },
+        {
+          "command": "performance-compare baseline",
+          "threshold": 20,
+          "reason": "Expect 20% improvement"
+        },
+        {
+          "agent": "platform-deployment",
+          "task": "Configure edge optimization and CDN",
+          "output": "edge-config/"
+        }
+      ]
+    },
+    
+    "automated-error-recovery-v4": {
+      "description": "Intelligent error detection and auto-fix (v4.0)",
+      "trigger": "on-error",
+      "steps": [
+        {
+          "command": "capture-error-context"
+        },
+        {
+          "agent": "senior-engineer",
+          "task": "Analyze error and propose solutions",
+          "output": "error-analysis.md"
+        },
+        {
+          "agent": "code-analyzer-debugger",
+          "task": "Trace error source and identify root cause",
+          "output": "root-cause.md"
+        },
+        {
+          "command": "search-knowledge-base ${error_pattern}"
+        },
+        {
+          "conditional": {
+            "if": "solution_found",
+            "then": [
+              {
+                "command": "apply-known-fix"
+              },
+              {
+                "command": "test"
+              }
+            ],
+            "else": [
+              {
+                "agent": "senior-engineer",
+                "task": "Implement custom fix",
+                "output": "fix/"
+              },
+              {
+                "command": "test"
+              },
+              {
+                "command": "update-knowledge-base"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    
+    "predictive-development-v4": {
+      "description": "AI-powered predictive development assistance (v4.0)",
+      "trigger": "on-file-change",
+      "steps": [
+        {
+          "command": "analyze-development-pattern"
+        },
+        {
+          "agent": "prediction-engine",
+          "task": "Predict next likely development steps",
+          "output": "predictions.json"
+        },
+        {
+          "conditional": {
+            "if": "confidence > 0.7",
+            "then": [
+              {
+                "command": "pre-generate-resources",
+                "args": "${predictions}"
+              },
+              {
+                "command": "show-suggestions",
+                "interactive": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    
+    "accessibility-first-v4": {
+      "description": "Enforce accessibility from the start (v4.0)",
+      "trigger": "on-component-create",
+      "steps": [
+        {
+          "agent": "accessibility-specialist",
+          "task": "Generate ARIA requirements and keyboard navigation",
+          "output": "a11y-requirements.md"
+        },
+        {
+          "command": "generate-a11y-tests"
+        },
+        {
+          "agent": "ui-systems",
+          "task": "Implement component with accessibility features",
+          "constraints": ["wcag-2.1-aa", "keyboard-navigable", "screen-reader-compatible"]
+        },
+        {
+          "command": "test:a11y",
+          "threshold": 95
+        },
+        {
+          "command": "generate-a11y-docs"
+        }
+      ]
+    }
+  },
+  
+  "v4_shortcuts": {
+    "fsf": "full-stack-feature-v4",
+    "sfa": "security-first-api-v4",
+    "po4": "performance-optimization-v4",
+    "aer": "automated-error-recovery-v4",
+    "pd4": "predictive-development-v4",
+    "a11y": "accessibility-first-v4"
+  },
+  
+  "v4_config": {
+    "auto_triggers": {
+      "error_recovery": true,
+      "predictive_assistance": true,
+      "accessibility_enforcement": true
+    },
+    "performance_budgets": {
+      "component_render_ms": 50,
+      "api_response_ms": 200,
+      "bundle_size_kb": 500,
+      "page_load_ms": 3000
+    },
+    "security_requirements": {
+      "mandatory_rls": true,
+      "mandatory_tests": true,
+      "owasp_compliance": true
+    }
+  }
+}

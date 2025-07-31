@@ -4,6 +4,7 @@
   "personas": {
     "frontend": {
       "name": "Frontend Specialist",
+      "maps_to_native": "frontend",
       "focus": "User experience, UI components, client-side logic",
       "auto_triggers": {
         "file_patterns": [
@@ -30,7 +31,7 @@
       ],
       "tools": {
         "primary": ["filesystem", "brave-search", "context7"],
-        "browser": ["puppeteer", "browserbase"],
+        "browser": ["playwright"],
         "validation": ["design-validator", "accessibility-checker"]
       },
       "file_ownership": [
@@ -48,6 +49,7 @@
     },
     "backend": {
       "name": "Backend Architect",
+      "maps_to_native": "backend",
       "focus": "Server systems, APIs, database, business logic",
       "auto_triggers": {
         "file_patterns": [
@@ -94,6 +96,7 @@
     },
     "analyzer": {
       "name": "Root Cause Analyzer",
+      "maps_to_native": "analyzer",
       "focus": "Debugging, investigation, evidence-based problem solving",
       "auto_triggers": {
         "keywords": [
@@ -120,7 +123,7 @@
       "tools": {
         "primary": ["sequential-thinking", "filesystem"],
         "analysis": ["cloudflare-observability", "supabase:get_logs"],
-        "testing": ["puppeteer", "browserbase"]
+        "testing": ["playwright"]
       },
       "investigation_protocol": {
         "steps": [
@@ -147,6 +150,7 @@
     },
     "refactorer": {
       "name": "Code Quality Specialist",
+      "maps_to_native": "refactoring-expert",
       "focus": "Technical debt reduction, code quality improvement, pattern extraction",
       "auto_triggers": {
         "keywords": [
@@ -195,6 +199,7 @@
     },
     "devops": {
       "name": "DevOps Engineer",
+      "maps_to_native": "platform-deployment",
       "focus": "Deployment, infrastructure, CI/CD, monitoring",
       "auto_triggers": {
         "file_patterns": [
@@ -251,6 +256,7 @@
     },
     "security": {
       "name": "Security Analyst",
+      "maps_to_native": "security",
       "focus": "Security analysis, compliance, vulnerability detection",
       "auto_triggers": {
         "file_patterns": [
@@ -305,6 +311,7 @@
     },
     "qa": {
       "name": "Quality Assurance Engineer",
+      "maps_to_native": "qa",
       "focus": "Testing, validation, quality metrics",
       "auto_triggers": {
         "file_patterns": [
@@ -334,7 +341,7 @@
         "Test automation"
       ],
       "tools": {
-        "primary": ["filesystem", "puppeteer", "browserbase"],
+        "primary": ["filesystem", "playwright"],
         "testing": ["playwright", "browser-test-flow"],
         "validation": ["context7", "brave-search"]
       },
@@ -359,6 +366,7 @@
     },
     "architect": {
       "name": "System Architect",
+      "maps_to_native": "system-architect",
       "focus": "System design, architecture decisions, patterns",
       "auto_triggers": {
         "file_patterns": [
@@ -412,6 +420,7 @@
     },
     "performance": {
       "name": "Performance Engineer",
+      "maps_to_native": "performance",
       "focus": "Optimization, caching, load times, resource usage",
       "auto_triggers": {
         "keywords": [
@@ -437,8 +446,8 @@
         "Load testing"
       ],
       "tools": {
-        "primary": ["filesystem", "puppeteer"],
-        "monitoring": ["cloudflare-observability", "browserbase"],
+        "primary": ["filesystem", "playwright"],
+        "monitoring": ["cloudflare-observability", "playwright"],
         "analysis": ["sequential-thinking"]
       },
       "performance_metrics": {
@@ -460,6 +469,7 @@
     },
     "integrator": {
       "name": "Integration Specialist",
+      "maps_to_native": "integration-specialist",
       "focus": "Connecting systems, data flow, third-party APIs",
       "auto_triggers": {
         "keywords": [
@@ -486,7 +496,7 @@
       "tools": {
         "primary": ["filesystem", "brave-search"],
         "apis": ["supabase", "github", "cloudflare-bindings"],
-        "testing": ["puppeteer", "browserbase"]
+        "testing": ["playwright"]
       },
       "integration_patterns": [
         "Request-Reply",
@@ -511,6 +521,7 @@
     },
     "data": {
       "name": "Data Engineer",
+      "maps_to_native": "database-architect",
       "focus": "Database design, migrations, data integrity, analytics",
       "auto_triggers": {
         "keywords": [
@@ -563,6 +574,7 @@
     },
     "mentor": {
       "name": "Technical Mentor",
+      "maps_to_native": "mentor",
       "focus": "Knowledge sharing, documentation, team guidance",
       "auto_triggers": {
         "keywords": [

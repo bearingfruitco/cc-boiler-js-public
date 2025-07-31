@@ -1,6 +1,6 @@
 {
   "name": "claude-code-boilerplate",
-  "version": "2.8.0",
+  "version": "4.0.0",
   "private": true,
   "scripts": {
     "dev": "NODE_ENV=development next dev",
@@ -76,7 +76,20 @@
     "db:backup": "node scripts/backup-database.js",
     "validate:build": "node scripts/validate-build.js",
     "performance:check": "node scripts/performance-check.js",
-    "setup:env": "bash scripts/setup-environments.sh"
+    "setup:env": "bash scripts/setup-environments.sh",
+    "architecture:init": "./scripts/architecture-tracker.sh init",
+    "architecture:record": "./scripts/architecture-tracker.sh record",
+    "architecture:list": "./scripts/architecture-tracker.sh list",
+    "architecture:impact": "./scripts/architecture-tracker.sh impact",
+    "prp:sync": "./scripts/prp-sync.sh status",
+    "prp:update": "./scripts/prp-sync.sh update",
+    "prp:sync-all": "./scripts/prp-sync.sh sync-all",
+    "docs:init": "./scripts/doc-updater.sh init",
+    "docs:update": "./scripts/doc-updater.sh update",
+    "docs:watch": "./scripts/doc-updater.sh watch",
+    "docs:check": "./scripts/doc-updater.sh check",
+    "v4:init": "./scripts/initialize-v4-systems.sh",
+    "v4:workflow": "./scripts/architecture-prp-workflow.sh"
   },
   "dependencies": {
     "@date-fns/tz": "^1.0.0",
@@ -117,7 +130,15 @@
     "tailwind-merge": "^3.3.1",
     "uuid": "^11.0.0",
     "zod": "3.25.1",
-    "zustand": "^5.0.6"
+    "zustand": "^5.0.6",
+    "commander": "^12.1.0",
+    "chalk": "^4.1.2",
+    "inquirer": "^8.2.6",
+    "table": "^6.8.2",
+    "chokidar": "^3.6.0",
+    "lodash": "^4.17.21",
+    "glob": "^10.4.5",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.1.1",

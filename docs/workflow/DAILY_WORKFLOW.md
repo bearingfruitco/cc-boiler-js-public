@@ -1,6 +1,6 @@
 # Daily Development Workflow
 
-> 🚀 **For the complete unified guide, see: [MASTER_WORKFLOW_GUIDE.md](../../MASTER_WORKFLOW_GUIDE.md)**
+> 🚀 **For the complete unified guide, see: [SYSTEM_WORKFLOWS.md](../setup/SYSTEM_WORKFLOWS.md)**
 
 This guide explains the day-to-day workflow for building features with Claude Code, GitHub issues, and both PRD and PRP-driven development systems.
 

@@ -1,0 +1,90 @@
+{
+  "permissions": {
+    "file_system": {
+      "read": true,
+      "write": true
+    },
+    "shell": {
+      "execute": true
+    }
+  },
+  "hooks": {
+    "preToolUse": [
+      {
+        "command": "python3 .claude/hooks/pre-tool-use/00-auto-approve-safe-ops.py"
+      },
+      {
+        "command": "python3 .claude/hooks/pre-tool-use/08-async-patterns.py"
+      },
+      {
+        "command": "python3 .claude/hooks/pre-tool-use/01-collab-sync.py"
+      },
+      {
+        "command": "python3 .claude/hooks/pre-tool-use/02-design-check.py"
+      },
+      {
+        "command": "python3 .claude/hooks/pre-tool-use/03-conflict-check.py"
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "python3 .claude/hooks/post-tool-use/15b-task-ledger-updater.py"
+      },
+      {
+        "command": "python3 .claude/hooks/post-tool-use/01-state-save.py"
+      },
+      {
+        "command": "python3 .claude/hooks/post-tool-use/02-metrics.py"
+      },
+      {
+        "command": "python3 .claude/hooks/post-tool-use/04-next-command-suggester.py"
+      },
+      {
+        "command": "python3 .claude/hooks/post-tool-use/04-prp-metrics.py"
+      }
+    ],
+    "notification": [
+      {
+        "command": "python3 .claude/hooks/notification/team-aware.py"
+      },
+      {
+        "command": "python3 .claude/hooks/notification/smart-suggest.py"
+      },
+      {
+        "command": "python3 .claude/hooks/notification/continuous-requirement-validator.py"
+      },
+      {
+        "command": "python3 .claude/hooks/notification/context-db-awareness.py"
+      },
+      {
+        "command": "python3 .claude/hooks/notification/branch-health.py"
+      }
+    ],
+    "preCompact": [
+      {
+        "command": "python3 .claude/hooks/pre-compact/requirement-context-preserver.py"
+      }
+    ],
+    "stop": [
+      {
+        "command": "python3 .claude/hooks/stop/save-state.py"
+      },
+      {
+        "command": "python3 .claude/hooks/stop/knowledge-share.py"
+      },
+      {
+        "command": "python3 .claude/hooks/stop/handoff-prep.py"
+      }
+    ],
+    "subagentStop": [
+      {
+        "command": "python3 .claude/hooks/sub-agent-stop/coordinate.py"
+      }
+    ],
+    "userPromptSubmit": [
+      {
+        "command": "python3 .claude/hooks/user-prompt-submit/01-tdd-suggester.py"
+      }
+    ]
+  }
+}

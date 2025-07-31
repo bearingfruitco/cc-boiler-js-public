@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "file_system": {
+      "read": true,
+      "write": true,
+      "create_directories": true
+    },
+    "shell": {
+      "execute": true
+    }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/pre-tool-use/00-auto-approve-safe-ops.py"
+          }
+        ]
+      }
+    ]
+  }
+}

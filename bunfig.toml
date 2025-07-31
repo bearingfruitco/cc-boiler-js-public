@@ -27,6 +27,6 @@ NODE_ENV = "development"
 # Improved error messages
 htmx = true
 
-[telemetry]
+# [telemetry]
 # Disable telemetry
-enabled = false
+# enabled = false

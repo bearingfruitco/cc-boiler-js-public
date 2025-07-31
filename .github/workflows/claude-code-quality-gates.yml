@@ -1,0 +1,226 @@
+name: Claude Code Quality Gates
+on: 
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install Dependencies
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          npm install
+      
+      - name: Design System Validation
+        id: design
+        continue-on-error: true
+        run: |
+          claude --non-interactive "/validate-design all" > design-results.json
+          echo "::set-output name=exitcode::$?"
+          cat design-results.json
+      
+      - name: Stage Validation
+        id: stage
+        continue-on-error: true
+        run: |
+          claude --non-interactive "/stage-validate check current" > stage-results.json
+          echo "::set-output name=exitcode::$?"
+          cat stage-results.json
+      
+      - name: PRP Validation (if active)
+        id: prp
+        continue-on-error: true
+        run: |
+          if [ -d "PRPs/active" ] && [ "$(ls -A PRPs/active 2>/dev/null)" ]; then
+            claude --non-interactive "/prp-execute --level 1" > prp-results.json
+            echo "::set-output name=exitcode::$?"
+            cat prp-results.json
+          else
+            echo "No active PRPs to validate"
+            echo "::set-output name=exitcode::0"
+          fi
+      
+      - name: Security Check
+        id: security
+        continue-on-error: true
+        run: |
+          claude --non-interactive "/security-check all" > security-results.json
+          echo "::set-output name=exitcode::$?"
+          cat security-results.json
+      
+      - name: Dependency Scan
+        id: deps
+        continue-on-error: true
+        run: |
+          claude --non-interactive "/deps scan" > deps-results.json
+          echo "::set-output name=exitcode::$?"
+          cat deps-results.json
+      
+      - name: Test Runner
+        id: tests
+        continue-on-error: true
+        run: |
+          claude --non-interactive "/test-runner all" > test-results.json
+          echo "::set-output name=exitcode::$?"
+          cat test-results.json
+      
+      - name: Async Pattern Validation
+        id: async
+        continue-on-error: true
+        run: |
+          claude --non-interactive "/validate-async" > async-results.json
+          echo "::set-output name=exitcode::$?"
+          cat async-results.json
+      
+      - name: Implementation Grading
+        id: grade
+        continue-on-error: true
+        run: |
+          claude --non-interactive "/grade --requirements" > grade-results.json
+          echo "::set-output name=exitcode::$?"
+          cat grade-results.json
+      
+      - name: Generate Summary Report
+        if: always()
+        run: |
+          echo "## Claude Code Quality Gates Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Design validation
+          if [ "${{ steps.design.outputs.exitcode }}" = "0" ]; then
+            echo "✅ Design System: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Design System: Failed" >> $GITHUB_STEP_SUMMARY
+            echo "   $(jq -r '.totalViolations' design-results.json) violations found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Stage validation
+          if [ "${{ steps.stage.outputs.exitcode }}" = "0" ]; then
+            echo "✅ Stage Validation: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Stage Validation: Failed" >> $GITHUB_STEP_SUMMARY
+            echo "   Progress: $(jq -r '.progress' stage-results.json)%" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # PRP validation
+          if [ "${{ steps.prp.outputs.exitcode }}" = "0" ]; then
+            echo "✅ PRP Validation: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  PRP Validation: Issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Security check
+          if [ "${{ steps.security.outputs.exitcode }}" = "0" ]; then
+            echo "✅ Security: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Security: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Dependency scan
+          if [ "${{ steps.deps.outputs.exitcode }}" = "0" ]; then
+            echo "✅ Dependencies: Clean" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  Dependencies: Issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Tests
+          if [ "${{ steps.tests.outputs.exitcode }}" = "0" ]; then
+            echo "✅ Tests: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Tests: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Async patterns
+          if [ "${{ steps.async.outputs.exitcode }}" = "0" ]; then
+            echo "✅ Async Patterns: Valid" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  Async Patterns: Issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Grade
+          if [ "${{ steps.grade.outputs.exitcode }}" = "0" ]; then
+            echo "✅ Implementation Grade: Passing" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  Implementation Grade: Below threshold" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read results
+            const designResults = JSON.parse(fs.readFileSync('design-results.json', 'utf8'));
+            const stageResults = JSON.parse(fs.readFileSync('stage-results.json', 'utf8'));
+            
+            // Build comment
+            let comment = '## 🤖 Claude Code Quality Report\n\n';
+            
+            // Design system
+            if (designResults.status === 'passed') {
+              comment += '✅ **Design System**: All checks passed\n';
+            } else {
+              comment += `❌ **Design System**: ${designResults.totalViolations} violations found\n`;
+              comment += '<details><summary>Details</summary>\n\n';
+              for (const [file, violations] of Object.entries(designResults.files)) {
+                comment += `- \`${file}\`: ${violations.join(', ')}\n`;
+              }
+              comment += '\n</details>\n';
+            }
+            
+            // Stage validation
+            comment += `\n📊 **Stage Progress**: ${stageResults.progress}% complete\n`;
+            if (stageResults.failures && stageResults.failures.length > 0) {
+              comment += '<details><summary>Missing items</summary>\n\n';
+              stageResults.failures.forEach(f => {
+                comment += `- ${f}\n`;
+              });
+              comment += '\n</details>\n';
+            }
+            
+            // Add fix suggestions
+            if (designResults.fixable > 0) {
+              comment += `\n💡 **Auto-fix available**: Run \`/validate-design fix\` to fix ${designResults.fixable} issues automatically.\n`;
+            }
+            
+            // Post comment
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+      
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-gate-results
+          path: |
+            *-results.json
+      
+      - name: Fail if Quality Gates Failed
+        if: |
+          steps.design.outputs.exitcode != '0' ||
+          steps.security.outputs.exitcode != '0' ||
+          steps.tests.outputs.exitcode != '0'
+        run: |
+          echo "Quality gates failed. See summary for details."
+          exit 1

@@ -1,0 +1,704 @@
+    "database-optimization": {
+      "description": "Optimize database performance with v3.0 specialists",
+      "steps": [
+        {
+          "agent": "performance-optimizer",
+          "task": "Analyze database performance metrics"
+        },
+        {
+          "agent": "supabase-specialist",
+          "task": "Optimize Supabase queries, indexes, and RLS policies"
+        },
+        {
+          "agent": "orm-specialist",
+          "task": "Optimize ORM queries and implement efficient patterns"
+        },
+        {
+          "agent": "database-architect",
+          "task": "Review and optimize overall database design"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Create performance benchmarks"
+        }
+      ]
+    }
+  },
+  "shortcuts": {
+  "chains": {
+    "morning-setup": {
+      "description": "Complete morning setup routine",
+      "commands": [
+        "smart-resume",
+        "security-check deps",
+        "test-runner changed"
+      ]
+    },
+    "supabase-auth-flow": {
+      "description": "Complete Supabase authentication implementation",
+      "steps": [
+        {
+          "agent": "supabase-specialist",
+          "task": "Design auth schema and RLS policies"
+        },
+        {
+          "agent": "backend-reliability-engineer",
+          "task": "Implement auth endpoints"
+        },
+        {
+          "agent": "ui-systems",
+          "task": "Build auth UI components"
+        },
+        {
+          "agent": "privacy-compliance",
+          "task": "Add consent flows and compliance"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Test auth flow end-to-end"
+        }
+      ]
+    },
+    "analytics-pipeline": {
+      "description": "Full analytics implementation with tracking",
+      "steps": [
+        {
+          "agent": "event-schema",
+          "task": "Design event taxonomy"
+        },
+        {
+          "agent": "analytics-engineer",
+          "task": "Set up RudderStack and DBT models"
+        },
+        {
+          "agent": "backend-reliability-engineer",
+          "task": "Implement event endpoints"
+        },
+        {
+          "agent": "privacy-compliance",
+          "task": "Ensure tracking compliance"
+        }
+      ]
+    },
+    "production-ready-feature": {
+      "description": "Full-stack feature with all requirements",
+      "steps": [
+        {
+          "agent": "product-manager-orchestrator",
+          "task": "Break down requirements and coordinate"
+        },
+        {
+          "agent": "event-schema",
+          "task": "Design data model and events"
+        },
+        {
+          "agent": "orm-specialist",
+          "task": "Create database schema and migrations"
+        },
+        {
+          "agent": "supabase-specialist",
+          "task": "Implement backend with RLS"
+        },
+        {
+          "agent": "ui-systems",
+          "task": "Build frontend components"
+        },
+        {
+          "agent": "analytics-engineer",
+          "task": "Add tracking and metrics"
+        },
+        {
+          "agent": "privacy-compliance",
+          "task": "Ensure compliance"
+        },
+        {
+          "agent": "platform-deployment",
+          "task": "Optimize deployment"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Comprehensive testing"
+        },
+        {
+          "agent": "documentation-writer",
+          "task": "Update documentation"
+        }
+      ]
+    },
+    "tech-stack-optimization": {
+      "description": "Optimize entire technology stack",
+      "steps": [
+        {
+          "agent": "performance-optimizer",
+          "task": "Analyze performance bottlenecks"
+        },
+        {
+          "agent": "supabase-specialist",
+          "task": "Optimize database queries and indexes"
+        },
+        {
+          "agent": "orm-specialist",
+          "task": "Optimize ORM queries"
+        },
+        {
+          "agent": "ui-systems",
+          "task": "Optimize frontend bundles and rendering"
+        },
+        {
+          "agent": "platform-deployment",
+          "task": "Configure edge caching and CDN"
+        }
+      ]
+    },
+    "pre-pr": {
+      "description": "Pre-PR validation suite",
+      "commands": [
+        "validate-design",
+        "test-runner changed",
+        "verify --full",
+        "performance-monitor check",
+        "security-check all"
+      ],
+      "stopOnError": true
+    },
+    "feature-complete": {
+      "description": "Complete feature workflow (enhanced with v3.0 agents)",
+      "commands": [
+        "checkpoint create pre-complete",
+        "analyze-task",
+        "orchestrate if needed",
+        "validate-design",
+        "test-runner all",
+        "agent-health technology",
+        "performance-monitor compare",
+        "security-check all",
+        "feature-workflow complete"
+      ],
+      "stopOnError": true
+    },
+    "quick-check": {
+      "description": "Quick validation check",
+      "commands": [
+        "validate-design current",
+        "test-runner current"
+      ]
+    },
+    "daily-report": {
+      "description": "Generate daily reports",
+      "commands": [
+        "work-status list",
+        "todo report",
+        "analytics report",
+        "performance-monitor report"
+      ]
+    },
+    "error-fix": {
+      "description": "Common error recovery",
+      "commands": [
+        "error-recovery deps",
+        "error-recovery build",
+        "validate-design"
+      ]
+    },
+    "feature-planning": {
+      "description": "Plan new feature with PRD and tasks",
+      "commands": [
+        "create-prd",
+        "generate-tasks",
+        "task-ledger sync",
+        "task-status"
+      ]
+    },
+    "task-sprint": {
+      "description": "Work through tasks systematically",
+      "commands": [
+        "task-ledger",
+        "task-status",
+        "process-tasks",
+        "verify",
+        "task-checkpoint"
+      ]
+    },
+    "task-review": {
+      "description": "Review task implementation",
+      "commands": [
+        "verify",
+        "validate-design",
+        "test-runner current",
+        "browser-test-flow"
+      ]
+    },
+    "context-maintenance": {
+      "description": "Maintain project context",
+      "commands": [
+        "auto-update-context",
+        "analyze-project",
+        "generate-docs"
+      ]
+    },
+    "daily-startup": {
+      "description": "Enhanced daily startup with v3.0 health checks",
+      "commands": [
+        "smart-resume",
+        "agent-health all",
+        "show-metrics dashboard",
+        "task-ledger summary",
+        "task-status",
+        "work-status",
+        "todo list"
+      ]
+    },
+    "safe-commit": {
+      "description": "Safe commit with validation checks",
+      "commands": [
+        "facts all",
+        "validate-design",
+        "lint:fix",
+        "test-runner changed"
+      ],
+      "stopOnError": true
+    },
+    "field-sync": {
+      "description": "Sync all field registry generated code",
+      "commands": [
+        "field-generate types",
+        "field-generate schemas",
+        "field-generate factories",
+        "field-generate masking"
+      ]
+    },
+    "pre-component": {
+      "description": "Check before creating new component",
+      "commands": [
+        "exists",
+        "facts components"
+      ]
+    },
+    "branch-aware-startup": {
+      "description": "Branch-aware daily startup",
+      "commands": [
+        "smart-resume",
+        "branch-status",
+        "feature-status current",
+        "task-status"
+      ]
+    },
+    "safe-feature-complete": {
+      "description": "Complete feature with state management",
+      "commands": [
+        "validate-design",
+        "test-runner all",
+        "verify --full",
+        "stage-validate check",
+        "feature-complete",
+        "branch-status"
+      ],
+      "stopOnError": true
+    },
+    "branch-maintenance": {
+      "description": "Branch cleanup and maintenance",
+      "commands": [
+        "sync-main",
+        "branch-clean --dry-run",
+        "branch-status"
+      ]
+    },
+    "tdd-cycle": {
+      "description": "TDD red-green-refactor cycle",
+      "commands": [
+        "test",
+        "verify --quick",
+        "process-tasks",
+        "verify"
+      ],
+      "stopOnError": false
+    },
+    "verify-complete": {
+      "description": "Comprehensive verification before marking complete",
+      "commands": [
+        "verify --full",
+        "stage-validate check",
+        "feature-complete"
+      ],
+      "stopOnError": true
+    },
+    "analyze-existing-project": {
+      "description": "Drop into existing project and set up full system",
+      "commands": [
+        "analyze-existing full",
+        "smart-resume",
+        "validate-design"
+      ]
+    },
+    "migrate-design-system": {
+      "description": "Migrate existing code to strict design system",
+      "commands": [
+        "migrate-to-strict-design analyze",
+        "checkpoint create pre-migration",
+        "migrate-to-strict-design migrate",
+        "validate-design",
+        "test-runner changed"
+      ],
+      "stopOnError": true
+    },
+    "onboard-existing": {
+      "description": "Complete onboarding for existing project",
+      "commands": [
+        "analyze-existing full",
+        "migrate-to-strict-design analyze",
+        "create-prd-from-existing main-features",
+        "task-ledger sync",
+        "branch-status"
+      ]
+    },
+    "standards-sync": {
+      "description": "Sync with global standards",
+      "commands": [
+        "smart-resume",
+        "validate-design --check-standards",
+        "migrate-to-strict-design analyze"
+      ]
+    },
+    "multi-perspective-review": {
+      "description": "Review code from multiple expert angles simultaneously",
+      "commands": [
+        "orchestrate-agents 'Review from security perspective' --persona security",
+        "orchestrate-agents 'Review from performance perspective' --persona performance",
+        "orchestrate-agents 'Review from frontend UX perspective' --persona frontend",
+        "orchestrate-agents 'Review from architecture perspective' --persona architect",
+        "orchestrate-agents 'Synthesize all review findings' --persona architect"
+      ],
+      "parallel": true,
+      "synthesize": true
+    },
+    "worktree-setup": {
+      "description": "Setup parallel worktrees for multi-feature development",
+      "commands": [
+        "checkpoint create pre-worktree",
+        "git-status",
+        "bash .claude/scripts/worktree-manager.sh create",
+        "work-status"
+      ]
+    },
+    "worktree-execute": {
+      "description": "Execute tasks in worktrees with orchestration",
+      "commands": [
+        "worktree-parallel --orchestrate",
+        "bash .claude/scripts/worktree-manager.sh status"
+      ],
+      "parallel": true
+    },
+    "worktree-review-merge": {
+      "description": "Review and merge worktree changes",
+      "commands": [
+        "validate-design --all-worktrees",
+        "test-runner --all-worktrees",
+        "bash .claude/scripts/worktree-manager.sh pr",
+        "branch-status"
+      ],
+      "stopOnError": true
+    },
+    "security-baseline": {
+      "description": "Establish security baseline for project",
+      "commands": [
+        "spawn-security-auditor security-auditor --scope full",
+        "generate-rls all",
+        "dependency-scan",
+        "security-status"
+      ]
+    },
+    "secure-api-creation": {
+      "description": "Create API with full security",
+      "commands": [
+        "create-secure-api",
+        "generate-rls",
+        "spawn-security-auditor security-auditor --scope api --quick",
+        "security-check api"
+      ],
+      "stopOnError": true
+    },
+    "security-fix": {
+      "description": "Fix security issues automatically",
+      "commands": [
+        "spawn-security-auditor security-auditor --fix",
+        "test-runner security",
+        "verify --security"
+      ]
+    },
+    "pre-deploy-security": {
+      "description": "Security checks before deployment",
+      "commands": [
+        "dependency-scan --production",
+        "spawn-security-auditor security-auditor --scope full",
+        "security-check all",
+        "security-audit --report"
+      ],
+      "stopOnError": true
+    },
+    "secure-form-workflow": {
+      "description": "Create form with complete security",
+      "commands": [
+        "create-secure-form",
+        "audit-form-security",
+        "security-check form"
+      ]
+    },
+    "security-audit-chain": {
+      "description": "Comprehensive security audit with specialized agents",
+      "steps": [
+        {
+          "agent": "security-threat-analyst",
+          "task": "Perform comprehensive security vulnerability analysis including OWASP top 10, authentication, authorization, data validation, and API security",
+          "output": "security-vulnerabilities.md"
+        },
+        {
+          "agent": "code-analyzer-debugger", 
+          "task": "Trace security-critical code paths and identify potential attack vectors",
+          "output": "security-code-paths.md"
+        },
+        {
+          "agent": "backend-reliability-engineer",
+          "task": "Review API endpoints for security best practices and implement fixes",
+          "output": "api-security-fixes.md"
+        },
+        {
+          "agent": "documentation-writer",
+          "task": "Document all security findings, remediation steps, and security best practices",
+          "output": "security-report.md"
+        }
+      ],
+      "stopOnError": true
+    },
+    "feature-development-chain": {
+      "description": "Full feature development with TDD and multi-agent collaboration",
+      "parallel": true,
+      "steps": [
+        {
+          "phase": "planning",
+          "agents": [
+            {
+              "agent": "pm-orchestrator",
+              "task": "Coordinate feature development and create implementation plan"
+            },
+            {
+              "agent": "event-schema",
+              "task": "Design data model and event taxonomy"
+            },
+            {
+              "agent": "systems-architect",
+              "task": "Design technical architecture and create ADRs"
+            },
+            {
+              "agent": "orm-specialist",
+              "task": "Design database schema with optimal relations and migrations"
+            },
+            {
+              "agent": "qa-test-engineer",
+              "task": "Create comprehensive test plan from requirements"
+            }
+          ]
+        },
+        {
+          "phase": "implementation",
+          "agents": [
+            {
+              "agent": "tdd-engineer",
+              "task": "Implement feature using test-first approach"
+            },
+            {
+              "agent": "supabase-specialist",
+              "task": "Implement backend with RLS policies"
+            },
+            {
+              "agent": "ui-systems",
+              "task": "Build UI components with Shadcn UI and animations"
+            },
+            {
+              "agent": "backend-reliability-engineer",
+              "task": "Implement reliable API endpoints with proper error handling"
+            },
+            {
+              "agent": "analytics-engineer",
+              "task": "Implement tracking and analytics"
+            }
+          ]
+        },
+        {
+          "phase": "review",
+          "agents": [
+            {
+              "agent": "code-reviewer",
+              "task": "Review all implementation for best practices"
+            },
+            {
+              "agent": "privacy-compliance",
+              "task": "Ensure GDPR/CCPA compliance"
+            },
+            {
+              "agent": "security-threat-analyst",
+              "task": "Security audit of new feature"
+            },
+            {
+              "agent": "performance-optimizer",
+              "task": "Optimize performance bottlenecks"
+            },
+            {
+              "agent": "platform-deployment",
+              "task": "Optimize deployment configuration"
+            }
+          ]
+        }
+      ]
+    },
+    "database-migration-chain": {
+      "description": "Safe database migration with multi-agent validation",
+      "steps": [
+        {
+          "agent": "database-architect",
+          "task": "Design optimal schema changes and indexes",
+          "output": "schema-design.md"
+        },
+        {
+          "agent": "migration-specialist",
+          "task": "Create migration scripts with rollback procedures",
+          "output": "migration-scripts/"
+        },
+        {
+          "agent": "backend-reliability-engineer",
+          "task": "Update API endpoints and ensure backward compatibility",
+          "output": "api-updates.md"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Create comprehensive tests for data integrity",
+          "output": "migration-tests/"
+        },
+        {
+          "agent": "documentation-writer",
+          "task": "Document migration process and rollback procedures",
+          "output": "migration-guide.md"
+        }
+      ],
+      "stopOnError": true
+    },
+    "performance-optimization-chain": {
+      "description": "Comprehensive performance optimization workflow (enhanced with v3.0)",
+      "steps": [
+        {
+          "agent": "performance-optimizer",
+          "task": "Analyze performance bottlenecks and create optimization plan",
+          "output": "performance-analysis.md"
+        },
+        {
+          "agent": "supabase-specialist",
+          "task": "Optimize Supabase queries, indexes, and connection pooling",
+          "output": "supabase-optimizations.md"
+        },
+        {
+          "agent": "orm-specialist",
+          "task": "Optimize ORM queries and implement query caching",
+          "output": "orm-optimizations.md"
+        },
+        {
+          "agent": "ui-systems",
+          "task": "Optimize UI rendering, bundle size, and implement code splitting",
+          "output": "ui-optimizations.md"
+        },
+        {
+          "agent": "backend-reliability-engineer",
+          "task": "Optimize API queries and implement caching",
+          "output": "api-optimizations.md"
+        },
+        {
+          "agent": "platform-deployment",
+          "task": "Configure edge caching, CDN, and optimize Vercel deployment",
+          "output": "deployment-optimizations.md"
+        },
+        {
+          "agent": "database-architect",
+          "task": "Optimize database queries and indexes",
+          "output": "db-optimizations.md"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Create performance test suite and benchmarks",
+          "output": "performance-tests/"
+        }
+      ]
+    },
+    "refactoring-chain": {
+      "description": "Safe refactoring with comprehensive validation",
+      "steps": [
+        {
+          "agent": "refactoring-expert",
+          "task": "Analyze code and create refactoring plan",
+          "output": "refactoring-plan.md"
+        },
+        {
+          "agent": "tdd-engineer",
+          "task": "Ensure comprehensive test coverage before refactoring",
+          "output": "test-coverage-report.md"
+        },
+        {
+          "agent": "refactoring-expert",
+          "task": "Execute refactoring following the plan",
+          "output": "refactored-code/"
+        },
+        {
+          "agent": "code-reviewer",
+          "task": "Review refactored code for quality and correctness",
+          "output": "refactoring-review.md"
+        },
+        {
+          "agent": "qa-test-engineer",
+          "task": "Run regression tests and verify functionality",
+          "output": "regression-test-results.md"
+        }
+      ],
+      "stopOnError": true
+    }
+  },
+  "shortcuts": {
+    "ms": "morning-setup",
+    "pp": "pre-pr",
+    "fc": "feature-complete",
+    "qc": "quick-check",
+    "dr": "daily-report",
+    "ef": "error-fix",
+    "fp": "feature-planning",
+    "ts": "task-sprint",
+    "tr": "task-review",
+    "cm": "context-maintenance",
+    "ds": "daily-startup",
+    "sc": "safe-commit",
+    "fs": "field-sync",
+    "pc": "pre-component",
+    "bas": "branch-aware-startup",
+    "sfc": "safe-feature-complete",
+    "bm": "branch-maintenance",
+    "tdd": "tdd-cycle",
+    "vc": "verify-complete",
+    "aep": "analyze-existing-project",
+    "mds": "migrate-design-system",
+    "oe": "onboard-existing",
+    "ss": "standards-sync",
+    "mpr": "multi-perspective-review",
+    "wts": "worktree-setup",
+    "wte": "worktree-execute",
+    "wtrm": "worktree-review-merge",
+    "sb": "security-baseline",
+    "sac": "secure-api-creation",
+    "sf": "security-fix",
+    "pds": "pre-deploy-security",
+    "sfw": "secure-form-workflow",
+    "sac2": "security-audit-chain",
+    "fdc": "feature-development-chain",
+    "dmc": "database-migration-chain",
+    "poc": "performance-optimization-chain",
+    "rc": "refactoring-chain",
+    "saf": "supabase-auth-flow",
+    "ap": "analytics-pipeline",
+    "prf": "production-ready-feature",
+    "tso": "tech-stack-optimization"
+  }
+}

@@ -1,0 +1,157 @@
+name: Claude Code Quality Gates
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-design:
+    name: Design System Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Setup Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+        
+      - name: Validate Design System
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_NON_INTERACTIVE: true
+        run: |
+          claude --non-interactive "/validate-design all" || exit 1
+
+  validate-stages:
+    name: Stage Validation
+    runs-on: ubuntu-latest
+    needs: validate-design
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup environment
+        run: |
+          pnpm install
+          npm install -g @anthropic-ai/claude-code
+          
+      - name: Check Current Stage
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_NON_INTERACTIVE: true
+        run: |
+          claude --non-interactive "/stage-validate check current"
+          
+      - name: Validate Stage Status
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_NON_INTERACTIVE: true
+        run: |
+          claude --non-interactive "/stage-validate status"
+
+  validate-prp:
+    name: PRP Validation
+    runs-on: ubuntu-latest
+    needs: validate-design
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup environment
+        run: |
+          pnpm install
+          npm install -g @anthropic-ai/claude-code
+          
+      - name: Find Active PRPs
+        id: find-prps
+        run: |
+          if [ -d "PRPs/active" ]; then
+            PRP_NAME=$(ls PRPs/active/*.md | head -1 | xargs basename | sed 's/.md//')
+            echo "prp_name=$PRP_NAME" >> $GITHUB_OUTPUT
+          else
+            echo "prp_name=" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Validate PRP Level 1
+        if: steps.find-prps.outputs.prp_name != ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_NON_INTERACTIVE: true
+        run: |
+          claude --non-interactive "/prp-execute ${{ steps.find-prps.outputs.prp_name }} --level 1"
+          
+      - name: Validate PRP Level 2
+        if: steps.find-prps.outputs.prp_name != '' && success()
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_NON_INTERACTIVE: true
+        run: |
+          claude --non-interactive "/prp-execute ${{ steps.find-prps.outputs.prp_name }} --level 2"
+
+  security-check:
+    name: Security Validation
+    runs-on: ubuntu-latest
+    needs: validate-design
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup environment
+        run: |
+          pnpm install
+          npm install -g @anthropic-ai/claude-code
+          
+      - name: Run Security Check
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_NON_INTERACTIVE: true
+        run: |
+          claude --non-interactive "/security-check" || exit 1
+          
+      - name: Check Dependencies
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_NON_INTERACTIVE: true
+        run: |
+          claude --non-interactive "/deps scan"
+
+  quality-summary:
+    name: Quality Summary
+    runs-on: ubuntu-latest
+    needs: [validate-design, validate-stages, validate-prp, security-check]
+    if: always()
+    steps:
+      - name: Summary Report
+        run: |
+          echo "## Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.validate-design.result }}" == "success" ]; then
+            echo "✅ Design System: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Design System: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.validate-stages.result }}" == "success" ]; then
+            echo "✅ Stage Validation: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Stage Validation: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.validate-prp.result }}" == "success" ]; then
+            echo "✅ PRP Validation: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ PRP Validation: Failed or Skipped" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.security-check.result }}" == "success" ]; then
+            echo "✅ Security Check: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Security Check: Failed" >> $GITHUB_STEP_SUMMARY
+          fi

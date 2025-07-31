@@ -1,0 +1,108 @@
+{
+  "v4_commands": {
+    "create-secure-api": {
+      "description": "Create API with mandatory security controls",
+      "category": "security",
+      "usage": "/create-secure-api <endpoint-name> [--method GET|POST|PUT|DELETE] [--auth-required] [--rate-limit <number>]",
+      "tags": ["api", "security", "v4.0"]
+    },
+    "performance-monitor": {
+      "description": "Real-time performance monitoring and budget enforcement",
+      "category": "performance",
+      "usage": "/performance-monitor <check|baseline|compare|report|overlay>",
+      "tags": ["performance", "monitoring", "v4.0"]
+    },
+    "auto-fix-error": {
+      "description": "Automatically fix common errors with AI assistance",
+      "category": "automation",
+      "usage": "/auto-fix-error [error-message]",
+      "tags": ["errors", "automation", "v4.0"]
+    },
+    "generate-a11y-tests": {
+      "description": "Generate comprehensive accessibility tests",
+      "category": "testing",
+      "usage": "/generate-a11y-tests <component-name>",
+      "tags": ["accessibility", "testing", "v4.0"]
+    },
+    "api-docs": {
+      "description": "Generate OpenAPI documentation and client SDK",
+      "category": "documentation",
+      "usage": "/api-docs generate|preview|publish",
+      "tags": ["api", "documentation", "v4.0"]
+    },
+    "enforce-security": {
+      "description": "Enable/disable security-first enforcement",
+      "category": "security",
+      "usage": "/enforce-security on|off",
+      "tags": ["security", "configuration", "v4.0"]
+    },
+    "enforce-performance": {
+      "description": "Enable/disable performance budget enforcement",
+      "category": "performance",
+      "usage": "/enforce-performance on|off",
+      "tags": ["performance", "configuration", "v4.0"]
+    },
+    "enforce-docs": {
+      "description": "Enable/disable documentation-first enforcement",
+      "category": "documentation",
+      "usage": "/enforce-docs on|off",
+      "tags": ["documentation", "configuration", "v4.0"]
+    },
+    "enforce-a11y": {
+      "description": "Enable/disable accessibility-first enforcement",
+      "category": "accessibility",
+      "usage": "/enforce-a11y on|off",
+      "tags": ["accessibility", "configuration", "v4.0"]
+    },
+    "v4-status": {
+      "description": "Show v4.0 automation system status",
+      "category": "system",
+      "usage": "/v4-status",
+      "tags": ["system", "status", "v4.0"]
+    },
+    "error-kb": {
+      "description": "Manage error knowledge base",
+      "category": "automation",
+      "usage": "/error-kb show|stats|clear|export",
+      "tags": ["errors", "knowledge-base", "v4.0"]
+    },
+    "performance-baseline": {
+      "description": "Create performance baseline for comparison",
+      "category": "performance",
+      "usage": "/performance-baseline create|list|compare <name>",
+      "tags": ["performance", "benchmarking", "v4.0"]
+    },
+    "security-matrix": {
+      "description": "Generate security permission matrix",
+      "category": "security",
+      "usage": "/security-matrix <api-name>",
+      "tags": ["security", "permissions", "v4.0"]
+    },
+    "chain-v4": {
+      "description": "Run v4.0 automation chains",
+      "category": "automation",
+      "usage": "/chain-v4 <chain-name> [parameters]",
+      "tags": ["automation", "chains", "v4.0"]
+    }
+  },
+  "v4_aliases": {
+    "csa": "create-secure-api",
+    "pm": "performance-monitor",
+    "afe": "auto-fix-error",
+    "a11y-test": "generate-a11y-tests",
+    "api-doc": "api-docs",
+    "sec-on": "enforce-security on",
+    "sec-off": "enforce-security off",
+    "perf-on": "enforce-performance on",
+    "perf-off": "enforce-performance off",
+    "docs-on": "enforce-docs on",
+    "docs-off": "enforce-docs off",
+    "a11y-on": "enforce-a11y on",
+    "a11y-off": "enforce-a11y off",
+    "v4s": "v4-status",
+    "ekb": "error-kb",
+    "pb": "performance-baseline",
+    "sm": "security-matrix",
+    "c4": "chain-v4"
+  }
+}

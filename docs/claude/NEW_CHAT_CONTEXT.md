@@ -407,13 +407,18 @@ claude --non-interactive "/deps scan"
 
 ## 🔗 Important Files
 
-- 🚀 **`MASTER_WORKFLOW_GUIDE.md`** - Complete workflow reference (START HERE!)
+### Setup & Getting Started
+- 🚀 **`docs/setup/GETTING_STARTED.md`** - New project setup (START HERE!)
+- 🔧 **`docs/setup/EXISTING_PROJECT_INTEGRATION.md`** - Add to existing project
+- 📖 **`docs/setup/SYSTEM_WORKFLOWS.md`** - How to work with the system
+
+### Core Documentation
+- `docs/SYSTEM_OVERVIEW.md` - Complete system architecture
 - `CLAUDE.md` - AI behavior rules
-- `docs/SYSTEM_OVERVIEW.md` - Complete system docs
-- `docs/workflow/CLAUDE_CODE_NATIVE_FEATURES.md` - Native features guide (NEW!)
+- `docs/workflow/CLAUDE_CODE_NATIVE_FEATURES.md` - Native features guide
 - `PRPs/README.md` - PRP methodology guide
-- `docs/workflow/PRP_WORKFLOW_GUIDE.md` - PRP workflow
-- `field-registry/README.md` - Data field docs
+- `docs/workflow/PRP_WORKFLOW_GUIDE.md` - PRP workflow details
+- `field-registry/README.md` - Data field documentation
 - `docs/SECURITY_GUIDE.md` - Security documentation
 
 ## 🆘 Troubleshooting

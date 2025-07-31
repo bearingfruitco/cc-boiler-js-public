@@ -1,0 +1,354 @@
+{
+  "chains": {
+    "onboard-existing": {
+      "description": "Detect and setup existing projects",
+      "triggers": {
+        "conditions": {
+          "all": [
+            "!exists(.claude/)",
+            "exists(package.json)",
+            "fileCount(**/*.{ts,tsx,js,jsx}) > 10"
+          ]
+        },
+        "prompt": "Detected existing project without Claude setup. Initialize? (y/n)",
+        "auto": false
+      },
+      "steps": [
+        "/analyze-existing",
+        "/migrate-to-strict-design analyze",
+        "/init-standards",
+        "/create-prp initial-setup",
+        "echo 'Setup complete! Run /sr to start working'"
+      ],
+      "on-success": "/checkpoint create initial-setup",
+      "on-failure": "echo 'Setup failed. Run /help onboard for manual steps'"
+    },
+    "morning-startup": {
+      "description": "Comprehensive morning setup with context awareness",
+      "triggers": {
+        "conditions": {
+          "any": [
+            "hoursSinceLastCommand > 8",
+            "daysSinceLastCommand >= 1",
+            "isFirstCommandToday === true"
+          ]
+        },
+        "prompt": "Welcome back! Run morning setup? (y/n)"
+      },
+      "steps": [
+        "echo '☀️ Good morning! Loading your workspace...'",
+        "cat .agent-os/standards/* > /tmp/standards.md",
+        "/sr",
+        "/bt list --open",
+        "/deps scan --quick",
+        "ls -la PRPs/active/ | grep '.md' || echo 'No active PRPs'",
+        "/branch-status",
+        "/sv status",
+        "echo '✅ Ready to work! Use /help for commands'"
+      ],
+      "context": {
+        "save": ["open_bugs", "active_prps", "branch_status"]
+      }
+    },
+    "pr-ready": {
+      "description": "Ensure all quality gates pass before PR",
+      "prerequisites": {
+        "all": [
+          "exec:git status --porcelain | wc -l | grep -q '^0$'",
+          "exec:npm test -- --passWithNoTests 2>/dev/null",
+          "file:.claude/checkpoints/*.json"
+        ],
+        "error": "Prerequisites not met. Commit changes and ensure tests pass."
+      },
+      "steps": [
+        "/sv check all",
+        "/prp-execute --level 4 || echo 'No active PRP'",
+        "/deps scan",
+        "/vd",
+        "/sc",
+        "git log --oneline -10",
+        "/fw complete"
+      ],
+      "on-success": "echo '🎉 PR created successfully!'",
+      "on-failure": "/checkpoint restore latest"
+    },
+    "feature-complete": {
+      "description": "End-to-end feature development workflow",
+      "prerequisites": {
+        "any": [
+          "file:PRPs/active/*.md",
+          "file:docs/PRD/*.md"
+        ],
+        "error": "Need a PRP or PRD first. Run /prd or /create-prp"
+      },
+      "steps": [
+        {
+          "name": "Planning",
+          "commands": ["/gt", "/at"]
+        },
+        {
+          "name": "Implementation", 
+          "commands": ["/orch", "/pt"]
+        },
+        {
+          "name": "Testing",
+          "commands": ["/tr", "/btf"]
+        },
+        {
+          "name": "Validation",
+          "commands": ["/vd", "/sv check", "/grade"]
+        }
+      ],
+      "checkpoints": ["after:Planning", "after:Testing"],
+      "on-failure": "rollback-to-checkpoint"
+    },
+    "emergency-rollback": {
+      "description": "Quick rollback when things go wrong",
+      "triggers": {
+        "conditions": {
+          "any": [
+            "error.count > 5",
+            "test.failures > 10",
+            "manual.panic === true"
+          ]
+        },
+        "prompt": "⚠️  Multiple failures detected. Rollback to last checkpoint? (y/n)"
+      },
+      "steps": [
+        "/checkpoint list",
+        "echo 'Select checkpoint to restore:'",
+        "/checkpoint restore",
+        "git reset --hard HEAD~1",
+        "/sr",
+        "echo '✅ Rolled back. Check /bt for issues'"
+      ]
+    },
+    "smart-test": {
+      "description": "Run tests based on changes",
+      "steps": [
+        {
+          "command": "/tr unit",
+          "condition": "exec:git diff --name-only | grep -q '\\.ts$'"
+        },
+        {
+          "command": "/btf", 
+          "condition": "exec:git diff --name-only | grep -q 'components/'"
+        },
+        {
+          "command": "/tr integration",
+          "condition": "exec:git diff --name-only | grep -q 'app/api/'"
+        }
+      ]
+    },
+    "fix-common-errors": {
+      "description": "Auto-fix common development errors",
+      "triggers": {
+        "conditions": {
+          "any": [
+            "exec:npm run typecheck 2>&1 | grep -q 'error'",
+            "exec:npm run lint 2>&1 | grep -q 'error'"
+          ]
+        },
+        "prompt": "Detected errors. Run auto-fix? (y/n)"
+      },
+      "steps": [
+        {
+          "command": "npm run lint:fix",
+          "condition": "exec:npm run lint 2>&1 | grep -q 'error'"
+        },
+        {
+          "command": "/vd fix",
+          "condition": "exec:grep -r 'text-sm\\|font-bold' components/ 2>/dev/null | grep -q '.'"
+        },
+        {
+          "command": "npm run typecheck",
+          "expectFailure": false
+        }
+      ],
+      "on-success": "echo '✅ Fixed all auto-fixable issues!'",
+      "on-failure": "echo '⚠️  Some issues require manual fixing'"
+    },
+    "deploy-staging": {
+      "description": "Safe deployment to staging",
+      "prerequisites": {
+        "all": [
+          "tests.passing",
+          "git.clean",
+          "exec:git branch --show-current | grep -v '^main$'"
+        ],
+        "error": "Must be on feature branch with passing tests and clean git"
+      },
+      "steps": [
+        "/env-validate staging",
+        "/test-runner all",
+        "/validate-design --strict",
+        "/security-check all",
+        "echo 'Deploying to staging...'",
+        "vercel --prod=false",
+        "echo 'Waiting for deployment...'",
+        "sleep 30",
+        "/smoke-test staging"
+      ],
+      "context": {
+        "save": ["deployment_url", "deployment_id"]
+      },
+      "on-success": "echo 'Staging URL: ${deployment_url}'",
+      "on-failure": "vercel rollback ${deployment_id}"
+    },
+    "daily-standup": {
+      "description": "Generate daily standup report",
+      "triggers": {
+        "conditions": {
+          "all": [
+            "exec:date +%H | grep -E '^(9|10)$'",
+            "isFirstCommandToday === true"
+          ]
+        },
+        "prompt": "Time for daily standup. Generate report? (y/n)"
+      },
+      "steps": [
+        "echo '📅 Daily Standup Report'",
+        "echo ''",
+        "echo '**Yesterday:**'",
+        "git log --since='yesterday' --author='$(git config user.name)' --oneline",
+        "echo ''",
+        "echo '**Today:**'",
+        "/task-status --today",
+        "/prp-status",
+        "echo ''",
+        "echo '**Blockers:**'",
+        "/bt list --open",
+        "echo ''",
+        "echo '**Notes:**'",
+        "/work-status current"
+      ],
+      "on-success": "/capture-to-issue 'Daily Standup - $(date +%Y-%m-%d)'"
+    },
+    "security-audit": {
+      "description": "Comprehensive security audit",
+      "prerequisites": {
+        "all": [
+          "exists(package.json)",
+          "exists(.env.example)"
+        ]
+      },
+      "steps": [
+        {
+          "agent": "security",
+          "task": "Perform comprehensive security audit"
+        },
+        "/dependency-scan --production",
+        "/security-check all",
+        {
+          "command": "npm audit",
+          "expectFailure": false
+        },
+        {
+          "agent": "documentation-writer",
+          "task": "Generate security report"
+        }
+      ],
+      "on-success": "/capture-to-issue 'Security Audit - $(date +%Y-%m-%d)'"
+    },
+    "performance-baseline": {
+      "description": "Establish performance baselines",
+      "steps": [
+        {
+          "command": "npm run build",
+          "expectSuccess": true
+        },
+        {
+          "command": "npm run analyze",
+          "output": "bundle-analysis.json"
+        },
+        {
+          "agent": "performance",
+          "task": "Analyze bundle and create optimization plan"
+        },
+        {
+          "command": "/performance-monitor baseline",
+          "save": ["baseline_metrics"]
+        }
+      ],
+      "context": {
+        "save": ["bundle_size", "performance_scores"]
+      }
+    },
+    "component-library": {
+      "description": "Build component library documentation",
+      "prerequisites": {
+        "all": [
+          "exists(components/)",
+          "fileCount(components/**/*.tsx) > 5"
+        ]
+      },
+      "steps": [
+        {
+          "agent": "documentation-writer",
+          "task": "Generate component documentation"
+        },
+        {
+          "agent": "ui-systems",
+          "task": "Create Storybook stories"
+        },
+        {
+          "command": "npm run storybook:build",
+          "condition": "exists(.storybook/)"
+        }
+      ]
+    },
+    "migration-safe": {
+      "description": "Safe database migration",
+      "prerequisites": {
+        "all": [
+          "exists(migrations/)",
+          "tests.passing",
+          "exec:git diff --name-only | grep -q 'migrations/'"
+        ],
+        "error": "No migration files detected or tests failing"
+      },
+      "steps": [
+        "/checkpoint create pre-migration",
+        {
+          "agent": "database-architect",
+          "task": "Review migration for safety"
+        },
+        {
+          "command": "npm run db:migrate:dry-run",
+          "expectSuccess": true
+        },
+        {
+          "command": "echo 'Apply migration? (y/n)'",
+          "interactive": true
+        },
+        "npm run db:migrate",
+        "/test-runner integration",
+        {
+          "command": "/checkpoint create post-migration",
+          "condition": "tests.passing"
+        }
+      ],
+      "on-failure": "npm run db:rollback && /checkpoint restore pre-migration"
+    },
+    "weekly-cleanup": {
+      "description": "Weekly maintenance tasks",
+      "triggers": {
+        "conditions": {
+          "all": [
+            "exec:date +%u | grep -q '^1$'",
+            "hoursSinceLastCommand < 2"
+          ]
+        },
+        "prompt": "It's Monday! Run weekly cleanup? (y/n)"
+      },
+      "steps": [
+        "/branch-clean --dry-run",
+        "/deps scan --outdated",
+        "npm prune",
+        "npm dedupe",
+        "/checkpoint clean --old",
+        "echo 'Cleanup complete!'"
+      ]
+    }
+  }
+}

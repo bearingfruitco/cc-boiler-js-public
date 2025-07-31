@@ -1,0 +1,24 @@
+{
+  "tdd": {
+    "enabled": true,
+    "enforce": true,
+    "exceptions": [],
+    "auto_generate": true,
+    "block_untested": true,
+    "coverage_thresholds": {
+      "overall": 80,
+      "new_code": 90,
+      "critical_paths": 100
+    },
+    "micro_tests": {
+      "enabled": true,
+      "max_duration": "5m",
+      "templates": ["text", "style", "prop", "validation"]
+    },
+    "warnings": {
+      "no_tdd_flag": "⚠️ WARNING: Skipping TDD violates best practices and will create technical debt!",
+      "confirmation_required": true,
+      "log_violations": true
+    }
+  }
+}

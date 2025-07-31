@@ -1,0 +1,24 @@
+{
+  "primary_commands": {
+    "smart-resume": "Restore context from previous sessions",
+    "create-component": "Create a new component with design system",
+    "validate-design": "Validate design system compliance",
+    "create-prd": "Create Product Requirements Document",
+    "feature-workflow": "Start feature development workflow",
+    "checkpoint": "Save current work state",
+    "generate-tasks": "Generate tasks from PRD",
+    "init-project": "Initialize new project",
+    "stage-validate-grade": "Grade implementation against PRD",
+    "tdd-workflow": "Test-driven development workflow",
+    "generate-issues": "Generate GitHub issues from PRD"
+  },
+  "aliases": {
+    "sr": "smart-resume",
+    "cc": "create-component",
+    "vd": "validate-design",
+    "prd": "create-prd",
+    "fw": "feature-workflow",
+    "cp": "checkpoint",
+    "gt": "generate-tasks"
+  }
+}
