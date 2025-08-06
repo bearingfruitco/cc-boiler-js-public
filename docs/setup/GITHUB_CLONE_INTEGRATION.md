@@ -2,658 +2,317 @@
 
 > **The Complete Guide**: Clone any GitHub repository and safely integrate the Claude Code Boilerplate v4.0.0 without breaking anything.
 
-## 🎯 Quick Start (5 Minutes)
+## 🎯 Quick Start - The Real Process (5 Minutes)
 
 ```bash
-# 1. Clone the GitHub project
+# 1. Go to your dev directory
+cd ~/dev  # or wherever you keep projects
+
+# 2. Clone the project you want to work on
 git clone https://github.com/[user]/[project].git
 cd [project]
 
-# 2. Create integration branch
-git checkout -b integrate-boilerplate
+# 3. Download and run the integration script FROM THE INTERNET
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/integrate-existing.sh | bash
 
-# 3. Open in Claude Code
+# 4. Open in Claude Code
 claude .
 
-# 4. In Claude Code, run:
-/analyze-existing full      # Analyze what you have
-/integrate-boilerplate      # Add boilerplate safely
+# 5. Start using boilerplate commands (they exist now!)
 /sr                        # Load everything
+/analyze-existing full     # Understand project
 /fw start                  # Start building!
 ```
 
-That's it! Your project now has 150+ commands, 31 AI agents, and complete automation.
+## 📍 Understanding the Process
 
-## 📋 Table of Contents
+### Starting Point
+You have:
+- Your development directory (e.g., `~/dev` or `/Users/yourname/dev`)
+- A GitHub project URL you want to work on
+- No boilerplate installed yet
 
-1. [Pre-Integration Checklist](#pre-integration-checklist)
-2. [Step-by-Step Integration](#step-by-step-integration)
-3. [Integration Methods](#integration-methods)
-4. [Handling Existing Boilerplate Versions](#handling-existing-boilerplate-versions)
-5. [What Gets Added vs Protected](#what-gets-added-vs-protected)
-6. [Post-Integration Setup](#post-integration-setup)
-7. [Common Scenarios](#common-scenarios)
-8. [Troubleshooting](#troubleshooting)
-9. [Rollback & Recovery](#rollback--recovery)
+### What Actually Happens
 
-## Pre-Integration Checklist
-
-Before starting, ensure you have:
-
-- [ ] **Git repository cloned locally**
-- [ ] **Claude Code installed** (`claude` command works)
-- [ ] **Node.js 18+** and **pnpm** installed
-- [ ] **5-10 minutes** for integration
-- [ ] **Admin access** to the repository (for pushing changes)
-
-## Step-by-Step Integration
-
-### Step 1: Clone and Prepare
-
+**Step 1: Get Your Project**
 ```bash
-# Clone the repository you want to enhance
-git clone https://github.com/[username]/[repository].git my-project
-cd my-project
+cd ~/dev
+git clone https://github.com/user/some-project.git
+cd some-project
+```
+Now you have the project on your computer at `~/dev/some-project`
 
-# Create a branch for integration (recommended)
-git checkout -b integrate-boilerplate
+**Step 2: Get and Run the Integration Script**
+```bash
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/integrate-existing.sh | bash
+```
+This command:
+- Downloads the script FROM THE INTERNET (from GitHub)
+- Runs it immediately
+- The script then downloads the boilerplate and installs it INTO your project
 
-# Check what you're starting with
-ls -la
-git status
+**Step 3: Use Claude Code**
+```bash
+claude .
+/sr  # These commands work now because the boilerplate is installed!
 ```
 
-### Step 2: Open in Claude Code
+## 🔑 Key Points to Understand
+
+### You DON'T Need To:
+- ❌ Clone the boilerplate repository yourself
+- ❌ Have the integration script beforehand
+- ❌ Manually copy or merge folders
+- ❌ Download the boilerplate separately
+
+### The Script Does Everything:
+1. Downloads the boilerplate to a temp folder
+2. Copies boilerplate files INTO your project
+3. Handles any conflicts intelligently
+4. Cleans up temp files
+5. Reports what was done
+
+### Why This Works:
+- The integration script lives on GitHub
+- `curl` can download files from any URL
+- The script knows how to get the boilerplate and install it
+
+## 📊 Visual Flow
+
+```
+Your Computer:
+~/dev/
+│
+├── Step 1: Clone project from GitHub
+│   └── some-project/  (just the project, no boilerplate)
+│
+├── Step 2: Run curl command
+│   ├── Downloads script from GitHub
+│   ├── Script downloads boilerplate to /tmp/
+│   ├── Script copies boilerplate INTO some-project/
+│   └── Script cleans up /tmp/
+│
+└── Result: some-project/  (now has boilerplate!)
+    ├── .claude/        (150+ commands) ← Added by script
+    ├── .agent-os/      (standards)     ← Added by script
+    ├── field-registry/ (security)      ← Added by script
+    ├── PRPs/          (templates)      ← Added by script
+    └── [original project files]        ← Untouched
+```
+
+## 🚀 Complete Real-World Example
+
+Let's say you want to work on a Next.js project called "debt-funnel":
 
 ```bash
-# Open the project in Claude Code
+# 1. Go to your development directory
+cd /Users/shawnsmith/dev/bfc
+
+# 2. Clone the debt-funnel project
+git clone https://github.com/bearingfruitco/debt-funnel.git
+cd debt-funnel
+
+# 3. Get and run the integration script from the internet
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/integrate-existing.sh | bash
+
+# The script will output:
+# ✓ Downloading boilerplate...
+# ✓ Creating backup...
+# ✓ Integrating .claude directory...
+# ✓ Installing Agent OS...
+# ✓ Integration complete!
+
+# 4. Open in Claude Code
 claude .
 
-# Or if using VS Code with Claude extension
-code .
-```
-
-### Step 3: Analyze Existing Project
-
-In Claude Code, run:
-
-```bash
-/analyze-existing full
-```
-
-This powerful command will:
-- 🔍 **Detect your tech stack** (Next.js, React, Vue, etc.)
-- 📁 **Map your project structure**
-- 🎯 **Identify existing features**
-- 📊 **Count components and complexity**
-- 📝 **Generate initial documentation**
-
-**Output created:**
-```
-.agent-os/
-├── product/
-│   ├── mission.md          # Project purpose (extracted)
-│   ├── roadmap.md          # Phase 0 = what exists
-│   ├── tech-stack.md       # Your dependencies
-│   └── decisions.md        # Ready for ADRs
-└── MIGRATION_GUIDE.md      # Custom for your project
-```
-
-### Step 4: Check for Existing Boilerplate
-
-```bash
-# Check if they have an older boilerplate version
-/boilerplate-version
-```
-
-**If version detected (v1.0 - v3.5):**
-```bash
-# Upgrade to v4.0
-/upgrade-boilerplate --dry-run  # See what will change
-/upgrade-boilerplate             # Actually upgrade
-```
-
-**If no boilerplate detected:**
-Continue to Step 5.
-
-### Step 5: Choose Integration Method
-
-#### Method A: Smart Integration (Recommended)
-
-```bash
-# See what will happen without making changes
-/integrate-boilerplate --dry-run
-
-# Review the report, then actually integrate
-/integrate-boilerplate --mode=full
-```
-
-**What this does:**
-- ✅ Creates backup of everything
-- ✅ Never overwrites your files
-- ✅ Adds `-project` suffix to conflicting commands
-- ✅ Numbers your hooks to run first
-- ✅ Creates `CLAUDE_BOILERPLATE.md` if you have `CLAUDE.md`
-
-#### Method B: Selective Integration
-
-```bash
-/integrate-boilerplate --mode=selective
-```
-
-**Interactive menu appears:**
-```
-Select components to integrate (comma-separated):
-1. Commands & Automation (.claude/)
-2. Design System Enforcement
-3. PRP System (one-pass implementation)
-4. Agent OS Standards
-5. Field Registry (security)
-6. Git Hooks (.husky/)
-7. Playwright Testing
-8. Biome Linting
-9. Component Templates
-10. Documentation
-
-Enter: 1,3,5,7  # Choose what you need
-```
-
-#### Method C: Sidecar Mode (Zero Conflicts)
-
-```bash
-/integrate-boilerplate --mode=sidecar
-```
-
-**Creates parallel installation:**
-```
-.claude/                    # Your existing (if any)
-.claude-boilerplate/        # Our complete system
-```
-
-Access with `/bb [command]` prefix. Perfect for testing!
-
-### Step 6: Install Dependencies
-
-The integration will list any missing dependencies:
-
-```bash
-# Exit Claude Code temporarily
-exit
-
-# Install missing dependencies
-pnpm add @supabase/supabase-js framer-motion lucide-react
-pnpm add -D @biomejs/biome @playwright/test husky
-
-# Return to Claude Code
-claude .
-```
-
-### Step 7: Configure Project
-
-```bash
-# In Claude Code
-/config set project.name "Your Project Name"
-/config set repository.owner "your-github-username"
-/config set repository.name "repository-name"
-
-# Or edit directly
-/edit .claude/project-config.json
-```
-
-### Step 8: Load and Verify
-
-```bash
-# Load the complete system
+# 5. Now these commands work:
 /sr
-
-# Verify installation
-/v4-status           # Check all systems
-/chain list          # See available workflows
-/help               # View all commands
+/analyze-existing full
+/fw start
 ```
 
-## Integration Methods
+## 🔧 Integration Methods Explained
 
-### Full Integration (Default)
+### Method 1: Direct Run (Simplest)
 ```bash
-/integrate-boilerplate --mode=full
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/integrate-existing.sh | bash
 ```
-- **Best for:** Most projects
-- **Result:** Complete boilerplate with intelligent conflict resolution
-- **Time:** 5 minutes
+Downloads and runs immediately.
 
-### Selective Integration
+### Method 2: Download First (Safer)
 ```bash
-/integrate-boilerplate --mode=selective
+# Download the script so you can see it
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/integrate-existing.sh -o integrate.sh
+
+# Look at what it does
+cat integrate.sh
+
+# Run it
+chmod +x integrate.sh
+./integrate.sh
 ```
-- **Best for:** Projects with existing Claude setups
-- **Result:** Only chosen components
-- **Time:** 3-10 minutes
+Lets you review the script before running.
 
-### Sidecar Integration
+### Method 3: Preview Mode
 ```bash
-/integrate-boilerplate --mode=sidecar
-```
-- **Best for:** Testing or very custom setups
-- **Result:** Parallel installation, no conflicts
-- **Time:** 2 minutes
-
-### Manual Script Method
-```bash
-# Download integration script
-curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/integrate-boilerplate-v2.sh -o integrate.sh
+# Download script
+curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/integrate-existing.sh -o integrate.sh
 chmod +x integrate.sh
 
-# Run integration
-./integrate.sh --mode=full
+# See what it would do without making changes
+./integrate.sh --dry-run
+
+# If happy, run for real
+./integrate.sh
 ```
 
-## Handling Existing Boilerplate Versions
+## 📋 What the Integration Script Does
 
-### Version Detection
+1. **Checks Prerequisites**
+   - Verifies git is installed
+   - Checks if you're in a git repo
+   - Warns if anything is missing
+
+2. **Detects Existing Boilerplate**
+   - Looks for `.claude/VERSION`
+   - Detects v1.0, v2.0, v3.0, v3.5, or v4.0
+   - Skips if already v4.0
+
+3. **Downloads Boilerplate**
+   - Clones boilerplate to `/tmp/claude-boilerplate-[random]`
+   - Gets latest v4.0.0 from GitHub
+
+4. **Creates Backup**
+   - Saves existing files to `.claude-integration/backup/[timestamp]`
+   - Preserves your customizations
+
+5. **Integrates Intelligently**
+   - **Your files**: Never overwritten
+   - **Your commands**: Renamed with `-project` suffix
+   - **Your CLAUDE.md**: Kept, ours becomes `CLAUDE_BOILERPLATE.md`
+   - **New directories**: Added (`.claude/`, `.agent-os/`, etc.)
+
+6. **Cleans Up**
+   - Removes temp files
+   - Generates report
+   - Shows next steps
+
+## 🛡️ Safety Features
+
+### Automatic Backup
 ```bash
-/boilerplate-version
+.claude-integration/
+└── backup/
+    └── 20250206_143022/  # Timestamp
+        ├── .claude/      # Your original files
+        ├── CLAUDE.md
+        └── metadata.json
 ```
 
-Shows:
-- Current version (if any)
-- Feature analysis
-- Health score
-- Upgrade availability
-
-### Upgrade Paths
-
-**From v1.0 (Original)**
+### Dry Run Mode
 ```bash
-/upgrade-boilerplate --from-version=1.0
-```
-- Backs up all customizations
-- Installs v4.0 structure
-- Restores custom commands with `-custom` suffix
-
-**From v2.0 (PRD System)**
-```bash
-/upgrade-boilerplate --from-version=2.0
-```
-- Adds agents and hooks
-- Updates commands
-- Preserves PRD system
-
-**From v3.0/3.5 (PRP System)**
-```bash
-/upgrade-boilerplate --from-version=3.0
-```
-- Adds orchestration
-- Updates hook compliance
-- Minor additions
-
-**Auto-Detection**
-```bash
-/upgrade-boilerplate  # Detects version automatically
+./integrate.sh --dry-run
+# Shows what would happen without making changes
 ```
 
-## What Gets Added vs Protected
-
-### ✅ What Gets Added
-
-**Core System:**
-```
-.claude/
-├── commands/           # 150+ commands
-├── agents/            # 31 AI agents
-├── hooks/             # Automation
-├── config/            # Settings
-└── VERSION            # v4.0.0
-
-.agent-os/             # Standards
-field-registry/        # Security
-PRPs/                 # Templates
-templates/            # Components
-```
-
-**Configuration:**
-- `CLAUDE_BOILERPLATE.md` (if you have CLAUDE.md)
-- `biome.json` (linting)
-- `playwright.config.ts` (testing)
-- `.husky/` (git hooks)
-
-### 🛡️ What's Protected (Never Touched)
-
-**Your Code:**
-```
-app/                   # Application routes
-components/            # Your components
-lib/                   # Your libraries
-pages/                 # Page routes
-public/                # Static assets
-prisma/                # Database
-src/                   # Source code
-```
-
-**Your Config:**
-```
-package.json           # Dependencies
-.env*                  # Environment vars
-next.config.js         # Your config
-tsconfig.json          # Your TS config
-```
-
-### 🔄 What Gets Merged Intelligently
-
-**Commands:**
-- Conflicts: Yours renamed to `[name]-project.md`
-- You can use both versions
-
-**Hooks:**
-- Yours renumbered to 00-09 (run first)
-- Ours numbered 10+ (run after)
-
-**Documentation:**
-- Your CLAUDE.md stays primary
-- Ours added as CLAUDE_BOILERPLATE.md
-
-## Post-Integration Setup
-
-### 1. Commit Integration
-
-```bash
-# Review changes
-git status
-git diff --stat
-
-# Commit
-git add -A
-git commit -m "feat: Integrate Claude Code Boilerplate v4.0.0"
-
-# Push to your branch
-git push origin integrate-boilerplate
-```
-
-### 2. Create PR
-
-```bash
-# Or use Claude command
-/gh create-pr "Add Claude Code Boilerplate v4.0.0" "integrate-boilerplate"
-```
-
-### 3. Team Onboarding
-
-```bash
-# Generate team guide
-/chain team-onboarding
-
-# Creates:
-# - TEAM_GUIDE.md
-# - Quick reference card
-# - Common patterns doc
-```
-
-### 4. Configure CI/CD
-
-```bash
-# Add to your CI pipeline
-/generate-ci-config github-actions
-/generate-ci-config gitlab-ci
-```
-
-## Common Scenarios
-
-### Scenario: Next.js App Router Project
-
-```bash
-git clone https://github.com/user/nextjs-app.git
-cd nextjs-app
-claude .
-
-/analyze-existing full
-# Detects: Next.js 14, App Router, Tailwind
-
-/integrate-boilerplate
-# Adds commands, preserves app/ structure
-
-/migrate-to-strict-design
-# Converts to 4-size, 2-weight system
-```
-
-### Scenario: React SPA with Redux
-
-```bash
-git clone https://github.com/user/react-spa.git
-cd react-spa
-claude .
-
-/analyze-existing full
-# Detects: React 18, Redux, Material-UI
-
-/integrate-boilerplate --mode=selective
-# Choose: 1,3,5 (commands, PRP, security)
-# Skip: 2 (design system - keep Material-UI)
-```
-
-### Scenario: Vue.js Project
-
-```bash
-git clone https://github.com/user/vue-app.git
-cd vue-app
-claude .
-
-/analyze-existing full
-# Detects: Vue 3, Vuex, Vuetify
-
-/integrate-boilerplate --mode=sidecar
-# Parallel installation for testing
-# Access with /bb prefix
-```
-
-### Scenario: Monorepo
-
-```bash
-git clone https://github.com/user/monorepo.git
-cd monorepo
-claude .
-
-/analyze-existing full
-/config set project.type monorepo
-/config set project.packages ["web", "api", "shared"]
-/integrate-boilerplate
-```
-
-### Scenario: Project with Tests
-
-```bash
-git clone https://github.com/user/tested-app.git
-cd tested-app
-claude .
-
-# Keep existing test framework
-/config set testing.framework jest  # or vitest
-/config set testing.runner "npm test"
-/integrate-boilerplate
-```
-
-## Troubleshooting
-
-### Issue: "Command not found: /integrate-boilerplate"
-
-**Solution:**
-```bash
-# The command might be archived
-/search integrate
-# Or download manually
-curl -sSL https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/.claude/commands/integrate-boilerplate.md -o .claude/commands/integrate-boilerplate.md
-```
-
-### Issue: "Conflicts detected"
-
-**Solution:**
-```bash
-# Use dry-run to see conflicts
-/integrate-boilerplate --dry-run
-
-# Review .claude-integration/CONFLICT_REPORT.md
-# Then proceed with integration (conflicts handled automatically)
-```
-
-### Issue: "Version mismatch"
-
-**Solution:**
-```bash
-/boilerplate-version        # Check current
-/upgrade-boilerplate        # Upgrade to v4.0
-```
-
-### Issue: "Git merge conflicts after integration"
-
-**Solution:**
-```bash
-# Integration creates backups
-ls .claude-integration/backup/
-
-# Restore if needed
-/integration-rollback
-
-# Or manually
-git reset --hard HEAD~1
-```
-
-### Issue: "Dependencies not installing"
-
-**Solution:**
-```bash
-# Clear cache and reinstall
-rm -rf node_modules pnpm-lock.yaml
-pnpm install
-
-# Or use npm/yarn
-npm install
-yarn install
-```
-
-## Rollback & Recovery
-
-### Instant Rollback
-
+### Rollback
 ```bash
 # If something goes wrong
-/integration-rollback
-
-# Restores from automatic backup
-# Returns to exact pre-integration state
+cp -r .claude-integration/backup/[latest]/* .
 ```
 
-### Manual Rollback
+## ❓ Common Questions
+
+### Q: Where does the integration script come from?
+**A:** It's downloaded from GitHub using curl. The script lives at:
+`https://github.com/bearingfruitco/claude-code-boilerplate/blob/main/scripts/integrate-existing.sh`
+
+### Q: Do I need to clone the boilerplate repo?
+**A:** No! The script does that for you automatically in a temp folder.
+
+### Q: What if I don't have curl?
+**A:** Use wget instead:
+```bash
+wget -qO- https://raw.githubusercontent.com/bearingfruitco/claude-code-boilerplate/main/scripts/integrate-existing.sh | bash
+```
+
+### Q: What if the script fails?
+**A:** Check:
+- Internet connection (to download from GitHub)
+- Git is installed (`git --version`)
+- You're in the right directory (`pwd`)
+- Permissions (`ls -la`)
+
+### Q: Can I run it multiple times?
+**A:** Yes! It detects existing installations and handles them properly.
+
+## 🔄 Handling Existing Versions
+
+If your project already has an older boilerplate:
 
 ```bash
-# Find backup
-ls -la .claude-integration/backup/
-
-# Restore specific backup
-cp -r .claude-integration/backup/[timestamp]/* .
-
-# Remove boilerplate files
-rm -rf .claude .agent-os field-registry PRPs
-rm -f CLAUDE_BOILERPLATE.md
+# The script detects the version automatically
+# After integration, in Claude Code:
+/boilerplate-version    # Check what you have
+/upgrade-boilerplate    # Upgrade to v4.0 if needed
 ```
 
-### Git Rollback
+## 📊 Integration Modes
 
+### Full Mode (Default)
 ```bash
-# If you committed
-git reset --hard HEAD~1
-
-# If you pushed
-git revert HEAD
-git push
+./integrate.sh --mode=full
 ```
+Integrates everything with smart conflict resolution.
 
-### Selective Removal
-
+### Selective Mode
 ```bash
-# Remove specific components
-rm -rf .claude/agents      # Remove agents only
-rm -rf field-registry      # Remove security only
-rm -rf PRPs               # Remove PRP system only
+./integrate.sh --mode=selective
 ```
+Choose specific components to integrate.
 
-## Best Practices
-
-### 1. Always Branch First
+### Sidecar Mode
 ```bash
-git checkout -b integrate-boilerplate
+./integrate.sh --mode=sidecar
 ```
+Installs as `.claude-boilerplate/` (no conflicts).
 
-### 2. Use Dry Run
-```bash
-/integrate-boilerplate --dry-run
-```
+## 🎯 Next Steps After Integration
 
-### 3. Review Reports
-```bash
-# After integration
-cat .claude-integration/INTEGRATION_COMPLETE.md
-cat BOILERPLATE_INTEGRATION.md
-```
-
-### 4. Test Thoroughly
-```bash
-/v4-status              # System check
-/test                   # Run tests
-/vd                     # Validate design
-```
-
-### 5. Document Changes
-```bash
-# Update README
-/update-readme-with-boilerplate
-
-# Create changelog entry
-/changelog add "Integrated Claude Code Boilerplate v4.0.0"
-```
-
-## Next Steps After Integration
-
-1. **Learn the System**
+1. **Verify Installation**
    ```bash
-   /help                    # See all commands
-   /chain list             # View workflows
-   /docs                   # Open documentation
+   claude .
+   /sr                  # Should work
+   /help               # Shows 150+ commands
    ```
 
-2. **Start Building**
+2. **Configure Project**
    ```bash
-   /fw start new-feature   # Start feature
-   /create-prp            # Create implementation guide
-   /orch                  # Orchestrate agents
+   /config set project.name "Your Project"
+   /analyze-existing full
    ```
 
-3. **Enable Automation**
+3. **Start Building**
    ```bash
-   git config core.hooksPath .husky
-   pnpm run prepare       # Install git hooks
+   /fw start feature
+   /create-prp implementation
    ```
 
-4. **Share with Team**
-   ```bash
-   /generate-team-guide
-   /create-onboarding-video-script
-   ```
+## 🚨 Troubleshooting
 
-## Support & Resources
+| Problem | Solution |
+|---------|----------|
+| "curl: command not found" | Use `wget -qO-` instead |
+| "Permission denied" | Use `chmod +x integrate.sh` |
+| "/sr command not found" | Script didn't complete - check `.claude/` exists |
+| "Already have v4.0" | You're good! Use `/upgrade-boilerplate` to refresh |
+| Script fails | Check internet connection, try downloading manually |
 
-### Documentation
-- [SYSTEM_WORKFLOWS.md](./SYSTEM_WORKFLOWS.md) - Complete workflows
-- [GETTING_STARTED.md](./GETTING_STARTED.md) - New projects
-- [Integration Command](.claude/commands/integrate-boilerplate.md) - Command details
+## 📚 The Key Insight
 
-### Getting Help
-- Check `/help` for command list
-- Run `/docs search [topic]` for documentation
-- Use `/support` for common issues
+**You don't need the boilerplate or its scripts beforehand!**
 
-### Version Info
-- **Current Version**: 4.0.0
-- **Released**: January 2025
-- **Check Updates**: `/boilerplate-version`
+The curl command downloads the integration script FROM THE INTERNET, and that script handles everything else. It's all automatic!
 
 ---
 
