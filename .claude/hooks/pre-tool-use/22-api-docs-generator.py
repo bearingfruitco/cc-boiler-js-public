@@ -22,7 +22,7 @@ class APIDocumentationGenerator:
             'path': self._extract_api_path(path),
             'methods': [],
             'description': '',
-            'parameters': [],
+            'tool_input': [],
             'requestBody': None,
             'responses': {},
             'security': [],
@@ -36,11 +36,11 @@ class APIDocumentationGenerator:
         
         # Extract parameters from URL
         if '{' in api_info['path'] or '[' in path:
-            api_info['parameters'].extend(self._extract_path_params(path))
+            api_info['tool_input'].extend(self._extract_path_params(path))
         
         # Extract query parameters
         if 'searchParams' in content or 'query' in content:
-            api_info['parameters'].extend(self._extract_query_params(content))
+            api_info['tool_input'].extend(self._extract_query_params(content))
         
         # Extract request body schema
         if any(method in api_info['methods'] for method in ['POST', 'PUT', 'PATCH']):
@@ -258,7 +258,7 @@ class APIDocumentationGenerator:
                 'summary': f'{method} {path}',
                 'description': api_info['description'] or f'{method} operation for {path}',
                 'tags': api_info['tags'],
-                'parameters': api_info['parameters'],
+                'tool_input': api_info['tool_input'],
                 'responses': api_info['responses']
             }
             
@@ -332,7 +332,7 @@ def main():
     except Exception as e:
         # Log error to stderr and continue
         print(f"API docs generator hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

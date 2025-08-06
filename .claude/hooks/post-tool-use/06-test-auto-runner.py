@@ -18,14 +18,14 @@ def main():
         session_id = input_data.get('session_id')
         tool_name = input_data.get('tool_name')
         tool_input = input_data.get('tool_input', {})
-        tool_response = input_data.get('tool_response', {})
+        tool_result = input_data.get('tool_result', {})
         
         # Only process successful Write/Edit operations
-        if tool_name not in ['Write', 'Edit']:
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
             
         # Check if the tool succeeded
-        if not tool_response.get('success', False):
+        if not tool_result.get('success', True):
             sys.exit(0)
         
         file_path = tool_input.get('file_path', '')
@@ -100,7 +100,7 @@ def main():
             
             # PostToolUse hooks output to stdout for visibility
             print(message)
-            sys.exit(0)
+            sys.exit(1)
             
         elif failed_tests and passed_tests:
             # Some tests failing - warn but don't block
@@ -122,9 +122,9 @@ def main():
         sys.exit(0)
         
     except Exception as e:
-        # Non-blocking error
+        # Non-blocking error - show to user but continue
         print(f"Test runner error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

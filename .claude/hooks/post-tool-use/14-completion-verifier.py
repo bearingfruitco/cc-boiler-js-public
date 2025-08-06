@@ -35,14 +35,17 @@ def main():
         session_id = input_data.get('session_id')
         tool_name = input_data.get('tool_name')
         tool_input = input_data.get('tool_input', {})
-        tool_response = input_data.get('tool_response', {})
+        tool_response = input_data.get('tool_result', {})
         
-        # Only check Respond tool outputs
-        if tool_name != 'Respond':
+        # Only check Write and Edit operations that might contain completion claims
+        # There is no 'Respond' tool in the official spec
+        # We should check the actual content being written/edited instead
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
         
-        # Get the response text
-        response_text = tool_response.get('response', '')
+        # Get the content being written/edited
+        # This would contain completion claims in comments or documentation
+        response_text = tool_input.get('content', tool_input.get('new_str', ''))
         
         # Check if this is a completion claim
         if not detect_completion_claim(response_text):
@@ -78,9 +81,9 @@ def main():
         sys.exit(0)
         
     except Exception as e:
-        # Non-blocking error
+        # Non-blocking error - use exit code 1
         print(f"Completion verifier error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 def detect_completion_claim(text):
     """Check if the text contains a completion claim."""

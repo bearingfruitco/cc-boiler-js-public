@@ -195,24 +195,18 @@ def main():
             if is_branch_creation_command(command):
                 error = validate_branch_creation()
                 if error:
-                    # Block the operation
-                    print(json.dumps({
-                        "decision": "block",
-                        "message": error
-                    }))
-                    sys.exit(0)
+                    # Block the operation using official format
+                    print(error, file=sys.stderr)
+                    sys.exit(2)  # Block operation
         
         # Check for file modifications
         if tool_name in ['Write', 'Edit', 'MultiEdit']:
             file_path = tool_input.get('file_path', tool_input.get('path', ''))
             error = validate_file_modification(file_path)
             if error:
-                # Block the operation
-                print(json.dumps({
-                    "decision": "block",
-                    "message": error
-                }))
-                sys.exit(0)
+                # Block the operation using official format
+                print(error, file=sys.stderr)
+                sys.exit(2)  # Block operation
         
         # No issues - continue normally
         sys.exit(0)

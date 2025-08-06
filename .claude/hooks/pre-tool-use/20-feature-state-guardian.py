@@ -142,12 +142,9 @@ def main():
         # Check if file belongs to a completed feature
         warning = check_feature_protection(file_path, state)
         if warning:
-            # Block the operation with proper decision format
-            print(json.dumps({
-                "decision": "block",
-                "message": warning
-            }))
-            sys.exit(0)
+            # Block the operation using official format
+            print(warning, file=sys.stderr)
+            sys.exit(2)  # Block operation
         
         # No protection needed - continue normally
         sys.exit(0)

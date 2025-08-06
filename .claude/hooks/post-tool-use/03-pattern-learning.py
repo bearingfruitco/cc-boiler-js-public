@@ -136,7 +136,11 @@ def main():
     """Main hook logic"""
     try:
         # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        try:
+            input_data = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
         # Extract tool information
         tool_name = input_data.get('tool_name', '')
@@ -148,8 +152,12 @@ def main():
             sys.exit(0)
         
         # Get file info
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
-        content = tool_input.get('content', tool_input.get('new_str', ''))
+        file_path = tool_input.get('file_path', '')
+        content = tool_input.get('content', '')
+        
+        # For Edit/MultiEdit, content is in new_str
+        if not content and tool_name in ['Edit', 'MultiEdit']:
+            content = tool_input.get('new_str', '')
         
         if not file_path or not content:
             sys.exit(0)
@@ -184,7 +192,7 @@ def main():
     except Exception as e:
         # Log error to stderr and exit
         print(f"Pattern learning error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

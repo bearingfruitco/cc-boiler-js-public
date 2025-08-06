@@ -47,7 +47,7 @@ def main():
     except Exception as e:
         # Non-blocking - log error but don't fail
         print(f"Task ledger update error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 def is_task_related_file(file_path):
     """Check if the file path is task-related."""

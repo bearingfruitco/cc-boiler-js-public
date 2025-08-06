@@ -13,14 +13,14 @@ from datetime import datetime
 def get_safe_summary(tool_name, tool_input, tool_result=None):
     """Get a safe summary of the action without exposing sensitive data"""
     summaries = {
-        'Write': lambda: f"Wrote to {tool_input.get('file_path', tool_input.get('path', 'unknown'))}",
-        'Edit': lambda: f"Edited {tool_input.get('file_path', tool_input.get('path', 'unknown'))}",
-        'MultiEdit': lambda: f"Multi-edited {tool_input.get('file_path', tool_input.get('path', 'unknown'))}",
-        'Read': lambda: f"Read {tool_input.get('file_path', tool_input.get('path', 'unknown'))}",
+        'Write': lambda: f"Wrote to {tool_input.get('file_path', 'unknown')}",
+        'Edit': lambda: f"Edited {tool_input.get('file_path', 'unknown')}",
+        'MultiEdit': lambda: f"Multi-edited {tool_input.get('file_path', 'unknown')}",
+        'Read': lambda: f"Read {tool_input.get('file_path', 'unknown')}",
         'Bash': lambda: f"Ran command: {tool_input.get('command', 'unknown')[:50]}...",
-        'ListDirectory': lambda: f"Listed {tool_input.get('path', 'unknown')}",
-        'SearchFiles': lambda: f"Searched for '{tool_input.get('pattern', 'unknown')}'",
-        'Task': lambda: f"Created task: {tool_input.get('title', 'unknown')[:30]}...",
+        'ListDirectory': lambda: f"Listed directory",
+        'SearchFiles': lambda: f"Searched files",
+        'Task': lambda: f"Created task",
     }
     
     if tool_name in summaries:
@@ -92,7 +92,7 @@ def main():
         
         # Track most used files
         if tool_name in ['Write', 'Edit', 'Read']:
-            file_path = tool_input.get('file_path', tool_input.get('path', ''))
+            file_path = tool_input.get('file_path', '')
             if file_path and not is_sensitive:
                 if 'frequent_files' not in session_data:
                     session_data['frequent_files'] = {}
@@ -101,13 +101,13 @@ def main():
         with open(session_file, "w") as f:
             json.dump(session_data, f, indent=2)
         
-        # PostToolUse hooks should just exit with code 0
+        # PostToolUse hooks exit with code 0 for success
         sys.exit(0)
         
     except Exception as e:
-        # Log error to stderr and exit
+        # Non-blocking error - show to user but continue
         print(f"Action logger error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == '__main__':
     main()

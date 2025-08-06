@@ -75,20 +75,17 @@ def main():
             message += f"• Working on a different file\n\n"
             message += f"Proceed with caution to avoid conflicts."
             
-            # Block with warning
-            print(json.dumps({
-                "decision": "block",
-                "message": message
-            }))
-            sys.exit(0)
+            # Block with warning using official format
+            print(message, file=sys.stderr)
+            sys.exit(2)  # Block operation
         
         # No conflict - continue normally
         sys.exit(0)
         
     except Exception as e:
-        # On error, log to stderr and continue
+        # On error, log to stderr and continue (non-blocking)
         print(f"Conflict check error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == '__main__':
     main()

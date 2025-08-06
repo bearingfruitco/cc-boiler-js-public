@@ -144,7 +144,11 @@ def main():
     """Main hook entry point following Claude Code hook specification."""
     try:
         # Read input from Claude Code
-        request = json.loads(sys.stdin.read())
+        try:
+            request = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
         # Extract tool name and arguments
         tool_name = request.get('tool_name', '')
@@ -156,7 +160,7 @@ def main():
             sys.exit(0)
         
         # Get the file path
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        file_path = tool_input.get('file_path', '')
         if not file_path:
             sys.exit(0)
             

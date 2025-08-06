@@ -145,12 +145,12 @@ def main():
                         pass  # Don't fail hook on metrics error
         
         # Always exit successfully
-        sys.exit(0)
+        sys.exit(1)
         
     except Exception as e:
         # Log error but don't fail
         print(f"Browser verify hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)  # Exit successfully to not block workflow
+        sys.exit(1)  # Exit successfully to not block workflow
 
 if __name__ == "__main__":
     main()

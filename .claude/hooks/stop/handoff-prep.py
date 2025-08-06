@@ -114,7 +114,7 @@ def main():
     except Exception as e:
         # Log error but still allow stop
         print(f"Handoff prep error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

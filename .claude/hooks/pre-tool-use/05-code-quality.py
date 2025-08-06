@@ -164,12 +164,9 @@ def main():
             has_errors = any(i['severity'] == 'error' for i in issues)
             
             if has_errors:
-                # Block on errors
-                print(json.dumps({
-                    "decision": "block",
-                    "message": report
-                }))
-                sys.exit(0)
+                # Block on errors using official format
+                print(report, file=sys.stderr)
+                sys.exit(2)  # Block operation
             else:
                 # Warn on warnings/info - output to stderr
                 print(report, file=sys.stderr)
@@ -178,9 +175,9 @@ def main():
         sys.exit(0)
             
     except Exception as e:
-        # On error, log to stderr and continue
+        # On error, log to stderr and continue (non-blocking)
         print(f"Code quality hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

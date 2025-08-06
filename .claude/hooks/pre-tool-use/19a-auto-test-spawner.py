@@ -146,7 +146,7 @@ def main():
         tool_input = input_data.get('tool_input', {})
         
         # Only process Write/Edit operations
-        if tool_name not in ['Write', 'Edit']:
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
         
         file_path = tool_input.get('file_path', '')
@@ -192,12 +192,10 @@ def main():
         status = check_test_generation_status(feature_name)
         
         if status == "pending":
-            # Already generating tests
-            print(json.dumps({
-                "decision": "block",
-                "message": f"⏳ Test generation in progress for {feature_name}. Please wait..."
-            }))
-            sys.exit(0)
+            # Already generating tests - block with message
+            message = f"⏳ Test generation in progress for {feature_name}. Please wait..."
+            print(message, file=sys.stderr)
+            sys.exit(2)  # Block operation
         
         # Find related PRP
         prp_path = find_prp_for_feature(feature_name)
@@ -224,24 +222,14 @@ Please wait while tests are generated...
 To check status: /tdd-status {feature_name}
 To see progress: /tdd-dashboard"""
         
-        # Block implementation until tests are ready
-        print(json.dumps({
-            "decision": "block",
-            "message": message,
-            "metadata": {
-                "spawn_tdd_engineer": True,
-                "feature": feature_name,
-                "context": context,
-                "prompt": prompt
-            }
-        }))
-        
-        sys.exit(0)
+        # Block implementation until tests are ready using official format
+        print(message, file=sys.stderr)
+        sys.exit(2)  # Block operation
         
     except Exception as e:
-        # Log error but don't block
+        # Non-blocking error - show to user but continue
         print(f"Auto test spawner error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

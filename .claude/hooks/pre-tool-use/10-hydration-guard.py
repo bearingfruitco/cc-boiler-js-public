@@ -29,15 +29,11 @@ def main():
         input_data = json.loads(sys.stdin.read())
         
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
         
-        if tool_name not in ['Write', 'Edit', 'str_replace']:
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
         
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
         
         file_path = tool_input.get('file_path', tool_input.get('path', ''))
         content = tool_input.get('content', tool_input.get('new_str', ''))

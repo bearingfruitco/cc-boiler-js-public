@@ -191,7 +191,11 @@ def main():
     """Main hook logic"""
     try:
         # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        try:
+            input_data = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
         # Extract tool information
         tool_name = input_data.get('tool_name', '')
@@ -201,7 +205,7 @@ def main():
         if tool_name != 'Write':
             sys.exit(0)
         
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        file_path = tool_input.get('file_path', '')
         
         # Check if this is a tasks file
         if not re.search(r'-tasks\.md$', file_path):
@@ -259,7 +263,7 @@ def main():
     except Exception as e:
         # Log error to stderr and exit
         print(f"Auto-orchestrate error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

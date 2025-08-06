@@ -10,14 +10,13 @@ import os
 from pathlib import Path
 from datetime import datetime
 
-def extract_command_info(tool_use):
+def extract_command_info(tool_name, tool_input):
     """Extract command information from tool use data"""
-    tool_name = tool_use.get('name', '')
-    parameters = tool_use.get('parameters', {})
+    # Use the official spec parameters
     
-    # Handle execute_command specifically
-    if tool_name == 'execute_command':
-        command = parameters.get('command', '')
+    # Handle Bash commands (official tool name)
+    if tool_name == 'Bash':
+        command = tool_input.get('command', '')
         if command.startswith('/'):
             # It's a Claude command
             parts = command.split()
@@ -28,39 +27,37 @@ def extract_command_info(tool_use):
                 'full_command': command
             }
     
-    # Handle file operations
-    if tool_name in ['Write', 'Edit', 'Read']:
+    # Handle file operations (official tool names)
+    if tool_name in ['Write', 'Edit', 'Read', 'MultiEdit']:
         return {
             'type': 'file_operation',
             'command': tool_name,
-            'args': [parameters.get('path', '')],
-            'full_command': f"{tool_name} {parameters.get('path', '')}"
+            'args': [tool_input.get('file_path', '')],
+            'full_command': f"{tool_name} {tool_input.get('file_path', '')}"
         }
     
     # Handle other tools
     return {
         'type': 'tool',
         'command': tool_name,
-        'args': list(parameters.values()) if parameters else [],
-        'full_command': f"{tool_name} {json.dumps(parameters)}"
+        'args': list(tool_input.values()) if tool_input else [],
+        'full_command': f"{tool_name} {json.dumps(tool_input)}"
     }
 
-def extract_changed_files(tool_use):
+def extract_changed_files(tool_name, tool_input, tool_result):
     """Extract list of files changed by the command"""
-    tool_name = tool_use.get('name', '')
-    parameters = tool_use.get('parameters', {})
+    # Use official spec parameters
     
     changed_files = []
     
-    if tool_name in ['Write', 'Edit']:
-        file_path = parameters.get('path', '')
+    if tool_name in ['Write', 'Edit', 'MultiEdit']:
+        file_path = tool_input.get('file_path', '')
         if file_path:
             changed_files.append(file_path)
     
-    # For execute_command, try to parse output for file changes
-    if tool_name == 'execute_command':
-        result = tool_use.get('result', {})
-        output = result.get('output', '')
+    # For Bash commands, try to parse output for file changes
+    if tool_name == 'Bash' and tool_result:
+        output = tool_result.get('output', '')
         
         # Look for common patterns indicating file changes
         import re
@@ -77,16 +74,12 @@ def extract_changed_files(tool_use):
     
     return list(set(changed_files))  # Remove duplicates
 
-def calculate_duration(tool_use):
+def calculate_duration(tool_result):
     """Calculate command duration if available"""
-    # Look for timing information in various places
-    duration_ms = tool_use.get('duration_ms', 0)
-    
-    if not duration_ms:
-        # Try to extract from result
-        result = tool_use.get('result', {})
-        duration_ms = result.get('duration_ms', 0)
-    
+    # Look for timing information in result
+    duration_ms = 0
+    if tool_result:
+        duration_ms = tool_result.get('duration_ms', 0)
     return duration_ms
 
 def update_command_stats(command_name, log_entry):
@@ -140,30 +133,33 @@ def update_command_stats(command_name, log_entry):
 def main():
     """Main hook logic for command logging"""
     try:
-        # Read input
+        # Read input according to official spec
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool use information
-        tool_use = input_data.get('tool_use', {})
-        if not tool_use:
-            sys.exit(0)
+        # Extract tool information according to official spec
+        tool_name = input_data.get('tool_name', '')
+        tool_input = input_data.get('tool_input', {})
+        tool_result = input_data.get('tool_result', {})  # PostToolUse gets result
+        
+        if not tool_name:
+            sys.exit(0)  # Exit success if no tool
         
         # Extract command information
-        cmd_info = extract_command_info(tool_use)
+        cmd_info = extract_command_info(tool_name, tool_input)
         
         # Only log Claude commands and important operations
         if cmd_info['type'] not in ['claude_command', 'file_operation']:
             sys.exit(0)
 
-        result = tool_use.get('result', {})
         status = 'unknown'
         error = None
         
-        if 'error' in result:
-            status = 'error'
-            error = result['error']
-        elif result.get('success', False) or result.get('output'):
-            status = 'success'
+        if tool_result:
+            if 'error' in tool_result:
+                status = 'error'
+                error = tool_result['error']
+            elif tool_result.get('success', False) or tool_result.get('output'):
+                status = 'success'
         
         # Create log entry
         log_entry = {
@@ -174,8 +170,8 @@ def main():
             'args': cmd_info['args'],
             'full_command': cmd_info['full_command'],
             'status': status,
-            'duration': calculate_duration(tool_use),
-            'files_changed': extract_changed_files(tool_use),
+            'duration': calculate_duration(tool_result),
+            'files_changed': extract_changed_files(tool_name, tool_input, tool_result),
             'error': error,
             'user': os.environ.get('USER', 'unknown')
         }
@@ -202,13 +198,13 @@ def main():
             # Don't fail the hook chain
             pass
         
-        # PostToolUse hooks just exit normally
+        # PostToolUse hooks exit with success
         sys.exit(0)
         
     except Exception as e:
         # Log error to stderr and exit
         print(f"Command logger error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -394,10 +394,8 @@ def main():
         
         # Block if score too low
         if not analysis['passing']:
-            # Block the component creation with feedback
-            print(json.dumps({
-                "decision": "block",
-                "message": f"""♿ Accessibility Requirements Not Met
+            # Block the component creation with feedback using official format
+            message = f"""♿ Accessibility Requirements Not Met
 
 Component '{component_name}' needs accessibility improvements:
 
@@ -410,15 +408,15 @@ Suggestions:
 {chr(10).join(f'• {suggestion}' for suggestion in analysis['suggestions'])}
 
 Would you like me to add the necessary accessibility features?"""
-            }))
-            sys.exit(0)
+            print(message, file=sys.stderr)
+            sys.exit(2)  # Block operation
         
         print("\n✅ Accessibility check passed! Component can be created.", file=sys.stderr)
         
     except Exception as e:
         # Log error to stderr and continue
         print(f"A11y enforcer hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -142,20 +142,21 @@ def main():
         
         # Extract tool name
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
         
         # Only process write operations
-        if tool_name not in ['Write', 'Edit', 'str_replace']:
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
         
         # Extract parameters
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
         
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
-        content = tool_input.get('content', tool_input.get('new_str', ''))
+        # Use correct field names according to official spec
+        file_path = tool_input.get('file_path', '')
+        content = tool_input.get('content', '')
+        
+        # For Edit/MultiEdit operations, content is in new_str
+        if tool_name in ['Edit', 'MultiEdit'] and not content:
+            content = tool_input.get('new_str', '')
         
         # Skip if working with PRP files (handled by 05b)
         if 'PRPs/' in file_path or any(marker in file_path for marker in ['prp', 'validation', 'blueprint']):

@@ -247,7 +247,11 @@ def main():
     """Main hook logic"""
     try:
         # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        try:
+            input_data = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
         # Extract information
         tool_name = input_data.get('tool_name', '')

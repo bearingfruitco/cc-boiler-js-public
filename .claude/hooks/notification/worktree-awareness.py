@@ -85,7 +85,7 @@ def main():
         worktree = get_current_worktree()
         if not worktree:
             # Not in worktree, exit silently
-            sys.exit(0)
+            sys.exit(1)
             
         # Get worktree config
         config = get_worktree_config(worktree['path'])
@@ -98,8 +98,8 @@ def main():
         # Only show context for commands that would benefit
         tool_name = input_data.get('tool_name', '')
         relevant_tools = [
-            'run_command', 'str_replace', 'create_file', 
-            'write_file', 'edit_file', 'bash'
+            'run_command', 'MultiEdit', 'create_file', 
+            'Write', 'Edit', 'Bash'
         ]
         
         if tool_name not in relevant_tools:
@@ -132,7 +132,7 @@ def main():
         
     except Exception as e:
         # Don't fail the hook - exit silently
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

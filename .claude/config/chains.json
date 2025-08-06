@@ -1496,6 +1496,59 @@
           "task": "Verify state management and data flow"
         }
       ]
+    },
+    "feature-development-parallel": {
+      "description": "Feature development with parallel analysis phase",
+      "phases": [
+        {
+          "name": "analysis",
+          "parallel": true,
+          "steps": [
+            {
+              "agent": "system-architect",
+              "task": "Design system architecture"
+            },
+            {
+              "agent": "security",
+              "task": "Perform threat analysis"
+            },
+            {
+              "agent": "performance",
+              "task": "Analyze performance requirements"
+            }
+          ]
+        },
+        {
+          "name": "implementation",
+          "parallel": false,
+          "steps": [
+            {
+              "command": "/create-prp database-schema"
+            },
+            {
+              "command": "/create-prp api-endpoints"
+            },
+            {
+              "command": "/create-prp frontend-components"
+            }
+          ]
+        },
+        {
+          "name": "validation",
+          "parallel": true,
+          "steps": [
+            {
+              "command": "/prp-execute database-schema --level 1"
+            },
+            {
+              "command": "/prp-execute api-endpoints --level 1"
+            },
+            {
+              "command": "/prp-execute frontend-components --level 1"
+            }
+          ]
+        }
+      ]
     }
   }
 }

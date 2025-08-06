@@ -49,12 +49,16 @@ def is_intentional_change():
     
     return False, None
 
-def check_truth_violations(tool_input, truths):
+def check_truth_violations(tool_input, truths, tool_name=''):
     """Check if changes violate established truths"""
     violations = []
     
-    file_path = tool_input.get('file_path', tool_input.get('path', ''))
-    new_content = tool_input.get('content', tool_input.get('new_str', ''))
+    file_path = tool_input.get('file_path', '')
+    new_content = tool_input.get('content', '')
+    
+    # For Edit/MultiEdit, content is in new_str
+    if new_content == '' and tool_name in ['Edit', 'MultiEdit']:
+        new_content = tool_input.get('new_str', '')
     old_content = tool_input.get('old_str', '')
     
     if not new_content:
@@ -99,7 +103,11 @@ def main():
     """Main hook logic"""
     try:
         # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        try:
+            input_data = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
         # Extract tool name from input data
         tool_name = input_data.get('tool_name', '')
@@ -119,7 +127,7 @@ def main():
         truths = load_project_truths()
         
         # Check for violations
-        violations = check_truth_violations(tool_input, truths)
+        violations = check_truth_violations(tool_input, truths, tool_name)
         
         if violations:
             high_severity = any(v['severity'] == 'high' for v in violations)
@@ -158,12 +166,9 @@ def main():
                 sys.exit(0)
             
             elif high_severity:
-                # Block the operation using the correct format
-                print(json.dumps({
-                    "decision": "block",
-                    "message": error_msg
-                }))
-                sys.exit(0)
+                # Block the operation using official format
+                print(error_msg, file=sys.stderr)
+                sys.exit(2)  # Block operation
             else:
                 # Non-blocking - output warning to stderr and continue
                 print(error_msg, file=sys.stderr)

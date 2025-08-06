@@ -66,7 +66,7 @@ def main():
         
     except Exception:
         # Silent fail - never block workflow
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

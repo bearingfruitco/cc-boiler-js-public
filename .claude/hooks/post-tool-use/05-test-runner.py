@@ -36,10 +36,10 @@ def main():
         
         tool_name = input_data.get('tool_name', '')
         tool_input = input_data.get('tool_input', {})
-        tool_response = input_data.get('tool_response', {})
+        tool_result = input_data.get('tool_result', {})
         
         # Only process successful writes/edits
-        if tool_name not in ['Write', 'Edit'] or not tool_response.get('success'):
+        if tool_name not in ['Write', 'Edit', 'MultiEdit'] or not tool_result.get('success', True):
             sys.exit(0)
         
         file_path = tool_input.get('file_path', '')
@@ -78,9 +78,9 @@ def main():
         sys.exit(0)
         
     except Exception as e:
-        # Don't block on errors
+        # Non-blocking error - show to user but continue
         print(f"Test runner hook error: {e}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

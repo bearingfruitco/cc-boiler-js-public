@@ -64,7 +64,7 @@ def main():
     except Exception as e:
         # Don't block on errors - log to stderr
         print(f"TDD suggester error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

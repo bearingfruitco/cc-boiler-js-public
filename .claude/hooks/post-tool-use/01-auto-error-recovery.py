@@ -173,10 +173,13 @@ def main():
             print(f"\n📝 {len(manual_fixes)} errors require manual intervention", file=sys.stderr)
             print("   Run: /spawn-agent senior-engineer fix-errors", file=sys.stderr)
         
-    except Exception as e:
-        # Log error to stderr and continue
-        print(f"Auto error recovery hook error: {str(e)}", file=sys.stderr)
+        # PostToolUse hooks exit with 0 for success
         sys.exit(0)
+        
+    except Exception as e:
+        # Non-blocking error - show to user but continue
+        print(f"Auto error recovery hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

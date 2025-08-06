@@ -86,7 +86,11 @@ def main():
     """Main hook logic"""
     try:
         # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        try:
+            input_data = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
         # Extract tool name
         tool_name = input_data.get('tool_name', '')
@@ -98,8 +102,12 @@ def main():
         
         # Extract parameters
         tool_input = input_data.get('tool_input', {})
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
-        content = tool_input.get('content', tool_input.get('new_str', ''))
+        file_path = tool_input.get('file_path', '')
+        content = tool_input.get('content', '')
+        
+        # For Edit/MultiEdit, content is in new_str
+        if tool_name in ['Edit', 'MultiEdit'] and not content:
+            content = tool_input.get('new_str', '')
         
         if not content:
             sys.exit(0)
@@ -130,12 +138,9 @@ def main():
             message += "2. Get approval from the project owner\n"
             message += "3. Update the PRD with [UPDATED] marker"
             
-            # Block the change
-            print(json.dumps({
-                "decision": "block",
-                "message": message
-            }))
-            sys.exit(0)
+            # Block the change using official format
+            print(message, file=sys.stderr)
+            sys.exit(2)  # Block operation
         
         # No violations - continue
         sys.exit(0)

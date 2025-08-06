@@ -119,7 +119,7 @@ def main():
         
     except Exception as e:
         print(f"Browser state save error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

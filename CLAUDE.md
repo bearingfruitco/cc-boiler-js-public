@@ -7,6 +7,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This file contains persistent instructions for Claude Code agents working on this project.
 The hooks system enforces many of these rules automatically.
 
+## 📚 Official Claude Code Documentation
+
+This project extends the official Claude Code features. For reference:
+- **Sub-agents**: https://docs.anthropic.com/en/docs/claude-code/sub-agents
+- **Hooks**: https://docs.anthropic.com/en/docs/claude-code/hooks
+- **Commands**: https://docs.anthropic.com/en/docs/claude-code/slash-commands
+- **Settings**: https://docs.anthropic.com/en/docs/claude-code/settings
+
+See `docs/OFFICIAL_CLAUDE_CODE_ALIGNMENT.md` for how our system aligns with official features.
+
 ## 🚨 CRITICAL RULES (Enforced by Hooks)
 
 ### ALWAYS

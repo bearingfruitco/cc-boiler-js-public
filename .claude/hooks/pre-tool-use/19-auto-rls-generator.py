@@ -306,7 +306,7 @@ def main():
     except Exception as e:
         # Log error to stderr and continue
         print(f"RLS generator hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

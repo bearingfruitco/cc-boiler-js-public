@@ -54,21 +54,24 @@ def main():
         # Extract command information
         tool_name = input_data.get('tool_name', '')
         
-        # Only check for specific commands
-        if tool_name == 'execute_command':
-            parameters = input_data.get('parameters', {})
-            command = parameters.get('command', '')
+        # Only check for specific write operations that might be generating issues
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
+            sys.exit(0)
+        
+        tool_input = input_data.get('tool_input', {})
+        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        content = tool_input.get('content', tool_input.get('new_str', ''))
+        
+        # Check if creating issue files without architecture
+        if 'issues/' in file_path or 'github/issues' in file_path:
+            has_arch, existing_files = check_architecture_exists()
             
-            # Check if trying to generate issues without architecture
-            if command.startswith('/gi ') or command == '/gi PROJECT' or command.startswith('/generate-issues'):
-                has_arch, existing_files = check_architecture_exists()
+            if not has_arch:
+                has_prd = check_prd_exists()
                 
-                if not has_arch:
-                    has_prd = check_prd_exists()
-                    
-                    if has_prd:
-                        # PRD exists but no architecture - this is the gap we're fixing
-                        error_msg = """🚫 Architecture Design Required
+                if has_prd:
+                    # PRD exists but no architecture - this is the gap we're fixing
+                    error_msg = """🚫 Architecture Design Required
 
 You have a PRD but haven't designed the system architecture yet. This is a critical step that:
 - Defines technical implementation details
@@ -110,15 +113,13 @@ The architecture phase will:
 7. Create technical roadmap
 
 This ensures thoughtful system design before jumping into code!"""
-                        
-                        print(json.dumps({
-                            "action": "block",
-                            "message": error_msg
-                        }))
-                        sys.exit(0)
-                    else:
-                        # No PRD either - different error
-                        error_msg = """❌ No PRD Found
+                    
+                    # OFFICIAL FORMAT: stderr + exit code 2 for blocking
+                    print(error_msg, file=sys.stderr)
+                    sys.exit(2)  # Block operation
+                else:
+                    # No PRD either - different error
+                    error_msg = """❌ No PRD Found
 
 You need to create a PRD before generating issues:
 ```bash
@@ -134,37 +135,29 @@ Finally, generate issues:
 ```bash
 /gi PROJECT
 ```"""
-                        
-                        print(json.dumps({
-                            "action": "block",
-                            "message": error_msg
-                        }))
-                        sys.exit(0)
-                else:
-                    # Architecture exists - provide helpful info
-                    info_msg = f"""✅ Architecture found! ({len(existing_files)}/6 documents)
+                    
+                    # OFFICIAL FORMAT: stderr + exit code 2 for blocking
+                    print(error_msg, file=sys.stderr)
+                    sys.exit(2)  # Block operation
+            else:
+                # Architecture exists - provide helpful info
+                info_msg = f"""✅ Architecture found! ({len(existing_files)}/6 documents)
 
 Existing architecture docs:
 {chr(10).join('• ' + f for f in existing_files)}
 
 Proceeding with issue generation..."""
-                    
-                    # Log but don't block
-                    print(json.dumps({
-                        "action": "log",
-                        "message": info_msg
-                    }), file=sys.stderr)
+                
+                # Log but don't block
+                print(info_msg, file=sys.stderr)
         
         # For all other cases, continue normally
         sys.exit(0)
         
     except Exception as e:
-        # On error, log but don't block
-        print(json.dumps({
-            "action": "log",
-            "message": f"Architecture hook error: {str(e)}"
-        }), file=sys.stderr)
-        sys.exit(0)
+        # Non-blocking error - show to user but continue
+        print(f"Architecture hook error: {str(e)}", file=sys.stderr)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

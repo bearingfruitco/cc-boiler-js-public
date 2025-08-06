@@ -238,7 +238,7 @@ def main():
         
         if not event_type:
             # Not TDD related
-            sys.exit(0)
+            sys.exit(1)
         
         # Extract feature name
         file_path = tool_input.get('file_path', '') if isinstance(tool_input, dict) else ''
@@ -322,7 +322,7 @@ def main():
         with open(error_log, 'a') as f:
             f.write(f"{datetime.now()}: TDD progress logger error - {str(e)}\n")
         
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -35,6 +35,7 @@
 2. **Issue #15**: Populate All Agent Files - ✅ COMPLETE
 3. **Issue #16**: Clean Up Duplicate Files - ✅ COMPLETE
 4. **Issue #17**: Improve Integration Script - ✅ COMPLETE
+5. **Issue #22**: Align with Official Claude Code Docs - 🚧 IN PROGRESS
 
 ---
 

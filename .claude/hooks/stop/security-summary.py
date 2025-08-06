@@ -24,13 +24,12 @@ def main():
         # TODO: Implement security-summary logic
         
         # For Stop hooks: exit with code 0 to allow stopping
-        # Or output {"action": "block", "reason": "..."} to prevent stopping
         sys.exit(0)
         
     except Exception as e:
         # Log error to stderr and still allow stopping
         print(f"security-summary error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

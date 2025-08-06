@@ -24,11 +24,11 @@ def main():
         # TODO: Implement security-report logic
         
         # SubagentStop hooks should just exit with code 0
-        sys.exit(0)
+        sys.exit(1)
         
     except Exception as e:
         # Exit silently even on error
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

@@ -157,7 +157,11 @@ def main():
     """Main hook logic"""
     try:
         # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        try:
+            input_data = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
         # Extract tool information
         tool_name = input_data.get('tool_name', '')
@@ -169,12 +173,16 @@ def main():
             sys.exit(0)
         
         # Only process component files
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        file_path = tool_input.get('file_path', '')
         if not file_path.endswith(('.tsx', '.jsx')):
             sys.exit(0)
         
         # Get content
-        content = tool_input.get('content', tool_input.get('new_str', ''))
+        content = tool_input.get('content', '')
+        
+        # For Edit/MultiEdit, content is in new_str
+        if not content and tool_name in ['Edit', 'MultiEdit']:
+            content = tool_input.get('new_str', '')
         if not content:
             sys.exit(0)
         
@@ -201,9 +209,9 @@ def main():
         sys.exit(0)
         
     except Exception as e:
-        # Log error to stderr and exit
+        # Non-blocking error - show to user but continue
         print(f"Metrics error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

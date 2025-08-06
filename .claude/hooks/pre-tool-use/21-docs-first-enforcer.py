@@ -411,10 +411,8 @@ def main():
         if doc_path.exists():
             sys.exit(0)  # Don't block if docs exist
         
-        # Block component creation without docs
-        print(json.dumps({
-            "decision": "block",
-            "message": f"""📚 Documentation Required Before Component Creation
+        # Block component creation without docs using official format
+        error_msg = f"""📚 Documentation Required Before Component Creation
 
 Component '{info['name']}' needs documentation first!
 
@@ -432,14 +430,15 @@ This ensures:
 - Performance notes are included
 
 Would you like me to create these files now?"""
-        }))
         
-        sys.exit(0)
+        # OFFICIAL FORMAT: stderr + exit code 2 for blocking
+        print(error_msg, file=sys.stderr)
+        sys.exit(2)  # Block operation
         
     except Exception as e:
-        # Log error to stderr and continue
+        # Non-blocking error - show to user but continue
         print(f"Docs enforcer hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

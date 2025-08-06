@@ -95,7 +95,7 @@ def main():
         
         if not prompt:
             # No prompt to analyze
-            sys.exit(0)
+            sys.exit(1)
         
         # Check if prompt relates to security
         if analyze_security_intent(prompt):

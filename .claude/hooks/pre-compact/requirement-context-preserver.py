@@ -95,12 +95,12 @@ def main():
             print(message, file=sys.stderr)
         
         # PreCompact hooks just exit with code 0
-        sys.exit(0)
+        sys.exit(1)
         
     except Exception as e:
         # Log error to stderr and exit
         print(f"Requirement context preserver error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

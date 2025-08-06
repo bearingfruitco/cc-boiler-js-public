@@ -23,13 +23,13 @@ def main():
         # TODO: Implement save-state logic
         
         # For Stop hooks: exit with code 0 to allow stopping
-        # Or output {"action": "block", "reason": "..."} to prevent stopping
+        # Or exit with code 2 and message to stderr to block
         sys.exit(0)
         
     except Exception as e:
-        # Log error to stderr and still allow stopping
+        # Log error to stderr (non-blocking error)
         print(f"save-state error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == '__main__':
     main()

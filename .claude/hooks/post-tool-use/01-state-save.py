@@ -80,7 +80,11 @@ def main():
     """Main hook logic"""
     try:
         # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        try:
+            input_data = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
         # Extract tool information
         tool_name = input_data.get('tool_name', '')
@@ -92,7 +96,7 @@ def main():
             sys.exit(0)
         
         # Get file path
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        file_path = tool_input.get('file_path', '')
         
         # Update recent files
         if file_path:
@@ -122,13 +126,13 @@ def main():
             state = get_work_context()
             save_state(state)
         
-        # PostToolUse hooks just exit normally - no specific output required
+        # PostToolUse hooks exit with 0 for success
         sys.exit(0)
         
     except Exception as e:
         # On error, log to stderr and exit normally
         print(f"State save hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

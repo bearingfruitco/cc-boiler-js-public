@@ -141,7 +141,7 @@ def main():
             tool_name = input_data['tool_use'].get('name', '')
         
         # Only check write operations
-        if tool_name not in ['Write', 'Edit', 'str_replace']:
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
         
         # Extract parameters
@@ -160,11 +160,9 @@ def main():
             
             # For PRDs with many issues, consider blocking
             if len(issues) > 10:
-                print(json.dumps({
-                    "decision": "block",
-                    "message": message + "\n\n💡 Fix these clarity issues before proceeding"
-                }))
-                sys.exit(0)
+                error_msg = message + "\n\n💡 Fix these clarity issues before proceeding"
+                print(error_msg, file=sys.stderr)
+                sys.exit(2)  # Block operation
             else:
                 # Just warn for minor issues
                 print(message, file=sys.stderr)

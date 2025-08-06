@@ -138,7 +138,11 @@ def main():
     """Main hook logic"""
     try:
         # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        try:
+            input_data = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
         # Extract tool information
         tool_name = input_data.get('tool_name', '')
@@ -146,11 +150,15 @@ def main():
         tool_result = input_data.get('tool_result', {})
         
         # Get file path
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        file_path = tool_input.get('file_path', '')
         
         # Track different types of operations
         if tool_name in ['Write', 'Edit', 'MultiEdit']:
-            content = tool_input.get('content', tool_input.get('new_str', ''))
+            content = tool_input.get('content', '')
+            
+            # For Edit/MultiEdit, content is in new_str
+            if not content and tool_name in ['Edit', 'MultiEdit']:
+                content = tool_input.get('new_str', '')
             
             # Check if this is a PRP file
             prp_name = extract_prp_name(file_path)
@@ -215,13 +223,13 @@ def main():
                         metrics['test_failures'] = metrics.get('test_failures', 0) + 1
                         save_metrics(prp_name, metrics)
         
-        # PostToolUse hooks just exit normally
+        # PostToolUse hooks exit with 0 for success
         sys.exit(0)
         
     except Exception as e:
         # Log error to stderr and exit
         print(f"PRP metrics error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

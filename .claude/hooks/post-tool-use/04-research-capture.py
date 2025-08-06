@@ -20,7 +20,7 @@ def main():
         tool_result = input_data.get('tool_result', {})
         
         # Only capture research-related tools
-        research_tools = ['Read', 'SearchFiles', 'Grep', 'web_search']
+        research_tools = ['Read', 'SearchFiles', 'Grep', 'WebSearch']
         if tool_name not in research_tools:
             sys.exit(0)
         
@@ -41,7 +41,7 @@ def main():
     except Exception as e:
         # Log error to stderr and exit
         print(f"Research capture error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 def extract_query(tool_name, tool_input):
     """Extract the query/search term from tool input"""
@@ -49,7 +49,7 @@ def extract_query(tool_name, tool_input):
         return tool_input.get('pattern', '')
     elif tool_name == 'Grep':
         return tool_input.get('pattern', '')
-    elif tool_name == 'web_search':
+    elif tool_name == 'WebSearch':
         return tool_input.get('query', '')
     elif tool_name == 'Read':
         return tool_input.get('path', tool_input.get('file_path', ''))
@@ -63,7 +63,7 @@ def extract_findings(tool_name, tool_result):
     if tool_name == 'SearchFiles':
         matches = tool_result.get('matches', [])
         return f"Found {len(matches)} matches"
-    elif tool_name == 'web_search':
+    elif tool_name == 'WebSearch':
         results = tool_result.get('results', [])
         return f"Found {len(results)} web results"
     elif tool_name == 'Read':

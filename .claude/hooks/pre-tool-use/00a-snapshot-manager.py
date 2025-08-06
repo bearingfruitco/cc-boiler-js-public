@@ -256,8 +256,21 @@ To view snapshots: /snapshot list"""
 def main():
     """Main hook logic"""
     try:
-        # Read input from Claude Code
-        hook_input = json.loads(sys.stdin.read())
+        # Read input from Claude Code (handle both stdin and test mode)
+        if not sys.stdin.isatty():
+            try:
+                input_text = sys.stdin.read()
+                if input_text.strip():
+                    hook_input = json.loads(input_text)
+                else:
+                    # Empty stdin, exit gracefully
+                    sys.exit(0)
+            except json.JSONDecodeError:
+                # Not JSON input, exit gracefully
+                sys.exit(0)
+        else:
+            # No stdin available
+            sys.exit(0)
         
         # Extract tool info
         tool_name = hook_input.get('tool_name', '')
@@ -294,8 +307,7 @@ def main():
                 if context:
                     print(context, file=sys.stderr)
                     
-        # PreToolUse hook: Exit normally to continue with permission flow
-        # No JSON output needed - hook just creates snapshots as a side effect
+        # PreToolUse hook: Exit normally to continue with operation
         sys.exit(0)
         
     except Exception as e:

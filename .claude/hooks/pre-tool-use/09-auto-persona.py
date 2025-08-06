@@ -216,12 +216,8 @@ def main():
         # Read input
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool name
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
-        if not tool_name:
-            tool_name = input_data.get('tool', '')
         
         # Only suggest for file operations
         if tool_name not in ['Write', 'Edit', 'Read']:
@@ -229,11 +225,14 @@ def main():
         
         # Extract parameters
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
         
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        # Use correct field names according to official spec
+        file_path = tool_input.get('file_path', '')
         content = tool_input.get('content', '')
+        
+        # For Edit operations, content is in new_str
+        if tool_name == 'Edit' and not content:
+            content = tool_input.get('new_str', '')
         
         # Detect persona from file
         file_persona = detect_persona_from_file(file_path)

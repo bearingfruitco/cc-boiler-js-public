@@ -85,7 +85,7 @@ class ImplementationGuide:
             'better_approaches': []
         }
         
-        if not path or tool not in ['Write', 'Edit', 'str_replace']:
+        if not path or tool not in ['Write', 'Edit', 'MultiEdit']:
             return analysis
         
         # 1. Check for potential duplicates
@@ -325,15 +325,11 @@ def main():
         # Read input
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool name
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
-        if not tool_name:
-            tool_name = input_data.get('tool', '')
         
         # Only analyze write operations
-        if tool_name not in ['Write', 'Edit', 'str_replace']:
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
         
         guide = ImplementationGuide()
@@ -349,12 +345,9 @@ def main():
             )
             
             if has_high_warnings:
-                # Block with recommendations
-                print(json.dumps({
-                    "decision": "block",
-                    "message": message
-                }))
-                sys.exit(0)
+                # Block with recommendations - use official format
+                print(message, file=sys.stderr)
+                sys.exit(2)  # Block operation
             else:
                 # Warn but continue - print to stderr
                 print(message, file=sys.stderr)

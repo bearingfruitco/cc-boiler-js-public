@@ -54,26 +54,24 @@ def main():
                 ready, message = validate_browser_readiness()
                 
                 if not ready:
-                    print(f"\n⚠️ Browser validation required before deployment!")
-                    print(f"   {message}")
-                    print(f"   Run: /pw-test smoke")
-                    print(f"   Or: /browser-test-status --fix")
+                    # Block deployment using official format
+                    error_msg = f"⚠️ Browser validation required before deployment!\n"
+                    error_msg += f"   {message}\n"
+                    error_msg += f"   Run: /pw-test smoke\n"
+                    error_msg += f"   Or: /browser-test-status --fix"
                     
-                    # Optionally block deployment
-                    output = {
-                        "continue": True,  # Set to False to block
-                        "warning": message
-                    }
-                    print(json.dumps(output))
-                    sys.exit(0)
+                    print(error_msg, file=sys.stderr)
+                    sys.exit(2)  # Block operation
                 else:
-                    print("\n✅ Browser tests passing - ready for deployment")
+                    # Log success but don't block
+                    print("✅ Browser tests passing - ready for deployment", file=sys.stderr)
         
         sys.exit(0)
         
     except Exception as e:
+        # Non-blocking error
         print(f"Browser state check error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

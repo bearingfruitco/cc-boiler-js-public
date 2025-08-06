@@ -34,8 +34,6 @@ def main():
         
         # Extract tool name
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
         
         # Only check write operations
         if tool_name not in ['Write', 'Edit', 'MultiEdit']:
@@ -44,8 +42,6 @@ def main():
         
         # Extract tool input
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
         
         # Get file path and content
         file_path = tool_input.get('file_path', tool_input.get('path', ''))

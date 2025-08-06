@@ -151,12 +151,9 @@ def main():
             
             message += "\nTDD Flow: PRD → PRP → Tests → Implementation"
             
-            # Block the operation
-            print(json.dumps({
-                "decision": "block",
-                "message": message
-            }))
-            sys.exit(0)
+            # Block the operation using official format
+            print(message, file=sys.stderr)
+            sys.exit(2)  # Block operation
         else:
             # Tests exist - check if they're passing
             test_file = test_files[0]
@@ -181,15 +178,12 @@ def main():
                 sys.exit(0)  # Non-blocking warning
             else:
                 # Tests passing - good to go
-                print(json.dumps({
-                    "decision": "approve"
-                }))
-                sys.exit(0)
+                sys.exit(0)  # Continue normally
         
     except Exception as e:
         # Don't block on errors
         print(f"TDD hook error: {e}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

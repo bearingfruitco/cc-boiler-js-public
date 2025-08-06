@@ -216,7 +216,7 @@ def main():
         
         # Check if response capture is enabled
         if not config.get('capture', {}).get('auto_capture', True):
-            sys.exit(0)
+            sys.exit(1)
         
         # Only capture on Write operations that might contain plans
         if tool_name == 'Write':
@@ -241,7 +241,7 @@ def main():
     except Exception as e:
         # Log error to stderr and exit
         print(f"Response capture error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

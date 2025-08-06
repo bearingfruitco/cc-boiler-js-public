@@ -197,7 +197,7 @@ def main():
         
         # Check if this is a test execution
         if tool_name not in ['Execute', 'Run'] or not tool_output:
-            sys.exit(0)
+            sys.exit(1)
         
         # Check if output contains coverage data
         if not any(indicator in str(tool_output) for indicator in ['Coverage', 'Statements', 'Branches']):
@@ -324,7 +324,7 @@ def main():
         with open(error_log, 'a') as f:
             f.write(f"{datetime.now()}: Coverage tracking error - {str(e)}\n")
         
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

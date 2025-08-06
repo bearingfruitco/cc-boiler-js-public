@@ -138,7 +138,7 @@ def main():
                         print(message, file=sys.stderr)
         
         # Notification hooks just exit normally
-        sys.exit(0)
+        sys.exit(1)
         
     except Exception as e:
         # On error, log to stderr and exit with error code

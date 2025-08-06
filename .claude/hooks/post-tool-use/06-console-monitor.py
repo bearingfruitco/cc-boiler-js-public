@@ -87,12 +87,12 @@ def main():
                     save_error_history(history)
         
         # Always exit successfully
-        sys.exit(0)
+        sys.exit(1)
         
     except Exception as e:
         # Log error but don't fail
         print(f"Console monitor hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

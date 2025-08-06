@@ -21,7 +21,7 @@ def main():
                 input_data = json.loads(sys.stdin.read())
             except:
                 # If no input or invalid JSON, just exit
-                sys.exit(0)
+                sys.exit(1)
         
         # Check if this is a notification we care about
         notification_type = input_data.get("type", "")
@@ -163,12 +163,12 @@ def main():
             print(message, file=sys.stderr)
         
         # Notification hooks should just exit - no JSON output
-        sys.exit(0)
+        sys.exit(1)
         
     except Exception as e:
-        # Log error to stderr and exit
+        # Non-blocking error - show to user but continue
         print(f"PreCompact handler error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

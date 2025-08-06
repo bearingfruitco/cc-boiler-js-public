@@ -181,7 +181,7 @@ def main():
         print(f"📊 Metrics updated for {agent_name} agent ({task_type} task)")
     
     # Always exit successfully
-    sys.exit(0)
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()

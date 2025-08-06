@@ -91,7 +91,7 @@ def main():
                     if feature_name.lower() in prp_content:
                         prp_files.append(prp_file)
         
-        # If no tests exist, trigger auto-test-spawner
+        # If no tests exist, block the operation
         if not test_files:
             # Check if test generation is already in progress
             task_file = Path(f".claude/tasks/tdd-generation.json")
@@ -99,15 +99,12 @@ def main():
                 with open(task_file) as f:
                     task = json.load(f)
                     if task.get('context', {}).get('feature_name') == feature_name:
-                        # Already generating tests
-                        print(json.dumps({
-                            "decision": "block",
-                            "message": f"⏳ Test generation in progress for {feature_name}. Please wait..."
-                        }))
-                        sys.exit(0)
+                        # Already generating tests - block with message
+                        message = f"⏳ Test generation in progress for {feature_name}. Please wait..."
+                        print(message, file=sys.stderr)
+                        sys.exit(2)  # Block operation
             
-            # Delegate to auto-test-spawner hook
-            # The auto-test-spawner will handle agent invocation
+            # Block and request test creation
             message = "🧪 TDD Enforcer: Tests Required First\n\n"
             message += f"Feature: {feature_name}\n"
             message += f"File: {file_path}\n\n"
@@ -115,38 +112,24 @@ def main():
             if prp_files:
                 message += f"Found PRP: {prp_files[0].name}\n\n"
             
-            message += "The auto-test-spawner will now:\n"
-            message += "1. Invoke the tdd-engineer agent\n"
-            message += "2. Generate comprehensive tests\n"
-            message += "3. Ensure TDD compliance\n\n"
+            message += "You must create tests before implementation:\n"
+            message += "1. Use /tdd command to generate tests\n"
+            message += "2. Or invoke tdd-engineer agent\n"
+            message += "3. Ensure tests are comprehensive\n\n"
             
-            message += "This is now handled automatically by the TDD automation system."
+            message += "This enforces Test-Driven Development (TDD) best practices."
             
-            # Output decision - the auto-test-spawner will take over
-            print(json.dumps({
-                "decision": "block",
-                "message": message,
-                "metadata": {
-                    "trigger_auto_spawner": True,
-                    "feature_name": feature_name,
-                    "prp_found": bool(prp_files)
-                }
-            }))
-            sys.exit(0)
+            # OFFICIAL FORMAT: stderr + exit code 2 for blocking
+            print(message, file=sys.stderr)
+            sys.exit(2)  # Block operation
         
-        # Tests exist - allow with info  
-        test_list = "\n".join(f"   - {t.relative_to('.')}" for t in test_files[:3])
-        
-        # Auto-approve since tests exist
-        print(json.dumps({
-            "decision": "approve"
-        }))
-        sys.exit(0)
+        # Tests exist - allow silently
+        sys.exit(0)  # Success - continue
         
     except Exception as e:
-        # Non-blocking error as per docs
+        # Non-blocking error - show to user but continue
         print(f"TDD enforcer error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

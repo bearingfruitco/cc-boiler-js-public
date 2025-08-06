@@ -22,7 +22,8 @@ def get_config():
 
 def extract_creation_intent(tool_name, tool_input):
     """Detect if this is a creation operation and extract name"""
-    path = tool_input.get('file_path', tool_input.get('path', ''))
+    # Use correct field names according to official spec
+    path = tool_input.get('file_path', '')
     content = tool_input.get('content', '')
     
     # Check for component creation patterns
@@ -302,21 +303,15 @@ def main():
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool name according to official spec
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
-        if not tool_name:
-            tool_name = input_data.get('tool', '')
         
-        # Only process creation operations
-        if tool_name not in ['Write', 'create_file']:
-            sys.exit(0)
+        # Only process creation operations (official tool name)
+        if tool_name != 'Write':
+            sys.exit(0)  # Exit success for non-write operations
         
-        # Extract parameters
+        # Extract parameters according to official spec
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
         
         config = get_config()
         

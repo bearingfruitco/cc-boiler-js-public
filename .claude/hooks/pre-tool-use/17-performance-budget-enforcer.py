@@ -123,10 +123,8 @@ def check_performance_impact(input_data):
     # Check component size
     size_check = monitor.check_component_size(content, path)
     if size_check['status'] == 'error':
-        # Block with feedback
-        print(json.dumps({
-            "decision": "block",
-            "message": f"""🚨 PERFORMANCE BUDGET EXCEEDED
+        # Block with feedback using official format
+        message = f"""🚨 PERFORMANCE BUDGET EXCEEDED
 
 {size_check['message']}
 
@@ -134,8 +132,8 @@ def check_performance_impact(input_data):
 {chr(10).join(f'• {suggestion}' for suggestion in size_check['suggestions'])}
 
 Please optimize the component before proceeding."""
-        }))
-        sys.exit(0)
+        print(message, file=sys.stderr)
+        sys.exit(2)  # Block operation
     elif size_check['status'] == 'warning':
         print(f"⚠️  Performance Warning: {size_check['message']}", file=sys.stderr)
     
@@ -157,7 +155,7 @@ def main():
     except Exception as e:
         # Log error to stderr and continue
         print(f"Performance budget hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

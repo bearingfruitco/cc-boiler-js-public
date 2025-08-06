@@ -213,14 +213,18 @@ def save_context(context):
 def main():
     try:
         # Read input from Claude Code
-        input_data = json.loads(sys.stdin.read())
+        try:
+            input_data = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
         tool_name = input_data.get('tool_name', '')
         tool_input = input_data.get('tool_input', {})
         
         # Only process Write/Edit operations
         if tool_name not in ['Write', 'Edit']:
-            sys.exit(0)
+            sys.exit(0)  # Exit success for non-relevant tools
         
         file_path = tool_input.get('file_path', '')
         content = tool_input.get('content', '')
@@ -253,9 +257,9 @@ def main():
         sys.exit(0)
         
     except Exception as e:
-        # Log error but don't block
+        # Non-blocking error - show to user but continue
         print(f"TDD context loader error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

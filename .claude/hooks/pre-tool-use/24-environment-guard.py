@@ -144,7 +144,7 @@ def main():
             "message": f"Environment guard error: {str(e)}"
         }
         print(json.dumps(error_output))
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

@@ -24,7 +24,7 @@ def should_suggest_multi_review(tool_name: str, args: dict, context: dict) -> bo
         return True
         
     # 2. Before creating a PR (if we detect PR creation intent)
-    if tool_name == 'bash' and args.get('command', '').startswith('gh pr create'):
+    if tool_name == 'Bash' and args.get('command', '').startswith('gh pr create'):
         return True
         
     # 3. After all tests pass
@@ -37,10 +37,10 @@ def should_suggest_multi_review(tool_name: str, args: dict, context: dict) -> bo
     if tool_name in ['grade', 'stage_validate_grade']:
         return True
         
-    # 5. After significant file changes
-    if tool_name in ['write_file', 'str_replace', 'edit_file']:
+    # 5. After significant file changes (using official tool names)
+    if tool_name in ['Write', 'Edit', 'MultiEdit']:
         # Check if this is a significant component or API change
-        path = str(args.get('path', ''))
+        path = str(args.get('file_path', args.get('path', '')))
         significant_patterns = [
             r'components/.*\.tsx?$',
             r'app/api/.*\.ts$',
@@ -66,8 +66,8 @@ def get_review_context(tool_name: str, args: dict) -> dict:
         context['target'] = 'implementation'
         context['reason'] = 'tests are passing'
         
-    elif tool_name in ['write_file', 'str_replace', 'edit_file']:
-        path = Path(args.get('path', ''))
+    elif tool_name in ['Write', 'Edit', 'MultiEdit']:
+        path = Path(args.get('file_path', args.get('path', '')))
         context['target'] = path.name
         context['reason'] = 'significant changes detected'
         
@@ -76,23 +76,24 @@ def get_review_context(tool_name: str, args: dict) -> dict:
 def main():
     """Main hook execution."""
     try:
-        # Read input
+        # Read input from stdin (official format)
         input_data = json.loads(sys.stdin.read())
         
         tool_name = input_data.get('tool_name', '')
-        args = input_data.get('arguments', {})
-        result = input_data.get('result', {})
+        # Use tool_input not arguments (official format)
+        tool_input = input_data.get('tool_input', {})
+        tool_result = input_data.get('tool_result', {})
         
         # Skip if another review suggestion exists
-        if 'review' in str(result).lower() and 'perspective' in str(result).lower():
+        if 'review' in str(tool_result).lower() and 'perspective' in str(tool_result).lower():
             sys.exit(0)
             
         # Check if we should suggest multi-perspective review
-        if not should_suggest_multi_review(tool_name, args, {'result': result}):
+        if not should_suggest_multi_review(tool_name, tool_input, {'result': tool_result}):
             sys.exit(0)
             
         # Get context
-        review_context = get_review_context(tool_name, args)
+        review_context = get_review_context(tool_name, tool_input)
         
         # Build suggestion
         suggestion = f"\n🔍 **Consider Multi-Perspective Review**\n"
@@ -111,9 +112,9 @@ def main():
         sys.exit(0)
         
     except Exception as e:
-        # Don't fail the hook - log error to stderr
+        # Non-blocking error - log to stderr but continue
         print(f"Multi-review suggester error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

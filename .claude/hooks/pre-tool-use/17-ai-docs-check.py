@@ -191,24 +191,23 @@ def main():
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool name according to official spec
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
-        if not tool_name:
-            tool_name = input_data.get('tool', '')
         
-        # Only process file write/edit operations
-        if tool_name not in ['Write', 'Edit', 'str_replace']:
+        # Only process file write/edit operations (official tool names)
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
         
-        # Extract parameters
+        # Extract parameters according to official spec
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
         
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
-        content = tool_input.get('content', tool_input.get('new_str', ''))
+        # Use correct field names
+        file_path = tool_input.get('file_path', '')
+        content = tool_input.get('content', '')
+        
+        # For Edit/MultiEdit operations, content is in new_str
+        if tool_name in ['Edit', 'MultiEdit'] and not content:
+            content = tool_input.get('new_str', '')
         
         # Skip if it's an AI doc itself
         if 'ai_docs/' in file_path:

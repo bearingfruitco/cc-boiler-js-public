@@ -195,7 +195,7 @@ def main():
             send_notification(message, importance, use_tts)
     
     # Always exit successfully
-    sys.exit(0)
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()

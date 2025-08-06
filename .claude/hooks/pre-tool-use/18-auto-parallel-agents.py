@@ -285,20 +285,16 @@ def main():
         # Read hook input
         hook_input = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool name according to official spec
         tool_name = hook_input.get('tool_name', '')
-        if not tool_name and 'tool_use' in hook_input:
-            tool_name = hook_input['tool_use'].get('name', '')
         
-        # This hook only processes custom commands or complex file operations
+        # This hook only processes custom commands or complex file operations (official tool names)
         command = hook_input.get('command', '')
         if tool_name not in ['Bash', 'Write', 'Edit'] or not command:
             sys.exit(0)
         
-        # Extract tool input
+        # Extract tool input according to official spec
         tool_input = hook_input.get('tool_input', {})
-        if not tool_input and 'tool_use' in hook_input:
-            tool_input = hook_input['tool_use'].get('parameters', {})
         
         # Build command info
         command_info = {

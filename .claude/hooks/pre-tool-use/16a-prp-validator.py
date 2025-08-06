@@ -141,23 +141,18 @@ def main():
         # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
         
-        # Extract tool name - handle multiple formats
+        # Extract tool name according to official spec
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
-        if not tool_name:
-            tool_name = input_data.get('tool', '')
         
-        # Only process file write/edit operations
-        if tool_name not in ['Write', 'Edit', 'str_replace']:
+        # Only process file write/edit operations (official tool names)
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
         
-        # Extract parameters
+        # Extract parameters according to official spec
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
         
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
+        # Use correct field name
+        file_path = tool_input.get('file_path', '')
         
         # Only validate PRP files
         if not file_path.endswith('.md') or 'PRPs/' not in file_path:
@@ -167,7 +162,10 @@ def main():
         if file_path.endswith('README.md') or '/templates/' in file_path:
             sys.exit(0)
         
-        content = tool_input.get('content', tool_input.get('new_str', ''))
+        # Get content - for Edit/MultiEdit it's in new_str
+        content = tool_input.get('content', '')
+        if tool_name in ['Edit', 'MultiEdit'] and not content:
+            content = tool_input.get('new_str', '')
         
         # Extract PRP info
         prp_info = extract_prp_info(content)
@@ -181,11 +179,8 @@ def main():
                 message += f"  ❌ {section}\n"
             message += "\n📚 Use PRP templates in PRPs/templates/ as a guide"
             
-            print(json.dumps({
-                "decision": "block",
-                "message": message
-            }))
-            sys.exit(0)
+            print(message, file=sys.stderr)
+            sys.exit(2)  # Block operation
         
         # Validate content quality
         issues = validate_prp_content(content, file_path)
@@ -215,11 +210,8 @@ def main():
                 
                 message += "\n💡 Fix critical issues before proceeding"
                 
-                print(json.dumps({
-                    "decision": "block",
-                    "message": message
-                }))
-                sys.exit(0)
+                print(message, file=sys.stderr)
+                sys.exit(2)  # Block operation
             else:
                 # Non-critical issues - warn but allow
                 message = "⚠️ PRP QUALITY SUGGESTIONS\n\n"

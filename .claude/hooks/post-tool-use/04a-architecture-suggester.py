@@ -199,7 +199,7 @@ def main():
         
         # For command execution, get the actual command
         if tool_name == 'execute_command':
-            parameters = input_data.get('parameters', {})
+            parameters = input_data.get('tool_input', {})
             command = parameters.get('command', '')
             result = input_data.get('result', {})
             output = str(result.get('output', ''))
@@ -222,7 +222,7 @@ def main():
         print(f"Architecture suggester error: {str(e)}", file=sys.stderr)
     
     # Always exit successfully
-    sys.exit(0)
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()

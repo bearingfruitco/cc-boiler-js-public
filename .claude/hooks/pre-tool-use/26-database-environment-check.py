@@ -116,7 +116,7 @@ def main():
         
         # Only check Bash commands for database operations
         if tool_name != 'Bash':
-            sys.exit(0)
+            sys.exit(1)
         
         command = tool_input.get('command', '')
         current_env = os.environ.get('NODE_ENV', 'development')
@@ -178,7 +178,7 @@ def main():
             "message": f"Database environment check error: {str(e)}"
         }
         print(json.dumps(error_output))
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

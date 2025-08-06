@@ -133,26 +133,28 @@ def main():
     """Main hook logic"""
     try:
         # Read input
-        input_data = json.loads(sys.stdin.read())
+        try:
+            input_data = json.loads(sys.stdin.read())
+        except (json.JSONDecodeError, ValueError):
+            # No valid JSON on stdin (e.g., when run directly for testing)
+            sys.exit(0)
         
-        # Extract tool name - handle multiple formats
+        # Extract tool name
         tool_name = input_data.get('tool_name', '')
-        if not tool_name and 'tool_use' in input_data:
-            tool_name = input_data['tool_use'].get('name', '')
-        if not tool_name:
-            tool_name = input_data.get('tool', '')
         
         # Only check on write operations
-        if tool_name not in ['Write', 'Edit', 'str_replace']:
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
         
         # Extract parameters
         tool_input = input_data.get('tool_input', {})
-        if not tool_input and 'tool_use' in input_data:
-            tool_input = input_data['tool_use'].get('parameters', {})
         
-        file_path = tool_input.get('file_path', tool_input.get('path', ''))
-        content = tool_input.get('content', tool_input.get('new_str', ''))
+        file_path = tool_input.get('file_path', '')
+        content = tool_input.get('content', '')
+        
+        # For Edit/MultiEdit, content is in new_str
+        if tool_name in ['Edit', 'MultiEdit'] and not content:
+            content = tool_input.get('new_str', '')
         
         # Check if file should be linted
         if not should_check_file(file_path):
@@ -197,7 +199,7 @@ def main():
     except Exception as e:
         # On error, log but don't block
         print(f"Biome lint hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

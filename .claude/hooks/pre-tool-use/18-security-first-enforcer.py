@@ -124,12 +124,9 @@ def main():
         
         # Check if security rules exist
         if not check_for_security_rules(path):
-            # Block the operation
-            print(json.dumps({
-                "decision": "block",
-                "message": generate_security_warning(path)
-            }))
-            sys.exit(0)
+            # Block the operation using official format
+            print(generate_security_warning(path), file=sys.stderr)
+            sys.exit(2)  # Block operation
         
         # Security rules exist, allow operation
         print("✅ Security rules detected - API creation allowed", file=sys.stderr)
@@ -137,7 +134,7 @@ def main():
     except Exception as e:
         # Log error to stderr and continue
         print(f"Security enforcer hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

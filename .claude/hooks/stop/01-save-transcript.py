@@ -50,9 +50,9 @@ def main():
         sys.exit(0)
         
     except Exception as e:
-        # On error, log to stderr but still allow stop
+        # Non-blocking error - show to user but continue
         print(f"Save transcript hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == '__main__':
     main()

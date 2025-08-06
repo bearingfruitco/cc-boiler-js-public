@@ -148,20 +148,17 @@ def main():
             has_critical = any(v['type'] in critical_types for v in violations)
             
             if has_critical:
-                # Block with decision field for PreToolUse
-                print(json.dumps({
-                    "decision": "block",
-                    "message": message
-                }))
-                sys.exit(0)
+                # Block using official format: stderr + exit code 2
+                print(message, file=sys.stderr)
+                sys.exit(2)  # Block operation
         
         # No violations or non-critical - continue normally
         sys.exit(0)
     
     except Exception as e:
-        # On error, log to stderr and exit normally
+        # Non-blocking error - show to user but continue
         print(f"PII Protection hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == "__main__":
     main()

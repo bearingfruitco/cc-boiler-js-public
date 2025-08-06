@@ -123,15 +123,13 @@ def main():
         should_approve, reason = should_auto_approve(tool_name, tool_input)
         
         if should_approve:
-            # Auto-approve using the official format for PreToolUse
-            # According to docs: decision field with "approve" value
-            print(json.dumps({
-                "decision": "approve"
-            }))
+            # Auto-approval is handled by simply exiting with code 0
+            # We don't output anything for auto-approval
+            # The official spec says: "Success: Just sys.exit(0)"
             sys.exit(0)
         
-        # For non-approved operations, return undefined decision
-        # This leads to existing permission flow
+        # For non-approved operations, also exit with 0
+        # This allows the normal permission flow to continue
         sys.exit(0)
         
     except Exception as e:

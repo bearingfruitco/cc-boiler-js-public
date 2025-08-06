@@ -53,20 +53,21 @@ def main():
         
         # Check if dangerous
         if is_dangerous_command(command):
-            # Block dangerous commands
-            print(json.dumps({
-                "decision": "block",
-                "message": f"⚠️ DANGEROUS COMMAND DETECTED\n\nThis command appears to be potentially destructive:\n{command}\n\nPlease review carefully before proceeding."
-            }))
-            sys.exit(0)
+            # Block dangerous commands using official format
+            error_msg = f"⚠️ DANGEROUS COMMAND DETECTED\n\n"
+            error_msg += f"This command appears to be potentially destructive:\n{command}\n\n"
+            error_msg += "Please review carefully before proceeding."
+            
+            print(error_msg, file=sys.stderr)
+            sys.exit(2)  # Block operation
         
         # Not dangerous - continue normally (no output)
         sys.exit(0)
         
     except Exception as e:
-        # On error, log to stderr and continue
+        # On error, log to stderr and continue (non-blocking)
         print(f"Dangerous commands hook error: {str(e)}", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)  # Non-blocking error
 
 if __name__ == '__main__':
     main()

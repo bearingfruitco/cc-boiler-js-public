@@ -132,7 +132,7 @@ def main():
             tool_name = input_data.get('tool', '')
         
         # Only check write operations
-        if tool_name not in ['Write', 'Edit', 'str_replace']:
+        if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)
         
         # Extract parameters
