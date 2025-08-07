@@ -1,115 +1,224 @@
 ---
 name: prd-to-prp
-aliases: [convert-to-prp, prp-convert, enhance-prd]
-description: Convert existing PRD to a comprehensive PRP with automation capability
-category: PRPs
+description: Convert PRD to implementation-ready PRPs using all available documentation
 ---
 
-# Convert PRD to PRP: $ARGUMENTS
+# PRD to PRP Conversion (Enhanced)
 
-Transform an existing PRD into a comprehensive PRP (Product Requirement Prompt) that enables one-pass implementation and automation.
+Convert Product Requirements Document into actionable Product Requirement Prompts, incorporating all architectural analysis and roadmap documentation.
 
-## Process:
-
-1. **Load Existing PRD**
-   - Find PRD in docs/prd/ or context
-   - Extract core requirements
-   - Identify gaps for automation
-
-2. **Research Enhancement Phase**
-   
-   ### Spawn Research Agents
-   ```
-   /spawn backend "Find implementation patterns for $ARGUMENTS"
-   /spawn security "Identify security concerns for $ARGUMENTS"
-   /spawn research "Find best practices and gotchas for $ARGUMENTS"
-   ```
-   
-   ### Analyze Codebase
-   - Find similar implementations
-   - Extract successful patterns
-   - Identify reusable components
-
-3. **Add PRP-Specific Sections**
-
-   ### All Needed Context
-   ```yaml
-   # From codebase analysis
-   - file: src/similar_feature.py
-     pattern: Authentication flow pattern
-     gotcha: Must use async context manager
-   
-   # From research
-   - url: https://docs.example.com/api
-     why: Rate limiting details
-     critical: 10 requests/second max
-   
-   # From doc cache
-   - docfile: PRPs/ai_docs/patterns.md
-     why: Established patterns to follow
-   ```
-
-   ### Known Gotchas
-   - Library-specific issues discovered
-   - Performance bottlenecks identified
-   - Security considerations found
-   - Integration challenges
-
-   ### Implementation Blueprint
-   - Detailed task breakdown
-   - Exact file structure
-   - Code patterns to follow
-   - Dependencies between tasks
-
-   ### Validation Loops
-   - Level 1: Syntax (automatic via hooks)
-   - Level 2: Unit tests 
-   - Level 3: Integration tests
-   - Level 4: Production readiness
-
-4. **Link to Requirements**
-   
-   If PRD references GitHub issues:
-   ```
-   Pinned Requirements: #42
-   Context Anchors: 
-   - "Must support 1000 concurrent users"
-   - "Response time < 200ms"
-   ```
-
-5. **Calculate Confidence Score**
-   
-   Based on:
-   - Context completeness (2 points)
-   - Pattern examples (2 points)  
-   - Gotchas identified (2 points)
-   - Test coverage (2 points)
-   - Automation readiness (2 points)
-
-## Output:
-
-Save enhanced PRP to: `PRPs/active/$ARGUMENTS.md`
-
-Link original PRD: `docs/prd/$ARGUMENTS.md`
-
-## Example Usage:
+## Usage
 
 ```bash
-# Convert existing PRD
-/prd-to-prp user-authentication
-
-# Convert with specific focus
-/prd-to-prp payment-flow --focus security
-
-# Convert and validate
-/prd-to-prp data-pipeline && /prp-validate data-pipeline
+/prd-to-prp [feature-name]
 ```
 
-## Integration:
+## Process
 
-After conversion:
-1. Run `/prp-validate` to check completeness
-2. Use `/gt --from-prp` to generate tasks
-3. Enable `/prp-execute` for automation
+I'll analyze your PRD along with all architectural documentation to create comprehensive PRPs.
 
-The enhanced PRP maintains all original requirements while adding implementation intelligence for AI agents.
+### Phase 1: Gather All Documentation
+
+First, I'll collect and analyze all relevant documentation:
+
+```bash
+# Check for all documentation sources
+echo "=== Gathering Documentation Sources ==="
+
+# 1. Core PRD
+if [ -f "docs/project/PROJECT_PRD.md" ]; then
+  echo "✓ Found PROJECT_PRD.md"
+else
+  echo "⚠️ No PRD found - run /prd-from-existing first"
+fi
+
+# 2. Agent-OS Analysis
+if [ -d ".agent-os" ]; then
+  echo "✓ Found .agent-os/ analysis:"
+  ls -la .agent-os/product/*.md 2>/dev/null | grep -c ".md" | xargs echo "  - Product docs:"
+  ls -la .agent-os/*.md 2>/dev/null | grep -c ".md" | xargs echo "  - Analysis docs:"
+fi
+
+# 3. Architecture Documentation
+if [ -d "docs/architecture" ]; then
+  echo "✓ Found architecture docs:"
+  ls -la docs/architecture/*.md 2>/dev/null | grep -c ".md" | xargs echo "  - Architecture files:"
+fi
+
+# 4. Improvement Plans
+if [ -f "*IMPROVEMENTS.md" ]; then
+  echo "✓ Found improvement plans"
+fi
+```
+
+### Phase 2: Analyze Documentation
+
+I'll read and incorporate:
+
+#### From `.agent-os/` (if exists):
+- **product/mission.md** - Product vision and goals
+- **product/roadmap.md** - Phased development plan
+- **product/tech-stack.md** - Technology decisions
+- **product/decisions.md** - Architecture Decision Records (ADRs)
+- **ANALYSIS_SUMMARY.md** - Executive summary of current state
+
+#### From `docs/architecture/` (if exists):
+- **SYSTEM_ARCHITECTURE.md** - Component overview
+- **DATA_FLOW.md** - Data pipeline design
+- **INTEGRATION_ARCHITECTURE.md** - External services
+- **INFRASTRUCTURE.md** - Deployment architecture
+- **SECURITY_ARCHITECTURE.md** - Security controls
+
+#### From Analysis Results:
+- **Architectural Debt** - Components needing refactoring
+- **Performance Issues** - Optimization opportunities
+- **Missing Coverage** - Tests, monitoring, documentation
+- **Priority Items** - P0/P1/P2 categorization
+
+### Phase 3: Generate Contextual PRPs
+
+Based on ALL documentation, I'll create PRPs that address:
+
+#### 1. Immediate Architectural Debt
+If architectural analysis found issues like:
+- Monolithic components (>1000 lines)
+- Missing test coverage (<80%)
+- Performance bottlenecks
+- Security vulnerabilities
+
+I'll create PRPs like:
+- `refactor-[component]-prp.md`
+- `test-infrastructure-prp.md`
+- `performance-optimization-prp.md`
+- `security-hardening-prp.md`
+
+#### 2. Roadmap Phase Items
+From `.agent-os/product/roadmap.md` phases:
+- **Phase 1 (0-30 days)**: Immediate improvements
+- **Phase 2 (30-60 days)**: Feature enhancements
+- **Phase 3 (60-90 days)**: Scale preparations
+- **Phase 4 (90+ days)**: Innovation items
+
+#### 3. Feature-Specific PRPs
+For each major feature in the PRD:
+```markdown
+# PRP Structure
+1. Context (from architecture docs)
+2. Current State (from analysis)
+3. Requirements (from PRD)
+4. Technical Approach (from tech-stack)
+5. Implementation Steps
+6. Testing Strategy
+7. Success Metrics
+```
+
+### Phase 4: PRP Generation Output
+
+For each identified need, I'll create:
+
+```markdown
+# [Feature/Fix Name] PRP
+
+## Context
+- Current Architecture: [from docs/architecture/]
+- Identified Issues: [from analysis]
+- Priority: [P0/P1/P2]
+- Phase: [1/2/3/4 from roadmap]
+
+## Requirements
+[From PRD and analysis]
+
+## Technical Implementation
+[Based on tech-stack and architecture]
+
+## Steps
+[Detailed implementation plan]
+
+## Dependencies
+[From architecture docs]
+
+## Testing Requirements
+[Based on gaps identified]
+
+## Success Criteria
+[Measurable outcomes]
+```
+
+### Phase 5: Priority Ordering
+
+PRPs will be generated in priority order:
+
+1. **P0 - Critical** (Blocking/Broken)
+   - Test infrastructure (if missing)
+   - Security vulnerabilities
+   - Performance crisis
+   - Monolithic refactoring
+
+2. **P1 - Important** (Phase 1 roadmap)
+   - Core feature improvements
+   - User experience fixes
+   - Performance optimization
+   - Monitoring setup
+
+3. **P2 - Enhancement** (Phase 2+ roadmap)
+   - New features
+   - Advanced capabilities
+   - Nice-to-have improvements
+
+## Integration with Existing Documentation
+
+This command now:
+- ✅ Reads `.agent-os/` analysis results
+- ✅ Incorporates `docs/architecture/` findings
+- ✅ Uses roadmap phases for prioritization
+- ✅ Addresses architectural debt identified
+- ✅ Creates actionable, specific PRPs
+- ✅ Links PRPs to concrete problems found
+
+## Example Output
+
+After running `/prd-to-prp`, you'll see:
+
+```
+📊 Documentation Analysis Complete
+Found:
+- ✓ PRD with 5 major features
+- ✓ Architecture docs (5 files)
+- ✓ Roadmap with 4 phases
+- ✓ 3 P0 architectural issues
+- ✓ 8 P1 improvements identified
+
+🎯 Generating PRPs:
+
+P0 - Critical (Must Fix):
+1. Creating: debt-form-refactor-prp.md (3,053 lines → 10 components)
+2. Creating: test-infrastructure-prp.md (0% → 80% coverage)
+3. Creating: performance-optimization-prp.md (<250ms target)
+
+P1 - Phase 1 (Next 30 days):
+4. Creating: monitoring-setup-prp.md
+5. Creating: ci-cd-pipeline-prp.md
+6. Creating: documentation-system-prp.md
+
+P2 - Enhancements:
+7. Creating: ml-scoring-prp.md
+8. Creating: advanced-analytics-prp.md
+
+✅ Created 8 PRPs in PRPs/active/
+```
+
+## Next Steps
+
+After PRP generation:
+1. Review generated PRPs: `/prp list`
+2. Convert to issues: `/prp-to-issues`
+3. Start implementation: `/fw start [issue-number]`
+
+## Note
+
+This enhanced version ensures PRPs are based on:
+- Real architectural analysis
+- Actual problems identified
+- Roadmap priorities
+- Technical debt findings
+- Not just theoretical features

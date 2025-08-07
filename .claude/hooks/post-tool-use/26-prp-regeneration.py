@@ -1,269 +1,204 @@
 #!/usr/bin/env python3
 """
-PRP Regeneration Hook
-Detects architecture changes and regenerates affected PRPs
+PRP Regeneration Hook - Ensures PRPs use all available documentation
+Monitors PRP generation and suggests missing context
 """
 
-import sys
-import json
 import os
+import json
+import re
 from pathlib import Path
-from typing import List, Dict
+from datetime import datetime
 
-# Add project root to path
-sys.path.insert(0, os.environ.get('CLAUDE_PROJECT_DIR', '/Users/shawnsmith/dev/bfc/boilerplate'))
+def check_documentation_sources():
+    """Check what documentation sources are available"""
+    sources = {
+        'prd': False,
+        'agent_os': False,
+        'architecture': False,
+        'roadmap': False,
+        'improvements': False,
+        'tech_stack': False
+    }
+    
+    # Check for PRD
+    if Path('docs/project/PROJECT_PRD.md').exists():
+        sources['prd'] = True
+    
+    # Check for agent-os analysis
+    if Path('.agent-os').exists():
+        if Path('.agent-os/product/roadmap.md').exists():
+            sources['roadmap'] = True
+        if Path('.agent-os/product/tech-stack.md').exists():
+            sources['tech_stack'] = True
+        sources['agent_os'] = True
+    
+    # Check for architecture docs
+    if Path('docs/architecture').exists():
+        arch_files = list(Path('docs/architecture').glob('*.md'))
+        if arch_files:
+            sources['architecture'] = True
+    
+    # Check for improvements doc
+    improvement_files = list(Path('.').glob('*IMPROVEMENTS.md'))
+    if improvement_files:
+        sources['improvements'] = True
+    
+    return sources
 
-from lib.prp.architecture_mapper import ArchitecturePRPMapper
-from lib.prp.prp_regenerator import PRPRegenerator
-from lib.architecture.change_detector import ArchitectureChangeDetector
+def analyze_prp_generation_context(response):
+    """Check if PRP generation used all available docs"""
+    missing_context = []
+    sources = check_documentation_sources()
+    
+    # Check if response references key documentation
+    response_lower = response.lower() if response else ""
+    
+    if sources['roadmap'] and 'roadmap' not in response_lower and 'phase' not in response_lower:
+        missing_context.append({
+            'source': '.agent-os/product/roadmap.md',
+            'reason': 'Contains phased development plan (Phase 1-4)',
+            'impact': 'PRPs may not align with planned phases'
+        })
+    
+    if sources['architecture'] and 'architecture' not in response_lower:
+        missing_context.append({
+            'source': 'docs/architecture/',
+            'reason': 'Contains architectural analysis and debt',
+            'impact': 'PRPs may miss critical refactoring needs'
+        })
+    
+    if sources['improvements'] and 'improvement' not in response_lower and 'p0' not in response_lower:
+        missing_context.append({
+            'source': '*IMPROVEMENTS.md',
+            'reason': 'Contains prioritized improvement list',
+            'impact': 'PRPs may not address P0 critical issues'
+        })
+    
+    if sources['tech_stack'] and 'tech' not in response_lower and 'stack' not in response_lower:
+        missing_context.append({
+            'source': '.agent-os/product/tech-stack.md',
+            'reason': 'Contains technology decisions and constraints',
+            'impact': 'PRPs may suggest incompatible solutions'
+        })
+    
+    return missing_context
 
-
-def main():
-    """Main hook entry point"""
-    try:
-        # Get hook input
-        input_data = json.loads(sys.stdin.read())
-        
-        # Check if this is a command execution
-        tool_name = input_data.get('tool_name')
-        if tool_name != 'RunCommand':
-            return 0
-            
-        # Get command
-        tool_input = input_data.get('tool_input', {})
-        command = tool_input.get('command', '')
-        
-        # Trigger on architecture validation or explicit sync
-        if not ('/validate-architecture' in command or '/prp-sync' in command):
-            return 0
-        
-        project_dir = os.environ.get('CLAUDE_PROJECT_DIR', '/Users/shawnsmith/dev/bfc/boilerplate')
-        
-        # Detect architecture changes
-        detector = ArchitectureChangeDetector(project_dir)
-        arch_changes = detector.get_recent_changes()
-        
-        if not arch_changes:
-            # No architecture changes detected
-            if '/prp-sync' in command:
-                print(json.dumps({
-                    "continue": True,
-                    "feedback": "✅ No architecture changes detected. PRPs are up to date."
-                }))
-            return 0
-        
-        # Map changes to affected PRPs
-        mapper = ArchitecturePRPMapper(project_dir)
-        affected_prps = []
-        
-        for change in arch_changes:
-            affected = mapper.analyze_architecture_change(
-                change['file'],
-                change
-            )
-            affected_prps.extend(affected)
-        
-        if not affected_prps:
-            if '/prp-sync' in command:
-                print(json.dumps({
-                    "continue": True,
-                    "feedback": "✅ Architecture changes don't affect any PRPs."
-                }))
-            return 0
-        
-        # Handle based on command
-        if '/prp-sync' in command:
-            # Explicit sync requested
-            output = handle_prp_sync(affected_prps, command)
-        else:
-            # Architecture validation - just suggest
-            output = suggest_prp_sync(affected_prps)
-        
-        print(json.dumps(output))
-        
-    except Exception as e:
-        print(f"PRP regeneration hook error: {e}", file=sys.stderr)
-        return 1
+def suggest_prp_improvements(missing_context):
+    """Generate suggestions for better PRP generation"""
+    if not missing_context:
+        return None
     
-    return 0
-
-
-def handle_prp_sync(affected_prps: List[Dict], command: str) -> Dict:
-    """Handle explicit PRP sync command"""
-    # Check for preview flag
-    if '--preview' in command:
-        return preview_changes(affected_prps)
-    
-    # Check for force flag
-    preserve_progress = '--force' not in command
-    
-    # Perform regeneration
-    regenerator = PRPRegenerator()
-    results = []
-    errors = []
-    
-    for prp_info in affected_prps:
-        if prp_info['regeneration_needed']:
-            result = regenerator.regenerate_prp(
-                Path(prp_info['prp_file']),
-                prp_info['impact']['changes'],
-                preserve_progress=preserve_progress
-            )
-            
-            if result['success']:
-                results.append(result)
-            else:
-                errors.append(result)
-    
-    # Format feedback
-    feedback_lines = []
-    
-    if results:
-        feedback_lines.append(f"✅ Regenerated {len(results)} PRPs:")
-        for result in results:
-            prp_name = Path(result['file']).name
-            feedback_lines.append(f"  - {prp_name} (progress preserved: {result['progress_preserved']})")
-    
-    if errors:
-        feedback_lines.append(f"\n❌ Failed to regenerate {len(errors)} PRPs:")
-        for error in errors:
-            prp_name = Path(error['file']).name
-            feedback_lines.append(f"  - {prp_name}: {error['error']}")
-    
-    # Suggest next actions
     suggestions = []
+    suggestions.append("\n🔍 **PRP Generation Enhancement Suggested**\n")
+    suggestions.append("The following documentation should be incorporated:\n")
     
-    if results:
-        suggestions.append({
-            "command": "/prp-status",
-            "description": "Review regenerated PRPs"
+    for context in missing_context:
+        suggestions.append(f"\n📄 **{context['source']}**")
+        suggestions.append(f"   Why: {context['reason']}")
+        suggestions.append(f"   Impact: {context['impact']}")
+    
+    suggestions.append("\n💡 **Recommended Action:**")
+    suggestions.append("Re-run with explicit context:")
+    suggestions.append("```")
+    suggestions.append("/prd-to-prp")
+    suggestions.append("")
+    suggestions.append("Please incorporate:")
+    
+    for context in missing_context:
+        suggestions.append(f"- {context['source']}")
+    
+    suggestions.append("```")
+    
+    return "\n".join(suggestions)
+
+def check_for_architectural_debt():
+    """Look for known architectural issues that should be addressed"""
+    debt_items = []
+    
+    # Check for monolithic components
+    large_files = []
+    for ext in ['*.tsx', '*.ts', '*.jsx', '*.js']:
+        for file_path in Path('src').rglob(ext):
+            if file_path.is_file():
+                lines = len(file_path.read_text().splitlines())
+                if lines > 1000:
+                    large_files.append({
+                        'file': str(file_path),
+                        'lines': lines
+                    })
+    
+    if large_files:
+        debt_items.append({
+            'type': 'Monolithic Components',
+            'items': large_files,
+            'prp_needed': 'refactor-monolith-prp.md'
         })
-        suggestions.append({
-            "command": "git add PRPs/active/ && git commit -m 'chore: sync PRPs with architecture changes'",
-            "description": "Commit PRP updates"
+    
+    # Check for test coverage
+    if not Path('src').rglob('*.test.*') and not Path('src').rglob('*.spec.*'):
+        debt_items.append({
+            'type': 'Missing Tests',
+            'items': ['No test files found'],
+            'prp_needed': 'test-infrastructure-prp.md'
         })
     
-    return {
-        "continue": True,
-        "feedback": "\n".join(feedback_lines),
-        "nextSuggestions": suggestions
-    }
+    return debt_items
 
-
-def preview_changes(affected_prps: List[Dict]) -> Dict:
-    """Preview what would be changed"""
-    feedback_lines = ["🔍 PRP Sync Preview\n"]
-    
-    # Group by severity
-    critical = [p for p in affected_prps if p['impact']['severity'] == 'critical']
-    high = [p for p in affected_prps if p['impact']['severity'] == 'high']
-    medium = [p for p in affected_prps if p['impact']['severity'] == 'medium']
-    low = [p for p in affected_prps if p['impact']['severity'] == 'low']
-    
-    if critical:
-        feedback_lines.append(f"🚨 Critical ({len(critical)} PRPs):")
-        for prp in critical:
-            feedback_lines.append(format_prp_preview(prp))
-    
-    if high:
-        feedback_lines.append(f"\n🔴 High Impact ({len(high)} PRPs):")
-        for prp in high:
-            feedback_lines.append(format_prp_preview(prp))
-    
-    if medium:
-        feedback_lines.append(f"\n🟡 Medium Impact ({len(medium)} PRPs):")
-        for prp in medium:
-            feedback_lines.append(format_prp_preview(prp))
-    
-    if low:
-        feedback_lines.append(f"\n🟢 Low Impact ({len(low)} PRPs):")
-        for prp in low:
-            feedback_lines.append(format_prp_preview(prp))
-    
-    # Add summary
-    total = len(affected_prps)
-    need_regen = len([p for p in affected_prps if p['regeneration_needed']])
-    
-    feedback_lines.append(f"\n📊 Summary:")
-    feedback_lines.append(f"  - Total affected PRPs: {total}")
-    feedback_lines.append(f"  - Need regeneration: {need_regen}")
-    feedback_lines.append(f"  - Optional updates: {total - need_regen}")
-    
-    return {
-        "continue": True,
-        "feedback": "\n".join(feedback_lines),
-        "nextSuggestions": [
-            {
-                "command": "/prp-sync",
-                "description": f"Sync {need_regen} PRPs that need regeneration"
-            },
-            {
-                "command": "/prp-sync --force",
-                "description": "Sync without preserving progress (clean regeneration)"
-            }
-        ]
-    }
-
-
-def format_prp_preview(prp_info: Dict) -> str:
-    """Format preview for a single PRP"""
-    prp_name = Path(prp_info['prp_file']).name
-    impact = prp_info['impact']
-    
-    preview = f"\n  📄 {prp_name}"
-    preview += f"\n     Severity: {impact['severity']}"
-    
-    if impact['reasons']:
-        preview += f"\n     Reasons: {'; '.join(impact['reasons'][:2])}"
-    
-    if impact['changes_needed']:
-        preview += f"\n     Changes: {impact['changes_needed'][0]}"
-    
-    if prp_info['regeneration_needed']:
-        preview += "\n     ⚡ Regeneration required"
-    
-    return preview
-
-
-def suggest_prp_sync(affected_prps: List[Dict]) -> Dict:
-    """Suggest PRP sync after architecture validation"""
-    # Count by severity
-    severity_counts = {}
-    for prp in affected_prps:
-        severity = prp['impact']['severity']
-        severity_counts[severity] = severity_counts.get(severity, 0) + 1
-    
-    # Format feedback
-    feedback = f"🔄 Architecture changes affect {len(affected_prps)} PRPs\n"
-    
-    if severity_counts:
-        feedback += "\nImpact breakdown:"
-        for severity in ['critical', 'high', 'medium', 'low']:
-            if severity in severity_counts:
-                emoji = {'critical': '🚨', 'high': '🔴', 'medium': '🟡', 'low': '🟢'}[severity]
-                feedback += f"\n  {emoji} {severity.title()}: {severity_counts[severity]} PRPs"
-    
-    # Check if any need immediate attention
-    urgent = any(p['impact']['severity'] in ['critical', 'high'] for p in affected_prps)
-    
-    if urgent:
-        feedback += "\n\n⚠️  Critical or high-impact changes detected!"
-    
-    return {
-        "continue": True,
-        "feedback": feedback,
-        "nextSuggestions": [
-            {
-                "command": "/prp-sync --preview",
-                "description": "Preview which PRPs need updating"
-            },
-            {
-                "command": "/prp-sync",
-                "description": f"Sync {len(affected_prps)} affected PRPs"
-            }
-        ]
-    }
-
+def main(response=None):
+    """Main hook execution"""
+    # Only run for PRP-related commands
+    if response and any(cmd in response for cmd in ['/prd-to-prp', '/prp create', '/prp-generate']):
+        # Check if all documentation was used
+        missing = analyze_prp_generation_context(response)
+        
+        if missing:
+            suggestion = suggest_prp_improvements(missing)
+            if suggestion:
+                print(suggestion)
+        
+        # Check for architectural debt
+        debt = check_for_architectural_debt()
+        if debt:
+            print("\n⚠️ **Architectural Debt Detected**")
+            for item in debt:
+                print(f"\n{item['type']}:")
+                if isinstance(item['items'], list):
+                    for file_item in item['items'][:3]:  # Show top 3
+                        if isinstance(file_item, dict):
+                            print(f"  - {file_item['file']}: {file_item['lines']} lines")
+                        else:
+                            print(f"  - {file_item}")
+                print(f"  → Suggested PRP: {item['prp_needed']}")
+        
+        # Log PRP generation event
+        log_entry = {
+            'timestamp': datetime.now().isoformat(),
+            'command': 'prd-to-prp',
+            'documentation_available': check_documentation_sources(),
+            'missing_context': len(missing) if missing else 0,
+            'debt_found': len(debt) if debt else 0
+        }
+        
+        log_file = Path('.claude/logs/prp-generation.jsonl')
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(log_file, 'a') as f:
+            f.write(json.dumps(log_entry) + '\n')
+        
+        # If significant issues found, suggest comprehensive review
+        if (missing and len(missing) > 2) or (debt and len(debt) > 1):
+            print("\n🎯 **Comprehensive PRP Strategy Recommended**")
+            print("Multiple issues detected. Consider running:")
+            print("```")
+            print("/analyze-existing full  # Update analysis")
+            print("/architecture           # Update architecture docs")
+            print("/prd-from-existing      # Regenerate PRD")
+            print("/prd-to-prp            # Generate comprehensive PRPs")
+            print("```")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # For testing or when called directly
+    import sys
+    response = sys.stdin.read() if not sys.stdin.isatty() else None
+    main(response)

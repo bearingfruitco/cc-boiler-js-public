@@ -1,282 +1,197 @@
 #!/usr/bin/env python3
 """
-Next Command Suggester - Enhanced with Agent OS and Playwright Integration
-Provides intelligent workflow guidance based on current context
+Next Command Suggester - Enhanced with full workflow awareness
+Suggests next commands based on current context and documentation state
 """
 
-import json
-import sys
 import os
+import json
 from pathlib import Path
 from datetime import datetime
 
-def get_project_context():
-    """Get current project context"""
-    context = {
-        'is_new_project': not Path('.git').exists(),
+def check_project_state():
+    """Determine current state of the project"""
+    state = {
+        'has_prd': Path('docs/project/PROJECT_PRD.md').exists(),
         'has_agent_os': Path('.agent-os').exists(),
-        'has_prd': Path('PRD.md').exists() or Path('.claude/PRD.md').exists(),
-        'has_tasks': Path('.task-ledger.md').exists(),
-        'has_tests': Path('tests').exists() or Path('__tests__').exists(),
-        'has_playwright': Path('playwright.config.ts').exists() or Path('tests/e2e').exists(),
-        'recent_command': None,
-        'recent_files': [],
-        'has_components': False,
-        'has_forms': False,
-        'has_api_routes': False
+        'has_architecture': Path('docs/architecture').exists(),
+        'has_prps': len(list(Path('PRPs/active').glob('*.md'))) if Path('PRPs/active').exists() else 0,
+        'has_improvements': any(Path('.').glob('*IMPROVEMENTS.md')),
+        'has_roadmap': Path('.agent-os/product/roadmap.md').exists(),
+        'has_git_changes': False,
+        'last_command': None
     }
     
-    # Check for recent command
-    command_log = Path('.claude/state/command.log')
-    if command_log.exists():
-        try:
-            with open(command_log, 'r') as f:
-                lines = f.readlines()
-                if lines:
-                    context['recent_command'] = lines[-1].strip()
-        except:
-            pass
+    # Check for uncommitted changes
+    try:
+        import subprocess
+        result = subprocess.run(['git', 'status', '--porcelain'], 
+                              capture_output=True, text=True)
+        state['has_git_changes'] = bool(result.stdout.strip())
+    except:
+        pass
     
-    # Check recent files
-    recent_files = Path('.claude/state/recent-files.txt')
-    if recent_files.exists():
-        try:
-            with open(recent_files, 'r') as f:
-                context['recent_files'] = [line.strip() for line in f.readlines()[-5:]]
-                # Analyze file types
-                for file in context['recent_files']:
-                    if 'components/' in file and '.tsx' in file:
-                        context['has_components'] = True
-                    if 'form' in file.lower() or 'Form' in file:
-                        context['has_forms'] = True
-                    if 'app/api/' in file or 'pages/api/' in file:
-                        context['has_api_routes'] = True
-        except:
-            pass
-    
-    return context
+    return state
 
-def suggest_next_commands(context, tool_name, tool_result):
-    """Suggest next commands based on context"""
+def suggest_next_commands(state, last_command=None):
+    """Generate intelligent command suggestions based on state"""
     suggestions = []
     
-    # For new or existing projects without Agent OS
-    if context['is_new_project'] or not context['has_agent_os']:
+    # Workflow for existing projects with boilerplate
+    if not state['has_agent_os']:
         suggestions.append({
-            'command': 'analyze-existing full',
-            'reason': 'Set up Agent OS and analyze project structure',
-            'priority': 'high'
+            'command': '/analyze-existing full',
+            'reason': 'Generate comprehensive analysis in .agent-os/',
+            'priority': 'P0',
+            'time': '2-3 minutes'
         })
+        return suggestions
     
-    # If no PRD exists
-    if not context['has_prd'] and context['has_agent_os']:
+    if not state['has_prd']:
         suggestions.append({
-            'command': 'create-prd',
-            'reason': 'Create a PRD to define project requirements',
-            'priority': 'high'
+            'command': '/prd-from-existing',
+            'reason': 'Document what you\'ve built (uses .agent-os/ analysis)',
+            'priority': 'P0',
+            'time': '5 minutes'
         })
+        return suggestions
     
-    # If PRD exists but no tasks
-    if context['has_prd'] and not context['has_tasks']:
+    if not state['has_architecture']:
         suggestions.append({
-            'command': 'generate-tasks',
-            'reason': 'Generate tasks from PRD',
-            'priority': 'high'
+            'command': '/architecture',
+            'reason': 'Generate architecture documentation',
+            'priority': 'P0',
+            'time': '5 minutes'
         })
+        return suggestions
     
-    # If working on tasks
-    if context['has_tasks']:
+    if state['has_prps'] == 0:
         suggestions.append({
-            'command': 'task-status',
-            'reason': 'Check current task progress',
-            'priority': 'medium'
+            'command': '/prd-to-prp',
+            'reason': 'Convert PRD + Architecture → Implementation PRPs',
+            'priority': 'P0',
+            'time': '3 minutes',
+            'note': 'Will use roadmap phases and architectural debt findings'
+        })
+        return suggestions
+    
+    # If we have PRPs, suggest working with them
+    if state['has_prps'] > 0:
+        suggestions.append({
+            'command': '/prp list',
+            'reason': f'Review {state["has_prps"]} generated PRPs',
+            'priority': 'P1',
+            'time': '1 minute'
         })
         
         suggestions.append({
-            'command': 'process-tasks',
-            'reason': 'Continue working on tasks',
-            'priority': 'high'
-        })
-    
-    # PLAYWRIGHT SUGGESTIONS - NEW!
-    # After component modifications
-    if tool_name in ['Write', 'Edit', 'MultiEdit'] and context['has_components']:
-        suggestions.append({
-            'command': 'pw-verify',
-            'reason': 'Verify component renders correctly in browser',
-            'priority': 'high'
+            'command': '/prp-to-issues',
+            'reason': 'Create GitHub issues from PRPs',
+            'priority': 'P1',
+            'time': '5 minutes'
         })
         
         suggestions.append({
-            'command': 'pw-console',
-            'reason': 'Check for JavaScript console errors',
-            'priority': 'medium'
+            'command': '/fw start [issue-number]',
+            'reason': 'Start TDD implementation of an issue',
+            'priority': 'P1',
+            'time': 'Varies'
         })
     
-    # After form modifications
-    if context['has_forms'] and tool_name in ['Write', 'Edit', 'MultiEdit']:
+    # Git-related suggestions
+    if state['has_git_changes']:
         suggestions.append({
-            'command': 'pw-form',
-            'reason': 'Test form submission and validation',
-            'priority': 'high'
-        })
-        
-        suggestions.append({
-            'command': 'pw-a11y',
-            'reason': 'Check form accessibility',
-            'priority': 'medium'
+            'command': '/commit-message',
+            'reason': 'Generate commit message for changes',
+            'priority': 'P2',
+            'time': '30 seconds'
         })
     
-    # After API route changes
-    if context['has_api_routes'] and tool_name in ['Write', 'Edit']:
-        suggestions.append({
-            'command': 'pw-api-test',
-            'reason': 'Test API integration in browser',
-            'priority': 'high'
-        })
-    
-    # After any UI file modifications
-    if tool_name in ['Write', 'Edit', 'MultiEdit']:
-        # Check if it's a UI file
-        ui_modified = any(
-            file.endswith(('.tsx', '.jsx', '.css')) 
-            for file in context['recent_files']
-        )
-        
-        if ui_modified:
-            suggestions.append({
-                'command': 'validate-design',
-                'reason': 'Ensure design system compliance',
-                'priority': 'medium'
-            })
-            
-            suggestions.append({
-                'command': 'pw-screenshot',
-                'reason': 'Capture component screenshot for review',
-                'priority': 'low'
-            })
-        
-        # Test suggestions
-        if any('.test.' in f or '.spec.' in f for f in context['recent_files']):
-            suggestions.append({
-                'command': 'test',
-                'reason': 'Run tests for recent changes',
-                'priority': 'high'
-            })
-            
-            suggestions.append({
-                'command': 'pw-test',
-                'reason': 'Run browser-based tests',
-                'priority': 'medium'
-            })
-    
-    # Error recovery suggestions
-    if tool_result and 'error' in str(tool_result).lower():
-        suggestions.append({
-            'command': 'pw-debug',
-            'reason': 'Debug error in browser context',
-            'priority': 'high'
-        })
-        
-        suggestions.append({
-            'command': 'er',
-            'reason': 'Run error recovery workflow',
-            'priority': 'high'
-        })
-    
-    # Time-based suggestions
-    current_hour = datetime.now().hour
-    if current_hour >= 17:  # After 5 PM
-        suggestions.append({
-            'command': 'pw-visual-test',
-            'reason': 'Run visual regression tests before EOD',
-            'priority': 'medium'
-        })
-    
-    # General suggestions
+    # Testing suggestions
     suggestions.append({
-        'command': 'work-status',
-        'reason': 'Get overview of current work',
-        'priority': 'low'
+        'command': '/test',
+        'reason': 'Run test suite',
+        'priority': 'P2',
+        'time': '1 minute'
     })
-    
-    # If many UI changes detected, suggest orchestration
-    if len([f for f in context['recent_files'] if f.endswith(('.tsx', '.jsx'))]) > 3:
-        suggestions.append({
-            'command': 'orchestrate browser-test-suite',
-            'reason': 'Multiple UI changes - orchestrate comprehensive testing',
-            'priority': 'high'
-        })
     
     return suggestions
 
-def format_suggestions(suggestions):
-    """Format suggestions for output"""
-    if not suggestions:
-        return None
+def format_suggestions(suggestions, state):
+    """Format suggestions for display"""
+    output = []
     
-    # Remove duplicates while preserving order
-    seen = set()
-    unique_suggestions = []
-    for sugg in suggestions:
-        if sugg['command'] not in seen:
-            seen.add(sugg['command'])
-            unique_suggestions.append(sugg)
+    # Workflow status header
+    output.append("\n📊 **Workflow Status**")
+    output.append("```")
+    output.append(f"✓ Analysis:     {'✅' if state['has_agent_os'] else '❌'} .agent-os/")
+    output.append(f"✓ PRD:          {'✅' if state['has_prd'] else '❌'} PROJECT_PRD.md")
+    output.append(f"✓ Architecture: {'✅' if state['has_architecture'] else '❌'} docs/architecture/")
+    output.append(f"✓ PRPs:         {'✅ ' + str(state['has_prps']) if state['has_prps'] else '❌ None'}")
+    output.append(f"✓ Roadmap:      {'✅' if state['has_roadmap'] else '❌'} Phase planning")
+    output.append("```")
     
-    # Sort by priority
-    priority_order = {'high': 0, 'medium': 1, 'low': 2}
-    unique_suggestions.sort(key=lambda x: priority_order.get(x['priority'], 3))
+    # Next steps
+    output.append("\n🎯 **Suggested Next Commands**")
     
-    # Format message
-    msg = "\n💡 Suggested next commands:\n"
+    for i, suggestion in enumerate(suggestions[:3], 1):  # Top 3
+        output.append(f"\n**{i}. `{suggestion['command']}`**")
+        output.append(f"   {suggestion['reason']}")
+        output.append(f"   ⏱️ {suggestion['time']} | Priority: {suggestion['priority']}")
+        if 'note' in suggestion:
+            output.append(f"   💡 {suggestion['note']}")
     
-    # Show top 4 suggestions (increased from 3 to include Playwright)
-    for i, sugg in enumerate(unique_suggestions[:4], 1):
-        emoji = "🔴" if sugg['priority'] == 'high' else "🟡" if sugg['priority'] == 'medium' else "⚪"
-        msg += f"{emoji} {i}. /{sugg['command']} - {sugg['reason']}\n"
+    # Workflow reminder
+    if not state['has_prps']:
+        output.append("\n📋 **Complete Workflow**")
+        output.append("```mermaid")
+        output.append("graph LR")
+        output.append("    A[analyze-existing] --> B[prd-from-existing]")
+        output.append("    B --> C[architecture]")
+        output.append("    C --> D[prd-to-prp]")
+        output.append("    D --> E[prp-to-issues]")
+        output.append("    E --> F[fw start]")
+        output.append("```")
     
-    # Add contextual hint
-    if any('pw-' in s['command'] for s in unique_suggestions[:4]):
-        msg += "\n🔍 Browser testing available - catch issues before users do!"
-    
-    msg += "\nUse /help for more commands"
-    
-    return msg
+    return "\n".join(output)
 
-def main():
-    """Main hook logic"""
-    try:
-        # Read input from Claude Code
-        try:
-            input_data = json.loads(sys.stdin.read())
-        except (json.JSONDecodeError, ValueError):
-            # No valid JSON on stdin (e.g., when run directly for testing)
-            sys.exit(0)
+def main(response=None):
+    """Main execution"""
+    # Check current state
+    state = check_project_state()
+    
+    # Get last command from response if available
+    last_command = None
+    if response:
+        # Extract command pattern
+        import re
+        cmd_match = re.search(r'/[\w-]+', response)
+        if cmd_match:
+            last_command = cmd_match.group()
+            state['last_command'] = last_command
+    
+    # Generate suggestions
+    suggestions = suggest_next_commands(state, last_command)
+    
+    if suggestions:
+        output = format_suggestions(suggestions, state)
+        print(output)
         
-        # Extract information
-        tool_name = input_data.get('tool_name', '')
-        tool_result = input_data.get('tool_result', {})
+        # Log suggestion event
+        log_entry = {
+            'timestamp': datetime.now().isoformat(),
+            'state': state,
+            'suggestions': [s['command'] for s in suggestions],
+            'last_command': last_command
+        }
         
-        # Get context
-        context = get_project_context()
+        log_file = Path('.claude/logs/command-suggestions.jsonl')
+        log_file.parent.mkdir(parents=True, exist_ok=True)
         
-        # Generate suggestions
-        suggestions = suggest_next_commands(context, tool_name, tool_result)
-        
-        # Format suggestions
-        message = format_suggestions(suggestions)
-        
-        if message:
-            # PostToolUse hooks can output to stdout which is shown in transcript mode
-            print(message)
-        
-        # Exit with code 0 for success
-        sys.exit(0)
-        
-    except Exception as e:
-        # On error, output to stderr and exit with non-zero code
-        print(f"Command suggester error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+        with open(log_file, 'a') as f:
+            f.write(json.dumps(log_entry) + '\n')
 
 if __name__ == "__main__":
-    main()
+    import sys
+    response = sys.stdin.read() if not sys.stdin.isatty() else None
+    main(response)
