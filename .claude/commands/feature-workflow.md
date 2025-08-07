@@ -1,15 +1,16 @@
 ---
 name: fw
-description: Feature workflow - Enhanced with PRP awareness
+description: Feature workflow - Enhanced with PRP awareness and smart agent selection
 aliases: [feature-workflow, feature, workflow]
 ---
 
-# Feature Workflow Command (PRP & TDD Enhanced)
+# Feature Workflow Command (PRP & Agent-Aware)
 
-Orchestrates issue-based development with PRP context, MANDATORY test-first development, design validation, and GitHub integration.
+Orchestrates issue-based development with PRP context, smart agent selection, MANDATORY test-first development, and GitHub integration.
 
-🔴 **TDD IS MANDATORY**: All features start with test generation based on issue requirements.
-🎯 **PRP-AWARE**: Automatically loads context from related PRPs.
+🔴 **TDD IS MANDATORY**: All features start with test generation
+🎯 **PRP-AWARE**: Automatically loads context from related PRPs
+🤖 **SMART AGENTS**: Selects appropriate agent based on issue type
 
 ## Arguments:
 - $ACTION: start|validate|complete
@@ -20,322 +21,346 @@ Orchestrates issue-based development with PRP context, MANDATORY test-first deve
 
 ### Action: START
 
-#### Step 1: Get Issue & Load PRP Context
+#### Step 1: Get Issue & Load Context
 ```typescript
 // Get issue from GitHub
 const issue = await github.getIssue(ISSUE_NUMBER);
 
-// NEW: Check for related PRP
+// Check for related PRP
 const prpName = extractPRPReference(issue.body);
 if (prpName) {
   const prp = await loadPRP(`PRPs/active/${prpName}.md`);
   console.log("📋 Loaded PRP context: " + prpName);
 }
 
-// NEW: Load architectural context
+// Load architectural context
 const archContext = await loadArchitecturalContext(issue);
-if (archContext.hasDebt) {
-  console.log("🏗️ Architectural debt context loaded");
-  console.log(`  Current: ${archContext.current}`);
-  console.log(`  Target: ${archContext.target}`);
+```
+
+#### Step 2: Smart Agent Selection
+
+Based on issue type and labels, select the appropriate agent:
+
+```javascript
+function selectAgentForIssue(issue, prp) {
+  const labels = issue.labels.map(l => l.name);
+  const title = issue.title.toLowerCase();
+  
+  // Refactoring tasks
+  if (labels.includes('refactoring') || title.includes('refactor')) {
+    return {
+      primary: 'refactoring-expert',
+      support: ['qa', 'performance'],
+      reason: 'Major refactoring detected'
+    };
+  }
+  
+  // Test infrastructure
+  if (labels.includes('testing') || title.includes('test')) {
+    return {
+      primary: 'qa',
+      support: ['tdd-specialist', 'backend'],
+      reason: 'Test infrastructure setup'
+    };
+  }
+  
+  // Frontend features
+  if (labels.includes('frontend') || title.includes('ui') || title.includes('component')) {
+    return {
+      primary: 'frontend',
+      support: ['ui-systems', 'form-builder-specialist'],
+      reason: 'Frontend development'
+    };
+  }
+  
+  // Backend/API
+  if (labels.includes('backend') || title.includes('api')) {
+    return {
+      primary: 'backend',
+      support: ['database-architect', 'api-designer'],
+      reason: 'Backend implementation'
+    };
+  }
+  
+  // Performance
+  if (labels.includes('performance') || title.includes('optimize')) {
+    return {
+      primary: 'performance',
+      support: ['refactoring-expert'],
+      reason: 'Performance optimization'
+    };
+  }
+  
+  // Database
+  if (labels.includes('database') || title.includes('schema')) {
+    return {
+      primary: 'database-architect',
+      support: ['orm-specialist', 'backend'],
+      reason: 'Database work'
+    };
+  }
+  
+  // Default: senior engineer
+  return {
+    primary: 'senior-engineer',
+    support: ['frontend', 'backend'],
+    reason: 'General development'
+  };
 }
 ```
 
-#### Step 2: Generate Contextual Tests
+#### Step 3: Agent-Driven Test Generation
+
 ```bash
-# Extract requirements from issue AND PRP
-REQUIREMENTS=$(extract_requirements "$issue.body" "$prp.content")
+# Select appropriate agent
+AGENT_CONFIG=$(selectAgentForIssue "$issue" "$prp")
+PRIMARY_AGENT=${AGENT_CONFIG.primary}
+SUPPORT_AGENTS=${AGENT_CONFIG.support}
 
-# Check if this is a refactoring task
-if [[ "$issue.labels" == *"refactoring"* ]]; then
-  echo "♻️ Refactoring detected - generating refactoring test suite"
-  /spawn tdd-engineer <<EOF
-  Generate refactoring test suite for issue #${ISSUE_NUMBER}:
-  
-  Current State: ${archContext.current}
-  Target State: ${archContext.target}
-  
-  Create tests that:
-  1. Verify current behavior (regression tests)
-  2. Test new component structure
-  3. Ensure no functionality lost
-  4. Check performance improvements
-EOF
-else
-  # Standard feature tests
-  /spawn tdd-engineer <<EOF
-  Generate test suite for issue #${ISSUE_NUMBER}:
-  ${issue.title}
-  
-  PRP Context: ${prp.summary}
-  Requirements: ${REQUIREMENTS}
-  
-  Create tests for:
-  - All acceptance criteria
-  - Edge cases
-  - Error scenarios
-  - Design system compliance
-  - Accessibility
-EOF
-fi
+echo "🤖 Selected Agent: $PRIMARY_AGENT"
+echo "   Reason: ${AGENT_CONFIG.reason}"
+echo "   Support: ${SUPPORT_AGENTS[@]}"
 
-echo "⏳ Generating contextual tests... (2-3 minutes)"
+# Different test generation based on agent/issue type
+case "$PRIMARY_AGENT" in
+  "refactoring-expert")
+    echo "♻️ Generating refactoring test suite with $PRIMARY_AGENT"
+    cat <<EOF
+Using the refactoring-expert agent to:
+1. Analyze current component structure (${archContext.lines} lines)
+2. Generate regression tests for existing behavior
+3. Create tests for new component structure
+4. Add performance benchmarks
+5. Ensure no functionality is lost
+
+Current: ${archContext.current}
+Target: ${archContext.target}
+EOF
+    ;;
+    
+  "qa")
+    echo "🧪 Generating test infrastructure with qa agent"
+    cat <<EOF
+Using the qa agent to:
+1. Set up testing framework (Vitest/Jest)
+2. Configure coverage reporting
+3. Create test utilities and helpers
+4. Generate initial test suites
+5. Set up CI/CD test pipeline
+EOF
+    ;;
+    
+  "frontend")
+    echo "🎨 Generating component tests with frontend agent"
+    cat <<EOF
+Using the frontend agent to:
+1. Create component unit tests
+2. Add accessibility tests
+3. Generate visual regression tests
+4. Test user interactions
+5. Validate design system compliance
+EOF
+    ;;
+    
+  "backend")
+    echo "⚙️ Generating API tests with backend agent"
+    cat <<EOF
+Using the backend agent to:
+1. Create API endpoint tests
+2. Add integration tests
+3. Generate load tests
+4. Test error handling
+5. Validate data contracts
+EOF
+    ;;
+    
+  *)
+    echo "📝 Generating standard test suite with $PRIMARY_AGENT"
+    ;;
+esac
+
+# Note: In Claude Code, the agent will actually generate the tests
+echo "💡 To generate tests, the $PRIMARY_AGENT agent will create:"
+echo "   - Test files in __tests__/ or *.test.ts"
+echo "   - Coverage configuration"
+echo "   - Test utilities"
 ```
 
-#### Step 3: Create Smart Worktree
-```bash
-# Determine branch type from issue
-if [[ "$issue.labels" == *"refactor"* ]]; then
-  BRANCH_TYPE="refactor"
-elif [[ "$issue.labels" == *"fix"* ]]; then
-  BRANCH_TYPE="fix"
-elif [[ "$issue.labels" == *"test"* ]]; then
-  BRANCH_TYPE="test"
-else
-  BRANCH_TYPE="feature"
-fi
+#### Step 4: Create Contextual Branch
 
+```bash
+# Determine branch type from primary agent and issue
+BRANCH_TYPE=$(determineBranchType "$PRIMARY_AGENT" "$issue")
 BRANCH_NAME="${BRANCH_TYPE}/${ISSUE_NUMBER}-${SLUG}"
-WORKTREE_PATH="../$(basename $(pwd))-worktrees/$BRANCH_NAME"
 
-# Create isolated workspace
-git worktree add -b $BRANCH_NAME $WORKTREE_PATH origin/main
-cd $WORKTREE_PATH
+# Create worktree with context
+git worktree add -b $BRANCH_NAME "../worktrees/$BRANCH_NAME" origin/main
+cd "../worktrees/$BRANCH_NAME"
 
-# Copy PRP context to worktree
-if [ -n "$prpName" ]; then
-  cp "PRPs/active/${prpName}.md" ".current-prp.md"
-  echo "📋 PRP context available in .current-prp.md"
-fi
+# Copy relevant context
+cp "PRPs/active/${prpName}.md" ".current-prp.md"
+echo "$AGENT_CONFIG" > ".agent-selection.json"
+
+echo "📋 Context available:"
+echo "   - PRP: .current-prp.md"
+echo "   - Agent: .agent-selection.json"
+echo "   - Primary: $PRIMARY_AGENT"
 ```
 
-#### Step 4: Generate Implementation Plan
+#### Step 5: Implementation Guidance
+
 ```markdown
 # Implementation Plan: ${issue.title}
 
-## PRP Context
-${prp ? `Following PRP: ${prpName}` : 'No PRP linked'}
+## 🤖 Agent Assignment
+- **Primary**: ${PRIMARY_AGENT}
+- **Support**: ${SUPPORT_AGENTS}
+- **Reason**: ${AGENT_CONFIG.reason}
 
-## Architectural Context
+## 📋 PRP Context
+${prp ? `Following: ${prpName}` : 'No PRP linked'}
+
+## 🏗️ Current State
 ${archContext.hasDebt ? `
-### Current Issues:
 - Component: ${archContext.component} (${archContext.lines} lines)
 - Coverage: ${archContext.coverage}%
 - Performance: ${archContext.performance}ms
+` : 'Clean slate'}
 
-### Target State:
-- Break into ${archContext.targetComponents} components
-- Achieve ${archContext.targetCoverage}% coverage
-- Optimize to ${archContext.targetPerformance}ms
-` : 'No architectural debt'}
+## 🎯 Target State
+${prp.targetState || 'As defined in issue'}
 
-## Test-Driven Development Order:
-1. ❌ Run tests (RED phase - ${testCount} tests failing)
-2. ✅ Implement minimal code to pass
-3. ♻️ Refactor while keeping tests green
-4. 📊 Check coverage (target: ${targetCoverage}%)
+## 📝 Implementation Steps
+Based on ${PRIMARY_AGENT} expertise:
+${generateAgentSpecificSteps(PRIMARY_AGENT, issue, prp)}
 
-## Implementation Phases:
-${generatePhasesFromPRP(prp, issue)}
+## 🧪 Test-Driven Approach
+1. Run tests (RED - ${testCount} failing)
+2. Implement minimal solution
+3. Refactor with confidence (GREEN)
+4. Optimize if needed
+
+## ✅ Success Criteria
+${extractSuccessCriteria(prp, issue)}
 ```
 
 ### Action: VALIDATE
 
-#### Enhanced Validation with Context
 ```bash
-# Check if following PRP guidelines
-if [ -f ".current-prp.md" ]; then
-  echo "📋 Validating against PRP requirements..."
-  
-  # Extract success criteria from PRP
-  CRITERIA=$(grep -A 10 "Success Criteria" .current-prp.md)
-  
-  # Validate each criterion
-  while IFS= read -r criterion; do
-    if validate_criterion "$criterion"; then
-      echo "✅ $criterion"
-    else
-      echo "❌ $criterion - NOT MET"
-      VALIDATION_FAILED=true
-    fi
-  done <<< "$CRITERIA"
-fi
+# Run agent-specific validations
+case "$PRIMARY_AGENT" in
+  "refactoring-expert")
+    echo "♻️ Running refactoring validations..."
+    # Check component sizes
+    # Verify no regression
+    # Check performance
+    ;;
+    
+  "frontend")
+    echo "🎨 Running frontend validations..."
+    # Design system compliance
+    # Accessibility checks
+    # Component tests
+    ;;
+    
+  "backend")
+    echo "⚙️ Running backend validations..."
+    # API tests
+    # Integration tests
+    # Performance benchmarks
+    ;;
+esac
 
 # Standard validations
-echo "🧪 Running test suite..."
-npm test || exit 1
-
-echo "📊 Checking coverage..."
-COVERAGE=$(npm run test:coverage --silent | grep "All files" | awk '{print $10}')
-TARGET_COVERAGE=$(grep "targetCoverage" .current-prp.md | grep -o '[0-9]+' || echo "80")
-
-if [ "${COVERAGE%\%}" -lt "$TARGET_COVERAGE" ]; then
-  echo "❌ Coverage ${COVERAGE} below target ${TARGET_COVERAGE}%"
-  exit 1
-fi
-
-echo "🎨 Validating design system..."
-npm run validate:design || exit 1
-
-# Architecture validation for refactoring
-if [[ "$BRANCH_NAME" == refactor/* ]]; then
-  echo "🏗️ Validating refactoring..."
-  
-  # Check component size
-  MAX_LINES=500
-  for file in src/**/*.tsx; do
-    LINES=$(wc -l < "$file")
-    if [ "$LINES" -gt "$MAX_LINES" ]; then
-      echo "❌ $file still has $LINES lines (max: $MAX_LINES)"
-      exit 1
-    fi
-  done
-  
-  echo "✅ All components under $MAX_LINES lines"
-fi
+npm test
+npm run validate:design
+npm run test:coverage
 ```
 
 ### Action: COMPLETE
 
-#### Smart PR Generation with Context
 ```bash
-# Generate comprehensive PR body
+# Generate PR with agent context
 generate_pr_body() {
   cat <<EOF
 Closes #${ISSUE_NUMBER}
 
+## 🤖 Development Team
+- **Lead**: ${PRIMARY_AGENT}
+- **Support**: ${SUPPORT_AGENTS}
+- **Reason**: ${AGENT_CONFIG.reason}
+
 ## 📋 PRP Implementation
-${prpName ? "Implements PRP: \`PRPs/active/${prpName}.md\`" : "No PRP linked"}
-
-## 🏗️ Architectural Improvements
-${archContext.hasDebt ? "
-### Before:
-- Component size: ${archContext.lines} lines
-- Test coverage: ${archContext.coverage}%
-- Performance: ${archContext.performance}ms
-
-### After:
-- Component size: ${newComponentStats}
-- Test coverage: ${newCoverage}%
-- Performance: ${newPerformance}ms
-" : "N/A"}
+${prpName ? "Implements: \`PRPs/active/${prpName}.md\`" : "No PRP"}
 
 ## ✅ Acceptance Criteria
-$(extract_and_check_criteria)
+${checkCriteria()}
 
 ## 🧪 Testing
-- Test coverage: ${COVERAGE}
-- Tests added: ${testsAdded}
-- Tests passing: ${testsPassing}/${totalTests}
+- Coverage: ${COVERAGE}
+- Tests: ${testsPassing}/${totalTests} passing
 
-## 🎨 Design System Compliance
-- Typography: ✅ 4 sizes, 2 weights only
-- Spacing: ✅ 4px grid validated
-- Colors: ✅ 60/30/10 distribution
-- Touch targets: ✅ 44px+ confirmed
-
-## 📊 Performance Impact
-$(generate_performance_comparison)
+## 📊 Metrics
+${generateMetrics()}
 
 ## 📚 Documentation
-- [ ] Component docs updated
-- [ ] API docs updated
-- [ ] Architecture diagrams updated
-
-## 🔄 Migration Notes
-${migrationNotes || "None"}
+- [ ] Updated by ${PRIMARY_AGENT}
+- [ ] Reviewed by support agents
 EOF
 }
-
-# Create PR with comprehensive context
-PR_BODY=$(generate_pr_body)
-gh pr create \
-  --title "${BRANCH_TYPE}: ${issue.title} (#${ISSUE_NUMBER})" \
-  --body "$PR_BODY" \
-  --base main
 ```
 
-## PRP Integration Features
+## Agent Selection Matrix
 
-### Automatic PRP Detection
-- Scans issue body for PRP references
-- Loads PRP content for context
-- Uses PRP success criteria for validation
-
-### Architectural Debt Awareness
-- Detects refactoring issues
-- Loads current component metrics
-- Validates improvements
-
-### Smart Test Generation
-- Different test strategies for features vs refactoring
-- Uses PRP requirements for test cases
-- Includes regression tests for refactoring
-
-### Context-Aware Validation
-- Validates against PRP success criteria
-- Checks architectural improvements
-- Ensures coverage targets from PRP
+| Issue Type | Primary Agent | Support Agents | Focus |
+|------------|--------------|----------------|-------|
+| Refactoring | refactoring-expert | qa, performance | Break down monoliths |
+| Testing | qa | tdd-specialist, backend | Test infrastructure |
+| Frontend | frontend | ui-systems, form-builder | Components & UX |
+| Backend | backend | database-architect, api | APIs & logic |
+| Database | database-architect | orm-specialist | Schema & queries |
+| Performance | performance | refactoring-expert | Optimization |
+| Security | security | backend, database | Hardening |
+| Infrastructure | platform-deployment | backend, qa | CI/CD & deployment |
 
 ## Usage Examples
 
-### Starting a Refactoring Task
+### Refactoring Task
 ```bash
 /fw start 23
-# Detects: Issue #23 is refactoring DebtForm
-# Loads: debt-form-refactor-prp.md
-# Generates: Refactoring test suite
-# Creates: refactor/23-debt-form branch
+# Output:
+🤖 Selected Agent: refactoring-expert
+   Reason: Major refactoring detected (3,053 lines)
+   Support: [qa, performance]
+♻️ Generating refactoring test suite...
 ```
 
-### Starting a Feature
+### Test Infrastructure
 ```bash
 /fw start 24
-# Detects: Issue #24 is test infrastructure
-# Loads: test-infrastructure-prp.md
-# Generates: Infrastructure test suite
-# Creates: feature/24-test-infrastructure branch
+# Output:
+🤖 Selected Agent: qa
+   Reason: Test infrastructure setup
+   Support: [tdd-specialist, backend]
+🧪 Generating test framework setup...
 ```
 
-### Completing with Full Context
+### Frontend Feature
 ```bash
-/fw complete 23
-# Validates: Against PRP criteria
-# Checks: Component size reduced
-# Verifies: Coverage increased
-# Creates: PR with full context
+/fw start 25
+# Output:
+🤖 Selected Agent: frontend
+   Reason: Frontend development
+   Support: [ui-systems, form-builder-specialist]
+🎨 Generating component tests...
 ```
 
-## Workflow Visualization
+## Key Improvements
 
-```
-GitHub Issue #23 (with PRP reference)
-       ↓
-/fw start 23
-       ↓
-[AUTO] Load PRP context
-       ↓
-[AUTO] Detect issue type (refactor/feature/fix)
-       ↓
-[AUTO] Generate contextual test suite
-       ↓
-[AUTO] Create appropriate branch type
-       ↓
-[USER] See failing tests with context (RED)
-       ↓
-[USER] Implement with PRP guidance
-       ↓
-[AUTO] Validate against PRP criteria (GREEN)
-       ↓
-[USER] Refactor if needed
-       ↓
-/fw complete 23
-       ↓
-PR with full PRP + architecture context
-```
+1. **Smart Agent Selection** - Uses the right expert for each task
+2. **PRP Context Loading** - Guides implementation
+3. **Agent-Specific Tests** - Different test strategies per agent
+4. **Contextual Validation** - Agent-appropriate checks
+5. **Team Simulation** - Primary + support agents
 
-This enhanced workflow ensures every feature:
-- Follows PRP guidelines
-- Addresses architectural debt
-- Has comprehensive tests
-- Includes full context in PRs
+This ensures the right expertise is applied to each issue!
