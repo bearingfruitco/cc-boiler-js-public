@@ -1,308 +1,306 @@
 ---
 name: prp-gameplan-execute
-description: Execute the PRP gameplan by creating PRPs one by one with full context
+description: Execute the PRP gameplan creating PRPs with correct validator structure
 aliases: [execute-prps, create-prps-from-plan]
 ---
 
-# Execute PRP Gameplan
+# Execute PRP Gameplan with Validator-Compliant Structure
 
-Create PRPs one by one based on the gameplan from `/analyze-for-prps`.
+Create PRPs one by one following the required template structure.
 
-## Usage
+## Required PRP Structure (From Validator)
 
-```bash
-/prp-gameplan-execute          # Create all PRPs from gameplan
-/prp-gameplan-execute P0       # Create only P0 priority
-/prp-gameplan-execute debt-form-refactor  # Create specific PRP
-```
+Every PRP MUST have these sections:
+1. **🎯 Goal** - Clear objective
+2. **📚 Required Context** - References and documentation
+3. **🏗️ Implementation Blueprint** - How to build
+4. **🧪 Validation** - Testing and verification loops
 
 ## Process
 
 ### Phase 1: Load or Create Gameplan
 
-First, check if we have a gameplan or need to analyze:
-
-```bash
-# Check if gameplan exists
-if [ -f ".agent-os/prp-gameplan.json" ]; then
-  echo "📋 Loading existing gameplan..."
-  cat .agent-os/prp-gameplan.json
-else
-  echo "No gameplan found. Analyzing project..."
-  # Run analysis to determine what PRPs are needed
-fi
+```javascript
+// Check for gameplan or analyze
+const gameplan = loadGameplan('.agent-os/prp-gameplan.json') || analyzeProject();
 ```
 
-If no gameplan exists, I'll analyze:
-- `.agent-os/` directory contents (check each file, not directory)
-- `docs/architecture/` markdown files
-- Large components in `src/`
-- Test coverage
-- Integration status
+### Phase 2: Generate Validator-Compliant PRPs
 
-### Phase 2: Create PRPs Sequentially
+For each PRP, use this structure:
 
-For each PRP needed, I'll create it one by one:
+```markdown
+# PRP: ${prpName} - One-Pass Implementation Guide
+
+> **PRP = PRD + Curated Codebase Intelligence + Validation Loops**
+> This document provides everything needed for production-ready implementation on the first pass.
+
+## 🎯 Goal
+${goal}
+
+## 🔑 Why This Matters
+- **User Value**: ${userValue}
+- **Business Value**: ${businessValue}
+- **Technical Value**: ${technicalValue}
+
+## ✅ Success Criteria (Measurable)
+${successCriteria.map(c => `- [ ] ${c}`).join('\n')}
+
+## 📚 Required Context
+
+### Documentation & References
+\`\`\`yaml
+${contextFiles.map(file => `
+- file: ${file.path}
+  why: ${file.reason}
+  pattern: ${file.pattern}
+  gotcha: ${file.gotcha || 'None'}
+`).join('\n')}
+\`\`\`
+
+### Known Gotchas & Critical Warnings
+\`\`\`markdown
+${warnings.map(w => `# ${w.level}: ${w.message}`).join('\n')}
+\`\`\`
+
+### Required Patterns From Codebase
+\`\`\`typescript
+${codePatterns}
+\`\`\`
+
+## 🏗️ Implementation Blueprint
+
+### Phase 1: ${phase1.name} (${phase1.time})
+\`\`\`typescript
+${phase1.code}
+\`\`\`
+
+**Validation**: \`${phase1.validation}\`
+
+### Phase 2: ${phase2.name} (${phase2.time})
+\`\`\`typescript
+${phase2.code}
+\`\`\`
+
+**Validation**: \`${phase2.validation}\`
+
+## 🧪 Validation Loops
+
+### Loop 1: Unit Testing
+- [ ] All functions have tests
+- [ ] Coverage > 80%
+- [ ] Tests pass: \`bun test\`
+
+### Loop 2: Integration Testing
+- [ ] API endpoints tested
+- [ ] Database operations verified
+- [ ] Error cases handled
+
+### Loop 3: Design Validation
+- [ ] Run \`/vd\` - no violations
+- [ ] Touch targets >= 44px
+- [ ] Mobile responsive
+
+### Loop 4: Production Readiness
+- [ ] No console errors
+- [ ] Performance metrics met
+- [ ] Analytics tracking verified
+
+## 🚫 Common Mistakes to Avoid
+${mistakes.map(m => `- ${m}`).join('\n')}
+
+## 📊 Success Metrics
+- **Performance**: ${performanceTarget}
+- **Quality**: ${qualityTarget}
+- **Business**: ${businessTarget}
+```
+
+### Phase 3: Create PRPs with Context
 
 ```javascript
-// IMPORTANT: File operation safety
-function safeReadFile(path) {
-  // Check if path exists and is a file (not directory)
-  if (!fs.existsSync(path)) {
-    return null;
-  }
-  
-  const stats = fs.statSync(path);
-  if (stats.isDirectory()) {
-    // If it's a directory, list its contents instead
-    return fs.readdirSync(path);
-  }
-  
-  // Only read if it's actually a file
-  if (stats.isFile()) {
-    return fs.readFileSync(path, 'utf8');
-  }
-  
-  return null;
-}
-
-// SAFE: Check file type before operations
-function gatherContextFiles(prpName) {
-  const contexts = [];
-  
-  // Define search patterns
-  const patterns = {
-    'debt-form-refactor': [
-      'src/**/DebtForm.tsx',  // Specific file
-      'src/**/debt/*.tsx'     // Files in directory
-    ],
-    'test-infrastructure': [
-      'jest.config.*',
-      'vitest.config.*',
-      '**/*.test.ts'
-    ],
-    'supabase-integration': [
-      'src/lib/supabase/client.ts',
-      'supabase/migrations/*.sql',
-      '.env.example'
-    ]
+function createValidatorCompliantPRP(prpSpec) {
+  const prp = {
+    name: prpSpec.name,
+    goal: determineGoal(prpSpec),
+    context: gatherRequiredContext(prpSpec),
+    implementation: generateImplementationPlan(prpSpec),
+    validation: createValidationLoops(prpSpec)
   };
   
-  // Safely find and read files
-  for (const pattern of patterns[prpName] || []) {
-    const files = glob.sync(pattern);
-    for (const file of files) {
-      // Check if it's a file before reading
-      if (fs.statSync(file).isFile()) {
-        contexts.push({
-          path: file,
-          exists: true,
-          size: fs.statSync(file).size
-        });
-      }
-    }
+  // Ensure all required sections exist
+  validatePRPStructure(prp);
+  
+  return formatPRPContent(prp);
+}
+
+function gatherRequiredContext(prpSpec) {
+  const context = {
+    files: [],
+    warnings: [],
+    patterns: []
+  };
+  
+  // Find relevant files with explanations
+  if (prpSpec.name === 'debt-form-refactor') {
+    context.files.push({
+      path: 'src/app/[domain]/optin/[funnel]/components/debt/DebtForm.tsx',
+      why: 'Current monolithic component to refactor',
+      pattern: 'Extract validation logic (lines 500-800)',
+      gotcha: 'Preserve all tracking events'
+    });
+    
+    context.files.push({
+      path: 'src/lib/analytics/rudderstack.ts',
+      why: 'Tracking patterns to preserve',
+      pattern: 'eventQueue.emit() for non-blocking',
+      gotcha: 'Never await analytics calls'
+    });
+    
+    context.warnings.push({
+      level: 'CRITICAL',
+      message: 'This form generates revenue - test thoroughly'
+    });
+    
+    context.warnings.push({
+      level: 'CRITICAL',
+      message: 'Preserve ALL rudderAnalytics.track() calls'
+    });
   }
   
-  return contexts;
+  if (prpSpec.name === 'test-infrastructure') {
+    context.files.push({
+      path: 'package.json',
+      why: 'Check existing test dependencies',
+      pattern: 'vitest already in devDependencies',
+      gotcha: 'May need configuration only'
+    });
+    
+    context.warnings.push({
+      level: 'WARNING',
+      message: 'Set up CI/CD to run tests automatically'
+    });
+  }
+  
+  if (prpSpec.name === 'supabase-integration') {
+    context.files.push({
+      path: '.env.example',
+      why: 'Environment variables already configured',
+      pattern: 'SUPABASE_URL and keys present',
+      gotcha: 'Do not rename existing variables'
+    });
+    
+    context.files.push({
+      path: 'src/lib/supabase/client.ts',
+      why: 'May already exist - extend, don\'t replace',
+      pattern: 'createClient pattern if exists',
+      gotcha: 'Check for existing implementation first'
+    });
+    
+    context.warnings.push({
+      level: 'CRITICAL',
+      message: 'Enable RLS on all Supabase tables'
+    });
+  }
+  
+  return context;
+}
+
+function createValidationLoops(prpSpec) {
+  const loops = [];
+  
+  // Common validation loops
+  loops.push({
+    name: 'Unit Testing',
+    checks: [
+      'All functions have tests',
+      'Coverage > 80%',
+      'Tests pass: bun test'
+    ]
+  });
+  
+  // Specific validation based on PRP type
+  if (prpSpec.name.includes('refactor')) {
+    loops.push({
+      name: 'Regression Testing',
+      checks: [
+        'All existing features still work',
+        'Form submission succeeds',
+        'Tracking events fire correctly',
+        'No performance degradation'
+      ]
+    });
+  }
+  
+  if (prpSpec.name.includes('integration')) {
+    loops.push({
+      name: 'Integration Testing',
+      checks: [
+        'Connection established',
+        'Authentication works',
+        'Data operations succeed',
+        'Error handling works'
+      ]
+    });
+  }
+  
+  loops.push({
+    name: 'Production Readiness',
+    checks: [
+      'No console errors',
+      'Performance targets met',
+      'Monitoring configured',
+      'Documentation updated'
+    ]
+  });
+  
+  return loops;
 }
 ```
 
-### Phase 3: Safe PRP Creation
-
-Create each PRP with proper file handling:
+### Phase 4: Safe File Operations
 
 ```javascript
-async function createPRPSafely(prpSpec) {
-  console.log(`\n🔨 Creating PRP: ${prpSpec.name}`);
+// Ensure we're writing files, not directories
+function writePRPSafely(prpPath, content) {
+  const dir = path.dirname(prpPath);
   
-  // Step 1: Safely gather context
-  const contextFiles = [];
-  
-  // Check specific files (not directories)
-  const filesToCheck = {
-    'debt-form-refactor': [
-      'src/app/[domain]/optin/[funnel]/components/debt/DebtForm.tsx'
-    ],
-    'test-infrastructure': [
-      'package.json',
-      'tsconfig.json'
-    ],
-    'supabase-integration': [
-      '.env.example',
-      'src/lib/supabase/client.ts'
-    ],
-    'rudderstack-bigquery': [
-      'src/lib/analytics/rudderstack.ts',
-      'docs/RUDDERSTACK_BIGQUERY_CONFIG.md'
-    ]
-  };
-  
-  // Check each file safely
-  for (const file of filesToCheck[prpSpec.name] || []) {
-    try {
-      const stats = fs.statSync(file);
-      if (stats.isFile()) {
-        contextFiles.push({
-          path: file,
-          size: stats.size,
-          exists: true
-        });
-      }
-    } catch (e) {
-      // File doesn't exist
-      contextFiles.push({
-        path: file,
-        exists: false
-      });
-    }
+  // Create directory if needed
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
   
-  // Step 2: Create PRP directory if needed
-  const prpDir = 'PRPs/active';
-  if (!fs.existsSync(prpDir)) {
-    fs.mkdirSync(prpDir, { recursive: true });
-  }
-  
-  // Step 3: Generate PRP content
-  const prpContent = generatePRPContent(prpSpec, contextFiles);
-  
-  // Step 4: Write PRP file (ensure we're writing to a file, not directory)
-  const prpPath = `${prpDir}/${prpSpec.name}-prp.md`;
-  
-  // Make sure we're not trying to write to a directory
+  // Ensure we're writing to a file
   if (fs.existsSync(prpPath) && fs.statSync(prpPath).isDirectory()) {
-    console.error(`Error: ${prpPath} is a directory, not a file!`);
-    return false;
+    throw new Error(`Cannot write PRP: ${prpPath} is a directory`);
   }
   
-  // Write the file
-  fs.writeFileSync(prpPath, prpContent);
-  console.log(`✅ Created: ${prpPath}`);
+  // Write the PRP
+  fs.writeFileSync(prpPath, content, 'utf8');
+  
+  // Verify it passes validation
+  const validationResult = validatePRPStructure(content);
+  if (!validationResult.valid) {
+    console.warn(`⚠️ PRP may not pass validator: ${validationResult.issues}`);
+  }
   
   return true;
 }
 ```
 
-### Phase 4: Directory-Safe Analysis
+## Example Output
 
-When analyzing the project:
+When creating a PRP, it will now have the required structure:
 
-```javascript
-function analyzeProjectSafely() {
-  const analysis = {
-    largeComponents: [],
-    testCoverage: 0,
-    integrations: {},
-    architectureIssues: []
-  };
-  
-  // Find large TypeScript/TSX files (not directories)
-  const files = glob.sync('src/**/*.{ts,tsx}');
-  
-  for (const file of files) {
-    try {
-      const stats = fs.statSync(file);
-      // Only process files, not directories
-      if (stats.isFile()) {
-        const content = fs.readFileSync(file, 'utf8');
-        const lines = content.split('\n').length;
-        
-        if (lines > 1000) {
-          analysis.largeComponents.push({
-            file: file,
-            lines: lines
-          });
-        }
-      }
-    } catch (e) {
-      // Skip files we can't read
-      continue;
-    }
-  }
-  
-  // Check test files (count only actual files)
-  const testFiles = glob.sync('**/*.{test,spec}.{ts,tsx,js,jsx}');
-  const actualTestFiles = testFiles.filter(f => {
-    try {
-      return fs.statSync(f).isFile();
-    } catch {
-      return false;
-    }
-  });
-  
-  analysis.testCoverage = actualTestFiles.length;
-  
-  return analysis;
-}
+```
+🔨 Creating PRP: debt-form-refactor
+
+✅ Section added: 🎯 Goal
+✅ Section added: 📚 Required Context (5 files, 3 warnings)
+✅ Section added: 🏗️ Implementation Blueprint
+✅ Section added: 🧪 Validation Loops (4 loops)
+
+✓ PRP structure validated
+✓ Written to: PRPs/active/debt-form-refactor-prp.md
 ```
 
-### Phase 5: Example Gameplan Structure
-
-The gameplan will be structured like:
-
-```json
-{
-  "timestamp": "2024-02-07T10:00:00Z",
-  "project": "debt-funnel",
-  "prps": [
-    {
-      "name": "debt-form-refactor",
-      "priority": "P0",
-      "reason": "Component is 3,053 lines",
-      "effort": "5-7 days",
-      "contextFiles": [
-        "src/app/[domain]/optin/[funnel]/components/debt/DebtForm.tsx"
-      ]
-    },
-    {
-      "name": "test-infrastructure",
-      "priority": "P0",
-      "reason": "0% test coverage",
-      "effort": "3-4 days",
-      "contextFiles": [
-        "package.json",
-        "vitest.config.ts"
-      ]
-    }
-  ]
-}
-```
-
-## Error Prevention
-
-The command now:
-1. **Checks file vs directory** before any read operation
-2. **Uses `fs.statSync().isFile()`** to verify
-3. **Handles missing files** gracefully
-4. **Creates directories** with `recursive: true`
-5. **Lists directory contents** instead of trying to read them
-
-## Example Execution
-
-```bash
-/prp-gameplan-execute
-
-📋 Analyzing project for PRPs...
-✓ Found large component: DebtForm.tsx (3,053 lines)
-✓ Test coverage: 0 test files found
-✓ Supabase configured but not implemented
-
-Creating PRPs sequentially...
-
-🔨 Creating PRP 1/4: debt-form-refactor
-   ✓ Found context file: DebtForm.tsx (3,053 lines)
-   ✓ Writing to: PRPs/active/debt-form-refactor-prp.md
-✅ Created successfully
-
-🔨 Creating PRP 2/4: test-infrastructure
-   ✓ Found context file: package.json
-   ✗ vitest.config.ts not found (will create)
-   ✓ Writing to: PRPs/active/test-infrastructure-prp.md
-✅ Created successfully
-
-[continues...]
-
-✅ All PRPs created without errors!
-```
-
-This version handles directories and files correctly!
+This ensures all PRPs pass the validator!
