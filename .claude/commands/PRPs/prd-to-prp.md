@@ -1,224 +1,294 @@
 ---
 name: prd-to-prp
-description: Convert PRD to implementation-ready PRPs using all available documentation
+description: Convert PRD to implementation-ready PRPs with context discovery
 ---
 
-# PRD to PRP Conversion (Enhanced)
+# PRD to PRP Conversion (Context-Aware)
 
-Convert Product Requirements Document into actionable Product Requirement Prompts, incorporating all architectural analysis and roadmap documentation.
+Convert Product Requirements Document into actionable Product Requirement Prompts with automatic context discovery and safety checks.
 
 ## Usage
 
 ```bash
 /prd-to-prp [feature-name]
+/prd-to-prp --safe  # Extra safety checks
 ```
 
 ## Process
 
-I'll analyze your PRD along with all architectural documentation to create comprehensive PRPs.
-
-### Phase 1: Gather All Documentation
-
-First, I'll collect and analyze all relevant documentation:
+### Phase 1: Gather All Documentation & Context
 
 ```bash
-# Check for all documentation sources
-echo "=== Gathering Documentation Sources ==="
+echo "=== 📚 Gathering Documentation ==="
 
-# 1. Core PRD
-if [ -f "docs/project/PROJECT_PRD.md" ]; then
-  echo "✓ Found PROJECT_PRD.md"
-else
-  echo "⚠️ No PRD found - run /prd-from-existing first"
-fi
+# Core documents
+test -f "docs/project/PROJECT_PRD.md" && echo "✓ PRD found"
+test -d ".agent-os" && echo "✓ Analysis found"
+test -d "docs/architecture" && echo "✓ Architecture docs found"
 
-# 2. Agent-OS Analysis
-if [ -d ".agent-os" ]; then
-  echo "✓ Found .agent-os/ analysis:"
-  ls -la .agent-os/product/*.md 2>/dev/null | grep -c ".md" | xargs echo "  - Product docs:"
-  ls -la .agent-os/*.md 2>/dev/null | grep -c ".md" | xargs echo "  - Analysis docs:"
-fi
-
-# 3. Architecture Documentation
-if [ -d "docs/architecture" ]; then
-  echo "✓ Found architecture docs:"
-  ls -la docs/architecture/*.md 2>/dev/null | grep -c ".md" | xargs echo "  - Architecture files:"
-fi
-
-# 4. Improvement Plans
-if [ -f "*IMPROVEMENTS.md" ]; then
-  echo "✓ Found improvement plans"
-fi
+# Existing implementations
+echo -e "\n=== 🔍 Discovering Existing Implementations ==="
 ```
 
-### Phase 2: Analyze Documentation
+### Phase 2: Context Discovery for Each PRP
 
-I'll read and incorporate:
+For each potential PRP, I'll automatically:
 
-#### From `.agent-os/` (if exists):
-- **product/mission.md** - Product vision and goals
-- **product/roadmap.md** - Phased development plan
-- **product/tech-stack.md** - Technology decisions
-- **product/decisions.md** - Architecture Decision Records (ADRs)
-- **ANALYSIS_SUMMARY.md** - Executive summary of current state
-
-#### From `docs/architecture/` (if exists):
-- **SYSTEM_ARCHITECTURE.md** - Component overview
-- **DATA_FLOW.md** - Data pipeline design
-- **INTEGRATION_ARCHITECTURE.md** - External services
-- **INFRASTRUCTURE.md** - Deployment architecture
-- **SECURITY_ARCHITECTURE.md** - Security controls
-
-#### From Analysis Results:
-- **Architectural Debt** - Components needing refactoring
-- **Performance Issues** - Optimization opportunities
-- **Missing Coverage** - Tests, monitoring, documentation
-- **Priority Items** - P0/P1/P2 categorization
-
-### Phase 3: Generate Contextual PRPs
-
-Based on ALL documentation, I'll create PRPs that address:
-
-#### 1. Immediate Architectural Debt
-If architectural analysis found issues like:
-- Monolithic components (>1000 lines)
-- Missing test coverage (<80%)
-- Performance bottlenecks
-- Security vulnerabilities
-
-I'll create PRPs like:
-- `refactor-[component]-prp.md`
-- `test-infrastructure-prp.md`
-- `performance-optimization-prp.md`
-- `security-hardening-prp.md`
-
-#### 2. Roadmap Phase Items
-From `.agent-os/product/roadmap.md` phases:
-- **Phase 1 (0-30 days)**: Immediate improvements
-- **Phase 2 (30-60 days)**: Feature enhancements
-- **Phase 3 (60-90 days)**: Scale preparations
-- **Phase 4 (90+ days)**: Innovation items
-
-#### 3. Feature-Specific PRPs
-For each major feature in the PRD:
-```markdown
-# PRP Structure
-1. Context (from architecture docs)
-2. Current State (from analysis)
-3. Requirements (from PRD)
-4. Technical Approach (from tech-stack)
-5. Implementation Steps
-6. Testing Strategy
-7. Success Metrics
+#### 1. Search for Related Files
+```javascript
+function discoverPRPContext(prpName) {
+  const patterns = {
+    'refactor': ['**/components/**/*.tsx', '**/*.test.ts'],
+    'supabase': ['**/supabase/**', '**/db/**', '**/*schema*'],
+    'rudderstack': ['**/analytics/**', '**/tracking/**', '**/gtm/**'],
+    'sentry': ['sentry.*.ts', '**/error**', '**/monitoring/**'],
+    'bigquery': ['**/bigquery/**', '**/warehouse/**', 'docs/*BIGQUERY*'],
+    'test': ['**/*.test.*', '**/*.spec.*', 'jest.config.*', 'vitest.config.*']
+  };
+  
+  const files = findMatchingFiles(patterns[prpName]);
+  return analyzeFiles(files);
+}
 ```
 
-### Phase 4: PRP Generation Output
+#### 2. Check Working Systems
+```javascript
+function checkWorkingSystems(prpName) {
+  const checks = {
+    'supabase': [
+      'grep -r "createClient" --include="*.ts"',
+      'test -f "src/lib/supabase/client.ts"',
+      'find . -name "*.sql" | head -5'
+    ],
+    'rudderstack': [
+      'grep -r "rudderAnalytics.track" --include="*.ts"',
+      'test -f "src/lib/analytics/rudderstack.ts"',
+      'grep -r "GTM-" --include="*.tsx"'  // Check GTM overlap
+    ],
+    'sentry': [
+      'test -f "sentry.client.config.ts"',
+      'grep -r "Sentry.captureException" --include="*.ts"'
+    ]
+  };
+  
+  return runChecks(checks[prpName]);
+}
+```
 
-For each identified need, I'll create:
+#### 3. Verify Database Schema
+```javascript
+function verifyDatabaseSchema() {
+  // Find schema definitions
+  const schemaFiles = [
+    'supabase/migrations/*.sql',
+    'prisma/schema.prisma',
+    'src/types/database.ts',
+    'src/lib/db/schema.ts'
+  ];
+  
+  // Extract table and field definitions
+  const schema = parseSchemaFiles(schemaFiles);
+  
+  // Check for conflicts
+  return {
+    tables: schema.tables,
+    fields: schema.fields,
+    relationships: schema.relationships,
+    warning: detectSchemaConflicts(schema)
+  };
+}
+```
+
+### Phase 3: Generate Context-Aware PRPs
+
+Each PRP will include:
 
 ```markdown
-# [Feature/Fix Name] PRP
+# [Feature Name] PRP
 
-## Context
-- Current Architecture: [from docs/architecture/]
-- Identified Issues: [from analysis]
-- Priority: [P0/P1/P2]
-- Phase: [1/2/3/4 from roadmap]
+## 🔍 Context Discovery Results
 
-## Requirements
-[From PRD and analysis]
+### Existing Implementation
+\`\`\`yaml
+Status:
+  ${feature}: ${status}
+  Files Found: ${fileCount}
+  Working: ${isWorking}
+  Coverage: ${coverage}%
+\`\`\`
 
-## Technical Implementation
-[Based on tech-stack and architecture]
+### Related Files (Review Before Modifying)
+${contextFiles.map(f => `- \`${f.path}\`: ${f.description}`)}
 
-## Steps
-[Detailed implementation plan]
+### Current Database Schema
+\`\`\`sql
+-- Tables in use (DO NOT DROP)
+${existingTables}
+\`\`\`
 
-## Dependencies
-[From architecture docs]
+### Environment Variables
+\`\`\`bash
+# Already configured
+${existingEnvVars}
 
-## Testing Requirements
-[Based on gaps identified]
+# Needed (add to .env)
+${missingEnvVars}
+\`\`\`
 
-## Success Criteria
-[Measurable outcomes]
+## ⚠️ Safety Warnings
+${warnings.map(w => `- ⚠️ ${w}`)}
+
+## 🎯 Requirements (from PRD)
+${requirements}
+
+## 🔧 Implementation Approach
+
+### Preserve (DO NOT MODIFY)
+${workingFeatures.map(f => `- ✅ ${f}`)}
+
+### Extend (SAFE TO ADD)
+${newFeatures.map(f => `- ➕ ${f}`)}
+
+### Fix (BROKEN/MISSING)
+${brokenFeatures.map(f => `- 🔧 ${f}`)}
+
+## 📋 Implementation Steps
+
+### Step 1: Verify Current State
+\`\`\`bash
+# Test existing functionality first
+${testCommands}
+\`\`\`
+
+### Step 2: Safe Implementation
+${implementationSteps}
+
+### Step 3: Regression Testing
+\`\`\`bash
+# Ensure nothing broke
+${regressionTests}
+\`\`\`
+
+## 🧪 Testing Strategy
+${testingApproach}
+
+## ✅ Success Criteria
+${successCriteria}
+
+## 🔗 Dependencies
+- Files: ${contextFiles.map(f => f.path)}
+- PRPs: ${dependentPRPs}
+- External: ${externalDeps}
 ```
 
-### Phase 5: Priority Ordering
+### Phase 4: Special Checks
 
-PRPs will be generated in priority order:
-
-1. **P0 - Critical** (Blocking/Broken)
-   - Test infrastructure (if missing)
-   - Security vulnerabilities
-   - Performance crisis
-   - Monolithic refactoring
-
-2. **P1 - Important** (Phase 1 roadmap)
-   - Core feature improvements
-   - User experience fixes
-   - Performance optimization
-   - Monitoring setup
-
-3. **P2 - Enhancement** (Phase 2+ roadmap)
-   - New features
-   - Advanced capabilities
-   - Nice-to-have improvements
-
-## Integration with Existing Documentation
-
-This command now:
-- ✅ Reads `.agent-os/` analysis results
-- ✅ Incorporates `docs/architecture/` findings
-- ✅ Uses roadmap phases for prioritization
-- ✅ Addresses architectural debt identified
-- ✅ Creates actionable, specific PRPs
-- ✅ Links PRPs to concrete problems found
-
-## Example Output
-
-After running `/prd-to-prp`, you'll see:
-
-```
-📊 Documentation Analysis Complete
-Found:
-- ✓ PRD with 5 major features
-- ✓ Architecture docs (5 files)
-- ✓ Roadmap with 4 phases
-- ✓ 3 P0 architectural issues
-- ✓ 8 P1 improvements identified
-
-🎯 Generating PRPs:
-
-P0 - Critical (Must Fix):
-1. Creating: debt-form-refactor-prp.md (3,053 lines → 10 components)
-2. Creating: test-infrastructure-prp.md (0% → 80% coverage)
-3. Creating: performance-optimization-prp.md (<250ms target)
-
-P1 - Phase 1 (Next 30 days):
-4. Creating: monitoring-setup-prp.md
-5. Creating: ci-cd-pipeline-prp.md
-6. Creating: documentation-system-prp.md
-
-P2 - Enhancements:
-7. Creating: ml-scoring-prp.md
-8. Creating: advanced-analytics-prp.md
-
-✅ Created 8 PRPs in PRPs/active/
+#### Google Tag Manager vs RudderStack
+```javascript
+function determineTrackingStrategy() {
+  const hasGTM = checkForGTM();
+  const hasRudderStack = checkForRudderStack();
+  const rudderDestinations = getRudderDestinations();
+  
+  if (hasGTM && hasRudderStack) {
+    return {
+      strategy: 'DUAL',
+      recommendation: 'Migrate GTM events to RudderStack',
+      reason: 'RudderStack can send to GTM as destination'
+    };
+  }
+  
+  if (hasRudderStack && rudderDestinations.includes('Google Analytics')) {
+    return {
+      strategy: 'RUDDERSTACK_ONLY',
+      recommendation: 'No GTM needed',
+      reason: 'RudderStack handles all tracking'
+    };
+  }
+  
+  return analyzeNeeds();
+}
 ```
 
-## Next Steps
+#### Supabase Table Alignment
+```javascript
+function checkSupabaseAlignment() {
+  const localTypes = findTypeDefinitions();
+  const migrations = findMigrations();
+  const supabaseSchema = parseSupabaseSchema();
+  
+  return {
+    aligned: compareSchemas(localTypes, supabaseSchema),
+    conflicts: findConflicts(),
+    migrations_needed: generateMigrations()
+  };
+}
+```
 
-After PRP generation:
-1. Review generated PRPs: `/prp list`
-2. Convert to issues: `/prp-to-issues`
-3. Start implementation: `/fw start [issue-number]`
+### Phase 5: Output Summary
 
-## Note
+After generating PRPs:
 
-This enhanced version ensures PRPs are based on:
-- Real architectural analysis
-- Actual problems identified
-- Roadmap priorities
-- Technical debt findings
-- Not just theoretical features
+```
+📊 PRP Generation Complete
+
+Created 7 PRPs with context:
+
+1. debt-form-refactor-prp.md
+   - Context Files: 15
+   - Warnings: Component has revenue-critical logic
+   - Safety: Preserves all tracking events
+
+2. supabase-integration-prp.md  
+   - Context Files: 8
+   - Status: Partially implemented
+   - Action: Extend, don't replace
+
+3. rudderstack-analytics-prp.md
+   - Context Files: 12
+   - GTM Check: Not needed (RudderStack handles)
+   - Action: Add BigQuery destination only
+
+4. sentry-monitoring-prp.md
+   - Context Files: 6
+   - Status: Working, needs enhancement
+   - Action: Add features, preserve existing
+
+⚠️ IMPORTANT WARNINGS:
+- Database has existing schema - migrations must be additive
+- RudderStack is tracking revenue - preserve all events
+- Supabase client exists - extend, don't recreate
+
+Next: Review PRPs before converting to issues
+```
+
+## Safety Features
+
+1. **Automatic Context Discovery** - Finds all related files
+2. **Working System Detection** - Identifies what not to break
+3. **Schema Verification** - Checks database alignment
+4. **Dependency Mapping** - Shows interconnections
+5. **GTM vs RudderStack Analysis** - Determines tracking strategy
+6. **Regression Test Generation** - Ensures nothing breaks
+
+## Usage Examples
+
+### Standard Generation
+```bash
+/prd-to-prp
+# Generates PRPs with basic context
+```
+
+### Safe Mode
+```bash
+/prd-to-prp --safe
+# Extra verification, more conservative approach
+```
+
+### Single Feature
+```bash
+/prd-to-prp supabase-integration
+# Generates one PRP with deep context
+```
+
+This ensures PRPs are always context-aware and won't break existing systems!
