@@ -1,245 +1,363 @@
 ---
 name: prp-to-issues
-description: Convert PRPs to GitHub issues with full context awareness
-aliases: [prp2i, ptoi]
+description: Convert PRPs to GitHub issues with duplicate detection and update support
+aliases: [pti, issues-from-prps]
 ---
 
-# PRP to GitHub Issues Converter
+# PRP to GitHub Issues - Smart Converter
 
-Convert Product Requirement Prompts (PRPs) into actionable GitHub issues with full architectural context.
+Converts PRPs to GitHub issues with duplicate detection, update support, and tracking.
 
 ## Usage
 
 ```bash
-/prp-to-issues              # Convert all active PRPs
+/prp-to-issues              # Convert all new PRPs
+/prp-to-issues --force      # Re-create even if exists
+/prp-to-issues --update     # Update existing issues
 /prp-to-issues [prp-name]   # Convert specific PRP
-/ptoi                       # Short alias
 ```
 
 ## Process
 
-### Phase 1: Discover PRPs
+### Phase 1: Duplicate Detection
 
-I'll scan for PRPs and their context:
-
-```bash
-# Check for active PRPs
-echo "=== Scanning for PRPs ==="
-ls -la PRPs/active/*.md 2>/dev/null || echo "No active PRPs found"
-
-# Check for architectural context
-echo "=== Checking Context ==="
-test -d ".agent-os" && echo "✓ Analysis context available"
-test -d "docs/architecture" && echo "✓ Architecture docs available"
-test -f "docs/project/PROJECT_PRD.md" && echo "✓ PRD available"
+```javascript
+async function checkExistingIssues() {
+  const tracking = loadTrackingFile('.agent-os/prp-issue-tracking.json');
+  const githubIssues = await gh.api('GET /repos/{owner}/{repo}/issues');
+  
+  const status = {
+    prps: [],
+    alreadyCreated: [],
+    needsCreation: [],
+    needsUpdate: []
+  };
+  
+  // Check each PRP
+  for (const prpFile of getPRPFiles()) {
+    const prpName = extractPRPName(prpFile);
+    
+    // Check tracking file
+    if (tracking[prpName]) {
+      const issueNumber = tracking[prpName].issueNumber;
+      const lastModified = tracking[prpName].lastModified;
+      
+      // Check if PRP was updated after issue creation
+      if (prpFile.mtime > lastModified) {
+        status.needsUpdate.push({
+          prp: prpName,
+          issue: issueNumber,
+          reason: 'PRP modified after issue creation'
+        });
+      } else {
+        status.alreadyCreated.push({
+          prp: prpName,
+          issue: issueNumber
+        });
+      }
+    } else {
+      // Check GitHub for issues mentioning this PRP
+      const existingIssue = githubIssues.find(i => 
+        i.body.includes(`PRP: ${prpName}`) ||
+        i.title.includes(prpName)
+      );
+      
+      if (existingIssue) {
+        // Found issue but not tracked locally
+        tracking[prpName] = {
+          issueNumber: existingIssue.number,
+          lastModified: new Date().toISOString()
+        };
+        status.alreadyCreated.push({
+          prp: prpName,
+          issue: existingIssue.number
+        });
+      } else {
+        status.needsCreation.push(prpName);
+      }
+    }
+  }
+  
+  return status;
+}
 ```
 
-### Phase 2: Analyze Each PRP
+### Phase 2: Issue Tracking System
 
-For each PRP, I'll extract:
-
-1. **Core Requirements**
-   - Feature description
-   - Technical requirements
-   - Success criteria
-
-2. **Architectural Context**
-   - Related components (from architecture docs)
-   - Dependencies (from tech-stack)
-   - Integration points
-
-3. **Priority & Phasing**
-   - P0/P1/P2 classification
-   - Roadmap phase (1-4)
-   - Estimated effort
-
-4. **Technical Debt**
-   - If PRP addresses debt (e.g., refactoring)
-   - Current issues (lines of code, missing tests)
-   - Target improvements
-
-### Phase 3: Generate Smart Issues
-
-Each issue will include:
-
-```markdown
-## 🎯 [PRP Title]
-
-### 📊 Context
-- **Priority**: P0/P1/P2
-- **Phase**: [1-4] from roadmap
-- **Type**: Feature/Refactor/Infrastructure/Testing
-- **Effort**: S/M/L/XL
-
-### 🏗️ Current State
-[From architectural analysis]
-- Component: [e.g., DebtForm - 3,053 lines]
-- Coverage: [e.g., 0% tests]
-- Performance: [e.g., <250ms target]
-
-### ✅ Acceptance Criteria
-[From PRP success criteria]
-- [ ] Criterion 1
-- [ ] Criterion 2
-- [ ] Criterion 3
-
-### 🔧 Technical Requirements
-[From architecture docs]
-- Framework: [Next.js 15, React 19]
-- Dependencies: [Required packages]
-- Integration: [External services]
-
-### 📋 Implementation Tasks
-- [ ] Task 1: [Specific action]
-- [ ] Task 2: [Specific action]
-- [ ] Task 3: [Specific action]
-
-### 🧪 Testing Requirements
-- [ ] Unit tests: [Coverage target]
-- [ ] Integration tests: [Key flows]
-- [ ] E2E tests: [Critical paths]
-
-### 📚 Documentation
-- [ ] Update API docs
-- [ ] Update component docs
-- [ ] Update architecture diagrams
-
-### 🔗 Related
-- PRP: `PRPs/active/[name].md`
-- Architecture: `docs/architecture/[relevant].md`
-- Roadmap Phase: [Link to phase]
+```json
+// .agent-os/prp-issue-tracking.json
+{
+  "debt-form-refactor": {
+    "issueNumber": 23,
+    "subIssues": [24, 25, 26, 27, 28],
+    "createdAt": "2024-02-07T10:00:00Z",
+    "lastModified": "2024-02-07T10:00:00Z",
+    "prpChecksum": "abc123...",
+    "status": "created"
+  },
+  "rudderstack-bigquery": {
+    "issueNumber": 29,
+    "subIssues": [],
+    "createdAt": "2024-02-07T11:00:00Z",
+    "lastModified": "2024-02-07T11:00:00Z",
+    "prpChecksum": "def456...",
+    "status": "created"
+  }
+}
 ```
 
-### Phase 4: Issue Creation Strategy
+### Phase 3: Smart Issue Creation
 
-#### For Refactoring PRPs (e.g., monolithic component):
-```markdown
-# Main Issue: Refactor DebtForm Component
-
-## Sub-issues (automatically created):
-1. Extract validation logic → separate module
-2. Create FormSection components (10 components)
-3. Implement state management (Zustand/Context)
-4. Add comprehensive tests (80% coverage)
-5. Update documentation
+```javascript
+async function createIssuesSmartly(status) {
+  console.log(`
+📊 PRP to Issues Analysis:
+  ✅ Already created: ${status.alreadyCreated.length}
+  📝 Need creation: ${status.needsCreation.length}
+  🔄 Need update: ${status.needsUpdate.length}
+  `);
+  
+  // Show what's already done
+  if (status.alreadyCreated.length > 0) {
+    console.log('\n✅ Already Created (Skipping):');
+    for (const item of status.alreadyCreated) {
+      console.log(`  - ${item.prp} → Issue #${item.issue}`);
+    }
+  }
+  
+  // Show what needs updating
+  if (status.needsUpdate.length > 0) {
+    console.log('\n🔄 PRPs Modified (Need Update):');
+    for (const item of status.needsUpdate) {
+      console.log(`  - ${item.prp} → Issue #${item.issue}`);
+      console.log(`    Reason: ${item.reason}`);
+    }
+    
+    const answer = await prompt('Update existing issues? (y/n/skip): ');
+    if (answer === 'y') {
+      await updateExistingIssues(status.needsUpdate);
+    }
+  }
+  
+  // Create new issues
+  if (status.needsCreation.length > 0) {
+    console.log('\n📝 Creating New Issues:');
+    for (const prpName of status.needsCreation) {
+      const issue = await createIssueFromPRP(prpName);
+      
+      // Track it
+      updateTracking(prpName, issue.number);
+      
+      console.log(`✅ Created: ${prpName} → Issue #${issue.number}`);
+    }
+  }
+}
 ```
 
-#### For Feature PRPs:
-```markdown
-# Main Issue: [Feature Name]
+### Phase 4: Update Existing Issues
 
-## Sub-issues (if complex):
-1. Backend API implementation
-2. Frontend UI components
-3. Integration & testing
-4. Documentation & deployment
+```javascript
+async function updateExistingIssues(updates) {
+  for (const update of updates) {
+    const prp = loadPRP(`PRPs/active/${update.prp}.md`);
+    const issue = await gh.api(`GET /repos/{owner}/{repo}/issues/${update.issue}`);
+    
+    // Compare and update
+    const changes = [];
+    
+    // Check if acceptance criteria changed
+    const newCriteria = extractAcceptanceCriteria(prp);
+    const oldCriteria = extractAcceptanceCriteria(issue.body);
+    
+    if (newCriteria !== oldCriteria) {
+      changes.push('Acceptance criteria updated');
+    }
+    
+    // Check if implementation tasks changed
+    const newTasks = extractTasks(prp);
+    const oldTasks = extractTasks(issue.body);
+    
+    if (newTasks !== oldTasks) {
+      changes.push('Implementation tasks updated');
+    }
+    
+    if (changes.length > 0) {
+      // Update issue body
+      const updatedBody = generateIssueBody(prp) + `
+      
+---
+📝 **Updated from PRP**: ${new Date().toISOString()}
+Changes: ${changes.join(', ')}
+      `;
+      
+      await gh.api(`PATCH /repos/{owner}/{repo}/issues/${update.issue}`, {
+        body: updatedBody
+      });
+      
+      // Add comment about update
+      await gh.api(`POST /repos/{owner}/{repo}/issues/${update.issue}/comments`, {
+        body: `🔄 Issue updated from PRP changes:\n- ${changes.join('\n- ')}`
+      });
+      
+      console.log(`✅ Updated Issue #${update.issue}`);
+    }
+  }
+}
 ```
 
-#### For Infrastructure PRPs:
-```markdown
-# Main Issue: [Infrastructure Item]
+### Phase 5: Tracking File Management
 
-## Checklist approach (single issue):
-- [ ] Set up testing framework
-- [ ] Configure CI/CD
-- [ ] Add monitoring
-- [ ] Document setup
+```javascript
+function updateTracking(prpName, issueNumber, subIssues = []) {
+  const trackingFile = '.agent-os/prp-issue-tracking.json';
+  
+  // Load existing or create new
+  let tracking = {};
+  if (fs.existsSync(trackingFile)) {
+    tracking = JSON.parse(fs.readFileSync(trackingFile));
+  }
+  
+  // Calculate checksum of PRP
+  const prpContent = fs.readFileSync(`PRPs/active/${prpName}.md`);
+  const checksum = crypto.createHash('md5').update(prpContent).digest('hex');
+  
+  // Update tracking
+  tracking[prpName] = {
+    issueNumber: issueNumber,
+    subIssues: subIssues,
+    createdAt: tracking[prpName]?.createdAt || new Date().toISOString(),
+    lastModified: new Date().toISOString(),
+    prpChecksum: checksum,
+    status: 'created'
+  };
+  
+  // Save
+  fs.writeFileSync(trackingFile, JSON.stringify(tracking, null, 2));
+}
 ```
 
-### Phase 5: Smart Batching
+## Workflow Examples
 
-Based on PRP analysis:
-
-1. **Group Related PRPs**
-   - Refactoring + Testing = Single epic
-   - Related features = Linked issues
-
-2. **Order by Dependencies**
-   - Infrastructure first
-   - Refactoring before features
-   - Testing parallel to development
-
-3. **Respect Phases**
-   - Phase 1 (0-30 days): P0 + immediate fixes
-   - Phase 2 (30-60 days): Features + enhancements
-   - Phase 3+: Scale + innovation
-
-## Example Output
-
+### First Time Creation
 ```bash
 /prp-to-issues
 
-📊 Found 5 Active PRPs:
-1. debt-form-refactor-prp.md (P0 - Refactoring)
-2. test-infrastructure-prp.md (P0 - Infrastructure)
-3. performance-optimization-prp.md (P1 - Performance)
-4. monitoring-setup-prp.md (P1 - Infrastructure)
-5. ml-scoring-prp.md (P2 - Feature)
+📊 PRP to Issues Analysis:
+  ✅ Already created: 0
+  📝 Need creation: 5
+  🔄 Need update: 0
 
-🔍 Analyzing Context:
-- Architectural debt: 3,053-line component
-- Test coverage: 0%
-- Performance target: <250ms
+📝 Creating New Issues:
+✅ Created: debt-form-refactor → Issue #23
+✅ Created: test-infrastructure → Issue #24
+✅ Created: rudderstack-bigquery → Issue #25
 
-📝 Creating Issues:
-
-Epic #1: Critical Refactoring & Testing
-├── Issue #23: Refactor DebtForm Component (P0)
-│   └── 5 sub-tasks created
-├── Issue #24: Implement Test Infrastructure (P0)
-│   └── Single issue with checklist
-└── Issue #25: Performance Optimization (P1)
-    └── 3 sub-tasks created
-
-Feature Issues:
-├── Issue #26: Monitoring & Observability (P1)
-└── Issue #27: ML Scoring System (P2)
-
-✅ Created 5 main issues + 8 sub-issues
-📁 Updated: docs/project/ISSUE_MAP.md
-🔗 Repository: shawnsmith/debt-funnel
+✅ Tracking saved to .agent-os/prp-issue-tracking.json
 ```
 
-## Integration with Workflow
-
-After running this command:
-
-1. **Review Issues**: Check GitHub for created issues
-2. **Start Development**: `/fw start [issue-number]`
-3. **Track Progress**: `/issue-kanban`
-4. **Update PRPs**: Move completed PRPs to `PRPs/completed/`
-
-## Smart Features
-
-### Detects Issue Type:
-- **Monolithic refactor** → Creates sub-issues for each component
-- **Test setup** → Single issue with comprehensive checklist
-- **Feature** → Evaluates complexity for sub-issue creation
-- **Bug fix** → Simple issue with clear criteria
-
-### Uses All Documentation:
-- `.agent-os/product/roadmap.md` → Phases and timeline
-- `docs/architecture/*.md` → Technical context
-- `*IMPROVEMENTS.md` → Priority classification
-- PRP content → Requirements and tasks
-
-### Prevents Duplicates:
-- Checks existing issues before creating
-- Links related issues
-- Updates rather than duplicates
-
-## Next Steps
-
-After issue creation:
+### Running Again (Duplicate Detection)
 ```bash
-/issue-kanban          # View issue board
-/fw start [issue#]     # Start TDD workflow
-/track-progress        # Monitor completion
+/prp-to-issues
+
+📊 PRP to Issues Analysis:
+  ✅ Already created: 3
+  📝 Need creation: 2
+  🔄 Need update: 0
+
+✅ Already Created (Skipping):
+  - debt-form-refactor → Issue #23
+  - test-infrastructure → Issue #24
+  - rudderstack-bigquery → Issue #25
+
+📝 Creating New Issues:
+✅ Created: supabase-integration → Issue #26
+✅ Created: performance-optimization → Issue #27
 ```
 
-This ensures your GitHub issues have full context from:
-- PRP requirements
-- Architectural analysis
-- Roadmap phases
-- Technical debt findings
-- Not just generic tasks!
+### After Modifying a PRP
+```bash
+# Edit PRPs/active/rudderstack-bigquery.md
+vim PRPs/active/rudderstack-bigquery.md
+
+/prp-to-issues
+
+📊 PRP to Issues Analysis:
+  ✅ Already created: 4
+  📝 Need creation: 0
+  🔄 Need update: 1
+
+🔄 PRPs Modified (Need Update):
+  - rudderstack-bigquery → Issue #25
+    Reason: PRP modified after issue creation
+
+Update existing issues? (y/n/skip): y
+
+✅ Updated Issue #25
+  - Acceptance criteria updated
+  - Implementation tasks updated
+  - Comment added to issue
+```
+
+### Force Recreation
+```bash
+/prp-to-issues --force debt-form-refactor
+
+⚠️ Force mode: Will recreate even if exists
+
+Found existing Issue #23 for debt-form-refactor
+Close existing issue and create new? (y/n): y
+
+✅ Closed Issue #23 with comment
+✅ Created new Issue #28 for debt-form-refactor
+✅ Tracking updated
+```
+
+## Update Workflow
+
+### When to Update PRPs and Issues
+
+1. **Small Changes** → Update PRP, then update issue:
+```bash
+# Edit PRP
+vim PRPs/active/[name].md
+
+# Update issue
+/prp-to-issues --update [name]
+```
+
+2. **Major Changes** → Close old, create new:
+```bash
+# Edit PRP significantly
+vim PRPs/active/[name].md
+
+# Force recreation
+/prp-to-issues --force [name]
+```
+
+3. **Check Status Anytime**:
+```bash
+/prp-to-issues --status
+
+📊 PRP Issue Status:
+✅ Synced:
+  - debt-form-refactor → #23 (in sync)
+  - test-infrastructure → #24 (in sync)
+
+🔄 Out of Sync:
+  - rudderstack-bigquery → #25 (PRP newer)
+
+❌ Not Created:
+  - new-feature-prp (no issue yet)
+```
+
+## Features
+
+✅ **Duplicate Detection** - Never creates duplicate issues
+✅ **Update Support** - Updates existing issues when PRPs change
+✅ **Tracking File** - Maintains PRP-to-issue mapping
+✅ **GitHub Integration** - Creates real GitHub issues
+✅ **Smart Diffing** - Only updates what changed
+✅ **Force Mode** - Can recreate if needed
+✅ **Status Checking** - See sync status anytime
+
+This ensures your PRPs and issues stay in sync!
