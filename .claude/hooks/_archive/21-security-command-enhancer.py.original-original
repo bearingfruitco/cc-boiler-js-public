@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""
+Security Command Enhancer Hook
+Enhances commands with security options when relevant
+"""
+
+import json
+import sys
+
+def main():
+    # Read the event data from stdin
+    event_json = sys.stdin.read()
+    event = json.loads(event_json)
+    
+    tool_use = event.get('toolUse', {})
+    tool_name = tool_use.get('toolName', '')
+    params = tool_use.get('params', {})
+    
+    # Commands that should have security enhancements
+    security_commands = {
+        'create-component': {
+            'suggest': '--secure flag for XSS protection'
+        },
+        'create-api': {
+            'suggest': '--secure flag adds rate limiting and validation'
+        },
+        'create-tracked-form': {
+            'suggest': '--captcha flag for bot protection'
+        },
+        'ctf': {
+            'suggest': '--captcha flag for bot protection'
+        },
+        'cc': {
+            'suggest': '--secure flag for security best practices'
+        }
+    }
+    
+    # Check if running a command that could use security
+    if tool_name == 'bash' and 'command' in params:
+        command = params.get('command', '')
+        
+        for cmd, info in security_commands.items():
+            if cmd in command and '--secure' not in command and '--captcha' not in command:
+                return {
+                    "action": "allow",
+                    "modifiedParams": params,
+                    "message": f"💡 Security Tip: Consider using {info['suggest']} with {cmd}"
+                }
+    
+    # Allow the tool use to proceed
+    return {"action": "allow"}
+
+if __name__ == "__main__":
+    response = main()
+    print(json.dumps(response))

@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""
+Security Summary - Stop Hook
+Saves security status when session ends
+"""
+
+import json
+import sys
+import os
+from datetime import datetime
+
+def main():
+    # Read the event data from stdin
+    event_json = sys.stdin.read()
+    if not event_json.strip():
+        return {}
+        
+    event = json.loads(event_json)
+    
+    # Collect security metrics
+    security_summary = {
+        "session_end": datetime.now().isoformat(),
+        "security_events": {
+            "rate_limit_hits": 0,
+            "validation_failures": 0,
+            "auth_attempts": 0
+        },
+        "files_secured": [],
+        "vulnerabilities_found": 0,
+        "security_score": "Not calculated"
+    }
+    
+    # Save summary
+    summary_file = '.claude/metrics/security-session.json'
+    os.makedirs(os.path.dirname(summary_file), exist_ok=True)
+    
+    try:
+        with open(summary_file, 'w') as f:
+            json.dump(security_summary, f, indent=2)
+    except:
+        pass
+    
+    # Return empty dict (stop hooks don't modify behavior)
+    return {}
+
+    # Ensure we always output valid JSON
+    print(json.dumps({"action": "continue"}))
+
+if __name__ == "__main__":
+    response = main()
+    if response:
+        print(json.dumps(response))

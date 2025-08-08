@@ -46,6 +46,34 @@
       "priority": "P0"
     },
     
+    "octocode-mcp": {
+      "name": "Octocode MCP",
+      "url": "https://github.com/bgauryy/octocode-mcp",
+      "status": "available",
+      "capabilities": [
+        "code:generate",
+        "refactor:suggest",
+        "patterns:apply",
+        "ai:enhance",
+        "context:understand"
+      ],
+      "priority": "P1"
+    },
+    
+    "serena-mcp": {
+      "name": "Serena MCP",
+      "url": "https://github.com/oraios/serena",
+      "status": "available",
+      "capabilities": [
+        "code:search",
+        "semantic:retrieval",
+        "context:enhance",
+        "suggestions:provide",
+        "codebase:understand"
+      ],
+      "priority": "P1"
+    },
+    
     "bigquery-toolbox": {
       "name": "BigQuery Toolbox",
       "url": "https://googleapis.github.io/genai-toolbox/resources/sources/bigquery/",

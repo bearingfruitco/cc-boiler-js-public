@@ -1,0 +1,57 @@
+{
+  "hooks": [
+    {
+      "name": "after-tdd-tests",
+      "type": "after_agent_use",
+      "matcher": {
+        "agent": "tdd-engineer"
+      },
+      "command": "echo '✅ TDD tests written. Ready for implementation. Validation gates will run after.'"
+    },
+    {
+      "name": "after-validation",
+      "type": "after_agent_use",
+      "matcher": {
+        "agent": "validation-gates"
+      },
+      "command": "bash .claude/hooks/log-validation.sh"
+    },
+    {
+      "name": "after-code-generation",
+      "type": "after_tool_use",
+      "matcher": {
+        "tool": "str_replace_editor"
+      },
+      "command": "bash .claude/hooks/log-changes.sh"
+    },
+    {
+      "name": "after-parallel-execution",
+      "type": "after_command",
+      "matcher": {
+        "command": "parallel-execute"
+      },
+      "command": "echo '🚀 Parallel execution complete. Review implementations in .trees/'"
+    },
+    {
+      "name": "after-octocode",
+      "type": "after_tool_use",
+      "matcher": {
+        "tool": "octocode_generate"
+      },
+      "command": "echo '🤖 Octocode generation complete. Running validation...'"
+    },
+    {
+      "name": "pre-push-validation",
+      "type": "before_command",
+      "matcher": {
+        "command": "git push"
+      },
+      "command": "bash .claude/hooks/pre-push-checks.sh"
+    }
+  ],
+  "config": {
+    "enabled": true,
+    "log_level": "info",
+    "log_directory": ".claude/logs"
+  }
+}

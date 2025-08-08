@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+"""
+Security Report - SubAgent Stop Hook
+Collects security findings from sub-agents
+"""
+
+import json
+import sys
+
+def main():
+    # Read the event data from stdin
+    event_json = sys.stdin.read()
+    if not event_json.strip():
+        return {}
+        
+    event = json.loads(event_json)
+    
+    # Check if this was a security sub-agent
+    agent_id = event.get('agentId', '')
+    if agent_id in ['security-auditor', 'rls-generator', 'security-enhancer']:
+        # Log security findings
+        findings = event.get('result', {}).get('findings', [])
+        if findings:
+            print(f"Security sub-agent {agent_id} found {len(findings)} issues")
+    
+    # Return empty dict (stop hooks don't modify behavior)
+    return {}
+
+if __name__ == "__main__":
+    response = main()
+    if response:
+        print(json.dumps(response))

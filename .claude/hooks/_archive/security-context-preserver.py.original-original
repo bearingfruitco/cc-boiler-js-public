@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""
+Security Context Preserver - PreCompact Hook
+Preserves security requirements and status during context compaction
+"""
+
+import json
+import sys
+
+def main():
+    # Read the event data from stdin
+    event_json = sys.stdin.read()
+    event = json.loads(event_json)
+    
+    # Security context to preserve
+    security_context = {
+        'requirements': {
+            'rate_limiting': 'All APIs must have rate limiting',
+            'input_validation': 'All inputs must be validated with Zod',
+            'rls_policies': 'All user data tables must have RLS',
+            'captcha': 'Public forms must have CAPTCHA',
+            'dependencies': 'No high/critical vulnerabilities allowed'
+        },
+        'current_issues': [],
+        'standards_file': '.agent-os/standards/security.md',
+        'last_audit': None
+    }
+    
+    # Check for any pinned security requirements
+    try:
+        with open('.claude/context/security-requirements.json', 'r') as f:
+            pinned = json.load(f)
+            security_context['pinned_requirements'] = pinned
+    except:
+        pass
+    
+    # Add to preserved context
+    preserved = event.get('preserved', {})
+    preserved['security'] = security_context
+    
+    return {
+        "preserved": preserved,
+        "message": "🔒 Security requirements preserved"
+    }
+
+if __name__ == "__main__":
+    response = main()
+    print(json.dumps(response))

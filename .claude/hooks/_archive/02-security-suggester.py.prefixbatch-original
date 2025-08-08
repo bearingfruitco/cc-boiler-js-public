@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+"""
+Security Suggester - User Prompt Submit Hook
+Suggests security-related commands based on user input
+"""
+
+import json
+import sys
+import re
+
+def main():
+    # Read the event data from stdin
+    event_json = sys.stdin.read()
+    if not event_json.strip():
+        return {}
+        
+    event = json.loads(event_json)
+    prompt = event.get('prompt', '').lower()
+    
+    # Security-related keywords
+    security_keywords = [
+        'security', 'secure', 'safe', 'protect', 'vulnerability',
+        'rate limit', 'captcha', 'auth', 'authentication', 'rls',
+        'sql injection', 'xss', 'csrf', 'hack', 'attack'
+    ]
+    
+    # Check if prompt mentions security
+    if any(keyword in prompt for keyword in security_keywords):
+        suggestions = []
+        
+        if 'api' in prompt:
+            suggestions.append("Consider using `/sca` to create a secure API with rate limiting and validation")
+        
+        if 'form' in prompt:
+            suggestions.append("Use `/scf` to create a form with CAPTCHA and security features")
+        
+        if 'audit' in prompt or 'check' in prompt:
+            suggestions.append("Run `/sa` for a comprehensive security audit")
+        
+        if 'rls' in prompt or 'database' in prompt:
+            suggestions.append("Generate RLS policies with `/rls [table_name]`")
+        
+        if suggestions:
+            return {
+                "message": "🔒 Security suggestions:\n" + "\n".join(f"• {s}" for s in suggestions)
+            }
+    
+    return {}
+
+    # Ensure we always output valid JSON
+    print(json.dumps({"action": "continue"}))
+
+if __name__ == "__main__":
+    response = main()
+    if response:
+        print(json.dumps(response))

@@ -1,15 +1,13 @@
-  #!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Design System Enforcement Hook - Block non-compliant code before it's written
 Ensures all code follows the strict 4-size, 2-weight design system
-UPDATED TO FOLLOW OFFICIAL CLAUDE CODE HOOKS SPECIFICATION
 """
 
 import json
 import sys
 import re
 from pathlib import Path
-sys.exit(0)
 
 def is_component_file(file_path):
     """Check if this is a component file that needs design validation"""
@@ -63,34 +61,34 @@ def find_design_violations(content):
     return violations
 
 def main():
-    """Main hook logic following official specification"""
+    """Main hook logic"""
     try:
-        # Read input from stdin (official format)
+        # Read input from Claude Code
         input_data = json.loads(sys.stdin.read())
         
         # Extract tool information
         tool_name = input_data.get('tool_name', '')
         tool_input = input_data.get('tool_input', {})
         
-        # Only check write operations (official tool names)
+        # Only check write operations
         if tool_name not in ['Write', 'Edit', 'MultiEdit']:
-            sys.exit(0)  # Success - continue
+            # Not a write operation - continue normally
+            sys.exit(0)
         
         # Get file path and content
         file_path = tool_input.get('file_path', tool_input.get('path', ''))
-        content = tool_input.get('content', '')
-        if 'new_str' in tool_input:  # Edit operations
-            content = tool_input.get('new_str', '')
+        content = tool_input.get('content', tool_input.get('new_str', ''))
         
         # Skip if not a component file
         if not is_component_file(file_path):
-            sys.exit(0)  # Not a component file - continue
+            # Not a component file - continue normally
+            sys.exit(0)
         
         # Check for violations
         violations = find_design_violations(content)
         
         if violations:
-            # Block with detailed message using official format
+            # Block with detailed message
             error_msg = "🚫 Design System Violations Found\n\n"
             error_msg += "Your code must follow the strict design system:\n"
             error_msg += "• Font sizes: ONLY text-size-[1-4]\n"
@@ -101,17 +99,20 @@ def main():
             for v in violations:
                 error_msg += f"• {v}\n"
             
-            # OFFICIAL FORMAT: stderr + exit code 2 for blocking
-            print(error_msg, file=sys.stderr)
-            sys.exit(2)  # Block operation
+            # According to docs: use "decision": "block" for PreToolUse
+            print(json.dumps({
+                "decision": "block",
+                "message": error_msg
+            }))
+            sys.exit(0)
         
-        # No violations - continue
+        # No violations - exit with code 0 and no output to continue
         sys.exit(0)
         
     except Exception as e:
-        # Non-blocking error - show to user but continue
+        # On error, log to stderr and continue
         print(f"Design check hook error: {str(e)}", file=sys.stderr)
-        sys.exit(1)  # Non-blocking error
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()
