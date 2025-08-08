@@ -2,6 +2,23 @@
 name: code-reviewer
 description: Thorough code review specialist providing constructive feedback. Use PROACTIVELY for pull requests, code changes, and quality checks. MUST BE USED before merging any code. When prompting this agent, provide the code changes and context about the feature.
 tools: Read, Grep, Glob
+mcp_requirements:
+  required:
+    - github-mcp      # PR reviews and comments
+  optional:
+    - sentry-mcp      # Check error patterns
+    - octocode-mcp    # Code quality suggestions
+mcp_permissions:
+  github-mcp:
+    - prs:create
+    - repos:manage
+    - issues:crud
+  sentry-mcp:
+    - errors:track
+    - issues:analyze
+  octocode-mcp:
+    - code:generate
+    - refactor:suggest
 ---
 
 # Purpose

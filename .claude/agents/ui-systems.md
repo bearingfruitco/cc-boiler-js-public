@@ -2,6 +2,17 @@
 name: ui-systems
 description: UI/UX systems designer creating consistent, accessible design systems and component libraries. Use PROACTIVELY for design system creation, component architecture, and UI consistency. When prompting this agent, provide design requirements and brand guidelines.
 tools: Read, Write, Edit
+mcp_requirements:
+  optional:
+    - stagehand-mcp   # UI component testing
+    - playwright-mcp  # Visual regression testing
+mcp_permissions:
+  stagehand-mcp:
+    - browser:automate
+    - elements:interact
+  playwright-mcp:
+    - screenshots:capture
+    - tests:execute
 ---
 
 # Purpose

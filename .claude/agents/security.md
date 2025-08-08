@@ -12,6 +12,21 @@ description: |
   </commentary>
   </example>
 tools: read_file, search_files, list_directory, web_search
+mcp_requirements:
+  optional:
+    - github-mcp      # Security scanning
+    - sentry-mcp      # Security alerts
+    - better-auth-mcp # Auth security
+mcp_permissions:
+  github-mcp:
+    - repos:manage
+    - actions:trigger
+  sentry-mcp:
+    - alerts:manage
+    - errors:track
+  better-auth-mcp:
+    - auth:flows
+    - mfa:setup
 color: purple
 ---
 

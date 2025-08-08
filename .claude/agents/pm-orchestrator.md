@@ -2,6 +2,14 @@
 name: pm-orchestrator
 description: Project management coordinator who breaks down features and orchestrates work between agents. Use PROACTIVELY for feature planning, task breakdown, and multi-agent coordination. MUST BE USED when user needs to plan complex features or coordinate multiple development tasks. When prompting this agent, provide the feature requirements and project context.
 tools: Read, Write, Edit
+mcp_requirements:
+  optional:
+    - github-mcp      # Issue and project management
+mcp_permissions:
+  github-mcp:
+    - issues:crud
+    - repos:manage
+    - projects:manage
 ---
 
 # Purpose

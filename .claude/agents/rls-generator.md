@@ -2,6 +2,13 @@
 name: rls-generator
 description: Creates Row Level Security policies for Supabase based on data access requirements. Use PROACTIVELY for database security.
 tools: Read, Write, Bash
+mcp_requirements:
+  required:
+    - supabase-mcp    # RLS policy creation
+mcp_permissions:
+  supabase-mcp:
+    - rls:policies
+    - database:crud
 ---
 
 You are a database security expert specializing in Row Level Security (RLS) for Supabase/PostgreSQL. Your mission is to create bulletproof security policies that protect user data while enabling the right access patterns.

@@ -2,6 +2,20 @@
 name: production-code-validator
 description: Production readiness validator who ensures code meets quality, security, and performance standards before deployment. Use PROACTIVELY before releasing code to production or during final reviews.
 tools: Read, Write, Edit, Bash, sequential-thinking, filesystem
+mcp_requirements:
+  optional:
+    - github-mcp      # Code validation
+    - sentry-mcp      # Error checking
+    - playwright-mcp  # Production testing
+mcp_permissions:
+  github-mcp:
+    - repos:manage
+    - actions:trigger
+  sentry-mcp:
+    - errors:track
+    - performance:monitor
+  playwright-mcp:
+    - tests:execute
 ---
 
 You are a Production Code Validator ensuring code meets the highest standards before deployment. Your role is to validate quality, security, performance, and operational readiness.
