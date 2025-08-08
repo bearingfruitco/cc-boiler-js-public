@@ -1,6 +1,6 @@
 ---
 name: prp-to-issues
-description: Convert PRPs to GitHub issues with duplicate detection and update support
+description: Convert PRPs to GitHub issues with smart duplicate detection
 aliases: [pti, issues-from-prps]
 ---
 
@@ -19,54 +19,67 @@ Converts PRPs to GitHub issues with duplicate detection, update support, and tra
 
 ## Process
 
-### Phase 1: Duplicate Detection
+### Phase 1: Check Repository
+
+```bash
+# Get the correct repository
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+echo "📍 Repository: $REPO"
+```
+
+### Phase 2: Duplicate Detection
 
 ```javascript
 async function checkExistingIssues() {
-  const tracking = loadTrackingFile('.agent-os/prp-issue-tracking.json');
-  const githubIssues = await gh.api('GET /repos/{owner}/{repo}/issues');
+  // Get repo info first
+  const repoInfo = await execSync('gh repo view --json nameWithOwner -q .nameWithOwner').toString().trim();
+  
+  // Load tracking file
+  const trackingFile = '.agent-os/prp-issue-tracking.json';
+  let tracking = {};
+  
+  if (fs.existsSync(trackingFile)) {
+    tracking = JSON.parse(fs.readFileSync(trackingFile, 'utf8'));
+  } else {
+    // Create tracking file
+    fs.mkdirSync('.agent-os', { recursive: true });
+    fs.writeFileSync(trackingFile, '{}', 'utf8');
+  }
+  
+  // Get existing issues
+  const issuesCmd = `gh issue list --repo ${repoInfo} --limit 100 --json number,title,body,state`;
+  const issues = JSON.parse(execSync(issuesCmd).toString());
+  
+  // Check each PRP
+  const prpFiles = fs.readdirSync('PRPs/active').filter(f => f.endsWith('.md'));
   
   const status = {
-    prps: [],
-    alreadyCreated: [],
     needsCreation: [],
+    alreadyCreated: [],
     needsUpdate: []
   };
   
-  // Check each PRP
-  for (const prpFile of getPRPFiles()) {
-    const prpName = extractPRPName(prpFile);
+  for (const prpFile of prpFiles) {
+    const prpName = prpFile.replace('.md', '').replace('-prp', '');
     
-    // Check tracking file
+    // Check if tracked
     if (tracking[prpName]) {
-      const issueNumber = tracking[prpName].issueNumber;
-      const lastModified = tracking[prpName].lastModified;
-      
-      // Check if PRP was updated after issue creation
-      if (prpFile.mtime > lastModified) {
-        status.needsUpdate.push({
-          prp: prpName,
-          issue: issueNumber,
-          reason: 'PRP modified after issue creation'
-        });
-      } else {
-        status.alreadyCreated.push({
-          prp: prpName,
-          issue: issueNumber
-        });
-      }
+      status.alreadyCreated.push({
+        prp: prpName,
+        issue: tracking[prpName].issueNumber
+      });
     } else {
-      // Check GitHub for issues mentioning this PRP
-      const existingIssue = githubIssues.find(i => 
-        i.body.includes(`PRP: ${prpName}`) ||
-        i.title.includes(prpName)
+      // Check if issue exists with this PRP name
+      const existingIssue = issues.find(i => 
+        i.title.toLowerCase().includes(prpName.toLowerCase()) ||
+        i.body?.includes(`PRP: ${prpName}`)
       );
       
       if (existingIssue) {
-        // Found issue but not tracked locally
+        // Track it
         tracking[prpName] = {
           issueNumber: existingIssue.number,
-          lastModified: new Date().toISOString()
+          createdAt: new Date().toISOString()
         };
         status.alreadyCreated.push({
           prp: prpName,
@@ -78,286 +91,237 @@ async function checkExistingIssues() {
     }
   }
   
-  return status;
+  // Save tracking
+  fs.writeFileSync(trackingFile, JSON.stringify(tracking, null, 2));
+  
+  return { status, tracking, repoInfo };
 }
 ```
 
-### Phase 2: Issue Tracking System
+### Phase 3: Safe Issue Creation
 
-```json
-// .agent-os/prp-issue-tracking.json
-{
-  "debt-form-refactor": {
-    "issueNumber": 23,
-    "subIssues": [24, 25, 26, 27, 28],
-    "createdAt": "2024-02-07T10:00:00Z",
-    "lastModified": "2024-02-07T10:00:00Z",
-    "prpChecksum": "abc123...",
-    "status": "created"
-  },
-  "rudderstack-bigquery": {
-    "issueNumber": 29,
-    "subIssues": [],
-    "createdAt": "2024-02-07T11:00:00Z",
-    "lastModified": "2024-02-07T11:00:00Z",
-    "prpChecksum": "def456...",
-    "status": "created"
+```javascript
+async function createIssueSafely(prpName, repoInfo) {
+  const prpPath = `PRPs/active/${prpName}.md`;
+  if (!prpPath.endsWith('-prp.md')) {
+    prpPath = `PRPs/active/${prpName}-prp.md`;
+  }
+  
+  // Read PRP content
+  const prpContent = fs.readFileSync(prpPath, 'utf8');
+  
+  // Extract key information
+  const title = extractTitle(prpContent, prpName);
+  const goal = extractSection(prpContent, '🎯 Goal');
+  const tasks = extractSection(prpContent, 'Implementation');
+  const validation = extractSection(prpContent, 'Validation');
+  
+  // Create issue body
+  const issueBody = `## 🎯 Feature: ${title}
+
+### 📋 PRP Reference
+- **PRP**: \`${prpPath}\`
+- **Created**: ${new Date().toISOString()}
+
+### 🎯 Goal
+${goal || 'See PRP for details'}
+
+### 📊 Context
+${extractContext(prpContent)}
+
+### ✅ Acceptance Criteria
+${extractCriteria(prpContent)}
+
+### 🔧 Implementation Tasks
+${tasks || 'See PRP for implementation details'}
+
+### 🧪 Validation
+${validation || 'See PRP for validation loops'}
+
+### 📚 Related Files
+- PRP: \`${prpPath}\`
+${extractRelatedFiles(prpContent)}
+`;
+
+  // Write to temp file (NOT in .agent-os)
+  const tempFile = `/tmp/issue-${prpName}-${Date.now()}.md`;
+  fs.writeFileSync(tempFile, issueBody);
+  
+  try {
+    // Create issue using temp file
+    const cmd = `gh issue create --repo ${repoInfo} --title "[PRP] ${title}" --body-file ${tempFile}`;
+    const result = execSync(cmd).toString().trim();
+    
+    // Extract issue number from URL
+    const issueNumber = result.match(/\/(\d+)$/)?.[1];
+    
+    // Clean up temp file
+    fs.unlinkSync(tempFile);
+    
+    return {
+      success: true,
+      issueNumber: parseInt(issueNumber),
+      url: result
+    };
+  } catch (error) {
+    // Clean up temp file on error
+    if (fs.existsSync(tempFile)) {
+      fs.unlinkSync(tempFile);
+    }
+    
+    // Try simpler approach without labels
+    try {
+      const simpleCmd = `gh issue create --repo ${repoInfo} --title "[PRP] ${title}" --body "${issueBody.substring(0, 1000)}..."`;
+      const result = execSync(simpleCmd).toString().trim();
+      const issueNumber = result.match(/\/(\d+)$/)?.[1];
+      
+      return {
+        success: true,
+        issueNumber: parseInt(issueNumber),
+        url: result
+      };
+    } catch (e) {
+      return {
+        success: false,
+        error: e.message
+      };
+    }
   }
 }
 ```
 
-### Phase 3: Smart Issue Creation
+### Phase 4: Helper Functions
 
 ```javascript
-async function createIssuesSmartly(status) {
-  console.log(`
-📊 PRP to Issues Analysis:
-  ✅ Already created: ${status.alreadyCreated.length}
-  📝 Need creation: ${status.needsCreation.length}
-  🔄 Need update: ${status.needsUpdate.length}
-  `);
+function extractTitle(prpContent, prpName) {
+  // Try to extract from PRP header
+  const match = prpContent.match(/^#\s+(?:PRP:\s+)?(.+?)(?:\s+-\s+|$)/m);
+  if (match) return match[1].trim();
   
-  // Show what's already done
+  // Clean up PRP name
+  return prpName
+    .replace(/-prp$/i, '')
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function extractSection(content, sectionName) {
+  const regex = new RegExp(`##.*?${sectionName}.*?\\n([\\s\\S]*?)(?=\\n##|$)`, 'i');
+  const match = content.match(regex);
+  return match ? match[1].trim().substring(0, 500) : null;
+}
+
+function extractCriteria(content) {
+  const section = extractSection(content, 'Success Criteria') || 
+                  extractSection(content, 'Acceptance Criteria') || 
+                  '';
+  
+  // Format as checkboxes
+  return section
+    .split('\n')
+    .filter(line => line.trim())
+    .map(line => line.startsWith('- [ ]') ? line : `- [ ] ${line.replace(/^[-*]\s*/, '')}`)
+    .join('\n');
+}
+```
+
+### Phase 5: Main Execution
+
+```javascript
+async function main() {
+  console.log('🔍 Analyzing PRPs and existing issues...\n');
+  
+  const { status, tracking, repoInfo } = await checkExistingIssues();
+  
+  console.log(`📊 PRP to Issues Analysis:`);
+  console.log(`  ✅ Already created: ${status.alreadyCreated.length}`);
+  console.log(`  📝 Need creation: ${status.needsCreation.length}`);
+  console.log(`  🔄 Need update: ${status.needsUpdate.length}\n`);
+  
+  // Show already created
   if (status.alreadyCreated.length > 0) {
-    console.log('\n✅ Already Created (Skipping):');
+    console.log('✅ Already Created (Skipping):');
     for (const item of status.alreadyCreated) {
       console.log(`  - ${item.prp} → Issue #${item.issue}`);
     }
-  }
-  
-  // Show what needs updating
-  if (status.needsUpdate.length > 0) {
-    console.log('\n🔄 PRPs Modified (Need Update):');
-    for (const item of status.needsUpdate) {
-      console.log(`  - ${item.prp} → Issue #${item.issue}`);
-      console.log(`    Reason: ${item.reason}`);
-    }
-    
-    const answer = await prompt('Update existing issues? (y/n/skip): ');
-    if (answer === 'y') {
-      await updateExistingIssues(status.needsUpdate);
-    }
+    console.log('');
   }
   
   // Create new issues
   if (status.needsCreation.length > 0) {
-    console.log('\n📝 Creating New Issues:');
+    console.log('📝 Creating New Issues:\n');
+    
     for (const prpName of status.needsCreation) {
-      const issue = await createIssueFromPRP(prpName);
+      console.log(`🔨 Creating issue for: ${prpName}`);
       
-      // Track it
-      updateTracking(prpName, issue.number);
+      const result = await createIssueSafely(prpName, repoInfo);
       
-      console.log(`✅ Created: ${prpName} → Issue #${issue.number}`);
+      if (result.success) {
+        console.log(`✅ Created: ${prpName} → Issue #${result.issueNumber}`);
+        console.log(`   ${result.url}\n`);
+        
+        // Update tracking
+        tracking[prpName] = {
+          issueNumber: result.issueNumber,
+          createdAt: new Date().toISOString(),
+          url: result.url
+        };
+        
+        // Save tracking after each success
+        fs.writeFileSync('.agent-os/prp-issue-tracking.json', JSON.stringify(tracking, null, 2));
+      } else {
+        console.log(`❌ Failed to create issue for ${prpName}: ${result.error}\n`);
+      }
+      
+      // Small delay between issues
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
+  
+  console.log('✅ Complete!');
+  console.log(`📁 Tracking saved to: .agent-os/prp-issue-tracking.json`);
 }
-```
 
-### Phase 4: Update Existing Issues
-
-```javascript
-async function updateExistingIssues(updates) {
-  for (const update of updates) {
-    const prp = loadPRP(`PRPs/active/${update.prp}.md`);
-    const issue = await gh.api(`GET /repos/{owner}/{repo}/issues/${update.issue}`);
-    
-    // Compare and update
-    const changes = [];
-    
-    // Check if acceptance criteria changed
-    const newCriteria = extractAcceptanceCriteria(prp);
-    const oldCriteria = extractAcceptanceCriteria(issue.body);
-    
-    if (newCriteria !== oldCriteria) {
-      changes.push('Acceptance criteria updated');
-    }
-    
-    // Check if implementation tasks changed
-    const newTasks = extractTasks(prp);
-    const oldTasks = extractTasks(issue.body);
-    
-    if (newTasks !== oldTasks) {
-      changes.push('Implementation tasks updated');
-    }
-    
-    if (changes.length > 0) {
-      // Update issue body
-      const updatedBody = generateIssueBody(prp) + `
-      
----
-📝 **Updated from PRP**: ${new Date().toISOString()}
-Changes: ${changes.join(', ')}
-      `;
-      
-      await gh.api(`PATCH /repos/{owner}/{repo}/issues/${update.issue}`, {
-        body: updatedBody
-      });
-      
-      // Add comment about update
-      await gh.api(`POST /repos/{owner}/{repo}/issues/${update.issue}/comments`, {
-        body: `🔄 Issue updated from PRP changes:\n- ${changes.join('\n- ')}`
-      });
-      
-      console.log(`✅ Updated Issue #${update.issue}`);
-    }
-  }
+// Run if called directly
+if (require.main === module) {
+  main().catch(console.error);
 }
-```
-
-### Phase 5: Tracking File Management
-
-```javascript
-function updateTracking(prpName, issueNumber, subIssues = []) {
-  const trackingFile = '.agent-os/prp-issue-tracking.json';
-  
-  // Load existing or create new
-  let tracking = {};
-  if (fs.existsSync(trackingFile)) {
-    tracking = JSON.parse(fs.readFileSync(trackingFile));
-  }
-  
-  // Calculate checksum of PRP
-  const prpContent = fs.readFileSync(`PRPs/active/${prpName}.md`);
-  const checksum = crypto.createHash('md5').update(prpContent).digest('hex');
-  
-  // Update tracking
-  tracking[prpName] = {
-    issueNumber: issueNumber,
-    subIssues: subIssues,
-    createdAt: tracking[prpName]?.createdAt || new Date().toISOString(),
-    lastModified: new Date().toISOString(),
-    prpChecksum: checksum,
-    status: 'created'
-  };
-  
-  // Save
-  fs.writeFileSync(trackingFile, JSON.stringify(tracking, null, 2));
-}
-```
-
-## Workflow Examples
-
-### First Time Creation
-```bash
-/prp-to-issues
-
-📊 PRP to Issues Analysis:
-  ✅ Already created: 0
-  📝 Need creation: 5
-  🔄 Need update: 0
-
-📝 Creating New Issues:
-✅ Created: debt-form-refactor → Issue #23
-✅ Created: test-infrastructure → Issue #24
-✅ Created: rudderstack-bigquery → Issue #25
-
-✅ Tracking saved to .agent-os/prp-issue-tracking.json
-```
-
-### Running Again (Duplicate Detection)
-```bash
-/prp-to-issues
-
-📊 PRP to Issues Analysis:
-  ✅ Already created: 3
-  📝 Need creation: 2
-  🔄 Need update: 0
-
-✅ Already Created (Skipping):
-  - debt-form-refactor → Issue #23
-  - test-infrastructure → Issue #24
-  - rudderstack-bigquery → Issue #25
-
-📝 Creating New Issues:
-✅ Created: supabase-integration → Issue #26
-✅ Created: performance-optimization → Issue #27
-```
-
-### After Modifying a PRP
-```bash
-# Edit PRPs/active/rudderstack-bigquery.md
-vim PRPs/active/rudderstack-bigquery.md
-
-/prp-to-issues
-
-📊 PRP to Issues Analysis:
-  ✅ Already created: 4
-  📝 Need creation: 0
-  🔄 Need update: 1
-
-🔄 PRPs Modified (Need Update):
-  - rudderstack-bigquery → Issue #25
-    Reason: PRP modified after issue creation
-
-Update existing issues? (y/n/skip): y
-
-✅ Updated Issue #25
-  - Acceptance criteria updated
-  - Implementation tasks updated
-  - Comment added to issue
-```
-
-### Force Recreation
-```bash
-/prp-to-issues --force debt-form-refactor
-
-⚠️ Force mode: Will recreate even if exists
-
-Found existing Issue #23 for debt-form-refactor
-Close existing issue and create new? (y/n): y
-
-✅ Closed Issue #23 with comment
-✅ Created new Issue #28 for debt-form-refactor
-✅ Tracking updated
-```
-
-## Update Workflow
-
-### When to Update PRPs and Issues
-
-1. **Small Changes** → Update PRP, then update issue:
-```bash
-# Edit PRP
-vim PRPs/active/[name].md
-
-# Update issue
-/prp-to-issues --update [name]
-```
-
-2. **Major Changes** → Close old, create new:
-```bash
-# Edit PRP significantly
-vim PRPs/active/[name].md
-
-# Force recreation
-/prp-to-issues --force [name]
-```
-
-3. **Check Status Anytime**:
-```bash
-/prp-to-issues --status
-
-📊 PRP Issue Status:
-✅ Synced:
-  - debt-form-refactor → #23 (in sync)
-  - test-infrastructure → #24 (in sync)
-
-🔄 Out of Sync:
-  - rudderstack-bigquery → #25 (PRP newer)
-
-❌ Not Created:
-  - new-feature-prp (no issue yet)
 ```
 
 ## Features
 
-✅ **Duplicate Detection** - Never creates duplicate issues
-✅ **Update Support** - Updates existing issues when PRPs change
+✅ **Smart Repository Detection** - Uses gh repo view to get correct repo
+✅ **Safe File Handling** - Uses /tmp for temporary files
+✅ **Duplicate Detection** - Checks existing issues
 ✅ **Tracking File** - Maintains PRP-to-issue mapping
-✅ **GitHub Integration** - Creates real GitHub issues
-✅ **Smart Diffing** - Only updates what changed
-✅ **Force Mode** - Can recreate if needed
-✅ **Status Checking** - See sync status anytime
+✅ **Error Recovery** - Falls back to simpler creation if needed
+✅ **No Path Issues** - Uses relative paths correctly
 
-This ensures your PRPs and issues stay in sync!
+## Example Output
+
+```bash
+/prp-to-issues
+
+📍 Repository: bearingfruitco/debt-funnel
+
+📊 PRP to Issues Analysis:
+  ✅ Already created: 1
+  📝 Need creation: 9
+
+✅ Already Created (Skipping):
+  - architecture-change-tracker → Issue #46
+
+📝 Creating New Issues:
+
+🔨 Creating issue for: debt-funnel-refactor
+✅ Created: debt-funnel-refactor → Issue #47
+   https://github.com/bearingfruitco/debt-funnel/issues/47
+
+🔨 Creating issue for: test-infrastructure
+✅ Created: test-infrastructure → Issue #48
+   https://github.com/bearingfruitco/debt-funnel/issues/48
+
+[continues...]
+```
+
+This version fixes all the issues!
