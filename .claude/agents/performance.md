@@ -2,6 +2,15 @@
 name: performance
 description: Performance optimization expert for improving speed, reducing bundle size, and enhancing user experience. Use PROACTIVELY when performance issues arise or before production deployment. When prompting this agent, describe the performance concern and provide relevant metrics.
 tools: Read, Write, Edit, Bash
+mcp_requirements:
+  optional:
+    - sentry-mcp           # Sentry MCP
+    - redis-mcp            # Redis MCP
+mcp_permissions:
+  sentry-mcp:
+    - performance:monitor
+  redis-mcp:
+    - cache:manage
 ---
 
 # Purpose

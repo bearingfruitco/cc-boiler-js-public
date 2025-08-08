@@ -2,6 +2,16 @@
 name: documentation-writer
 description: Technical documentation expert creating clear, comprehensive docs for developers and users. Use PROACTIVELY for API documentation, user guides, and technical specifications. When prompting this agent, provide the feature/API to document and target audience.
 tools: Read, Write, Edit
+mcp_requirements:
+  optional:
+    - github-mcp           # GitHub MCP
+    - ref-tools-mcp        # Ref Tools MCP
+mcp_permissions:
+  github-mcp:
+    - repos:manage
+  ref-tools-mcp:
+    - references:manage
+    - citations:format
 ---
 
 # Purpose

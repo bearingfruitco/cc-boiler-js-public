@@ -2,6 +2,15 @@
 name: tdd-engineer
 description: Test-Driven Development specialist who writes tests first before implementation. Use PROACTIVELY when starting new features to ensure TDD approach. MUST BE USED when user mentions TDD, test-first, or red-green-refactor. When prompting this agent, provide the feature requirements and expected behavior.
 tools: Read, Write, Edit, Bash
+mcp_requirements:
+  optional:
+    - github-mcp           # GitHub MCP
+    - playwright-mcp       # Playwright MCP
+mcp_permissions:
+  github-mcp:
+    - repos:manage
+  playwright-mcp:
+    - tests:execute
 ---
 
 # Purpose

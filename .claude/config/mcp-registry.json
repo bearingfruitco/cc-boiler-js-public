@@ -1,0 +1,485 @@
+{
+  "version": "1.0",
+  "description": "MCP (Model Context Protocol) Registry and Agent Mappings",
+  "last_updated": "2024-12-20",
+  
+  "available_mcps": {
+    "supabase-mcp": {
+      "name": "Supabase MCP",
+      "url": "https://supabase.com/docs/guides/getting-started/mcp",
+      "status": "available",
+      "capabilities": [
+        "database:crud",
+        "auth:management",
+        "storage:files",
+        "realtime:subscriptions",
+        "rls:policies",
+        "migrations:execute"
+      ],
+      "priority": "P0"
+    },
+    
+    "github-mcp": {
+      "name": "GitHub MCP",
+      "url": "https://github.com/github/github-mcp-server",
+      "status": "available",
+      "capabilities": [
+        "repos:manage",
+        "issues:crud",
+        "prs:create",
+        "actions:trigger",
+        "gists:manage"
+      ],
+      "priority": "P0"
+    },
+    
+    "dbt-mcp": {
+      "name": "DBT MCP",
+      "url": "https://docs.getdbt.com/docs/dbt-cloud-apis/mcp",
+      "status": "available",
+      "capabilities": [
+        "models:create",
+        "transformations:run",
+        "tests:execute",
+        "documentation:generate"
+      ],
+      "priority": "P0"
+    },
+    
+    "bigquery-toolbox": {
+      "name": "BigQuery Toolbox",
+      "url": "https://googleapis.github.io/genai-toolbox/resources/sources/bigquery/",
+      "status": "available",
+      "capabilities": [
+        "queries:execute",
+        "datasets:manage",
+        "tables:crud",
+        "analytics:run"
+      ],
+      "priority": "P0"
+    },
+    
+    "playwright-mcp": {
+      "name": "Playwright MCP",
+      "url": "https://github.com/microsoft/playwright-mcp",
+      "status": "available",
+      "capabilities": [
+        "browser:control",
+        "tests:execute",
+        "screenshots:capture",
+        "network:intercept"
+      ],
+      "priority": "P0"
+    },
+    
+    "stagehand-mcp": {
+      "name": "Stagehand MCP",
+      "url": "https://docs.stagehand.dev/integrations/mcp-server",
+      "status": "available",
+      "capabilities": [
+        "browser:automate",
+        "elements:interact",
+        "forms:fill",
+        "navigation:control"
+      ],
+      "priority": "P1"
+    },
+    
+    "browserbase-mcp": {
+      "name": "Browserbase MCP",
+      "url": "https://github.com/browserbase/mcp-server-browserbase",
+      "status": "available",
+      "capabilities": [
+        "cloud:browsers",
+        "sessions:manage",
+        "parallel:execution"
+      ],
+      "priority": "P1"
+    },
+    
+    "bright-data-mcp": {
+      "name": "Bright Data MCP",
+      "url": "https://github.com/brightdata/brightdata-mcp",
+      "status": "available",
+      "capabilities": [
+        "scraping:web",
+        "proxies:rotate",
+        "data:extract"
+      ],
+      "priority": "P2"
+    },
+    
+    "airbyte-mcp": {
+      "name": "Airbyte MCP",
+      "url": "https://airbyte.com/blog/how-we-built-an-mcp-server-to-create-data-pipelines",
+      "status": "available",
+      "capabilities": [
+        "pipelines:create",
+        "connectors:manage",
+        "sync:data",
+        "transformations:apply"
+      ],
+      "priority": "P1"
+    },
+    
+    "better-auth-mcp": {
+      "name": "Better Auth MCP",
+      "url": "https://www.better-auth.com/docs/plugins/mcp",
+      "status": "available",
+      "capabilities": [
+        "auth:flows",
+        "sessions:manage",
+        "oauth:integrate",
+        "mfa:setup"
+      ],
+      "priority": "P1"
+    },
+    
+    "sentry-mcp": {
+      "name": "Sentry MCP",
+      "url": "https://docs.sentry.io/product/sentry-mcp/",
+      "status": "available",
+      "capabilities": [
+        "errors:track",
+        "performance:monitor",
+        "alerts:manage",
+        "issues:analyze"
+      ],
+      "priority": "P1"
+    },
+    
+    "redis-mcp": {
+      "name": "Redis MCP",
+      "url": "https://github.com/redis/mcp-redis",
+      "status": "available",
+      "capabilities": [
+        "cache:manage",
+        "pubsub:channels",
+        "data:structures"
+      ],
+      "priority": "P2"
+    },
+    
+    "upstash-mcp": {
+      "name": "Upstash MCP",
+      "url": "https://upstash.com/docs/redis/integrations/mcp",
+      "status": "available",
+      "capabilities": [
+        "serverless:cache",
+        "edge:functions",
+        "global:replication"
+      ],
+      "priority": "P2"
+    },
+    
+    "google-mcp-toolbox": {
+      "name": "Google MCP Toolbox",
+      "url": "https://googleapis.github.io/genai-toolbox/getting-started/mcp_quickstart/",
+      "status": "available",
+      "capabilities": [
+        "google:services",
+        "sheets:manage",
+        "drive:access",
+        "calendar:sync"
+      ],
+      "priority": "P2"
+    },
+    
+    "octocode-mcp": {
+      "name": "Octocode MCP",
+      "url": "https://github.com/bgauryy/octocode-mcp",
+      "status": "available",
+      "capabilities": [
+        "code:generate",
+        "refactor:suggest",
+        "patterns:apply"
+      ],
+      "priority": "P2"
+    },
+    
+    "exa-mcp": {
+      "name": "Exa MCP",
+      "url": "https://docs.exa.ai/examples/exa-mcp",
+      "status": "available",
+      "capabilities": [
+        "search:semantic",
+        "research:deep",
+        "content:analyze"
+      ],
+      "priority": "P2"
+    },
+    
+    "ref-tools-mcp": {
+      "name": "Ref Tools MCP",
+      "url": "https://github.com/ref-tools/ref-tools-mcp",
+      "status": "available",
+      "capabilities": [
+        "references:manage",
+        "citations:format",
+        "links:validate"
+      ],
+      "priority": "P3"
+    },
+    
+    "serena-mcp": {
+      "name": "Serena MCP",
+      "url": "https://github.com/oraios/serena",
+      "status": "available",
+      "capabilities": [
+        "ai:assistance",
+        "context:enhance",
+        "suggestions:provide"
+      ],
+      "priority": "P3"
+    }
+  },
+  
+  "agent_mcp_mappings": {
+    "senior-engineer": {
+      "required": ["github-mcp", "supabase-mcp", "sentry-mcp"],
+      "optional": ["ref-tools-mcp", "octocode-mcp"],
+      "permissions": {
+        "github-mcp": ["repos:manage", "issues:crud", "prs:create"],
+        "supabase-mcp": ["database:crud", "auth:management"],
+        "sentry-mcp": ["errors:track", "issues:analyze"]
+      }
+    },
+    
+    "database-architect": {
+      "required": ["supabase-mcp", "dbt-mcp", "bigquery-toolbox"],
+      "optional": ["airbyte-mcp"],
+      "permissions": {
+        "supabase-mcp": ["database:crud", "rls:policies", "migrations:execute"],
+        "dbt-mcp": ["models:create", "transformations:run"],
+        "bigquery-toolbox": ["datasets:manage", "tables:crud"]
+      }
+    },
+    
+    "frontend": {
+      "required": ["stagehand-mcp"],
+      "optional": ["browserbase-mcp", "playwright-mcp", "better-auth-mcp"],
+      "permissions": {
+        "stagehand-mcp": ["browser:automate", "elements:interact"],
+        "playwright-mcp": ["tests:execute", "screenshots:capture"]
+      }
+    },
+    
+    "backend": {
+      "required": ["supabase-mcp"],
+      "optional": ["redis-mcp", "upstash-mcp", "better-auth-mcp", "bigquery-toolbox"],
+      "permissions": {
+        "supabase-mcp": ["database:crud", "auth:management", "realtime:subscriptions"],
+        "redis-mcp": ["cache:manage", "pubsub:channels"]
+      }
+    },
+    
+    "qa": {
+      "required": ["playwright-mcp", "stagehand-mcp"],
+      "optional": ["browserbase-mcp", "sentry-mcp"],
+      "permissions": {
+        "playwright-mcp": ["tests:execute", "browser:control", "network:intercept"],
+        "stagehand-mcp": ["browser:automate", "forms:fill"],
+        "sentry-mcp": ["errors:track", "issues:analyze"]
+      }
+    },
+    
+    "analytics-engineer": {
+      "required": ["bigquery-toolbox", "dbt-mcp", "airbyte-mcp"],
+      "optional": ["supabase-mcp"],
+      "permissions": {
+        "bigquery-toolbox": ["queries:execute", "analytics:run"],
+        "dbt-mcp": ["models:create", "transformations:run"],
+        "airbyte-mcp": ["pipelines:create", "sync:data"]
+      }
+    },
+    
+    "integration-specialist": {
+      "required": ["airbyte-mcp"],
+      "optional": ["supabase-mcp", "better-auth-mcp", "google-mcp-toolbox", "bright-data-mcp"],
+      "permissions": {
+        "airbyte-mcp": ["pipelines:create", "connectors:manage", "sync:data"],
+        "google-mcp-toolbox": ["google:services", "sheets:manage"]
+      }
+    },
+    
+    "supabase-specialist": {
+      "required": ["supabase-mcp"],
+      "optional": ["better-auth-mcp", "dbt-mcp"],
+      "permissions": {
+        "supabase-mcp": ["*"],
+        "better-auth-mcp": ["auth:flows", "oauth:integrate"]
+      }
+    },
+    
+    "playwright-specialist": {
+      "required": ["playwright-mcp"],
+      "optional": ["stagehand-mcp", "browserbase-mcp", "bright-data-mcp"],
+      "permissions": {
+        "playwright-mcp": ["*"],
+        "stagehand-mcp": ["browser:automate"],
+        "browserbase-mcp": ["cloud:browsers", "parallel:execution"]
+      }
+    },
+    
+    "security-auditor": {
+      "required": ["github-mcp"],
+      "optional": ["sentry-mcp", "better-auth-mcp", "supabase-mcp"],
+      "permissions": {
+        "github-mcp": ["repos:manage", "actions:trigger"],
+        "sentry-mcp": ["errors:track", "alerts:manage"],
+        "supabase-mcp": ["rls:policies"]
+      }
+    },
+    
+    "pii-guardian": {
+      "required": [],
+      "optional": ["supabase-mcp", "sentry-mcp", "redis-mcp"],
+      "permissions": {
+        "supabase-mcp": ["database:crud", "rls:policies"],
+        "sentry-mcp": ["issues:analyze"],
+        "redis-mcp": ["cache:manage"]
+      }
+    },
+    
+    "automation-workflow-engineer": {
+      "required": ["github-mcp"],
+      "optional": ["stagehand-mcp", "browserbase-mcp", "bright-data-mcp"],
+      "permissions": {
+        "github-mcp": ["actions:trigger", "repos:manage"],
+        "stagehand-mcp": ["browser:automate"],
+        "bright-data-mcp": ["scraping:web", "data:extract"]
+      }
+    },
+    
+    "researcher": {
+      "required": ["exa-mcp"],
+      "optional": ["bright-data-mcp", "serena-mcp"],
+      "permissions": {
+        "exa-mcp": ["search:semantic", "research:deep"],
+        "bright-data-mcp": ["scraping:web"],
+        "serena-mcp": ["ai:assistance"]
+      }
+    },
+    
+    "documentation-writer": {
+      "required": [],
+      "optional": ["github-mcp", "ref-tools-mcp"],
+      "permissions": {
+        "github-mcp": ["repos:manage"],
+        "ref-tools-mcp": ["references:manage", "citations:format"]
+      }
+    },
+    
+    "migration-specialist": {
+      "required": ["supabase-mcp"],
+      "optional": ["dbt-mcp", "airbyte-mcp"],
+      "permissions": {
+        "supabase-mcp": ["migrations:execute", "database:crud"],
+        "dbt-mcp": ["transformations:run"],
+        "airbyte-mcp": ["sync:data"]
+      }
+    },
+    
+    "orm-specialist": {
+      "required": ["supabase-mcp"],
+      "optional": ["dbt-mcp"],
+      "permissions": {
+        "supabase-mcp": ["database:crud"],
+        "dbt-mcp": ["models:create"]
+      }
+    },
+    
+    "tdd-engineer": {
+      "required": [],
+      "optional": ["github-mcp", "playwright-mcp"],
+      "permissions": {
+        "github-mcp": ["repos:manage"],
+        "playwright-mcp": ["tests:execute"]
+      }
+    },
+    
+    "event-schema": {
+      "required": [],
+      "optional": ["bigquery-toolbox", "dbt-mcp", "sentry-mcp"],
+      "permissions": {
+        "bigquery-toolbox": ["tables:crud"],
+        "dbt-mcp": ["transformations:run"],
+        "sentry-mcp": ["errors:track"]
+      }
+    },
+    
+    "performance": {
+      "required": [],
+      "optional": ["sentry-mcp", "redis-mcp"],
+      "permissions": {
+        "sentry-mcp": ["performance:monitor"],
+        "redis-mcp": ["cache:manage"]
+      }
+    },
+    
+    "refactoring-expert": {
+      "required": [],
+      "optional": ["github-mcp", "octocode-mcp"],
+      "permissions": {
+        "github-mcp": ["repos:manage"],
+        "octocode-mcp": ["refactor:suggest"]
+      }
+    }
+  },
+  
+  "mcp_priority_groups": {
+    "P0_critical": [
+      "supabase-mcp",
+      "github-mcp",
+      "playwright-mcp",
+      "bigquery-toolbox",
+      "dbt-mcp"
+    ],
+    "P1_important": [
+      "sentry-mcp",
+      "better-auth-mcp",
+      "stagehand-mcp",
+      "airbyte-mcp",
+      "browserbase-mcp"
+    ],
+    "P2_enhancement": [
+      "bright-data-mcp",
+      "exa-mcp",
+      "octocode-mcp",
+      "redis-mcp",
+      "upstash-mcp",
+      "google-mcp-toolbox"
+    ],
+    "P3_optional": [
+      "ref-tools-mcp",
+      "serena-mcp"
+    ]
+  },
+  
+  "implementation_status": {
+    "connected": [],
+    "in_progress": [],
+    "planned": [
+      "supabase-mcp",
+      "github-mcp",
+      "playwright-mcp",
+      "bigquery-toolbox",
+      "dbt-mcp"
+    ],
+    "not_started": [
+      "sentry-mcp",
+      "better-auth-mcp",
+      "stagehand-mcp",
+      "airbyte-mcp",
+      "browserbase-mcp",
+      "bright-data-mcp",
+      "exa-mcp",
+      "octocode-mcp",
+      "redis-mcp",
+      "upstash-mcp",
+      "google-mcp-toolbox",
+      "ref-tools-mcp",
+      "serena-mcp"
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@claude/mcp-servers",
+  "version": "1.0.0",
+  "description": "MCP (Model Context Protocol) server connections for Claude agents",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/test-connections.js",
+    "test:supabase": "node test/test-connections.js supabase",
+    "test:github": "node test/test-connections.js github",
+    "test:playwright": "node test/test-connections.js playwright",
+    "setup": "node setup.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "@octokit/rest": "^20.0.0",
+    "playwright": "^1.40.0",
+    "@google-cloud/bigquery": "^7.0.0",
+    "dbt-cloud": "^1.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "chalk": "^5.0.0"
+  }
+}

@@ -2,6 +2,18 @@
 name: supabase-specialist
 description: Supabase implementation expert for auth, realtime, storage, and RLS policies. Use PROACTIVELY for Supabase auth setup, realtime subscriptions, file storage, edge functions, and Row Level Security. MUST BE USED when working with Supabase-specific features. When prompting this agent, provide the Supabase feature needed and any specific requirements.
 tools: Read, Write, Edit, Bash
+mcp_requirements:
+  required:
+    - supabase-mcp         # Supabase MCP
+  optional:
+    - better-auth-mcp      # Better Auth MCP
+    - dbt-mcp              # DBT MCP
+mcp_permissions:
+  supabase-mcp:
+    - *
+  better-auth-mcp:
+    - auth:flows
+    - oauth:integrate
 ---
 
 # Purpose

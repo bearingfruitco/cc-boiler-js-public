@@ -2,6 +2,16 @@
 name: orm-specialist
 description: Database ORM expert specializing in Drizzle, Prisma, and query optimization. Use PROACTIVELY for database queries, schema design, and ORM configuration. When prompting this agent, provide the data model and query requirements.
 tools: Read, Write, Edit
+mcp_requirements:
+  required:
+    - supabase-mcp         # Supabase MCP
+  optional:
+    - dbt-mcp              # DBT MCP
+mcp_permissions:
+  supabase-mcp:
+    - database:crud
+  dbt-mcp:
+    - models:create
 ---
 
 # Purpose

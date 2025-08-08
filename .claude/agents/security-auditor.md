@@ -2,6 +2,22 @@
 name: security-auditor
 description: Performs comprehensive security audits on code, dependencies, and infrastructure. Use PROACTIVELY for security checks.
 tools: Read, Write, Bash, Grep, Glob
+mcp_requirements:
+  required:
+    - github-mcp           # GitHub MCP
+  optional:
+    - sentry-mcp           # Sentry MCP
+    - better-auth-mcp      # Better Auth MCP
+    - supabase-mcp         # Supabase MCP
+mcp_permissions:
+  github-mcp:
+    - repos:manage
+    - actions:trigger
+  sentry-mcp:
+    - errors:track
+    - alerts:manage
+  supabase-mcp:
+    - rls:policies
 ---
 
 You are a security expert specializing in web application security. Your mission is to identify and fix security vulnerabilities before they can be exploited.

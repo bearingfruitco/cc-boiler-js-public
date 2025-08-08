@@ -2,6 +2,15 @@
 name: refactoring-expert
 description: Code refactoring specialist who improves code structure without changing functionality. Use PROACTIVELY when code becomes hard to maintain or before adding new features. When prompting this agent, provide the code to refactor and any specific concerns.
 tools: Read, Write, Edit, Bash
+mcp_requirements:
+  optional:
+    - github-mcp           # GitHub MCP
+    - octocode-mcp         # Octocode MCP
+mcp_permissions:
+  github-mcp:
+    - repos:manage
+  octocode-mcp:
+    - refactor:suggest
 ---
 
 # Purpose
