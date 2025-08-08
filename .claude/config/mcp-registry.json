@@ -1,6 +1,6 @@
 {
-  "version": "1.0",
-  "description": "MCP (Model Context Protocol) Registry and Agent Mappings",
+  "version": "1.1",
+  "description": "MCP (Model Context Protocol) Registry and Agent Mappings - Enhanced with Octocode and Serena",
   "last_updated": "2024-12-20",
   
   "available_mcps": {
@@ -46,34 +46,6 @@
       "priority": "P0"
     },
     
-    "octocode-mcp": {
-      "name": "Octocode MCP",
-      "url": "https://github.com/bgauryy/octocode-mcp",
-      "status": "available",
-      "capabilities": [
-        "code:generate",
-        "refactor:suggest",
-        "patterns:apply",
-        "ai:enhance",
-        "context:understand"
-      ],
-      "priority": "P1"
-    },
-    
-    "serena-mcp": {
-      "name": "Serena MCP",
-      "url": "https://github.com/oraios/serena",
-      "status": "available",
-      "capabilities": [
-        "code:search",
-        "semantic:retrieval",
-        "context:enhance",
-        "suggestions:provide",
-        "codebase:understand"
-      ],
-      "priority": "P1"
-    },
-    
     "bigquery-toolbox": {
       "name": "BigQuery Toolbox",
       "url": "https://googleapis.github.io/genai-toolbox/resources/sources/bigquery/",
@@ -98,6 +70,38 @@
         "network:intercept"
       ],
       "priority": "P0"
+    },
+    
+    "octocode-mcp": {
+      "name": "Octocode MCP",
+      "url": "https://github.com/bgauryy/octocode-mcp",
+      "status": "implemented",
+      "capabilities": [
+        "code:generate",
+        "refactor:suggest",
+        "patterns:apply",
+        "best-practices:enforce",
+        "code:explain",
+        "bugs:detect",
+        "performance:optimize"
+      ],
+      "priority": "P1"
+    },
+    
+    "serena-mcp": {
+      "name": "Serena MCP",
+      "url": "https://github.com/oraios/serena",
+      "status": "implemented",
+      "capabilities": [
+        "code:search",
+        "semantic:retrieval",
+        "context:understand",
+        "dependencies:map",
+        "structure:analyze",
+        "patterns:identify",
+        "codebase:index"
+      ],
+      "priority": "P1"
     },
     
     "stagehand-mcp": {
@@ -125,27 +129,15 @@
       "priority": "P1"
     },
     
-    "bright-data-mcp": {
-      "name": "Bright Data MCP",
-      "url": "https://github.com/brightdata/brightdata-mcp",
+    "sentry-mcp": {
+      "name": "Sentry MCP",
+      "url": "https://docs.sentry.io/product/sentry-mcp/",
       "status": "available",
       "capabilities": [
-        "scraping:web",
-        "proxies:rotate",
-        "data:extract"
-      ],
-      "priority": "P2"
-    },
-    
-    "airbyte-mcp": {
-      "name": "Airbyte MCP",
-      "url": "https://airbyte.com/blog/how-we-built-an-mcp-server-to-create-data-pipelines",
-      "status": "available",
-      "capabilities": [
-        "pipelines:create",
-        "connectors:manage",
-        "sync:data",
-        "transformations:apply"
+        "errors:track",
+        "performance:monitor",
+        "alerts:manage",
+        "issues:analyze"
       ],
       "priority": "P1"
     },
@@ -163,17 +155,29 @@
       "priority": "P1"
     },
     
-    "sentry-mcp": {
-      "name": "Sentry MCP",
-      "url": "https://docs.sentry.io/product/sentry-mcp/",
+    "airbyte-mcp": {
+      "name": "Airbyte MCP",
+      "url": "https://airbyte.com/blog/how-we-built-an-mcp-server-to-create-data-pipelines",
       "status": "available",
       "capabilities": [
-        "errors:track",
-        "performance:monitor",
-        "alerts:manage",
-        "issues:analyze"
+        "pipelines:create",
+        "connectors:manage",
+        "sync:data",
+        "transformations:apply"
       ],
       "priority": "P1"
+    },
+    
+    "bright-data-mcp": {
+      "name": "Bright Data MCP",
+      "url": "https://github.com/brightdata/brightdata-mcp",
+      "status": "available",
+      "capabilities": [
+        "scraping:web",
+        "proxies:rotate",
+        "data:extract"
+      ],
+      "priority": "P2"
     },
     
     "redis-mcp": {
@@ -213,18 +217,6 @@
       "priority": "P2"
     },
     
-    "octocode-mcp": {
-      "name": "Octocode MCP",
-      "url": "https://github.com/bgauryy/octocode-mcp",
-      "status": "available",
-      "capabilities": [
-        "code:generate",
-        "refactor:suggest",
-        "patterns:apply"
-      ],
-      "priority": "P2"
-    },
-    
     "exa-mcp": {
       "name": "Exa MCP",
       "url": "https://docs.exa.ai/examples/exa-mcp",
@@ -247,29 +239,19 @@
         "links:validate"
       ],
       "priority": "P3"
-    },
-    
-    "serena-mcp": {
-      "name": "Serena MCP",
-      "url": "https://github.com/oraios/serena",
-      "status": "available",
-      "capabilities": [
-        "ai:assistance",
-        "context:enhance",
-        "suggestions:provide"
-      ],
-      "priority": "P3"
     }
   },
   
   "agent_mcp_mappings": {
     "senior-engineer": {
       "required": ["github-mcp", "supabase-mcp", "sentry-mcp"],
-      "optional": ["ref-tools-mcp", "octocode-mcp"],
+      "optional": ["ref-tools-mcp", "octocode-mcp", "serena-mcp"],
       "permissions": {
         "github-mcp": ["repos:manage", "issues:crud", "prs:create"],
         "supabase-mcp": ["database:crud", "auth:management"],
-        "sentry-mcp": ["errors:track", "issues:analyze"]
+        "sentry-mcp": ["errors:track", "issues:analyze"],
+        "octocode-mcp": ["code:generate", "refactor:suggest", "bugs:detect"],
+        "serena-mcp": ["code:search", "context:understand"]
       }
     },
     
@@ -285,19 +267,23 @@
     
     "frontend": {
       "required": ["stagehand-mcp"],
-      "optional": ["browserbase-mcp", "playwright-mcp", "better-auth-mcp"],
+      "optional": ["browserbase-mcp", "playwright-mcp", "better-auth-mcp", "octocode-mcp", "serena-mcp"],
       "permissions": {
         "stagehand-mcp": ["browser:automate", "elements:interact"],
-        "playwright-mcp": ["tests:execute", "screenshots:capture"]
+        "playwright-mcp": ["tests:execute", "screenshots:capture"],
+        "octocode-mcp": ["code:generate", "patterns:apply"],
+        "serena-mcp": ["code:search", "dependencies:map"]
       }
     },
     
     "backend": {
       "required": ["supabase-mcp"],
-      "optional": ["redis-mcp", "upstash-mcp", "better-auth-mcp", "bigquery-toolbox"],
+      "optional": ["redis-mcp", "upstash-mcp", "better-auth-mcp", "bigquery-toolbox", "octocode-mcp", "serena-mcp"],
       "permissions": {
         "supabase-mcp": ["database:crud", "auth:management", "realtime:subscriptions"],
-        "redis-mcp": ["cache:manage", "pubsub:channels"]
+        "redis-mcp": ["cache:manage", "pubsub:channels"],
+        "octocode-mcp": ["code:generate", "performance:optimize"],
+        "serena-mcp": ["code:search", "structure:analyze"]
       }
     },
     
@@ -308,6 +294,59 @@
         "playwright-mcp": ["tests:execute", "browser:control", "network:intercept"],
         "stagehand-mcp": ["browser:automate", "forms:fill"],
         "sentry-mcp": ["errors:track", "issues:analyze"]
+      }
+    },
+    
+    "validation-gates": {
+      "required": ["playwright-mcp"],
+      "optional": ["sentry-mcp", "github-mcp", "octocode-mcp"],
+      "permissions": {
+        "playwright-mcp": ["tests:execute", "screenshots:capture"],
+        "sentry-mcp": ["errors:track", "performance:monitor"],
+        "github-mcp": ["actions:trigger"],
+        "octocode-mcp": ["bugs:detect", "performance:optimize"]
+      }
+    },
+    
+    "refactoring-expert": {
+      "required": [],
+      "optional": ["github-mcp", "octocode-mcp", "serena-mcp"],
+      "permissions": {
+        "github-mcp": ["repos:manage"],
+        "octocode-mcp": ["refactor:suggest", "patterns:apply", "best-practices:enforce"],
+        "serena-mcp": ["code:search", "structure:analyze"]
+      }
+    },
+    
+    "code-reviewer": {
+      "required": ["github-mcp"],
+      "optional": ["sentry-mcp", "octocode-mcp", "serena-mcp"],
+      "permissions": {
+        "github-mcp": ["prs:create", "repos:manage", "issues:crud"],
+        "sentry-mcp": ["errors:track", "issues:analyze"],
+        "octocode-mcp": ["code:explain", "bugs:detect", "best-practices:enforce"],
+        "serena-mcp": ["context:understand", "patterns:identify"]
+      }
+    },
+    
+    "analyzer": {
+      "required": [],
+      "optional": ["github-mcp", "bigquery-toolbox", "serena-mcp", "octocode-mcp"],
+      "permissions": {
+        "github-mcp": ["repos:manage"],
+        "bigquery-toolbox": ["queries:execute"],
+        "serena-mcp": ["code:search", "structure:analyze", "dependencies:map"],
+        "octocode-mcp": ["code:explain", "performance:optimize"]
+      }
+    },
+    
+    "researcher": {
+      "required": ["exa-mcp"],
+      "optional": ["bright-data-mcp", "serena-mcp"],
+      "permissions": {
+        "exa-mcp": ["search:semantic", "research:deep"],
+        "bright-data-mcp": ["scraping:web"],
+        "serena-mcp": ["semantic:retrieval", "context:understand"]
       }
     },
     
@@ -379,16 +418,6 @@
       }
     },
     
-    "researcher": {
-      "required": ["exa-mcp"],
-      "optional": ["bright-data-mcp", "serena-mcp"],
-      "permissions": {
-        "exa-mcp": ["search:semantic", "research:deep"],
-        "bright-data-mcp": ["scraping:web"],
-        "serena-mcp": ["ai:assistance"]
-      }
-    },
-    
     "documentation-writer": {
       "required": [],
       "optional": ["github-mcp", "ref-tools-mcp"],
@@ -438,19 +467,11 @@
     
     "performance": {
       "required": [],
-      "optional": ["sentry-mcp", "redis-mcp"],
+      "optional": ["sentry-mcp", "redis-mcp", "octocode-mcp"],
       "permissions": {
         "sentry-mcp": ["performance:monitor"],
-        "redis-mcp": ["cache:manage"]
-      }
-    },
-    
-    "refactoring-expert": {
-      "required": [],
-      "optional": ["github-mcp", "octocode-mcp"],
-      "permissions": {
-        "github-mcp": ["repos:manage"],
-        "octocode-mcp": ["refactor:suggest"]
+        "redis-mcp": ["cache:manage"],
+        "octocode-mcp": ["performance:optimize"]
       }
     }
   },
@@ -464,6 +485,8 @@
       "dbt-mcp"
     ],
     "P1_important": [
+      "octocode-mcp",
+      "serena-mcp",
       "sentry-mcp",
       "better-auth-mcp",
       "stagehand-mcp",
@@ -473,23 +496,25 @@
     "P2_enhancement": [
       "bright-data-mcp",
       "exa-mcp",
-      "octocode-mcp",
       "redis-mcp",
       "upstash-mcp",
       "google-mcp-toolbox"
     ],
     "P3_optional": [
-      "ref-tools-mcp",
-      "serena-mcp"
+      "ref-tools-mcp"
     ]
   },
   
   "implementation_status": {
     "connected": [],
-    "in_progress": [],
-    "planned": [
+    "implemented": [
       "supabase-mcp",
       "github-mcp",
+      "octocode-mcp",
+      "serena-mcp"
+    ],
+    "in_progress": [],
+    "planned": [
       "playwright-mcp",
       "bigquery-toolbox",
       "dbt-mcp"
@@ -502,12 +527,10 @@
       "browserbase-mcp",
       "bright-data-mcp",
       "exa-mcp",
-      "octocode-mcp",
       "redis-mcp",
       "upstash-mcp",
       "google-mcp-toolbox",
-      "ref-tools-mcp",
-      "serena-mcp"
+      "ref-tools-mcp"
     ]
   }
 }
