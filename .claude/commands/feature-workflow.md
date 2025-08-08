@@ -1,366 +1,287 @@
 ---
 name: fw
-description: Feature workflow - Enhanced with PRP awareness and smart agent selection
+description: Feature workflow with automatic branch management and priority awareness
 aliases: [feature-workflow, feature, workflow]
 ---
 
-# Feature Workflow Command (PRP & Agent-Aware)
+# Feature Workflow Command - Enhanced
 
-Orchestrates issue-based development with PRP context, smart agent selection, MANDATORY test-first development, and GitHub integration.
+Complete issue-based development with automatic branching, PRP context, and smart prioritization.
 
-🔴 **TDD IS MANDATORY**: All features start with test generation
-🎯 **PRP-AWARE**: Automatically loads context from related PRPs
-🤖 **SMART AGENTS**: Selects appropriate agent based on issue type
+🌿 **AUTO-BRANCHING**: Creates/checks out appropriate branches
+🎯 **PRP-AWARE**: Loads context from related PRPs
+🚦 **PRIORITY-AWARE**: Warns if starting lower priority with P0s pending
 
-## Arguments:
-- $ACTION: start|validate|complete
-- $ISSUE_NUMBER: GitHub issue number
-- $OPTIONS: --no-tdd (skip TDD - requires confirmation)
+## Usage
 
-## Enhanced Workflow
-
-### Action: START
-
-#### Step 1: Get Issue & Load Context
-```typescript
-// Get issue from GitHub
-const issue = await github.getIssue(ISSUE_NUMBER);
-
-// Check for related PRP
-const prpName = extractPRPReference(issue.body);
-if (prpName) {
-  const prp = await loadPRP(`PRPs/active/${prpName}.md`);
-  console.log("📋 Loaded PRP context: " + prpName);
-}
-
-// Load architectural context
-const archContext = await loadArchitecturalContext(issue);
+```bash
+/fw start [issue]      # Start work (creates branch)
+/fw validate [issue]   # Run validations
+/fw complete [issue]   # Complete and create PR
+/fw status            # Show current work status
 ```
 
-#### Step 2: Smart Agent Selection
+## Enhanced START Action
 
-Based on issue type and labels, select the appropriate agent:
+### Step 1: Priority Check
 
 ```javascript
-function selectAgentForIssue(issue, prp) {
-  const labels = issue.labels.map(l => l.name);
-  const title = issue.title.toLowerCase();
+async function checkPriority(issueNumber) {
+  // Get all open issues
+  const issues = await getOpenIssues();
+  const targetIssue = issues.find(i => i.number === issueNumber);
   
-  // Refactoring tasks
-  if (labels.includes('refactoring') || title.includes('refactor')) {
-    return {
-      primary: 'refactoring-expert',
-      support: ['qa', 'performance'],
-      reason: 'Major refactoring detected'
-    };
+  // Find P0 issues
+  const p0Issues = issues.filter(i => i.labels.includes('P0'));
+  
+  if (!targetIssue.labels.includes('P0') && p0Issues.length > 0) {
+    console.warn(`
+⚠️ WARNING: There are ${p0Issues.length} P0 (Critical) issues:
+${p0Issues.map(i => `  - #${i.number}: ${i.title}`).join('\n')}
+
+You're starting: #${issueNumber} (${targetIssue.priority})
+
+Continue anyway? (y/n): `);
+    
+    const answer = await prompt();
+    if (answer !== 'y') {
+      console.log('Suggesting: /next-issue');
+      return false;
+    }
   }
   
-  // Test infrastructure
-  if (labels.includes('testing') || title.includes('test')) {
-    return {
-      primary: 'qa',
-      support: ['tdd-specialist', 'backend'],
-      reason: 'Test infrastructure setup'
-    };
-  }
-  
-  // Frontend features
-  if (labels.includes('frontend') || title.includes('ui') || title.includes('component')) {
-    return {
-      primary: 'frontend',
-      support: ['ui-systems', 'form-builder-specialist'],
-      reason: 'Frontend development'
-    };
-  }
-  
-  // Backend/API
-  if (labels.includes('backend') || title.includes('api')) {
-    return {
-      primary: 'backend',
-      support: ['database-architect', 'api-designer'],
-      reason: 'Backend implementation'
-    };
-  }
-  
-  // Performance
-  if (labels.includes('performance') || title.includes('optimize')) {
-    return {
-      primary: 'performance',
-      support: ['refactoring-expert'],
-      reason: 'Performance optimization'
-    };
-  }
-  
-  // Database
-  if (labels.includes('database') || title.includes('schema')) {
-    return {
-      primary: 'database-architect',
-      support: ['orm-specialist', 'backend'],
-      reason: 'Database work'
-    };
-  }
-  
-  // Default: senior engineer
-  return {
-    primary: 'senior-engineer',
-    support: ['frontend', 'backend'],
-    reason: 'General development'
-  };
+  return true;
 }
 ```
 
-#### Step 3: Agent-Driven Test Generation
+### Step 2: Automatic Branch Management
 
-```bash
-# Select appropriate agent
-AGENT_CONFIG=$(selectAgentForIssue "$issue" "$prp")
-PRIMARY_AGENT=${AGENT_CONFIG.primary}
-SUPPORT_AGENTS=${AGENT_CONFIG.support}
-
-echo "🤖 Selected Agent: $PRIMARY_AGENT"
-echo "   Reason: ${AGENT_CONFIG.reason}"
-echo "   Support: ${SUPPORT_AGENTS[@]}"
-
-# Different test generation based on agent/issue type
-case "$PRIMARY_AGENT" in
-  "refactoring-expert")
-    echo "♻️ Generating refactoring test suite with $PRIMARY_AGENT"
-    cat <<EOF
-Using the refactoring-expert agent to:
-1. Analyze current component structure (${archContext.lines} lines)
-2. Generate regression tests for existing behavior
-3. Create tests for new component structure
-4. Add performance benchmarks
-5. Ensure no functionality is lost
-
-Current: ${archContext.current}
-Target: ${archContext.target}
-EOF
-    ;;
+```javascript
+async function setupBranch(issue) {
+  const issueNumber = issue.number;
+  const issueTitle = issue.title;
+  
+  // Determine branch type from issue
+  let branchType = 'feature';
+  if (issue.labels.includes('bug')) branchType = 'fix';
+  if (issue.labels.includes('refactor')) branchType = 'refactor';
+  if (issue.labels.includes('test')) branchType = 'test';
+  if (issue.labels.includes('docs')) branchType = 'docs';
+  
+  // Create branch name
+  const slug = issueTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .substring(0, 50);
+  const branchName = `${branchType}/${issueNumber}-${slug}`;
+  
+  // Check if branch exists
+  const branches = execSync('git branch -a').toString();
+  const branchExists = branches.includes(branchName);
+  
+  if (branchExists) {
+    console.log(`🌿 Branch exists: ${branchName}`);
+    console.log(`📍 Checking out...`);
+    execSync(`git checkout ${branchName}`);
     
-  "qa")
-    echo "🧪 Generating test infrastructure with qa agent"
-    cat <<EOF
-Using the qa agent to:
-1. Set up testing framework (Vitest/Jest)
-2. Configure coverage reporting
-3. Create test utilities and helpers
-4. Generate initial test suites
-5. Set up CI/CD test pipeline
-EOF
-    ;;
+    // Check if behind main
+    const behind = execSync('git rev-list --count HEAD..main').toString().trim();
+    if (parseInt(behind) > 0) {
+      console.log(`⚠️ Branch is ${behind} commits behind main`);
+      console.log(`🔄 Updating branch...`);
+      execSync('git merge main');
+    }
+  } else {
+    console.log(`🌿 Creating new branch: ${branchName}`);
     
-  "frontend")
-    echo "🎨 Generating component tests with frontend agent"
-    cat <<EOF
-Using the frontend agent to:
-1. Create component unit tests
-2. Add accessibility tests
-3. Generate visual regression tests
-4. Test user interactions
-5. Validate design system compliance
-EOF
-    ;;
+    // Ensure we're on main and up to date
+    console.log(`📍 Updating main branch...`);
+    execSync('git checkout main');
+    execSync('git pull origin main');
     
-  "backend")
-    echo "⚙️ Generating API tests with backend agent"
-    cat <<EOF
-Using the backend agent to:
-1. Create API endpoint tests
-2. Add integration tests
-3. Generate load tests
-4. Test error handling
-5. Validate data contracts
-EOF
-    ;;
+    // Create and checkout new branch
+    execSync(`git checkout -b ${branchName}`);
+    console.log(`✅ Branch created and checked out`);
     
-  *)
-    echo "📝 Generating standard test suite with $PRIMARY_AGENT"
-    ;;
-esac
-
-# Note: In Claude Code, the agent will actually generate the tests
-echo "💡 To generate tests, the $PRIMARY_AGENT agent will create:"
-echo "   - Test files in __tests__/ or *.test.ts"
-echo "   - Coverage configuration"
-echo "   - Test utilities"
-```
-
-#### Step 4: Create Contextual Branch
-
-```bash
-# Determine branch type from primary agent and issue
-BRANCH_TYPE=$(determineBranchType "$PRIMARY_AGENT" "$issue")
-BRANCH_NAME="${BRANCH_TYPE}/${ISSUE_NUMBER}-${SLUG}"
-
-# Create worktree with context
-git worktree add -b $BRANCH_NAME "../worktrees/$BRANCH_NAME" origin/main
-cd "../worktrees/$BRANCH_NAME"
-
-# Copy relevant context
-cp "PRPs/active/${prpName}.md" ".current-prp.md"
-echo "$AGENT_CONFIG" > ".agent-selection.json"
-
-echo "📋 Context available:"
-echo "   - PRP: .current-prp.md"
-echo "   - Agent: .agent-selection.json"
-echo "   - Primary: $PRIMARY_AGENT"
-```
-
-#### Step 5: Implementation Guidance
-
-```markdown
-# Implementation Plan: ${issue.title}
-
-## 🤖 Agent Assignment
-- **Primary**: ${PRIMARY_AGENT}
-- **Support**: ${SUPPORT_AGENTS}
-- **Reason**: ${AGENT_CONFIG.reason}
-
-## 📋 PRP Context
-${prp ? `Following: ${prpName}` : 'No PRP linked'}
-
-## 🏗️ Current State
-${archContext.hasDebt ? `
-- Component: ${archContext.component} (${archContext.lines} lines)
-- Coverage: ${archContext.coverage}%
-- Performance: ${archContext.performance}ms
-` : 'Clean slate'}
-
-## 🎯 Target State
-${prp.targetState || 'As defined in issue'}
-
-## 📝 Implementation Steps
-Based on ${PRIMARY_AGENT} expertise:
-${generateAgentSpecificSteps(PRIMARY_AGENT, issue, prp)}
-
-## 🧪 Test-Driven Approach
-1. Run tests (RED - ${testCount} failing)
-2. Implement minimal solution
-3. Refactor with confidence (GREEN)
-4. Optimize if needed
-
-## ✅ Success Criteria
-${extractSuccessCriteria(prp, issue)}
-```
-
-### Action: VALIDATE
-
-```bash
-# Run agent-specific validations
-case "$PRIMARY_AGENT" in
-  "refactoring-expert")
-    echo "♻️ Running refactoring validations..."
-    # Check component sizes
-    # Verify no regression
-    # Check performance
-    ;;
-    
-  "frontend")
-    echo "🎨 Running frontend validations..."
-    # Design system compliance
-    # Accessibility checks
-    # Component tests
-    ;;
-    
-  "backend")
-    echo "⚙️ Running backend validations..."
-    # API tests
-    # Integration tests
-    # Performance benchmarks
-    ;;
-esac
-
-# Standard validations
-npm test
-npm run validate:design
-npm run test:coverage
-```
-
-### Action: COMPLETE
-
-```bash
-# Generate PR with agent context
-generate_pr_body() {
-  cat <<EOF
-Closes #${ISSUE_NUMBER}
-
-## 🤖 Development Team
-- **Lead**: ${PRIMARY_AGENT}
-- **Support**: ${SUPPORT_AGENTS}
-- **Reason**: ${AGENT_CONFIG.reason}
-
-## 📋 PRP Implementation
-${prpName ? "Implements: \`PRPs/active/${prpName}.md\`" : "No PRP"}
-
-## ✅ Acceptance Criteria
-${checkCriteria()}
-
-## 🧪 Testing
-- Coverage: ${COVERAGE}
-- Tests: ${testsPassing}/${totalTests} passing
-
-## 📊 Metrics
-${generateMetrics()}
-
-## 📚 Documentation
-- [ ] Updated by ${PRIMARY_AGENT}
-- [ ] Reviewed by support agents
-EOF
+    // Push branch to remote
+    console.log(`🚀 Pushing branch to remote...`);
+    execSync(`git push -u origin ${branchName}`);
+  }
+  
+  return branchName;
 }
 ```
 
-## Agent Selection Matrix
+### Step 3: Complete Workflow
 
-| Issue Type | Primary Agent | Support Agents | Focus |
-|------------|--------------|----------------|-------|
-| Refactoring | refactoring-expert | qa, performance | Break down monoliths |
-| Testing | qa | tdd-specialist, backend | Test infrastructure |
-| Frontend | frontend | ui-systems, form-builder | Components & UX |
-| Backend | backend | database-architect, api | APIs & logic |
-| Database | database-architect | orm-specialist | Schema & queries |
-| Performance | performance | refactoring-expert | Optimization |
-| Security | security | backend, database | Hardening |
-| Infrastructure | platform-deployment | backend, qa | CI/CD & deployment |
+```javascript
+async function startFeatureWorkflow(issueNumber) {
+  console.log(`
+════════════════════════════════════════════════════
+🚀 Starting Feature Workflow for Issue #${issueNumber}
+════════════════════════════════════════════════════
+`);
+  
+  // Step 1: Priority check
+  const shouldContinue = await checkPriority(issueNumber);
+  if (!shouldContinue) return;
+  
+  // Step 2: Get issue details
+  const issue = await getIssue(issueNumber);
+  console.log(`📋 Issue: ${issue.title}`);
+  console.log(`🏷️ Labels: ${issue.labels.join(', ')}`);
+  
+  // Step 3: Setup branch
+  const branchName = await setupBranch(issue);
+  
+  // Step 4: Load PRP context
+  const prpName = extractPRPFromIssue(issue);
+  if (prpName) {
+    console.log(`📚 Loading PRP: ${prpName}`);
+    const prp = loadPRP(`PRPs/active/${prpName}.md`);
+    
+    // Copy PRP to current branch for reference
+    fs.copyFileSync(
+      `PRPs/active/${prpName}.md`,
+      `.current-context.md`
+    );
+    console.log(`📋 PRP context saved to .current-context.md`);
+  }
+  
+  // Step 5: Select appropriate agent
+  const agent = selectAgentForIssue(issue);
+  console.log(`🤖 Selected Agent: ${agent.primary}`);
+  console.log(`   Support: ${agent.support.join(', ')}`);
+  
+  // Step 6: Generate implementation plan
+  console.log(`
+📝 Implementation Plan
+════════════════════════════════════════════════════
 
-## Usage Examples
+Branch: ${branchName}
+Issue: #${issueNumber}
+PRP: ${prpName || 'None'}
+Agent: ${agent.primary}
 
-### Refactoring Task
+Next Steps:
+1. Review the issue requirements
+2. Check .current-context.md for PRP details
+3. Run tests to see current state
+4. Implement feature/fix
+5. Run /fw validate ${issueNumber}
+6. Run /fw complete ${issueNumber}
+
+Commands:
+- View issue: gh issue view ${issueNumber}
+- Run tests: npm test
+- Validate: /fw validate ${issueNumber}
+- Complete: /fw complete ${issueNumber}
+════════════════════════════════════════════════════
+`);
+}
+```
+
+### Step 4: Status Command
+
+```javascript
+async function showStatus() {
+  // Get current branch
+  const currentBranch = execSync('git branch --show-current').toString().trim();
+  
+  // Parse issue number from branch
+  const issueMatch = currentBranch.match(/(\d+)/);
+  const issueNumber = issueMatch ? issueMatch[1] : null;
+  
+  // Get uncommitted changes
+  const changes = execSync('git status --porcelain').toString();
+  const hasChanges = changes.length > 0;
+  
+  console.log(`
+📊 Current Work Status
+════════════════════════════════════════════════════
+
+🌿 Branch: ${currentBranch}
+📋 Issue: ${issueNumber ? `#${issueNumber}` : 'None detected'}
+💾 Changes: ${hasChanges ? 'Yes (uncommitted)' : 'None'}
+
+${issueNumber ? `
+Actions Available:
+- /fw validate ${issueNumber} - Run validation
+- /fw complete ${issueNumber} - Create PR
+- gh issue view ${issueNumber} - View issue
+` : `
+No issue detected from branch name.
+Use: /fw start [issue-number]
+`}
+════════════════════════════════════════════════════
+`);
+}
+```
+
+## Complete Example Flow
+
 ```bash
+# 1. Check what to work on
+/next-issue
+
+Recommends: Issue #23 (P0)
+
+# 2. Start work (automatic branching)
 /fw start 23
-# Output:
+
+🚀 Starting Feature Workflow for Issue #23
+📋 Issue: Refactor DebtForm Component
+🏷️ Labels: P0, refactor, tech-debt
+
+🌿 Creating new branch: refactor/23-debt-form
+✅ Branch created and checked out
+🚀 Branch pushed to remote
+
+📚 Loading PRP: debt-form-refactor
+📋 PRP context saved to .current-context.md
+
 🤖 Selected Agent: refactoring-expert
-   Reason: Major refactoring detected (3,053 lines)
-   Support: [qa, performance]
-♻️ Generating refactoring test suite...
+   Support: qa, performance
+
+# 3. Do the work...
+
+# 4. Validate
+/fw validate 23
+
+✅ Tests passing
+✅ Coverage: 82%
+✅ No linting errors
+✅ Design system compliant
+
+# 5. Complete
+/fw complete 23
+
+Creating PR from refactor/23-debt-form to main
+✅ PR #145 created
+🔗 https://github.com/user/repo/pull/145
 ```
 
-### Test Infrastructure
-```bash
-/fw start 24
-# Output:
-🤖 Selected Agent: qa
-   Reason: Test infrastructure setup
-   Support: [tdd-specialist, backend]
-🧪 Generating test framework setup...
-```
+## Key Features
 
-### Frontend Feature
-```bash
-/fw start 25
-# Output:
-🤖 Selected Agent: frontend
-   Reason: Frontend development
-   Support: [ui-systems, form-builder-specialist]
-🎨 Generating component tests...
-```
+### Automatic Branching
+- Creates appropriate branch type (feature/fix/refactor)
+- Checks for existing branches
+- Keeps branches up to date with main
+- Pushes to remote automatically
 
-## Key Improvements
+### Priority Awareness
+- Warns if starting non-critical work with P0s pending
+- Suggests higher priority issues
+- Allows override with confirmation
 
-1. **Smart Agent Selection** - Uses the right expert for each task
-2. **PRP Context Loading** - Guides implementation
-3. **Agent-Specific Tests** - Different test strategies per agent
-4. **Contextual Validation** - Agent-appropriate checks
-5. **Team Simulation** - Primary + support agents
+### Context Loading
+- Loads PRP into `.current-context.md`
+- Preserves issue context
+- Links to documentation
 
-This ensures the right expertise is applied to each issue!
+### Smart Workflow
+- Detects current branch and issue
+- Shows available actions
+- Guides through complete flow
+
+This ensures proper branch management and priority focus!
