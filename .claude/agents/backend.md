@@ -2,6 +2,30 @@
 name: backend
 description: Expert API developer for Next.js API routes, database operations, and backend services. Use PROACTIVELY for API endpoints, database queries, authentication, server-side logic, and integrations. When prompting this agent, provide the API requirements, database schema context, and security requirements.
 tools: Read, Write, Edit, Bash
+mcp_requirements:
+  required:
+    - supabase-mcp    # Database and API operations
+  optional:
+    - redis-mcp       # Caching layer
+    - upstash-mcp     # Serverless cache
+    - better-auth-mcp # Authentication backend
+    - bigquery-toolbox # Analytics queries
+mcp_permissions:
+  supabase-mcp:
+    - database:crud
+    - auth:management
+    - realtime:subscriptions
+    - storage:files
+  redis-mcp:
+    - cache:manage
+    - pubsub:channels
+  better-auth-mcp:
+    - auth:flows
+    - oauth:integrate
+    - mfa:setup
+  bigquery-toolbox:
+    - queries:execute
+    - analytics:run
 ---
 
 # Purpose

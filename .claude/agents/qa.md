@@ -2,6 +2,31 @@
 name: qa
 description: Quality assurance specialist for comprehensive testing strategies. Use PROACTIVELY for writing tests, creating test plans, identifying edge cases, and ensuring code quality. MUST BE USED when implementing new features to ensure proper test coverage. When prompting this agent, describe the feature/component to test and any specific test requirements.
 tools: Read, Write, Edit, Bash
+mcp_requirements:
+  required:
+    - playwright-mcp  # Test automation framework
+    - stagehand-mcp   # Browser testing and automation
+  optional:
+    - browserbase-mcp # Cloud browser testing
+    - sentry-mcp      # Error tracking and analysis
+mcp_permissions:
+  playwright-mcp:
+    - tests:execute
+    - browser:control
+    - screenshots:capture
+    - network:intercept
+  stagehand-mcp:
+    - browser:automate
+    - forms:fill
+    - elements:interact
+    - navigation:control
+  browserbase-mcp:
+    - cloud:browsers
+    - sessions:manage
+    - parallel:execution
+  sentry-mcp:
+    - errors:track
+    - issues:analyze
 ---
 
 # Purpose

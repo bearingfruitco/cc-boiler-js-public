@@ -2,6 +2,27 @@
 name: database-architect
 description: Database design expert for PostgreSQL schemas, migrations, and performance optimization. Use PROACTIVELY for database schema design, creating migrations, optimizing queries, designing indexes, and implementing RLS policies. When prompting this agent, provide the data requirements, relationships needed, and performance considerations.
 tools: Read, Write, Edit, Bash
+mcp_requirements:
+  required:
+    - supabase-mcp     # Direct database operations
+    - dbt-mcp          # Data transformations
+    - bigquery-toolbox # Analytics schema design
+  optional:
+    - airbyte-mcp      # Data pipeline setup
+mcp_permissions:
+  supabase-mcp:
+    - database:crud
+    - rls:policies
+    - migrations:execute
+    - schema:introspect
+  dbt-mcp:
+    - models:create
+    - transformations:run
+    - documentation:generate
+  bigquery-toolbox:
+    - datasets:manage
+    - tables:crud
+    - analytics:run
 ---
 
 # Purpose

@@ -2,6 +2,26 @@
 name: frontend
 description: Expert React and Next.js developer for UI components and frontend features. Use PROACTIVELY for all React components, Next.js pages, client-side logic, UI/UX implementation, and frontend performance optimization. When prompting this agent, provide the full component requirements, design specifications, and any API endpoints it needs to integrate with.
 tools: Read, Write, Edit, Bash
+mcp_requirements:
+  required:
+    - stagehand-mcp   # Browser automation for UI testing
+  optional:
+    - browserbase-mcp # Cloud browser testing
+    - playwright-mcp  # E2E testing capabilities
+    - better-auth-mcp # Authentication UI components
+mcp_permissions:
+  stagehand-mcp:
+    - browser:automate
+    - elements:interact
+    - forms:fill
+    - navigation:control
+  playwright-mcp:
+    - tests:execute
+    - screenshots:capture
+    - browser:control
+  better-auth-mcp:
+    - auth:flows
+    - sessions:manage
 ---
 
 # Purpose
