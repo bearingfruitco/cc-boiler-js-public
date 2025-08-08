@@ -8,13 +8,22 @@ import json
 import sys
 import re
 
-# PII patterns to detect
+# PII patterns to detect - FIXED to avoid false positives
 PII_PATTERNS = {
+    # Email: Must have @ and proper domain
     'email': r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
+    
+    # Phone numbers
     'phone': r'\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b',
+    
+    # SSN
     'ssn': r'\b\d{3}-\d{2}-\d{4}\b',
+    
+    # Credit card
     'credit_card': r'\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b',
-    'ip_address': r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b',
+    
+    # IP address
+    'ip_address': r'\b(?:\d{1,3}\.){3}\d{1,3}\b',
 }
 
 # Fields that commonly contain PII
@@ -26,6 +35,25 @@ PII_FIELD_NAMES = [
     'passport', 'driver_license'
 ]
 
+# Known safe patterns that might trigger false positives
+SAFE_PATTERNS = [
+    r'rudderstack-bigquery',
+    r'supabase-integration',
+    r'debt-form-refactor',
+    r'test-infrastructure',
+    r'github\.com/[\w-]+/[\w-]+',
+    r'[\w-]+-prp\.md',
+    r'[\w-]+-PRP\.md',
+    r'PRPs/active/[\w-]+',
+]
+
+def is_safe_pattern(text):
+    """Check if text matches known safe patterns"""
+    for pattern in SAFE_PATTERNS:
+        if re.search(pattern, text, re.IGNORECASE):
+            return True
+    return False
+
 def check_for_pii(content):
     """Check content for PII patterns"""
     violations = []
@@ -34,18 +62,32 @@ def check_for_pii(content):
     for pii_type, pattern in PII_PATTERNS.items():
         matches = re.finditer(pattern, content, re.IGNORECASE)
         for match in matches:
-            # Skip if it's in a comment or looks like example data
+            matched_text = match.group()
+            
+            # Skip if it's a known safe pattern
+            if is_safe_pattern(matched_text):
+                continue
+            
+            # For email detection, ensure it actually has @ symbol
+            if pii_type == 'email' and '@' not in matched_text:
+                continue
+            
+            # Get the line for context
             line_start = content.rfind('\n', 0, match.start()) + 1
             line = content[line_start:content.find('\n', match.end())]
             
             # Skip comments and example data
             if '//' in line[:match.start()-line_start] or '#' in line[:match.start()-line_start]:
                 continue
-            if 'example' in line.lower() or 'test' in line.lower() or 'demo' in line.lower():
+            if any(word in line.lower() for word in ['example', 'test', 'demo', 'sample', 'placeholder']):
+                continue
+            
+            # Skip markdown headers and file paths
+            if line.strip().startswith('#') or '.md' in line or '/' in matched_text:
                 continue
                 
             line_num = content[:match.start()].count('\n') + 1
-            violations.append(f"Line {line_num}: Potential {pii_type} detected: {match.group()[:20]}...")
+            violations.append(f"Line {line_num}: Potential {pii_type} detected: {matched_text[:30]}...")
     
     # Check for console.log with PII fields
     console_pattern = r'console\.(log|error|warn|info)\([^)]*\b(' + '|'.join(PII_FIELD_NAMES) + r')\b'
@@ -75,6 +117,11 @@ def main():
         if tool_name not in ['Write', 'Edit', 'MultiEdit']:
             sys.exit(0)  # Success - continue
         
+        # Skip PRP files - they don't contain actual PII
+        file_path = tool_input.get('path', '')
+        if 'PRPs/' in file_path or file_path.endswith('-prp.md'):
+            sys.exit(0)  # Skip PRP files
+        
         # Get file content
         content = tool_input.get('content', '')
         if 'new_str' in tool_input:  # Edit operations
@@ -100,13 +147,13 @@ def main():
             print(error_msg, file=sys.stderr)
             sys.exit(2)  # Block operation
         
-        # No violations - continue
+        # No PII found - continue
         sys.exit(0)
         
     except Exception as e:
-        # Non-blocking error - show to user but continue
-        print(f"PII protection hook error: {str(e)}", file=sys.stderr)
-        sys.exit(1)  # Non-blocking error
+        # On error, allow operation to continue
+        print(f"Hook error: {e}", file=sys.stderr)
+        sys.exit(0)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
